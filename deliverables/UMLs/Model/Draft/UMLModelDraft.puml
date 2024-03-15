@@ -1,0 +1,181 @@
+@startuml
+
+class Field {
+    - fieldCards : ArrayList<CardPosition>
+    - activeRes : int[7]
+    + boolean placeCardInField(Card, int, int, boolean)
+    + Card getCardFromPosition(int, int)
+    + boolean avaliableSpace(int, int)
+}
+
+class CardPlaced {
+    - placedCard : Card
+    - x : int
+    - y : int
+    - isUp : boolean
+    + Card getCard()
+    + int getX()
+    + int getY()
+    + boolean getIsUp()
+}
+
+class Player {
+    - nickname : string
+    - gameField : Field
+    - secretObjective : Card
+    - colour : Colour
+    - points : int
+    - hand : ArrayList<Card>
+    + string getNickname()
+    + boolean initializeGameField()
+    + Field getField()
+    + int receiveSecretObjective(Card[], int)
+    + Card getSecretObjective()
+    + Colour getColour()
+    + int getPoints()
+    + boolean setPoints(int)
+    + boolean putCardInHand(Card)
+    + ArrayList<Card> getHand()
+    + boolean performMove(Card, int, int, boolean)
+    + boolean updatePointsForObjectives(Card[])
+    + int calculatePoints(Card, int, int)
+}
+
+class Match {
+    - starterCardsDeck : ArrayList<Card>
+    - objectiveCardsDeck : ArrayList<Card>
+    - secretObjectiveCardsDeck : ArrayList<Card>
+    - resourceCardsDeck : ArrayList<Card>
+    - goldCardsDeck : ArrayList<Card>
+    - currentResourceCards : Card[2]
+    - currentGoldCards : Card[2]
+    - commonObjectives : Card[2]
+    - players : ArrayList<Player>
+    - currentPlayerID : string
+    - isGameTerminating : boolean
+    - isLastTurn : boolean
+    - currentTurnNumber : int
+    + boolean shuffleStarterCardsDeck()
+    + boolean shuffleObjectiveCardsDeck()
+    + boolean shuffleSecretObjectiveCardsDeck()
+    + boolean shuffleResourceCardsDeck()
+    + boolean shuffleGoldCardsDeck()
+    + Card drawFromStarterCardsDeck()
+    + Card[2] drawFromSecretObjectiveCardsDeck()
+    + Card drawFromResourceCardsDeck()
+    + Card drawFromGoldCardsDeck()
+    + Card drawFromCurrentResourceCards(int)
+    + Card drawFromCurrentGoldCards(int)
+    + Card[2] getCommonObjective()
+    + boolean addPlayer(string)
+    + boolean deletePlayer(string)
+    + Colour pickRandomColour()
+    + Player getPlayer(string)
+    + boolean updateCurrentPlayer()
+    + boolean checkIfGameIsTerminating()
+    + boolean setGameIsTerminating()
+    + boolean checkIfTurnIsLast()
+    + boolean setTurnIsLast()
+    + int getCurrentTurnNumber()
+    + boolean increaseCurrentTurnNumber()
+}
+
+class DecksFromDisk {
+    + ArrayList<Card> createResourcesDeck()
+    + ArrayList<Card> createGoldDeck()
+    + ArrayList<Card> createObjectiveCardsDeck()
+    + ArrayList<Card> createStartCardsDeck()
+}
+
+enum Colour {
+    Red
+    Green
+    Black
+    Blue
+    Yellow
+}
+
+class Card {
+    - id : int
+    - value : int
+    - validBack : boolean
+    - pointStrategy : PointStrategy
+}
+
+class NonObjectiveCard {
+    - topLeft : CornerType
+    - topRight : CornerType
+    - bottomLeft : CornerType
+    - bottomRight : CornerType
+    - topLeftBack : CornerType
+    - topRightBack : CornerType
+    - bottomLeftBack : CornerType
+    - bottomRightBack : CornerType
+    - permRes : int[4]
+    - permResCount : int
+    - conditionCount : int[4]
+}
+
+enum CornerType {
+    Plant
+    Fungi
+    Animal
+    Insect
+    Quill
+    Inkwell
+    Manuscript
+    Empty
+    NonCoverable
+}
+
+abstract class PointStrategy {
+    + int calculateOccurences(Field, int, int)
+}
+
+class AnglesCovered {
+    + int calculateOccurences(Field, int, int)
+}
+
+class CountResource {
+    - type : ObjectType
+    - count : int
+    + int calculateOccurences(Field, int, int)
+}
+
+class Diagonals {
+    - type : ObjectType
+    - leftToRight : int
+    + int calculateOccurences(Field, int, int)
+}
+
+class AllSpecial {
+    + int calculateOccurences(Field, int, int)
+}
+
+class LConfigurationOne {
+    + int calculateOccurences(Field, int, int)
+}
+
+class LConfigurationTwo {
+    + int calculateOccurences(Field, int, int)
+}
+
+class LConfigurationThree {
+    + int calculateOccurences(Field, int, int)
+}
+
+class LConfigurationFour {
+    + int calculateOccurences(Field, int, int)
+}
+
+enum ObjectType {
+    Plant
+    Fungi
+    Animal
+    Insect
+    Quill
+    Inkwell
+    Manuscript
+}
+
+@enduml
