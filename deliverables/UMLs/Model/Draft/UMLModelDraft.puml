@@ -81,7 +81,7 @@ class Player {
 
 Match *-- Player
 
-class Match {
+class Match implements ModelInterface{
     - starterCardsDeck : Deck
     - objectiveCardsDeck : Deck
     - secretObjectiveCardsDeck : Deck
