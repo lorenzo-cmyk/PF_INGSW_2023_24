@@ -1,5 +1,39 @@
 @startuml
 
+interface ModelInterface {
+    + boolean shuffleDeck(int)
+    + int drawFromDeck(int)
+    + boolean selectInitialCardSide(string, boolean)
+    + boolean assignColoursToPlayers()
+    + ArrayList<int> getStartingHand(string)
+    + ArrayList<int> getCommonObjective()
+    + ArrayList<int> getSecretObjective()    
+    + boolean selectSecretObjective(string, int)
+    
+    + boolean startPlay()
+    + boolean placeCard(int, int, int, boolean)
+    + MatchStatus nextPlayer()
+    + boolean computeFinalPoints()
+    + string getWinner()
+    + boolean endMatch()
+
+    + boolean addPlayer(string)
+    + boolean deletePlayer(string)
+    + boolean startPreparationPhase()
+    + boolean cancelMatch()
+
+}
+note left of ModelInterface: "startPlay() select random first player"
+
+enum MatchStatus {
+    FAIL
+    SUCCESS
+    LAST_TURN
+    END
+}
+
+Match <|-- MatchStatus
+
 class Field {
     - fieldCards : ArrayList<CardPosition>
     - activeRes : int[7]
@@ -48,11 +82,11 @@ class Player {
 Match *-- Player
 
 class Match {
-    - starterCardsDeck : ArrayList<Card>
-    - objectiveCardsDeck : ArrayList<Card>
-    - secretObjectiveCardsDeck : ArrayList<Card>
-    - resourceCardsDeck : ArrayList<Card>
-    - goldCardsDeck : ArrayList<Card>
+    - starterCardsDeck : Deck
+    - objectiveCardsDeck : Deck
+    - secretObjectiveCardsDeck : Deck
+    - resourceCardsDeck : Deck
+    - goldCardsDeck : Deck
     - currentResourceCards : Card[2]
     - currentGoldCards : Card[2]
     - commonObjectives : Card[2]
@@ -61,15 +95,8 @@ class Match {
     - isGameTerminating : boolean
     - isLastTurn : boolean
     - currentTurnNumber : int
-    + boolean shuffleStarterCardsDeck()
-    + boolean shuffleObjectiveCardsDeck()
-    + boolean shuffleSecretObjectiveCardsDeck()
-    + boolean shuffleResourceCardsDeck()
-    + boolean shuffleGoldCardsDeck()
-    + Card drawFromStarterCardsDeck()
-    + Card[2] drawFromSecretObjectiveCardsDeck()
-    + Card drawFromResourceCardsDeck()
-    + Card drawFromGoldCardsDeck()
+    + boolean shuffleDeck(int)
+    + Card drawFromDeck(int)
     + Card drawFromCurrentResourceCards(int)
     + Card drawFromCurrentGoldCards(int)
     + Card[2] getCommonObjective()
@@ -85,6 +112,14 @@ class Match {
     + int getCurrentTurnNumber()
     + boolean increaseCurrentTurnNumber()
 }
+
+class Deck {
+    - cards : ArrayList<Card>
+    + Card draw()
+    + boolean shuffle()
+}
+
+Match <|-- Deck
 
 class DecksFromDisk {
     + ArrayList<Card> createResourcesDeck()
