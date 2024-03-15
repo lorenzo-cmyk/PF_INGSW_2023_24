@@ -8,6 +8,8 @@ class Field {
     + boolean avaliableSpace(int, int)
 }
 
+Player <|-- Field
+
 class CardPlaced {
     - placedCard : Card
     - x : int
@@ -18,6 +20,8 @@ class CardPlaced {
     + int getY()
     + boolean getIsUp()
 }
+
+Field *-- CardPlaced
 
 class Player {
     - nickname : string
@@ -40,6 +44,8 @@ class Player {
     + boolean updatePointsForObjectives(Card[])
     + int calculatePoints(Card, int, int)
 }
+
+Match *-- Player
 
 class Match {
     - starterCardsDeck : ArrayList<Card>
@@ -87,6 +93,8 @@ class DecksFromDisk {
     + ArrayList<Card> createStartCardsDeck()
 }
 
+Match <|-- DecksFromDisk
+
 enum Colour {
     Red
     Green
@@ -95,6 +103,9 @@ enum Colour {
     Yellow
 }
 
+Player <|-- Colour
+Match <|-- Colour
+
 class Card {
     - id : int
     - value : int
@@ -102,7 +113,11 @@ class Card {
     - pointStrategy : PointStrategy
 }
 
-class NonObjectiveCard {
+Player <|-- Card
+Match <|-- Card
+Field <|-- Card
+
+class NonObjectiveCard extends Card {
     - topLeft : CornerType
     - topRight : CornerType
     - bottomLeft : CornerType
@@ -128,43 +143,48 @@ enum CornerType {
     NonCoverable
 }
 
+NonObjectiveCard <|-- CornerType
+
 abstract class PointStrategy {
     + int calculateOccurences(Field, int, int)
 }
 
-class AnglesCovered {
+Card <|-- PointStrategy
+Player <|-- PointStrategy
+
+class AnglesCovered extends PointStrategy {
     + int calculateOccurences(Field, int, int)
 }
 
-class CountResource {
+class CountResource extends PointStrategy {
     - type : ObjectType
     - count : int
     + int calculateOccurences(Field, int, int)
 }
 
-class Diagonals {
+class Diagonals extends PointStrategy {
     - type : ObjectType
     - leftToRight : int
     + int calculateOccurences(Field, int, int)
 }
 
-class AllSpecial {
+class AllSpecial extends PointStrategy {
     + int calculateOccurences(Field, int, int)
 }
 
-class LConfigurationOne {
+class LConfigurationOne extends PointStrategy {
     + int calculateOccurences(Field, int, int)
 }
 
-class LConfigurationTwo {
+class LConfigurationTwo extends PointStrategy {
     + int calculateOccurences(Field, int, int)
 }
 
-class LConfigurationThree {
+class LConfigurationThree extends PointStrategy {
     + int calculateOccurences(Field, int, int)
 }
 
-class LConfigurationFour {
+class LConfigurationFour extends PointStrategy {
     + int calculateOccurences(Field, int, int)
 }
 
@@ -177,5 +197,8 @@ enum ObjectType {
     Inkwell
     Manuscript
 }
+
+CountResource <|-- ObjectType
+Diagonals <|-- ObjectType
 
 @enduml
