@@ -5,9 +5,9 @@ interface ModelInterface {
     + int drawFromDeck(int)
     + boolean selectInitialCardSide(string, boolean)
     + boolean assignColoursToPlayers()
-    + ArrayList<int> getStartingHand(string)
-    + ArrayList<int> getCommonObjective()
-    + ArrayList<int> getSecretObjective()    
+    + ArrayList<Integer> getStartingHand(string)
+    + ArrayList<Integer> getCommonObjective()
+    + ArrayList<Integer> getSecretObjective()
     + boolean selectSecretObjective(string, int)
     
     + boolean startPlay()
@@ -35,7 +35,7 @@ enum MatchStatus {
 Match <|-- MatchStatus
 
 class Field {
-    - fieldCards : ArrayList<CardPosition>
+    - fieldCards : ArrayList<CardPlaced>
     - activeRes : int[7]
     + boolean placeCardInField(Card, int, int, boolean)
     + Card getCardFromPosition(int, int)
@@ -65,7 +65,6 @@ class Player {
     - points : int
     - hand : ArrayList<Card>
     + string getNickname()
-    + boolean initializeGameField()
     + Field getField()
     + int receiveSecretObjective(Card[], int)
     + Card getSecretObjective()
