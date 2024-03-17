@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am32.model;
+package it.polimi.ingsw.am32.model.card.pointstrategy;
 
 public class Diagonals extends PointStrategy{
     private ObjectType type;
