@@ -6,7 +6,7 @@ public class Field {
     private ArrayList<CardPlaced> fieldCards;
     private int[] activeRes;
 
-    Field() {
+    public Field() {
         this.activeRes = new int[7];
         this.fieldCards = new ArrayList<CardPlaced>();
     }

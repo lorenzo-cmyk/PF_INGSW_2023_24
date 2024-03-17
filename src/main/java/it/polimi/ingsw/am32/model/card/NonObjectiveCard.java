@@ -15,7 +15,7 @@ public class NonObjectiveCard extends Card{
     private int permResCount;
     private int[] conditionCount;
 
-    NonObjectiveCard(int id, int value, boolean validBack, PointStrategy pointStrategy, CornerType topLeft,
+    public NonObjectiveCard(int id, int value, boolean validBack, PointStrategy pointStrategy, CornerType topLeft,
                      CornerType topRight, CornerType bottomLeft, CornerType bottomRight, CornerType topLeftBack,
                      CornerType topRightBack, CornerType bottomLeftBack, CornerType bottomRightBack,
                      int[] permRes, int permResCount, int[] conditionCount) {

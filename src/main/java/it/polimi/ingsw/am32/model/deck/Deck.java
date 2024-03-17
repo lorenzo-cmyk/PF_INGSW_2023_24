@@ -44,4 +44,13 @@ public class Deck {
             return true;
         }
     }
+
+    /**
+     * Adds a card to the top of the deck.
+     *
+     * @param card Card to add
+     */
+     public void addCard(Card card) {
+        cards.add(card);
+    }
 }

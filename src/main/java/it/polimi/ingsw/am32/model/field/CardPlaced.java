@@ -6,7 +6,7 @@ public class CardPlaced {
     private int y;
     private boolean isUp;
 
-    CardPlaced(Card placedCard, int x, int y, boolean isUp) {
+    public CardPlaced(Card placedCard, int x, int y, boolean isUp) {
         this.placedCard = placedCard;
         this.x = x;
         this.y = y;

@@ -16,7 +16,7 @@ public class Match implements ModelInterface{
     private String currentPlayerID;
     private int currentTurnNumber;
 
-    Match() {
+    public Match() {
         // TODO
     }
 

@@ -8,7 +8,7 @@ public class Card {
     private boolean validBack;
     private PointStrategy pointStrategy;
 
-    Card(int id, int value, boolean validBack, PointStrategy pointStrategy) {
+    public Card(int id, int value, boolean validBack, PointStrategy pointStrategy) {
         this.id = id;
         this.value = value;
         this.validBack = validBack;

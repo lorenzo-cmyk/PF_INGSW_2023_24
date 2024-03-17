@@ -10,7 +10,7 @@ public class Player {
     private int points;
     private ArrayList<Card> hand;
 
-    Player(String nickname) {
+    public Player(String nickname) {
         this.nickname = nickname;
         this.Field = new Field();
         this.points = 0;
