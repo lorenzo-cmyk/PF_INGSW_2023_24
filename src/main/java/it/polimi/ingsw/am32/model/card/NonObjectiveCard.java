@@ -1,4 +1,6 @@
-package it.polimi.ingsw.am32.model;
+package it.polimi.ingsw.am32.model.card;
+
+import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
 
 public class NonObjectiveCard extends Card{
     private CornerType topLeft;
