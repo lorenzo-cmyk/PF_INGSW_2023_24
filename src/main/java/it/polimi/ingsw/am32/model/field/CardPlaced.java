@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am32.model;
+package it.polimi.ingsw.am32.model.field;
 
 public class CardPlaced {
     private Card placedCard;
