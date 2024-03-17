@@ -12,9 +12,8 @@ public class Match implements ModelInterface{
     private Card[] currentGoldCards;
     private Card[] commonObjectives;
     private ArrayList<Player> players;
+    private MatchStatus matchStatus;
     private String currentPlayerID;
-    private boolean isGameTerminating;
-    private boolean isLastTurn;
     private int currentTurnNumber;
 
     Match() {
