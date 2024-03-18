@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am32.model.field;
 
+import it.polimi.ingsw.am32.model.card.Card;
+
 public class CardPlaced {
     private Card placedCard;
     private int x;

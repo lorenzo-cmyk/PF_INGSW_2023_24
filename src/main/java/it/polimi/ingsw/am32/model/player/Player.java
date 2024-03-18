@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am32.model.player;
 
+import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.field.Field;
+
 import java.util.ArrayList;
 
 public class Player {
@@ -12,7 +15,7 @@ public class Player {
 
     public Player(String nickname) {
         this.nickname = nickname;
-        this.Field = new Field();
+        this.gameField = new Field();
         this.points = 0;
         this.hand = new ArrayList<Card>();
     }
@@ -25,6 +28,7 @@ public class Player {
     }
     public int receiveSecretObjective(Card[] choices, int choice_number) {
         // TODO
+        return 0;
     }
     public Card getSecretObjective() {
         return secretObjective;
@@ -38,20 +42,25 @@ public class Player {
     public boolean setPoints(int points) {
         this.points = points;
         // TODO Return statement
+        return false;
     }
     public boolean putCardInHand(Card newCard) {
         hand.add(newCard);
+        return false;
     }
     public ArrayList<Card> getHand() {
         return hand;
     }
     public boolean performMove(Card card, int x, int y, boolean isUp) {
         // TODO
+        return false;
     }
     public boolean updatePointsForObjectives(Card[] objectiveCards) {
         // TODO
+        return false;
     }
     public int calculatePoints(Card card, int x, int y) {
         // TODO
+        return 0;
     }
 }

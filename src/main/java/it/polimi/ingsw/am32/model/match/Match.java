@@ -1,8 +1,13 @@
 package it.polimi.ingsw.am32.model.match;
 
+import it.polimi.ingsw.am32.model.ModelInterface;
+import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.deck.Deck;
+import it.polimi.ingsw.am32.model.player.Colour;
+import it.polimi.ingsw.am32.model.player.Player;
 import java.util.ArrayList;
 
-public class Match implements ModelInterface{
+public class Match implements ModelInterface {
     private Deck starterCardsDeck;
     private Deck objectiveCardsDeck;
     private Deck secretObjectiveCardsDeck;
@@ -20,52 +25,115 @@ public class Match implements ModelInterface{
         // TODO
     }
 
-    public boolean shuffleDeck(int deckNum) {
-        // TODO
-    }
-    public Card drawFromDeck(int deckNum) {
-       // TODO
-    }
-    public Card drawFromCurrentResourceCards(int cardNum) {
-        // TODO
-    }
-    public Card drawFromCurrentGoldCards(int cardNum) {
-        // TODO
-    }
-    public Card[] getCommonObjectives() {
-        return commonObjectives;
+    public boolean enterLobbyPhase() {
+        return false;
     }
     public boolean addPlayer(String nickname) {
-        // TODO
+        return false;
     }
     public boolean deletePlayer(String nickname) {
-        // TODO
+        return false;
     }
-    public Colour pickRandomColour() {
-        // TODO
+    public boolean enterPreparationPhase() {
+        return false;
     }
-    public Player getPlayer(String nickname) {
-        // TODO
+    public boolean assignRandomColoursToPlayers() {
+        return false;
     }
-    public boolean updateCurrentPlayer() {
-        // TODO
+    public boolean assignRandomStartingInitialCardToPlayer() {
+        return false;
     }
-    public boolean checkifGameIsTerminating() {
-        return isGameTerminating;
+    public int getInitialCardPlayer(String nickname) {
+        return 0;
     }
-    public boolean setGameIsTerminating() {
-        this.isGameTerminating = true;
+    public boolean createFieldPlayer(String nickname, boolean side) {
+        return false;
     }
-    public boolean checkIfTurnIsLast() {
-        return isLastTurn;
+    public boolean assignRandomStartingResourceCardsToPlayers() {
+        return false;
     }
-    public boolean setTurnIsLast() {
-        this.isLastTurn = true;
+    public boolean assignRandomStartingGoldCardsToPlayers() {
+        return false;
+    }
+    public boolean pickRandomCommonObjectives() {
+        return false;
+    }
+    public boolean assignRandomStartingSecretObjectivesToPlayers() {
+        return false;
+    }
+    public ArrayList<Integer> getSecretsObjectivesCardsPlayer(String nickname) {
+        return null;
+    }
+    public boolean receiveSecretObjectiveChoiceFromPlayer(String nickname, int id) {
+        return false;
+    }
+    public boolean randomizePlayersOrder() {
+        return false;
+    }
+    public boolean enterPlayingPhase() {
+        return false;
+    }
+    public boolean startTurns() {
+        return false;
+    }
+    public boolean placeCard(int id, int x, int y, boolean side) {
+        return false;
+    }
+    public boolean drawCard(int id, int deckType) {
+        return false;
+    }
+    public boolean nextTurn() {
+        return false;
+    }
+    public boolean setTerminating() {
+        return false;
+    }
+    public boolean areWeTerminating() {
+        return false;
+    }
+    public boolean isFirstPlayer() {
+        return false;
+    }
+    public boolean setLastTurn() {
+        return false;
+    }
+    public boolean enterTerminatedPhase() {
+        return false;
+    }
+    public boolean addObjectivePoints() {
+        return false;
+    }
+    public ArrayList<String> getWinners() {
+        return null;
+    }
+    public ArrayList<String> getPlayersNicknames() {
+        return null;
+    }
+    public ArrayList<Integer> getCurrentResourcesCards() {
+        return null;
+    }
+    public ArrayList<Integer> getCurrentGoldCards() {
+        return null;
+    }
+    public ArrayList<Integer> getCommonObjectives() {
+        return null;
+    }
+    public ArrayList<Integer> getPlayerResources(String nickname) {
+        return null;
+    }
+    public int getPlayerSecretObjective(String nickname) {
+        return 0;
+    }
+    public ArrayList<Integer> getPlayerHand(String nickname) {
+        return null;
+    }
+    public ArrayList<Object> getPlayerField(String nickname) {
+        return null;
+    }
+    public String getMatchStatus() {
+        return null;
     }
     public int getCurrentTurnNumber() {
-        return currentTurnNumber;
-    }
-    public boolean increaseCurrentTurnNumber() {
-        currentTurnNumber++;
+        return 0;
     }
 }
