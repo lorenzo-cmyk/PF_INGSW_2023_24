@@ -7,13 +7,13 @@ public class Field {
     private final ArrayList<CardPlaced> fieldCards;
     private final int[] activeRes;
 
-    private static final int PLANT = 0;
-    private static final int FUNGI = 1;
-    private static final int ANIMAL = 2;
-    private static final int INSECT = 3;
-    private static final int QUILL = 4;
-    private static final int INKWELL = 5;
-    private static final int MANUSCRIPT = 6;
+    public static final int PLANT = 0;
+    public static final int FUNGI = 1;
+    public static final int ANIMAL = 2;
+    public static final int INSECT = 3;
+    public static final int QUILL = 4;
+    public static final int INKWELL = 5;
+    public static final int MANUSCRIPT = 6;
 
     public Field() {
         this.activeRes = new int[7];
