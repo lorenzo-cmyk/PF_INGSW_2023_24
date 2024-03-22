@@ -7,13 +7,13 @@ import java.util.Collections;
 /**
  * Contains a collection of cards implemented as a stack.
  */
-public class Deck {
+public class CardDeck {
     /**
     * Card at top of deck found at last index of ArrayList.
     */
     private final ArrayList<Card> cards;
 
-    Deck() {
+    CardDeck() {
         cards = new ArrayList<Card>();
         // TODO Constructor will need to invoke DecksFromDisk class object to load the cards
     }
