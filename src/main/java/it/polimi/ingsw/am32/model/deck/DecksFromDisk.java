@@ -1,15 +1,16 @@
 package it.polimi.ingsw.am32.model.deck;
 
 import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 
 import java.util.ArrayList;
 
 public class DecksFromDisk {
-    public ArrayList<Card> createResourcesDeck() {
+    public ArrayList<NonObjectiveCard> createResourcesDeck() {
        // TODO
         return null;
     }
-    public ArrayList<Card> createGoldDeck() {
+    public ArrayList<NonObjectiveCard> createGoldDeck() {
         // TODO
         return null;
     }
@@ -17,7 +18,7 @@ public class DecksFromDisk {
         // TODO
         return null;
     }
-    public ArrayList<Card> createStartCardsDeck() {
+    public ArrayList<NonObjectiveCard> createStartCardsDeck() {
         // TODO
         return null;
     }
