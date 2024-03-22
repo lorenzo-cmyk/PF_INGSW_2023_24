@@ -2,19 +2,20 @@ package it.polimi.ingsw.am32.model.match;
 
 import it.polimi.ingsw.am32.model.ModelInterface;
 import it.polimi.ingsw.am32.model.card.Card;
-import it.polimi.ingsw.am32.model.deck.Deck;
-import it.polimi.ingsw.am32.model.player.Colour;
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.deck.CardDeck;
+import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeck;
 import it.polimi.ingsw.am32.model.player.Player;
 import java.util.ArrayList;
 
 public class Match implements ModelInterface {
-    private Deck starterCardsDeck;
-    private Deck objectiveCardsDeck;
-    private Deck secretObjectiveCardsDeck;
-    private Deck resourceCardsDeck;
-    private Deck goldCardsDeck;
-    private Card[] currentResourceCards;
-    private Card[] currentGoldCards;
+    private NonObjectiveCardDeck starterCardsDeck;
+    private CardDeck objectiveCardsDeck;
+    private CardDeck secretObjectiveCardsDeck;
+    private NonObjectiveCardDeck resourceCardsDeck;
+    private NonObjectiveCardDeck goldCardsDeck;
+    private NonObjectiveCard[] currentResourceCards;
+    private NonObjectiveCard[] currentGoldCards;
     private Card[] commonObjectives;
     private ArrayList<Player> players;
     private MatchStatus matchStatus;
