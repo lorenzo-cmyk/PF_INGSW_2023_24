@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.model.field;
 
-import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 
 import java.util.ArrayList;
 
@@ -13,16 +13,24 @@ public class Field {
         this.fieldCards = new ArrayList<CardPlaced>();
     }
 
-    public boolean placeCardInField(Card card, int x, int y, boolean side) {
+    public boolean placeCardInField(NonObjectiveCard card, int x, int y, boolean side) {
         // TODO
         return false;
     }
-    public Card getCardFromPosition(int x, int y) {
+    public NonObjectiveCard getCardFromPosition(int x, int y) {
         // TODO
         return null;
     }
     public boolean availableSpace(int x, int y) {
         // TODO
         return false;
+    }
+
+    public ArrayList<CardPlaced> getFieldCards() {
+        return fieldCards;
+    }
+
+    public int[] getActiveRes() {
+        return activeRes;
     }
 }
