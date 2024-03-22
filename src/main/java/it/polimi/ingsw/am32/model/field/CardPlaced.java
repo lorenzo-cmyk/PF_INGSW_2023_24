@@ -1,21 +1,21 @@
 package it.polimi.ingsw.am32.model.field;
 
-import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 
 public class CardPlaced {
-    private Card placedCard;
+    private NonObjectiveCard placedCard;
     private int x;
     private int y;
     private boolean isUp;
 
-    public CardPlaced(Card placedCard, int x, int y, boolean isUp) {
+    public CardPlaced(NonObjectiveCard placedCard, int x, int y, boolean isUp) {
         this.placedCard = placedCard;
         this.x = x;
         this.y = y;
         this.isUp = isUp;
     }
 
-    public Card getCard() {
+    public NonObjectiveCard getCard() {
         return placedCard;
     }
     public int getX() {
