@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.model.card;
 
+import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
 
 public class NonObjectiveCard extends Card{
@@ -12,14 +13,14 @@ public class NonObjectiveCard extends Card{
     private CornerType bottomLeftBack;
     private CornerType bottomRightBack;
     private int[] permRes;
-    private int permResCount;
     private int[] conditionCount;
+    private ObjectType kingdom;
 
-    public NonObjectiveCard(int id, int value, boolean validBack, PointStrategy pointStrategy, CornerType topLeft,
+    public NonObjectiveCard(int id, int value, PointStrategy pointStrategy, CornerType topLeft,
                      CornerType topRight, CornerType bottomLeft, CornerType bottomRight, CornerType topLeftBack,
                      CornerType topRightBack, CornerType bottomLeftBack, CornerType bottomRightBack,
-                     int[] permRes, int permResCount, int[] conditionCount) {
-        super(id, value, validBack, pointStrategy);
+                     int[] permRes, int[] conditionCount, ObjectType kingdom) {
+        super(id, value, pointStrategy);
         this.topLeft = topLeft;
         this.topRight = topRight;
         this.bottomLeft = bottomLeft;
@@ -29,8 +30,12 @@ public class NonObjectiveCard extends Card{
         this.bottomLeftBack = bottomLeftBack;
         this.bottomRightBack = bottomRightBack;
         this.permRes = permRes;
-        this.permResCount = permResCount;
         this.conditionCount = conditionCount;
-        // FIXME Need to properly manage permRes, permResCount, and conditionCount initialization
+        this.kingdom = kingdom;
+        // FIXME Need to properly manage permRes, kingdom, and conditionCount initialization
+    }
+
+    public ObjectType getKingdom() {
+        return kingdom;
     }
 }
