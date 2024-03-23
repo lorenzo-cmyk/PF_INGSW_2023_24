@@ -14,11 +14,13 @@ public class Player {
 
     private String nickname;
     private Field gameField;
-    private Card chosenSecretObj;
+    private Card secretObjective;
     private Colour colour;
     private int points;
-    private ArrayList<Card> hand;
-    private Card[] tempSecretObj;
+    private ArrayList<NonObjectiveCard> hand;
+    private Card[] tmpSecretObj;
+
+    private final static int secObjOptions = 2;
 
 
     //---------------------------------------------------------------------------------------------
@@ -34,8 +36,9 @@ public class Player {
         this.gameField = null;
         this.points = 0;
         this.secretObjective = null;
-        this.hand = new ArrayList<Card>();
+        this.hand = new ArrayList<NonObjectiveCard>();
         this.colour = null;
+        this.tmpSecretObj = new Card[secObjOptions];
     }
 
 
@@ -46,9 +49,9 @@ public class Player {
      * Place the initial card in the hand of the player
      *
      * @param initialCard is the initial card assigned by the match
-     * @return true if the assignment was successful, false if the hand wasn't empty
+     * @return true if the assignment was successful, false if the hand wasn't empty and the assignment failed
      */
-    public boolean assignStartingCard(Card initialCard) {
+    public boolean assignStartingCard(NonObjectiveCard initialCard) {
 
         if(!hand.isEmpty())
             return false;
@@ -82,11 +85,11 @@ public class Player {
      * @return true if the card was successfully chosen, false if the card wasn't in the hand of the player
      */
     public boolean secretObjectiveSelection(int id) {
-        if(hand.getFirst().getId() == id) {
-            secretObjective = hand.getFirst();
+        if(tmpSecretObj[0].getId() == id) {
+            secretObjective = tmpSecretObj[0];
             hand.clear();
-        } else if (hand.get(1).getId() == id){
-            secretObjective = hand.get(1);
+        } else if (tmpSecretObj[1].getId() == id){
+            secretObjective = tmpSecretObj[0];
             hand.clear();
         } else
             return false;
@@ -103,19 +106,28 @@ public class Player {
      * @return true if the cards where successfully saved for later selection, false if not
      */
     public boolean receiveSecretObjective(Card firstCard, Card secondCard) {
-        if(!hand.isEmpty())
+
+        if(tmpSecretObj[0] != null || tmpSecretObj[1] != null)
             return false;
 
-        hand.addLast(firstCard);
-        hand.addLast(secondCard);
+        tmpSecretObj[0] = firstCard;
+        tmpSecretObj[1] = secondCard;
         return true;
     }
 
 
+    /**
+     * tries to put a card in the hand of the player
+     *
+     * @param newCard is the card that has to be added to the hand of the player
+     * @return true if successfully added, false if not
+     */
+    public boolean putCardInHand(NonObjectiveCard newCard) {
+        if(hand.size() >= 3)
+            return false;
 
-    public boolean putCardInHand(Card newCard) {
         hand.addLast(newCard);
-        return false;
+        return true;
     }
 
     public boolean performMove(NonObjectiveCard card, int x, int y, boolean isUp) {
@@ -128,6 +140,7 @@ public class Player {
         return false;
     }
 
+    // TODO is it actually used?
     public int calculatePoints(Card card, int x, int y) {
         // TODO
         return 0;
@@ -137,25 +150,56 @@ public class Player {
     //---------------------------------------------------------------------------------------------
     // Getters
 
+    /**
+     * Getter:
+     * @return the nickname of the player
+     */
     public String getNickname() {
         return nickname;
     }
+
+    /**
+     * Getter:
+     *
+     * @return the field if initialized, null if not
+     */
     public Field getField() {
         return gameField;
     }
+
+    /**
+     * Getter:
+     *
+     * @return a Card if the secretObjective has already been selected, null if not
+     */
     public Card getSecretObjective() {
         return secretObjective;
     }
 
+    /**
+     * Getter:
+     *
+     * @return the color of the player
+     */
     public Colour getColour() {
         return colour;
     }
 
+    /**
+     * Getter:
+     *
+     * @return the current points of the player
+     */
     public int getPoints() {
         return points;
     }
 
-    public ArrayList<Card> getHand() {
+    /**
+     * Getter:
+     *
+     * @return the hand of the player
+     */
+    public ArrayList<NonObjectiveCard> getHand() {
         return hand;
     }
 
@@ -174,6 +218,8 @@ public class Player {
                 return null;
             }
         }
+
+        // TODO check if it can be done better
     }
 
 
@@ -187,6 +233,19 @@ public class Player {
         return false;
     }
 
+    /**
+     * assign a colour to the player if it doesn't have already one
+     *
+     * @param colour is the colour of the player
+     * @return true if successfully assigned, false if not
+     */
+    public boolean setColour(Colour colour) {
+        if(this.colour != null)
+            return false;
+
+        this.colour = colour;
+        return true;
+    }
 
     //---------------------------------------------------------------------------------------------
     // ToString

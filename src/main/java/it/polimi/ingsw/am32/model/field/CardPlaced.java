@@ -13,6 +13,9 @@ public class CardPlaced {
     private final int y;
     private final boolean isUp;
 
+    //---------------------------------------------------------------------------------------------
+    // Constructors
+
     /**
      * Record the position of the card placed and the face of the card selected by the player.
      *
@@ -27,6 +30,9 @@ public class CardPlaced {
         this.y = y;
         this.isUp = isUp;
     }
+
+    //---------------------------------------------------------------------------------------------
+    // Getters
 
     /**
      * Returns the card.
