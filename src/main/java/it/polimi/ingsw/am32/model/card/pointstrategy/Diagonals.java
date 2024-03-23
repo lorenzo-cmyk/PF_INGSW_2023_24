@@ -40,7 +40,7 @@ public class Diagonals extends PointStrategy {
                 return Integer.compare(c1.getY(), c2.getY());
         };
         dominantKingdom.sort(comparator); // sort arraylist in ascending order
-        while (!dominantKingdom.isEmpty() && dominantKingdom.size() > 2) {
+        while (dominantKingdom.size() > 2) {
             int xLoc;
             int yLoc;
             xLoc = dominantKingdom.getFirst().getX();

@@ -35,7 +35,7 @@ public class LConfigurationThree extends PointStrategy {
                 insectKingdom.add(i);
             }
         } // add a card to the insertKingdom list if its type is Insect.
-        Comparator<CardPlaced> comparatorFungi = (c1, c2) -> {
+        Comparator<CardPlaced> comparatorTwo = (c1, c2) -> {
             if (c1.getX() > c2.getX()) {
                 return 1;
             } else if (c1.getX() < c2.getX()) {
@@ -43,7 +43,8 @@ public class LConfigurationThree extends PointStrategy {
             } else
                 return Integer.compare(c1.getY(), c2.getY());
         };
-        insectKingdom.sort(comparatorFungi);
+        animalKingdom.sort(comparatorTwo);
+        insectKingdom.sort(comparatorTwo);
 
         while (!animalKingdom.isEmpty()) {
             int xLoc;

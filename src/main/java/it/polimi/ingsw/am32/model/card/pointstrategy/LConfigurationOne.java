@@ -35,7 +35,7 @@ public class LConfigurationOne extends PointStrategy {
                 fungiKingdom.add(i);
             }
         } // add a card to the fungiKingdom list if its type is Fungi.
-        Comparator<CardPlaced> comparatorFungi = (c1, c2) -> {
+        Comparator<CardPlaced> comparatorOne = (c1, c2) -> {
             if (c1.getX() > c2.getX()) {
                 return 1;
             } else if (c1.getX() < c2.getX()) {
@@ -43,7 +43,8 @@ public class LConfigurationOne extends PointStrategy {
             } else
                 return Integer.compare(c1.getY(), c2.getY());
         };
-        fungiKingdom.sort(comparatorFungi);
+        plantKingdom.sort(comparatorOne);
+        fungiKingdom.sort(comparatorOne);
 
         while (!plantKingdom.isEmpty()) {
             int xLoc;
