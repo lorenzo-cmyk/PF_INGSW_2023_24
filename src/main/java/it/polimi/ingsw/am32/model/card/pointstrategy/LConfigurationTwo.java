@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class LConfigurationTwo {
     /**
-     * Calculates the number of left facing L configurations present in the field made of 2 greens and 1 purple cards.
+     * Calculates the number of left facing L configurations present in the field made of 2 green and 1 purple cards.
      * The cards are extracted from the field parameter, then, by using streams, a filtered and ordered arraylist
      * containing only green (plant) and purple (insect) cards is generated. The ordering is done on the basis of the cards' x and y coordinates.
      * Cards are ordered by increasing x coordinate (primary ordering), and then by increasing y coordinates (secondary ordering).
