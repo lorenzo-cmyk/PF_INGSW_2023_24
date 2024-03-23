@@ -16,7 +16,7 @@ public class AllSpecial extends PointStrategy{
      * @param y Parameter not used
      * @return Number of full triplets of special type resources
      */
-    int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurences(Field field, int x, int y) {
         int[] activeRes = field.getActiveRes();
 
         int quill_num = ObjectType.QUILL.getValue();
