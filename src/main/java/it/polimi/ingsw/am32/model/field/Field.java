@@ -17,10 +17,23 @@ public class Field {
         // TODO
         return false;
     }
+
+    /**
+     * Returns the card at the given position if available.
+     *
+     * @param x X position of the card in the field to return
+     * @param y Y position of the card in the field to return
+     * @return Card at given coordinates if present in the field, else null.
+     */
     public NonObjectiveCard getCardFromPosition(int x, int y) {
-        // TODO
+        for (CardPlaced i : fieldCards) {
+            if (i.getX() == x && i.getY() == y) {
+                return i.getCard();
+            }
+        }
         return null;
     }
+
     public boolean availableSpace(int x, int y) {
         // TODO
         return false;
