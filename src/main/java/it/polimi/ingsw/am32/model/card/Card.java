@@ -14,4 +14,11 @@ public class Card {
         this.validBack = validBack;
         this.pointStrategy = pointStrategy;
     }
+
+
+    // ------------------------------------------------------
+    // TODO delete for commit
+    public int getId() {
+        return id;
+    }
 }
