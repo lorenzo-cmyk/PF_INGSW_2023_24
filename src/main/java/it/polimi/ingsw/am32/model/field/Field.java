@@ -13,22 +13,13 @@ public class Field {
 
     private static final int resourcesSize = 7;
 
-    public static final int PLANT = 0;
-    public static final int FUNGI = 1;
-    public static final int ANIMAL = 2;
-    public static final int INSECT = 3;
-    public static final int QUILL = 4;
-    public static final int INKWELL = 5;
-    public static final int MANUSCRIPT = 6;
-
-
     /**
      * Initialize the field, put resources counter to 0 and insert the initial card
      *
      * @param initialCard id the card that was assigned
      * @param isUp denote the side of the card chosen by the player
      */
-    public Field(Card initialCard, boolean isUp) {
+    public Field(NonObjectiveCard initialCard, boolean isUp) {
         this.activeRes = new int[resourcesSize];
         for(int i = 0; i < resourcesSize; i++)
             activeRes[i] = 0;
@@ -60,7 +51,7 @@ public class Field {
     public NonObjectiveCard getCardFromPosition(int x, int y) {
         for (CardPlaced i : fieldCards) {
             if (i.getX() == x && i.getY() == y) {
-                return i.getCard();
+                return i.getNonObjectiveCard();
             }
         }
 
