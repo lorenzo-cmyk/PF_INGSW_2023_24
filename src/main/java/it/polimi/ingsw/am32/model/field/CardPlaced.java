@@ -11,7 +11,7 @@ public class CardPlaced {
     private final int x;
     private final int y;
     private final boolean isUp;
-    private NonObjectiveCard placedCard;
+    private final NonObjectiveCard placedCard;
 
     /**
      * Record the position of the card placed and the face of the card selected by the player.
@@ -21,7 +21,7 @@ public class CardPlaced {
      * @param y the y coordinate of the card placed.
      * @param isUp describe a face of the card that player want to use.
      */
-    public CardPlaced(Card placedCard, int x, int y, boolean isUp) {
+    public CardPlaced(NonObjectiveCard placedCard, int x, int y, boolean isUp) {
         this.placedCard = placedCard;
         this.x = x;
         this.y = y;

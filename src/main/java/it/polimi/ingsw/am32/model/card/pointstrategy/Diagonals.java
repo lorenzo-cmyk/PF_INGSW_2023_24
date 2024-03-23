@@ -6,7 +6,7 @@ import it.polimi.ingsw.am32.model.field.Field;
 import java.util.*;
 
 /**
- * Diagonals is one of the classed extended from the abstract class PointStrategy used to calculate for the
+ * Diagonals is one of the classes extended from the abstract class PointStrategy used to calculate for the
  * objective cards, which count 3 cards of the same kingdom on the diagonal line y=x or y=-x.
  * type: the kingdom request by objective card.
  * leftToRight: the type of the diagonal line.
@@ -30,7 +30,7 @@ public class Diagonals extends PointStrategy {
             if (i.getCard().getKingdom() == this.type) {
                 dominantKingdom.add(i);
             }
-        } // add a card to the dominantKingdom list if it has same kingdom type as the objective card’s kingdom.
+        } // add a card to the dominantKingdom list if it has same kingdom type as the objective card's kingdom.
         Comparator<CardPlaced> comparator = (c1, c2) -> {
             if (c1.getX() > c2.getX()) {
                 return 1;
@@ -45,7 +45,7 @@ public class Diagonals extends PointStrategy {
             int yLoc;
             xLoc = dominantKingdom.getFirst().getX();
             yLoc = dominantKingdom.getFirst().getY();
-            CardPlaced e1 = null;
+            CardPlaced e1;
             boolean condition1 = false; // condition1 marks the existence of the card in the middle of the three diagonal cards
             for (int i = 0; i < dominantKingdom.size() && !condition1; i++) {
                 if (this.leftToRight) { // case of diagonal y=x.

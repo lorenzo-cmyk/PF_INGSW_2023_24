@@ -4,14 +4,14 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
 
 public class NonObjectiveCard extends Card{
-    private CornerType topLeft;
-    private CornerType topRight;
-    private CornerType bottomLeft;
-    private CornerType bottomRight;
-    private CornerType topLeftBack;
-    private CornerType topRightBack;
-    private CornerType bottomLeftBack;
-    private CornerType bottomRightBack;
+    private final CornerType topLeft;
+    private final CornerType topRight;
+    private final CornerType bottomLeft;
+    private final CornerType bottomRight;
+    private final CornerType topLeftBack;
+    private final CornerType topRightBack;
+    private final CornerType bottomLeftBack;
+    private final CornerType bottomRightBack;
     private int[] permRes;
     private int[] conditionCount;
     private ObjectType kingdom;

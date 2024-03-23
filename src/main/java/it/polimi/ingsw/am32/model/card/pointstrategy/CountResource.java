@@ -3,7 +3,7 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 import it.polimi.ingsw.am32.model.field.Field;
 
 /**
- * CountResource is one of the classed extended from the abstract class PointStrategy used to calculate for the
+ * CountResource is one of the classes extended from the abstract class PointStrategy used to calculate for the
  * objective cards, which count identical resources or objects visible in the play area (field) of the player.
  */
 public class CountResource extends PointStrategy{
