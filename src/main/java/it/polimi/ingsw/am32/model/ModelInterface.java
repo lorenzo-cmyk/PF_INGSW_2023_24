@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am32.model;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public interface ModelInterface {
     boolean enterLobbyPhase(); // TODO

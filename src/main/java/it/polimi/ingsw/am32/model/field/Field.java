@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.model.field;
 
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.Card;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 
@@ -44,7 +45,7 @@ public class Field {
      * @param side
      * @return
      */
-    public boolean placeCardInField(Card card, int x, int y, boolean side) {
+    public boolean placeCardInField(NonObjectiveCard card, int x, int y, boolean side) {
         // TODO
         return false;
     }
@@ -54,14 +55,15 @@ public class Field {
      *
      * @param x X position of the card in the field to return
      * @param y Y position of the card in the field to return
-     * @return Card at given coordinates if present in the field, else null.
+     * @return NonObjectiveCard at given coordinates if present in the field, else null.
      */
-    public Card getCardFromPosition(int x, int y) {
+    public NonObjectiveCard getCardFromPosition(int x, int y) {
         for (CardPlaced i : fieldCards) {
             if (i.getX() == x && i.getY() == y) {
                 return i.getCard();
             }
         }
+
         return null;
     }
 

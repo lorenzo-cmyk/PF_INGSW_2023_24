@@ -14,10 +14,11 @@ public class Player {
 
     private String nickname;
     private Field gameField;
-    private Card secretObjective;
+    private Card chosenSecretObj;
     private Colour colour;
     private int points;
     private ArrayList<Card> hand;
+    private Card[] tempSecretObj;
 
 
     //---------------------------------------------------------------------------------------------
@@ -117,7 +118,7 @@ public class Player {
         return false;
     }
 
-    public boolean performMove(Card card, int x, int y, boolean isUp) {
+    public boolean performMove(NonObjectiveCard card, int x, int y, boolean isUp) {
         // TODO
         return false;
     }
@@ -139,11 +140,9 @@ public class Player {
     public String getNickname() {
         return nickname;
     }
-
     public Field getField() {
         return gameField;
     }
-
     public Card getSecretObjective() {
         return secretObjective;
     }

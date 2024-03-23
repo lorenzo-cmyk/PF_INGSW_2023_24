@@ -6,8 +6,8 @@ public enum ObjectType {
     ANIMAL(2),
     INSECT(3),
     QUILL(4),
-    INKWELL(6),
-    MANUSCRIPT(7);
+    INKWELL(5),
+    MANUSCRIPT(6);
 
     private final int value;
 
@@ -15,9 +15,7 @@ public enum ObjectType {
         this.value = value;
     }
 
-
     public int getValue() {
         return value;
     }
-
 }

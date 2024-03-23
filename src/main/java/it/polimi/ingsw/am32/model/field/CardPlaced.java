@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.model.field;
 
-import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 
 /**
  * Used to store information about a currently placed card. Stores the position of the card in the player's field
@@ -8,7 +8,7 @@ import it.polimi.ingsw.am32.model.card.Card;
  * The coordinates are those of the center of the card.
  */
 public class CardPlaced {
-    private final Card placedCard;
+    private final NonObjectiveCard placedCard;
     private final int x;
     private final int y;
     private final boolean isUp;
@@ -21,7 +21,7 @@ public class CardPlaced {
      * @param y the y coordinate of the card placed.
      * @param isUp describe a face of the card that player want to use.
      */
-    public CardPlaced(Card placedCard, int x, int y, boolean isUp) {
+    public CardPlaced(NonObjectiveCard placedCard, int x, int y, boolean isUp) {
         this.placedCard = placedCard;
         this.x = x;
         this.y = y;
@@ -31,9 +31,9 @@ public class CardPlaced {
     /**
      * Returns the card.
      *
-     * @return Card object
+     * @return NonObjectiveCard object
      */
-    public Card getCard() {
+    public NonObjectiveCard getNonObjectiveCard() {
         return placedCard;
     }
 

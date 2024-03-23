@@ -1,20 +1,21 @@
 package it.polimi.ingsw.am32.model.deck;
 
-import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
 /**
  * Contains a collection of cards implemented as a stack.
  */
-public class Deck {
+public class NonObjectiveCardDeck {
     /**
     * Card at top of deck found at last index of ArrayList.
     */
-    private final ArrayList<Card> cards;
+    private final ArrayList<NonObjectiveCard> cards;
 
-    Deck() {
-        cards = new ArrayList<Card>();
+    NonObjectiveCardDeck() {
+        cards = new ArrayList<NonObjectiveCard>();
         // TODO Constructor will need to invoke DecksFromDisk class object to load the cards
     }
 
@@ -23,10 +24,10 @@ public class Deck {
      *
      * @return Card object at the top of the deck if card is available, else null
      */
-    public Card draw() {
+    public NonObjectiveCard draw() {
         if (cards.isEmpty()) return null;
         else {
-            Card lastCard = cards.getLast();
+            NonObjectiveCard lastCard = cards.getLast();
             cards.removeLast();
             return lastCard;
         }
@@ -50,7 +51,7 @@ public class Deck {
      *
      * @param card Card to add
      */
-     public void addCard(Card card) {
+     public void addCard(NonObjectiveCard card) {
         cards.add(card);
     }
 }
