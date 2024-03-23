@@ -14,7 +14,7 @@ public class LConfigurationTwo {
     /**
      * Calculates the number of left facing L configurations present in the field made of 2 greens and 1 purple cards.
      * The cards are extracted from the field parameter, then, by using streams, a filtered and ordered arraylist
-     * containing only green (plant) cards and red (fungi) cards is generated. The ordering is done on the basis of the cards' x and y coordinates.
+     * containing only green (plant) cards and purple (insect) cards is generated. The ordering is done on the basis of the cards' x and y coordinates.
      * If 2 cards have the same x coordinate, the card with the highest y coordinate comes first.
      * A simple triple for loop is used to scan the entire arraylist for the wanted pattern.
      *
@@ -27,7 +27,7 @@ public class LConfigurationTwo {
         ArrayList<CardPlaced> fieldCards = field.getFieldCards(); // Get all the cards with their positions
 
         List<CardPlaced> orderedCardsTemp = fieldCards.stream() // Converts ArrayList to stream
-                .filter(c -> c.getCard().getKingdom() == ObjectType.FUNGI || c.getCard().getKingdom() == ObjectType.PLANT) // Filters all non-fungi or non-plants out
+                .filter(c -> c.getCard().getKingdom() == ObjectType.INSECT || c.getCard().getKingdom() == ObjectType.PLANT) // Filters all non-fungi or non-plants out
                 .sorted((c1, c2) -> (c1.getX() < c2.getX() || (c1.getX() == c2.getX() && c1.getY() > c2.getY())) ? -1 : 1)
                 .toList();
         ArrayList<CardPlaced> orderedCards = new ArrayList<CardPlaced>(orderedCardsTemp);
