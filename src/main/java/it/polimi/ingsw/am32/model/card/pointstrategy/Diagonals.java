@@ -6,7 +6,7 @@ public class Diagonals extends PointStrategy{
     private ObjectType type;
     private int leftToRight;
 
-    int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurences(Field field, int x, int y) {
         // TODO
         return 0;
     }
