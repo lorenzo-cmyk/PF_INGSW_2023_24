@@ -36,7 +36,7 @@ public class Player {
         this.gameField = null;
         this.points = 0;
         this.secretObjective = null;
-        this.hand = new ArrayList<NonObjectiveCard>();
+        this.hand = null;
         this.colour = null;
         this.tmpSecretObj = new Card[secObjOptions];
     }
@@ -53,9 +53,10 @@ public class Player {
      */
     public boolean assignStartingCard(NonObjectiveCard initialCard) {
 
-        if(!hand.isEmpty())
+        if(hand != null)
             return false;
 
+        hand = new ArrayList<NonObjectiveCard>();
         hand.addLast(initialCard);
         return true;
     }
@@ -69,7 +70,7 @@ public class Player {
      */
     public boolean initializeGameField(boolean isUp) {
 
-        if (gameField != null)
+        if (gameField != null || hand == null)
             return false;
 
         gameField = new Field(hand.getFirst(), isUp);
@@ -87,10 +88,8 @@ public class Player {
     public boolean secretObjectiveSelection(int id) {
         if(tmpSecretObj[0].getId() == id) {
             secretObjective = tmpSecretObj[0];
-            hand.clear();
         } else if (tmpSecretObj[1].getId() == id){
             secretObjective = tmpSecretObj[0];
-            hand.clear();
         } else
             return false;
 
@@ -123,7 +122,8 @@ public class Player {
      * @return true if successfully added, false if not
      */
     public boolean putCardInHand(NonObjectiveCard newCard) {
-        if(hand.size() >= 3)
+
+        if(hand == null || hand.size() >= 3)
             return false;
 
         hand.addLast(newCard);
