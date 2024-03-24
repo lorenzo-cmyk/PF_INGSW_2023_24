@@ -15,7 +15,7 @@ public class AnglesCovered extends PointStrategy{
      * @param y Y coordinates of card whose points are being calculated
      * @return Number of angles covered by card
      */
-    int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurences(Field field, int x, int y) {
         int count = 0;
         for (CardPlaced i : field.getFieldCards()) { // For each card on the field
             if (Math.abs(i.getX() - x) == 1 && Math.abs(i.getY() - y) == 1) { // Found card whose corners have been covered by the given card
