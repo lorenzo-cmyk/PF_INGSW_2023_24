@@ -10,7 +10,7 @@ import java.util.List;
  * Used for the point calculation of the only objective card which counts the number of right facing Ls made from 2
  * stacked vertical blue cards and 1 red card to the top right in the player's field.
  */
-public class LConfigurationFour {
+public class LConfigurationFour implements PointStrategy {
      /**
      * Calculates the number of right facing L configurations present in the field made of 2 blue and 1 red cards.
      * The cards are extracted from the field parameter, then, by using streams, a filtered and ordered arraylist

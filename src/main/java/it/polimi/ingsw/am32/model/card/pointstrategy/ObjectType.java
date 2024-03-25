@@ -16,6 +16,7 @@ public enum ObjectType {
     private final int value;
 
     ObjectType(int value) {
+
         this.value = value;
     }
 
@@ -26,6 +27,7 @@ public enum ObjectType {
      * @return Value of referenced enumeration object
      */
     public int getValue() {
+
         return value;
     }
 }
