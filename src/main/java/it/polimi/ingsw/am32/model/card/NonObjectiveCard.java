@@ -5,6 +5,8 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
 
 /**
  * Used to represent gold cards, resource cards, and start card.
+ *
+ * @author anto
  */
 public class NonObjectiveCard extends Card {
     private final CornerType topLeft;

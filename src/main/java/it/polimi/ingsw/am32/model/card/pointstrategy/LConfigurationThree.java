@@ -11,6 +11,8 @@ import java.util.List;
  * LConfigurationOne is one of the classes implemented interface PointStrategy used to calculate for the
  * objective cards, which in the top left has an Animal card and positioned in the bottom right corner has an Insect card
  * and then under that card is another Insect card placed.
+ *
+ * @author jie
  */
 public class LConfigurationThree implements PointStrategy {
     /**

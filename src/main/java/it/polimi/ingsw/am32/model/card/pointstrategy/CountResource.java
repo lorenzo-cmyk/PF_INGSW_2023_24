@@ -8,6 +8,8 @@ import it.polimi.ingsw.am32.model.field.Field;
  * of the player.
  * type: the kingdom required by the objective card or the type of object required by the gold card.
  * count: number of resources or objects required by the card to get a certain value.
+ *
+ * @author jie
  */
 public class CountResource implements PointStrategy {
     private ObjectType type;

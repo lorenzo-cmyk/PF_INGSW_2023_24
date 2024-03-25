@@ -6,6 +6,8 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
  * The card class includes objective cards, resource cards, starting cards and gold cards. All types of cards have the
  * following attributes: each card has a unique ID and a value from zero to five points, and also each has a special
  * PointStrategy that describes the conditions that must be satisfied when using this card to score points.
+ *
+ * @author jie
  */
 public class Card {
     private final int id;

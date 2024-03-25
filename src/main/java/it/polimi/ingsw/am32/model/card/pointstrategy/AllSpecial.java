@@ -5,6 +5,8 @@ import it.polimi.ingsw.am32.model.field.Field;
 /**
  * Used for the point calculation of the only objective card which counts the number
  * of triplets of special type resources
+ *
+ * @author anto
  */
 public class AllSpecial implements PointStrategy {
     /**

@@ -3,6 +3,8 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 /**
  * Stores all the possible Card object types. Includes all resources and objects. Each field is associated with
  * an integer.
+ *
+ * @author anto
  */
 public enum ObjectType {
     PLANT(0),

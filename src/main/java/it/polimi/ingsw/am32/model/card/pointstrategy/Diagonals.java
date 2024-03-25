@@ -11,6 +11,8 @@ import java.util.*;
  * type: the kingdom requested by objective card.
  * leftToRight: the type of the diagonal line which returns true for diagonal type y=x and returns false for diagonal
  * type y=-x.
+ *
+ * @author jie
  */
 public class Diagonals implements PointStrategy {
     private ObjectType type;

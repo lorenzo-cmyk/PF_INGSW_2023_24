@@ -3,6 +3,8 @@ package it.polimi.ingsw.am32.model.card;
 /**
  * Stores all the possible Card object types. Includes all resources and objects. Each field is associated with
  * an integer.
+ *
+ * @author anto
  */
 public enum CornerType {
     PLANT(0),
