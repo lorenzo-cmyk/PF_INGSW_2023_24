@@ -6,13 +6,13 @@ import it.polimi.ingsw.am32.model.field.Field;
 import java.util.*;
 
 /**
- * Diagonals is one of the classes extended from the abstract class PointStrategy used to calculate for the
+ * Diagonals is one of the classes implemented interface PointStrategy used to calculate for the
  * objective cards, which count 3 cards of the same kingdom on the diagonal line y=x or y=-x.
  * type: the kingdom requested by objective card.
  * leftToRight: the type of the diagonal line which returns true for diagonal type y=x and returns false for diagonal
  * type y=-x.
  */
-public class Diagonals extends PointStrategy {
+public class Diagonals implements PointStrategy {
     private ObjectType type;
     private boolean leftToRight;
 
@@ -24,7 +24,7 @@ public class Diagonals extends PointStrategy {
      * @param y the y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been fulfilled in this field.
      */
-    int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurences(Field field, int x, int y) {
         int times = 0;
         List<CardPlaced> dominantKingdom = new ArrayList<>(); // create Arraylist to store all cards that belong the Kingdom requested by objective Card.
         for (CardPlaced i : field.getFieldCards()) {

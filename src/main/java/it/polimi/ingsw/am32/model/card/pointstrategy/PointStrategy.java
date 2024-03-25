@@ -3,10 +3,10 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 import it.polimi.ingsw.am32.model.field.Field;
 
 /**
- * Set abstract class following strategy pattern to describe different strategies used by cards to calculate points
+ * Following strategy pattern to describe different strategies used by cards to calculate points
  * and for each type count how many times it is realized in the indicated field.
  */
-public abstract class PointStrategy {
+public interface PointStrategy {
     /**
      * Calculates how many times the point strategy of the given card has been satisfied based on its specific field
      * and position.
@@ -16,5 +16,5 @@ public abstract class PointStrategy {
      * @param y the y coordinates of the card whose points are being calculated.
      * @return the number of times the card's point strategy has been met in this field.
      */
-    abstract int calculateOccurences(Field field, int x, int y);
+    int calculateOccurences(Field field, int x, int y);
 }
