@@ -8,8 +8,9 @@ import java.util.*;
 /**
  * Diagonals is one of the classes extended from the abstract class PointStrategy used to calculate for the
  * objective cards, which count 3 cards of the same kingdom on the diagonal line y=x or y=-x.
- * type: the kingdom request by objective card.
- * leftToRight: the type of the diagonal line.
+ * type: the kingdom requested by objective card.
+ * leftToRight: the type of the diagonal line which returns true for diagonal type y=x and returns false for diagonal
+ * type y=-x.
  */
 public class Diagonals extends PointStrategy {
     private ObjectType type;
