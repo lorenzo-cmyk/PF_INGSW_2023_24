@@ -8,10 +8,17 @@ import java.util.ArrayList;
 import java.util.function.BiFunction;
 
 public class Field {
+
+    //---------------------------------------------------------------------------------------------
+    // Variables and Constants
+
     private final ArrayList<CardPlaced> fieldCards;
     private final int[] activeRes;
-
     private static final int resourcesSize = 7;
+
+
+    //---------------------------------------------------------------------------------------------
+    // Constructors
 
     /**
      * Initialize the field, put resources counter to 0 and insert the initial card
@@ -27,6 +34,10 @@ public class Field {
         CardPlaced cardPlaced = new CardPlaced(initialCard, 0, 0, isUp);
         fieldCards.addFirst(cardPlaced);
     }
+
+
+    //---------------------------------------------------------------------------------------------
+    // Methods
 
     /**
      *
@@ -49,6 +60,7 @@ public class Field {
      * @return NonObjectiveCard at given coordinates if present in the field, else null.
      */
     public NonObjectiveCard getCardFromPosition(int x, int y) {
+
         for (CardPlaced i : fieldCards) {
             if (i.getX() == x && i.getY() == y) {
                 return i.getNonObjectiveCard();
@@ -73,21 +85,26 @@ public class Field {
         return false;
     }
 
+
+    //---------------------------------------------------------------------------------------------
+    // Getters
+
     /**
+     * Getter
      *
-     * @return
+     * @return the structure containing the all the placed cards
      */
     public ArrayList<CardPlaced> getFieldCards() {
         return fieldCards;
     }
 
     /**
+     * Getter
      *
-     * @param type
-     * @return
+     * @param type is the nature of the resource requested
+     * @return the amount of occurrences in the field of the specified resource
      */
     public int getActiveRes(ObjectType type) {
-
         return activeRes[type.getValue()];
     }
 }
