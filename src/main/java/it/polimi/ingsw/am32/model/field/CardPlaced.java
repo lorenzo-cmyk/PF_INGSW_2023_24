@@ -8,10 +8,15 @@ import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
  * The coordinates are those of the center of the card.
  */
 public class CardPlaced {
+
+    //---------------------------------------------------------------------------------------------
+    // Variables and Constants
+
     private final NonObjectiveCard placedCard;
     private final int x;
     private final int y;
     private final boolean isUp;
+
 
     //---------------------------------------------------------------------------------------------
     // Constructors
@@ -30,6 +35,7 @@ public class CardPlaced {
         this.y = y;
         this.isUp = isUp;
     }
+
 
     //---------------------------------------------------------------------------------------------
     // Getters
