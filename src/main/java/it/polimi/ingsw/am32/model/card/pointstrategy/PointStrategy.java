@@ -2,6 +2,6 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 
 import it.polimi.ingsw.am32.model.field.Field;
 
-public abstract class PointStrategy {
-    abstract int calculateOccurences(Field field, int x, int y);
+public interface PointStrategy {
+    int calculateOccurences(Field field, int x, int y);
 }

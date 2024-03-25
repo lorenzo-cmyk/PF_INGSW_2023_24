@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.model.player;
 
 import it.polimi.ingsw.am32.model.card.Card;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
 import it.polimi.ingsw.am32.model.field.Field;
 
 import java.util.ArrayList;
@@ -135,9 +136,30 @@ public class Player {
         return false;
     }
 
+    /**
+     * Use the given cards to calculate the extra points that the player gains from the common objectives and add them
+     * to the current personal points
+     *
+     * @param objectiveCards are the common objectives used to calculate the extra points
+     * @return true if the points were successfully calculated and added, false if not
+     */
     public boolean updatePointsForObjectives(Card[] objectiveCards) {
-        // TODO
-        return false;
+
+        if(objectiveCards[0].getPointStrategy() == null || objectiveCards[1].getPointStrategy() == null)
+            return false;
+
+        PointStrategy pointStrategy1 = objectiveCards[0].getPointStrategy();
+        PointStrategy pointStrategy2 = objectiveCards[1].getPointStrategy();
+
+        int multiplierPoints1 = pointStrategy1.calculateOccurences(gameField, 0,0);
+        int multiplierPoints2 = pointStrategy2.calculateOccurences(gameField, 0,0);
+
+        int value1 = objectiveCards[0].getValue();
+        int value2 = objectiveCards[1].getValue();
+
+        points = points + value1 * multiplierPoints1 + value2 * multiplierPoints2;
+
+        return true;
     }
 
     // TODO is it actually used?
