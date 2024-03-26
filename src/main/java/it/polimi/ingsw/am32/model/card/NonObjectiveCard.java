@@ -43,33 +43,43 @@ public class NonObjectiveCard extends Card {
     public CornerType getTopLeft() {
         return topLeft;
     }
+
     public CornerType getTopRight() {
         return topRight;
     }
+
     public CornerType getBottomLeft() {
         return bottomLeft;
     }
+
     public CornerType getBottomRight() {
         return bottomRight;
     }
+
     public CornerType getTopLeftBack() {
         return topLeftBack;
     }
+
     public CornerType getTopRightBack() {
         return topRightBack;
     }
+
     public CornerType getBottomLeftBack() {
         return bottomLeftBack;
     }
+
     public CornerType getBottomRightBack() {
         return bottomRightBack;
     }
+
     public int[] getPermRes() {
         return permRes;
     }
+
     public int[] getConditionCount() {
         return conditionCount;
     }
+
     public ObjectType getKingdom() {
         return kingdom;
     }
