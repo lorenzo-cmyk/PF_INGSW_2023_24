@@ -29,4 +29,16 @@ public class CountResource implements PointStrategy {
         times=field.getActiveRes()[this.type.getValue()]/this.count;
         return times;
     }
+
+    /**
+     * Constructor of the CountResource strategy.
+     *
+     * @param type  ObjectType to count.
+     * @param count Minimum cardinality of a resource group to be reported.
+     * @author Lorenzo
+     */
+    public CountResource(ObjectType type, int count) {
+        this.type = type;
+        this.count = count;
+    }
 }
