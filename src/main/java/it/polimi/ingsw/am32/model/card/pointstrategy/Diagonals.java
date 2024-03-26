@@ -76,4 +76,16 @@ public class Diagonals implements PointStrategy {
         }
         return times;
     }
+
+    /**
+     * Constructor of the Diagonals strategy.
+     *
+     * @param type  ObjectType to search for.
+     * @param leftToRight Determine the type of diagonal line.
+     * @author Lorenzo
+     */
+    public Diagonals(ObjectType type, boolean leftToRight) {
+        this.type = type;
+        this.leftToRight = leftToRight;
+    }
 }
