@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am32.model.deck.utils;
+package it.polimi.ingsw.am32.model.deck;
 
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.pointstrategy.*;
