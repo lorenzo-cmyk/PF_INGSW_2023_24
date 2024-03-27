@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am32.model.deck;
 
 import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.deck.utils.DeckType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -10,9 +12,11 @@ import java.util.Collections;
  */
 public class CardDeck {
     private final ArrayList<Card> cards;
+    private final DeckType deckType;
 
-    CardDeck() {
+    CardDeck(DeckType deckType) {
         this.cards = new ArrayList<>();
+        this.deckType = deckType;
         // TODO Constructor will need to invoke DecksFromDisk class object to load the cards
     }
 
@@ -56,4 +60,15 @@ public class CardDeck {
         cards.add(card);
         return true;
     }
+
+    /**
+     * Returns the type of the deck.
+     *
+     * @return The DeckType enum constant that represents the type of the deck.
+     * @author Lorenzo
+     */
+    public DeckType getDeckType() {
+        return deckType;
+    }
+
 }
