@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.model.deck;
 
 import it.polimi.ingsw.am32.model.card.Card;
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,9 +33,22 @@ class CardDeckBuilderTests {
 
     @Test
     void buildCardDeckShouldShuffleDeckBeforeReturningIt() {
-        CardDeck firstCardDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
-        CardDeck secondCardDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
-        assertNotEquals(firstCardDeck.draw().getId(), secondCardDeck.draw().getId());
+        // We will draw two cards from two different decks. The cards should not have the same ID.
+        // The probability of the test failing is not null, but it is very low.
+        // We will retry the test 3 times to reduce the probability of a false negative.
+        for (int i = 0; i < 3; i++) {
+            try {
+                CardDeck firstCardDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
+                CardDeck secondCardDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
+                assertNotEquals(firstCardDeck.draw().getId(), secondCardDeck.draw().getId());
+                break; // If the test passes, break the loop
+            } catch (AssertionError e) {
+                // If the test fails, catch the exception and retry
+                if (i == 2) { // If this was the last attempt, rethrow the exception
+                    throw e;
+                }
+            }
+        }
     }
 
     @Test
