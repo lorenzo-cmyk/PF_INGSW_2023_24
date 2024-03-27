@@ -8,13 +8,14 @@ import java.util.Collections;
 
 /**
  * Contains a collection of NonObjectiveCards implemented as a stack.
+ *
  * @author Lorenzo
  */
 public class NonObjectiveCardDeck {
     private final ArrayList<NonObjectiveCard> cards;
     private final DeckType deckType;
 
-    protected NonObjectiveCardDeck(ArrayList<NonObjectiveCard> cards,DeckType deckType) {
+    protected NonObjectiveCardDeck(ArrayList<NonObjectiveCard> cards, DeckType deckType) {
         this.cards = cards;
         this.deckType = deckType;
     }

@@ -8,6 +8,7 @@ import java.util.Collections;
 
 /**
  * Contains a collection of Cards implemented as a stack.
+ *
  * @author Lorenzo
  */
 public class CardDeck {
@@ -55,7 +56,7 @@ public class CardDeck {
      * @return True if card was successfully added, false otherwise.
      * @author Lorenzo
      */
-     public boolean addCard(Card card) {
+    public boolean addCard(Card card) {
         cards.add(card);
         return true;
     }
