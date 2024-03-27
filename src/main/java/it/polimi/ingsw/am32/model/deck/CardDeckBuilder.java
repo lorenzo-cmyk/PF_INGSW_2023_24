@@ -30,7 +30,9 @@ public class CardDeckBuilder {
         if (deckType != DeckType.OBJECTIVE) {
             return null;
         } else {
-            return new CardDeck(loadCardsFromDisk(deckType), deckType);
+            CardDeck deck = new CardDeck(loadCardsFromDisk(deckType), deckType);
+            deck.shuffle();
+            return deck;
         }
     }
 
