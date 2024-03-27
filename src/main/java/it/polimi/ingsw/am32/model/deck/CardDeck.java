@@ -5,23 +5,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Contains a collection of cards implemented as a stack.
+ * Contains a collection of Cards implemented as a stack.
+ * @author Lorenzo
  */
 public class CardDeck {
-    /**
-    * Card at top of deck found at last index of ArrayList.
-    */
     private final ArrayList<Card> cards;
 
     CardDeck() {
-        cards = new ArrayList<Card>();
+        this.cards = new ArrayList<>();
         // TODO Constructor will need to invoke DecksFromDisk class object to load the cards
     }
 
     /**
      * Draws (and removes) the top card from the deck.
      *
-     * @return Card object at the top of the deck if card is available, else null
+     * @return Card object at the top of the deck if card is available, null otherwise.
+     * @author Lorenzo
      */
     public Card draw() {
         if (cards.isEmpty()) return null;
@@ -35,7 +34,8 @@ public class CardDeck {
     /**
      * Randomly rearranges the cards.
      *
-     * @return true if deck is not empty, false if deck is empty
+     * @return True if deck is not empty, false if deck is empty.
+     * @author Lorenzo
      */
     public boolean shuffle() {
         if (cards.isEmpty()) return false;
@@ -49,8 +49,11 @@ public class CardDeck {
      * Adds a card to the top of the deck.
      *
      * @param card Card to add
+     * @return True if card was successfully added, false otherwise.
+     * @author Lorenzo
      */
-     public void addCard(Card card) {
+     public boolean addCard(Card card) {
         cards.add(card);
+        return true;
     }
 }
