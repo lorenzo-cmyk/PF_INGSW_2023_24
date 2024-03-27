@@ -14,10 +14,9 @@ public class CardDeck {
     private final ArrayList<Card> cards;
     private final DeckType deckType;
 
-    CardDeck(DeckType deckType) {
-        this.cards = new ArrayList<>();
+    protected CardDeck(ArrayList<Card> cards, DeckType deckType) {
+        this.cards = cards;
         this.deckType = deckType;
-        // TODO Constructor will need to invoke DecksFromDisk class object to load the cards
     }
 
     /**

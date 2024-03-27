@@ -14,10 +14,9 @@ public class NonObjectiveCardDeck {
     private final ArrayList<NonObjectiveCard> cards;
     private final DeckType deckType;
 
-    NonObjectiveCardDeck(DeckType deckType) {
-        this.cards = new ArrayList<>();
+    protected NonObjectiveCardDeck(ArrayList<NonObjectiveCard> cards,DeckType deckType) {
+        this.cards = cards;
         this.deckType = deckType;
-        // TODO Constructor will need to invoke DecksFromDisk class object to load the cards
     }
 
     /**
