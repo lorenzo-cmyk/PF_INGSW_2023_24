@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am32.model;
 
+import it.polimi.ingsw.am32.model.match.MatchStatus;
+
 import java.util.ArrayList;
 
 public interface ModelInterface {
@@ -8,7 +10,7 @@ public interface ModelInterface {
     boolean deletePlayer(String nickname); // TODO
     boolean enterPreparationPhase(); // TODO
     boolean assignRandomColoursToPlayers(); // TODO
-    boolean assignRandomStartingInitialCardToPlayer(); // TODO
+    boolean assignRandomStartingInitialCardsToPlayers(); // TODO
     int getInitialCardPlayer(String nickname); // TODO
     boolean createFieldPlayer(String nickname, boolean side); // TODO
     boolean assignRandomStartingResourceCardsToPlayers(); // TODO
@@ -34,10 +36,10 @@ public interface ModelInterface {
     ArrayList<Integer> getCurrentResourcesCards(); // TODO
     ArrayList<Integer> getCurrentGoldCards(); // TODO
     ArrayList<Integer> getCommonObjectives(); // TODO
-    ArrayList<Integer> getPlayerResources(String nickname); // TODO
+    int[] getPlayerResources(String nickname); // TODO
     int getPlayerSecretObjective(String nickname); // TODO
     ArrayList<Integer> getPlayerHand(String nickname); // TODO
     ArrayList<Object> getPlayerField(String nickname); // TODO
-    String getMatchStatus(); // TODO
+    MatchStatus getMatchStatus(); // TODO
     int getCurrentTurnNumber(); // TODO
 }
