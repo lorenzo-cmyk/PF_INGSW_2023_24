@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model.deck;
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.pointstrategy.*;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ObjectsBuilderTests {
