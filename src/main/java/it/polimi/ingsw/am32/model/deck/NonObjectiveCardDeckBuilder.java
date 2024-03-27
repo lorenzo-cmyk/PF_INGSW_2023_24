@@ -30,7 +30,9 @@ public class NonObjectiveCardDeckBuilder {
         if (deckType == DeckType.OBJECTIVE) {
             return null;
         } else {
-            return new NonObjectiveCardDeck(loadCardsFromDisk(deckType), deckType);
+            NonObjectiveCardDeck deck = new NonObjectiveCardDeck(loadCardsFromDisk(deckType), deckType);
+            deck.shuffle();
+            return deck;
         }
     }
 
