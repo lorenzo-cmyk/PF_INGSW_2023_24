@@ -21,9 +21,9 @@ public class AllSpecial implements PointStrategy {
     public int calculateOccurences(Field field, int x, int y) {
         int[] activeRes = field.getActiveRes();
 
-        int quill_num = ObjectType.QUILL.getValue();
-        int inkwell_num = ObjectType.INKWELL.getValue();
-        int manuscript_num = ObjectType.MANUSCRIPT.getValue();
+        int quill_num = activeRes[ObjectType.QUILL.getValue()];
+        int inkwell_num = activeRes[ObjectType.INKWELL.getValue()];
+        int manuscript_num = activeRes[ObjectType.MANUSCRIPT.getValue()];
 
         int quill_full_triplets = quill_num/3;
         int inkwell_full_triplets = inkwell_num/3;
