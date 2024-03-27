@@ -11,7 +11,6 @@ import java.util.ArrayList;
 public class Match implements ModelInterface {
     private NonObjectiveCardDeck starterCardsDeck;
     private CardDeck objectiveCardsDeck;
-    private CardDeck secretObjectiveCardsDeck;
     private NonObjectiveCardDeck resourceCardsDeck;
     private NonObjectiveCardDeck goldCardsDeck;
     private NonObjectiveCard[] currentResourceCards;

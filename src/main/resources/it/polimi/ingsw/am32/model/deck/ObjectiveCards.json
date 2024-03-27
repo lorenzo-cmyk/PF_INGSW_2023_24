@@ -1,0 +1,146 @@
+[
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 87,
+        "Value": 2,
+        "PointStrategy": "Diagonals",
+        "PointStrategy_Type": "FUNGI",
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": true
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 88,
+        "Value": 2,
+        "PointStrategy": "Diagonals",
+        "PointStrategy_Type": "PLANT",
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": false
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 89,
+        "Value": 2,
+        "PointStrategy": "Diagonals",
+        "PointStrategy_Type": "ANIMAL",
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": true
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 90,
+        "Value": 2,
+        "PointStrategy": "Diagonals",
+        "PointStrategy_Type": "INSECT",
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": false
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 91,
+        "Value": 3,
+        "PointStrategy": "LConfigurationOne",
+        "PointStrategy_Type": null,
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 92,
+        "Value": 3,
+        "PointStrategy": "LConfigurationTwo",
+        "PointStrategy_Type": null,
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 93,
+        "Value": 3,
+        "PointStrategy": "LConfigurationFour",
+        "PointStrategy_Type": null,
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 94,
+        "Value": 3,
+        "PointStrategy": "LConfigurationThree",
+        "PointStrategy_Type": null,
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 95,
+        "Value": 2,
+        "PointStrategy": "CountResource",
+        "PointStrategy_Type": "FUNGI",
+        "PointStrategy_Count": 3.0,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 96,
+        "Value": 2,
+        "PointStrategy": "CountResource",
+        "PointStrategy_Type": "PLANT",
+        "PointStrategy_Count": 3.0,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 97,
+        "Value": 2,
+        "PointStrategy": "CountResource",
+        "PointStrategy_Type": "ANIMAL",
+        "PointStrategy_Count": 3.0,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 98,
+        "Value": 2,
+        "PointStrategy": "CountResource",
+        "PointStrategy_Type": "INSECT",
+        "PointStrategy_Count": 3.0,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 99,
+        "Value": 3,
+        "PointStrategy": "AllSpecial",
+        "PointStrategy_Type": null,
+        "PointStrategy_Count": null,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 100,
+        "Value": 2,
+        "PointStrategy": "CountResource",
+        "PointStrategy_Type": "MANUSCRIPT",
+        "PointStrategy_Count": 2.0,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 101,
+        "Value": 2,
+        "PointStrategy": "CountResource",
+        "PointStrategy_Type": "INKWELL",
+        "PointStrategy_Count": 2.0,
+        "PointStrategy_LeftToRight": null
+    },
+    {
+        "CardType": "OBJECTIVE",
+        "ID": 102,
+        "Value": 2,
+        "PointStrategy": "CountResource",
+        "PointStrategy_Type": "QUILL",
+        "PointStrategy_Count": 2.0,
+        "PointStrategy_LeftToRight": null
+    }
+]

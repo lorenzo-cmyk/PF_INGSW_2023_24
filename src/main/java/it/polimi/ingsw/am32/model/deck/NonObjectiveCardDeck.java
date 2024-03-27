@@ -1,28 +1,30 @@
 package it.polimi.ingsw.am32.model.deck;
 
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.deck.utils.DeckType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Contains a collection of cards implemented as a stack.
+ * Contains a collection of NonObjectiveCards implemented as a stack.
+ *
+ * @author Lorenzo
  */
 public class NonObjectiveCardDeck {
-    /**
-    * Card at top of deck found at last index of ArrayList.
-    */
     private final ArrayList<NonObjectiveCard> cards;
+    private final DeckType deckType;
 
-    NonObjectiveCardDeck() {
-        cards = new ArrayList<NonObjectiveCard>();
-        // TODO Constructor will need to invoke DecksFromDisk class object to load the cards
+    protected NonObjectiveCardDeck(ArrayList<NonObjectiveCard> cards, DeckType deckType) {
+        this.cards = cards;
+        this.deckType = deckType;
     }
 
     /**
      * Draws (and removes) the top card from the deck.
      *
-     * @return Card object at the top of the deck if card is available, else null
+     * @return NonObjectiveCard object at the top of the deck if card is available, null otherwise.
+     * @author Lorenzo
      */
     public NonObjectiveCard draw() {
         if (cards.isEmpty()) return null;
@@ -36,7 +38,8 @@ public class NonObjectiveCardDeck {
     /**
      * Randomly rearranges the cards.
      *
-     * @return true if deck is not empty, false if deck is empty
+     * @return True if deck is not empty, false if deck is empty.
+     * @author Lorenzo
      */
     public boolean shuffle() {
         if (cards.isEmpty()) return false;
@@ -49,9 +52,23 @@ public class NonObjectiveCardDeck {
     /**
      * Adds a card to the top of the deck.
      *
-     * @param card Card to add
+     * @param card NonObjectiveCard to add
+     * @return True if card was successfully added, false otherwise.
+     * @author Lorenzo
      */
-     public void addCard(NonObjectiveCard card) {
+    public boolean addCard(NonObjectiveCard card) {
         cards.add(card);
+        return true;
     }
+
+    /**
+     * Returns the type of the deck.
+     *
+     * @return The DeckType enum constant that represents the type of the deck.
+     * @author Lorenzo
+     */
+    public DeckType getDeckType() {
+        return deckType;
+    }
+
 }
