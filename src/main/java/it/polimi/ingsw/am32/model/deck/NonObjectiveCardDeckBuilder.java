@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model.deck;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
 
 import java.nio.file.Files;
@@ -60,20 +61,23 @@ public class NonObjectiveCardDeckBuilder {
             if (jsonNode.isArray()) {
                 for (JsonNode currentNode : jsonNode) {
                     // Build the card object
+                    int[] permRes = new int[7];
+                    permRes[ObjectType.PLANT.getValue()] = currentNode.get("PermRes.PLANT").asInt();
+                    permRes[ObjectType.FUNGI.getValue()] = currentNode.get("PermRes.FUNGI").asInt();
+                    permRes[ObjectType.ANIMAL.getValue()] = currentNode.get("PermRes.ANIMAL").asInt();
+                    permRes[ObjectType.INSECT.getValue()] = currentNode.get("PermRes.INSECT").asInt();
+                    permRes[ObjectType.QUILL.getValue()] = currentNode.get("PermRes.QUILL").asInt();
+                    permRes[ObjectType.INKWELL.getValue()] = currentNode.get("PermRes.INKWELL").asInt();
+                    permRes[ObjectType.MANUSCRIPT.getValue()] = currentNode.get("PermRes.MANUSCRIPT").asInt();
 
-                    int[] permRes = new int[]{
-                            currentNode.get("PermRes.PLANT").asInt(), currentNode.get("PermRes.FUNGI").asInt(),
-                            currentNode.get("PermRes.ANIMAL").asInt(), currentNode.get("PermRes.INSECT").asInt(),
-                            currentNode.get("PermRes.QUILL").asInt(), currentNode.get("PermRes.INKWELL").asInt(),
-                            currentNode.get("PermRes.MANUSCRIPT").asInt()
-                    };
-
-                    int[] conditionCount = new int[]{
-                            currentNode.get("ConditionCount.PLANT").asInt(), currentNode.get("ConditionCount.FUNGI").asInt(),
-                            currentNode.get("ConditionCount.ANIMAL").asInt(), currentNode.get("ConditionCount.INSECT").asInt(),
-                            currentNode.get("ConditionCount.QUILL").asInt(), currentNode.get("ConditionCount.INKWELL").asInt(),
-                            currentNode.get("ConditionCount.MANUSCRIPT").asInt()
-                    };
+                    int[] conditionCount = new int[7];
+                    conditionCount[ObjectType.PLANT.getValue()] = currentNode.get("ConditionCount.PLANT").asInt();
+                    conditionCount[ObjectType.FUNGI.getValue()] = currentNode.get("ConditionCount.FUNGI").asInt();
+                    conditionCount[ObjectType.ANIMAL.getValue()] = currentNode.get("ConditionCount.ANIMAL").asInt();
+                    conditionCount[ObjectType.INSECT.getValue()] = currentNode.get("ConditionCount.INSECT").asInt();
+                    conditionCount[ObjectType.QUILL.getValue()] = currentNode.get("ConditionCount.QUILL").asInt();
+                    conditionCount[ObjectType.INKWELL.getValue()] = currentNode.get("ConditionCount.INKWELL").asInt();
+                    conditionCount[ObjectType.MANUSCRIPT.getValue()] = currentNode.get("ConditionCount.MANUSCRIPT").asInt();
 
                     NonObjectiveCard card = new NonObjectiveCard(
                             currentNode.get("ID").asInt(),
