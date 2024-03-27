@@ -1,15 +1,14 @@
 package it.polimi.ingsw.am32.model.deck;
 
 import it.polimi.ingsw.am32.model.card.Card;
-import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CardDeckBuilderTests {
-
     private CardDeckBuilder cardDeckBuilder;
 
     @BeforeEach
@@ -17,6 +16,7 @@ class CardDeckBuilderTests {
         cardDeckBuilder = new CardDeckBuilder();
     }
 
+    @DisplayName("buildCardDeck should return null for non-Objective deck type")
     @Test
     void buildCardDeckReturnsNullForNonObjectiveDeckType() {
         assertNull(cardDeckBuilder.buildCardDeck(DeckType.RESOURCE));
@@ -24,6 +24,7 @@ class CardDeckBuilderTests {
         assertNull(cardDeckBuilder.buildCardDeck(DeckType.STARTING));
     }
 
+    @DisplayName("buildCardDeck should return a CardDeck for Objective deck type")
     @Test
     void buildCardDeckReturnsCardDeckForObjectiveDeckType() {
         CardDeck cardDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
@@ -31,12 +32,13 @@ class CardDeckBuilderTests {
         assertEquals(DeckType.OBJECTIVE, cardDeck.getDeckType());
     }
 
+    @DisplayName("buildCardDeck should shuffle the deck before returning it")
     @Test
     void buildCardDeckShouldShuffleDeckBeforeReturningIt() {
         // We will draw two cards from two different decks. The cards should not have the same ID.
         // The probability of the test failing is not null, but it is very low.
         // We will retry the test 3 times to reduce the probability of a false negative.
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; true; i++) {
             try {
                 CardDeck firstCardDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
                 CardDeck secondCardDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
@@ -51,6 +53,7 @@ class CardDeckBuilderTests {
         }
     }
 
+    @DisplayName("buildCardDeck should return a CardDeck with the correct cards for Objective deck")
     @Test
     void buildCardDeckReturnsCardDeckWithCorrectCardsForObjectiveDeckType() {
         CardDeck cardDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);

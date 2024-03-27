@@ -2,14 +2,15 @@ package it.polimi.ingsw.am32.model.deck;
 
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.pointstrategy.*;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ObjectsBuilderTests {
-
     ObjectsBuilder objectsBuilder = new ObjectsBuilder();
 
+    @DisplayName("stringToCornerType should return the correct object")
     @Test
     void stringToCornerTypeReturnsCorrectEnum() {
         assertEquals(CornerType.PLANT, objectsBuilder.stringToCornerType("PLANT"));
@@ -23,11 +24,13 @@ class ObjectsBuilderTests {
         assertEquals(CornerType.NON_COVERABLE, objectsBuilder.stringToCornerType("NON_COVERABLE"));
     }
 
+    @DisplayName("stringToCornerType should return null for invalid string")
     @Test
     void stringToCornerTypeReturnsNullForInvalidString() {
         assertNull(objectsBuilder.stringToCornerType("INVALID"));
     }
 
+    @DisplayName("stringToObjectType should return the correct object")
     @Test
     void stringToObjectTypeReturnsCorrectEnum() {
         assertEquals(ObjectType.PLANT, objectsBuilder.stringToObjectType("PLANT"));
@@ -39,11 +42,13 @@ class ObjectsBuilderTests {
         assertEquals(ObjectType.MANUSCRIPT, objectsBuilder.stringToObjectType("MANUSCRIPT"));
     }
 
+    @DisplayName("stringToObjectType should return null for invalid string")
     @Test
     void stringToObjectTypeReturnsNullForInvalidString() {
         assertNull(objectsBuilder.stringToObjectType("INVALID"));
     }
 
+    @DisplayName("stringsToPointStrategy should return the correct object")
     @Test
     void stringsToPointStrategyReturnsCorrectObject() {
         assertInstanceOf(AllSpecial.class, objectsBuilder.stringsToPointStrategy("AllSpecial", "", 0, false));
@@ -57,6 +62,7 @@ class ObjectsBuilderTests {
         assertInstanceOf(LConfigurationFour.class, objectsBuilder.stringsToPointStrategy("LConfigurationFour", "", 0, false));
     }
 
+    @DisplayName("stringsToPointStrategy should return null for invalid string")
     @Test
     void stringsToPointStrategyReturnsNullForInvalidString() {
         assertNull(objectsBuilder.stringsToPointStrategy("INVALID", "", 0, false));

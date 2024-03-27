@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -11,7 +12,6 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NonObjectiveCardDeckBuilderTests {
-
     private NonObjectiveCardDeckBuilder nonObjectiveCardDeckBuilder;
 
     @BeforeEach
@@ -19,11 +19,13 @@ class NonObjectiveCardDeckBuilderTests {
         nonObjectiveCardDeckBuilder = new NonObjectiveCardDeckBuilder();
     }
 
+    @DisplayName("buildNonObjectiveCardDeck should return null for the Objective deck")
     @Test
     void buildNonObjectiveCardDeckReturnsNullForObjectiveDeckType() {
         assertNull(nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.OBJECTIVE));
     }
 
+    @DisplayName("buildNonObjectiveCardDeck should return a NonObjectiveCardDeck for the Resource deck")
     @Test
     void buildNonObjectiveCardDeckReturnsNonObjectiveCardDeckForResourceDeckType() {
         NonObjectiveCardDeck nonObjectiveCardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.RESOURCE);
@@ -31,6 +33,7 @@ class NonObjectiveCardDeckBuilderTests {
         assertEquals(DeckType.RESOURCE, nonObjectiveCardDeck.getDeckType());
     }
 
+    @DisplayName("buildNonObjectiveCardDeck should return a NonObjectiveCardDeck for the Gold deck")
     @Test
     void buildNonObjectiveCardDeckReturnsNonObjectiveCardDeckForGoldDeckType() {
         NonObjectiveCardDeck nonObjectiveCardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.GOLD);
@@ -38,6 +41,7 @@ class NonObjectiveCardDeckBuilderTests {
         assertEquals(DeckType.GOLD, nonObjectiveCardDeck.getDeckType());
     }
 
+    @DisplayName("buildNonObjectiveCardDeck should return a NonObjectiveCardDeck for the Starting deck")
     @Test
     void buildNonObjectiveCardDeckReturnsNonObjectiveCardDeckForStartingDeckType() {
         NonObjectiveCardDeck nonObjectiveCardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.STARTING);
@@ -45,12 +49,13 @@ class NonObjectiveCardDeckBuilderTests {
         assertEquals(DeckType.STARTING, nonObjectiveCardDeck.getDeckType());
     }
 
+    @DisplayName("buildNonObjectiveCardDeck should shuffle the deck before returning it")
     @Test
     void buildNonObjectiveCardDeckShouldShuffleDeckBeforeReturningIt() {
         // We will draw two cards from two different decks. The cards should not have the same ID.
         // The probability of the test failing is not null, but it is very low.
         // We will retry the test 3 times to reduce the probability of a false negative.
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; true; i++) {
             try {
                 NonObjectiveCardDeck firstNonObjectiveCardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.RESOURCE);
                 NonObjectiveCardDeck secondNonObjectiveCardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.RESOURCE);
@@ -67,6 +72,7 @@ class NonObjectiveCardDeckBuilderTests {
         }
     }
 
+    @DisplayName("buildCardDeck should return a NonObjectiveCardDeck with the correct cards for the Resource deck")
     @Test
     void buildCardDeckReturnsCardDeckWithCorrectCardsForResourceDeckType() {
         NonObjectiveCardDeck cardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.RESOURCE);
@@ -111,6 +117,7 @@ class NonObjectiveCardDeckBuilderTests {
         assertNull(cardDeck.draw());
     }
 
+    @DisplayName("buildCardDeck should return a NonObjectiveCardDeck with the correct cards for the Gold deck")
     @Test
     void buildCardDeckReturnsCardDeckWithCorrectCardsForGoldDeckType() {
         NonObjectiveCardDeck cardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.GOLD);
@@ -156,6 +163,7 @@ class NonObjectiveCardDeckBuilderTests {
         assertNull(cardDeck.draw());
     }
 
+    @DisplayName("buildCardDeck should return a NonObjectiveCardDeck with the correct cards for the Starting deck")
     @Test
     void buildCardDeckReturnsCardDeckWithCorrectCardsForStartingDeckType() {
         NonObjectiveCardDeck cardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.STARTING);
@@ -200,5 +208,4 @@ class NonObjectiveCardDeckBuilderTests {
         // The deck should be empty after drawing all the cards.
         assertNull(cardDeck.draw());
     }
-
 }
