@@ -80,6 +80,9 @@ class NonObjectiveCardDeckBuilderTests {
             assertNotNull(card.getTopRightBack());
             assertNotNull(card.getBottomLeftBack());
             assertNotNull(card.getBottomRightBack());
+            // Both permRes and conditionCount must have 7 elements.
+            assertEquals(7, card.getPermRes().length);
+            assertEquals(7, card.getConditionCount().length);
 
             // Specific for Resource cards: permRes and conditionCount must be all-zero.
             assertEquals(0, Arrays.stream(card.getPermRes()).sum());
@@ -121,6 +124,9 @@ class NonObjectiveCardDeckBuilderTests {
             assertNotNull(card.getTopRightBack());
             assertNotNull(card.getBottomLeftBack());
             assertNotNull(card.getBottomRightBack());
+            // Both permRes and conditionCount must have 7 elements.
+            assertEquals(7, card.getPermRes().length);
+            assertEquals(7, card.getConditionCount().length);
 
             // Specific for Gold cards: conditionCount must be not all-zero.
             assertNotEquals(0, Arrays.stream(card.getConditionCount()).sum());
@@ -163,6 +169,9 @@ class NonObjectiveCardDeckBuilderTests {
             assertNotNull(card.getTopRightBack());
             assertNotNull(card.getBottomLeftBack());
             assertNotNull(card.getBottomRightBack());
+            // Both permRes and conditionCount must have 7 elements.
+            assertEquals(7, card.getPermRes().length);
+            assertEquals(7, card.getConditionCount().length);
 
             // Specific for Starting cards: conditionCount must be all-zero.
             assertEquals(0, Arrays.stream(card.getConditionCount()).sum());
