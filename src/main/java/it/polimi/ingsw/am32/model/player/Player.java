@@ -12,10 +12,10 @@ public class Player {
     private Card chosenSecretObj;
     private Colour colour;
     private int points;
-    private ArrayList<Card> hand;
+    private ArrayList<NonObjectiveCard> hand;
     private Card[] tempSecretObj;
 
-    public Player(String nickname, Field gameField, Card chosenSecretObj, Colour colour, int points, ArrayList<Card> hand, Card[] tempSecretObj) {
+    public Player(String nickname, Field gameField, Card chosenSecretObj, Colour colour, int points, ArrayList<NonObjectiveCard> hand, Card[] tempSecretObj) {
         this.nickname = nickname;
         this.gameField = gameField;
         this.chosenSecretObj = chosenSecretObj;
@@ -26,6 +26,14 @@ public class Player {
         // TODO: MAKE THIS CONSTRUCTOR USABLE ACCORDING TO GAME LOGIC
     }
 
+    public NonObjectiveCard getInitialCard() {
+        // TODO
+        return null;
+    }
+    public boolean assignStartingCard(NonObjectiveCard startCard) {
+        // TODO
+        return true;
+    }
     public String getNickname() {
         return nickname;
     }
@@ -35,7 +43,11 @@ public class Player {
     public Field getField() {
         return gameField;
     }
-    public int receiveSecretObjective(Card[] choices, int choice_number) {
+    public boolean secretObjectiveSelection(int a) {
+        // TODO
+        return false;
+    }
+    public int receiveSecretObjective(Card c1, Card c2) {
         // TODO
         return 0;
     }
@@ -53,11 +65,11 @@ public class Player {
         // TODO Return statement
         return false;
     }
-    public boolean putCardInHand(Card newCard) {
+    public boolean putCardInHand(NonObjectiveCard newCard) {
         hand.add(newCard);
         return false;
     }
-    public ArrayList<Card> getHand() {
+    public ArrayList<NonObjectiveCard> getHand() {
         return hand;
     }
     public boolean performMove(NonObjectiveCard card, int x, int y, boolean isUp) {
