@@ -21,6 +21,24 @@ public class NonObjectiveCard extends Card {
     private final int[] conditionCount;
     private final ObjectType kingdom;
 
+    /**
+     * Constructor of NonObjectiveCard object
+     *
+     * @param id ID of card
+     * @param value Value of card used for calculating points (number found on top of card)
+     * @param pointStrategy Strategy for calculating card points
+     * @param topLeft Top left corner object
+     * @param topRight Top right corner object
+     * @param bottomLeft Bottom left corner object
+     * @param bottomRight Bottom right corner object
+     * @param topLeftBack Top left corner object at the back
+     * @param topRightBack Top right corner object at the back
+     * @param bottomLeftBack Bottom left corner object at the back
+     * @param bottomRightBack Bottom right corner object at the back
+     * @param permRes Permanent resources at the back of the card
+     * @param conditionCount Resources needed to place the card
+     * @param kingdom Kingdom the card belongs to
+     */
     public NonObjectiveCard(int id, int value, PointStrategy pointStrategy, CornerType topLeft,
                      CornerType topRight, CornerType bottomLeft, CornerType bottomRight, CornerType topLeftBack,
                      CornerType topRightBack, CornerType bottomLeftBack, CornerType bottomRightBack,
@@ -37,7 +55,6 @@ public class NonObjectiveCard extends Card {
         this.permRes = permRes;
         this.conditionCount = conditionCount;
         this.kingdom = kingdom;
-        // FIXME Need to properly manage permRes, kingdom, and conditionCount initialization
     }
 
     public CornerType getTopLeft() {
