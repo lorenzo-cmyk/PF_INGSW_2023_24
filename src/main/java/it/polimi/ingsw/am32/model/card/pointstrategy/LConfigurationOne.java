@@ -27,13 +27,13 @@ public class LConfigurationOne implements PointStrategy {
         int times = 0;
         List<CardPlaced> plantKingdom = new ArrayList<>(); // create Arraylist to store all cards of Plant Kingdom visible in field.
         for (CardPlaced i : field.getFieldCards()) {
-            if (i.getCard().getKingdom() == ObjectType.PLANT) {
+            if (i.getNonObjectiveCard().getKingdom() == ObjectType.PLANT) {
                 plantKingdom.add(i);
             }
         } // add a card to the plantKingdom list if its type is Plant.
         List<CardPlaced> fungiKingdom = new ArrayList<>(); // create Arraylist to store all cards of Fungi Kingdom visible in field.
         for (CardPlaced i : field.getFieldCards()) {
-            if (i.getCard().getKingdom() == ObjectType.FUNGI) {
+            if (i.getNonObjectiveCard().getKingdom() == ObjectType.FUNGI) {
                 fungiKingdom.add(i);
             }
         } // add a card to the fungiKingdom list if its type is Fungi.

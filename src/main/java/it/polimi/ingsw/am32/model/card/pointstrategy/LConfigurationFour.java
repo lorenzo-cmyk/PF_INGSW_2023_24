@@ -28,7 +28,7 @@ public class LConfigurationFour implements PointStrategy {
         ArrayList<CardPlaced> fieldCards = field.getFieldCards(); // Get all the cards with their positions
 
         List<CardPlaced> orderedCardsTemp = fieldCards.stream() // Converts ArrayList to stream
-                .filter(c -> c.getCard().getKingdom() == ObjectType.FUNGI || c.getCard().getKingdom() == ObjectType.ANIMAL) // Filters all non-fungi or non-plants out
+                .filter(c -> c.getNonObjectiveCard().getKingdom() == ObjectType.FUNGI || c.getNonObjectiveCard().getKingdom() == ObjectType.ANIMAL) // Filters all non-fungi or non-plants out
                 .sorted((c1, c2) -> (c1.getX() > c2.getX() || (c1.getX() == c2.getX() && c1.getY() > c2.getY())) ? -1 : 1)
                 .toList();
         ArrayList<CardPlaced> orderedCards = new ArrayList<CardPlaced>(orderedCardsTemp);
@@ -44,13 +44,13 @@ public class LConfigurationFour implements PointStrategy {
      */
     private int recursiveOccurrences(ArrayList<CardPlaced> cards) {
         for (int i=0; i<cards.size(); i++) { // Scan all cards
-            if (cards.get(i).getCard().getKingdom() == ObjectType.FUNGI) { // Found red card
+            if (cards.get(i).getNonObjectiveCard().getKingdom() == ObjectType.FUNGI) { // Found red card
                 for (int j=i+1; j<cards.size(); j++) { // Scan all cards that follow red card
-                    if (cards.get(j).getCard().getKingdom() == ObjectType.ANIMAL && // Blue card found
+                    if (cards.get(j).getNonObjectiveCard().getKingdom() == ObjectType.ANIMAL && // Blue card found
                         cards.get(j).getX() == cards.get(i).getX() - 1 &&
                         cards.get(j).getY() == cards.get(i).getY() - 1 && // At the bottom left of the red card
                         j != cards.size()-1 && // Card is not last card of array
-                        cards.get(j+1).getCard().getKingdom() == ObjectType.ANIMAL && // Second blue card found at the correct spot
+                        cards.get(j+1).getNonObjectiveCard().getKingdom() == ObjectType.ANIMAL && // Second blue card found at the correct spot
                         cards.get(j+1).getX() == cards.get(i).getX() - 1 &&
                         cards.get(j+1).getY() == cards.get(i).getY() - 2) {
                         // Pattern occurrence found

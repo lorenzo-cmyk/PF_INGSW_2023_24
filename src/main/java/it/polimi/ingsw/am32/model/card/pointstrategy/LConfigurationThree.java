@@ -27,13 +27,13 @@ public class LConfigurationThree implements PointStrategy {
         int times = 0;
         List<CardPlaced> animalKingdom = new ArrayList<>(); // create Arraylist to store all cards of animal Kingdom visible in field.
         for (CardPlaced i : field.getFieldCards()) {
-            if (i.getCard().getKingdom() == ObjectType.ANIMAL) {
+            if (i.getNonObjectiveCard().getKingdom() == ObjectType.ANIMAL) {
                 animalKingdom.add(i);
             }
         } // add a card to the animalKingdom list if its type is Animal.
         List<CardPlaced> insectKingdom = new ArrayList<>(); // create Arraylist to store all cards of Insect Kingdom visible in field.
         for (CardPlaced i : field.getFieldCards()) {
-            if (i.getCard().getKingdom() == ObjectType.INSECT) {
+            if (i.getNonObjectiveCard().getKingdom() == ObjectType.INSECT) {
                 insectKingdom.add(i);
             }
         } // add a card to the insertKingdom list if its type is Insect.

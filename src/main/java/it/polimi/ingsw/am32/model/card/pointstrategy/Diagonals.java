@@ -30,7 +30,7 @@ public class Diagonals implements PointStrategy {
         int times = 0;
         List<CardPlaced> dominantKingdom = new ArrayList<>(); // create Arraylist to store all cards that belong the Kingdom requested by objective Card.
         for (CardPlaced i : field.getFieldCards()) {
-            if (i.getCard().getKingdom() == this.type) {
+            if (i.getNonObjectiveCard().getKingdom() == this.type) {
                 dominantKingdom.add(i);
             }
         } // add a card to the dominantKingdom list if it has same kingdom type as the objective card's kingdom.
