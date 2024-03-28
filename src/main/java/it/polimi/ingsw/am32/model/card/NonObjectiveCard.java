@@ -9,7 +9,7 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
  * @author anto
  */
 public class NonObjectiveCard extends Card {
-    private final CornerType topLeft;
+    private final CornerType topLeft; // We store the objects stored on each corner of the card front and back
     private final CornerType topRight;
     private final CornerType bottomLeft;
     private final CornerType bottomRight;
@@ -17,9 +17,9 @@ public class NonObjectiveCard extends Card {
     private final CornerType topRightBack;
     private final CornerType bottomLeftBack;
     private final CornerType bottomRightBack;
-    private final int[] permRes;
-    private final int[] conditionCount;
-    private final ObjectType kingdom;
+    private final int[] permRes; // Permanent resources on back of card. Index of each resource dictated by ObjectType enum
+    private final int[] conditionCount; // Resources that need to be present on the field before playing card. Index of each resource dictated by ObjectType enum
+    private final ObjectType kingdom; // Kingdom (colour) of the card
 
     /**
      * Constructor of NonObjectiveCard object
