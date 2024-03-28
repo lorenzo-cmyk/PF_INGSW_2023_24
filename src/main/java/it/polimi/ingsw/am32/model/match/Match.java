@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model.match;
 import it.polimi.ingsw.am32.model.ModelInterface;
 import it.polimi.ingsw.am32.model.card.Card;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.deck.CardDeck;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeck;
 import it.polimi.ingsw.am32.model.player.Player;
@@ -221,7 +222,11 @@ public class Match implements ModelInterface {
     public int[] getPlayerResources(String nickname) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
-                return players.get(i).getField().getActiveRes();
+                int[] playerRes = new int[7];
+                for(ObjectType ob : ObjectType.values()) {
+                    playerRes[ob.getValue()] = players.get(i).getField().getActiveRes(ob);
+                }
+                return playerRes;
             }
         }
         return null;
@@ -230,7 +235,7 @@ public class Match implements ModelInterface {
     public int getPlayerSecretObjective(String nickname) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
-                return players.get(i).getChosenSecretObj().getId();
+                return players.get(i).getSecretObjective().getId();
             }
         }
         return -1; // FIXME Intellij marks error if this return is not present

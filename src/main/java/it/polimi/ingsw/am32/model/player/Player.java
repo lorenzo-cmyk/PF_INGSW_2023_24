@@ -165,10 +165,6 @@ public class Player {
     // TODO is it actually used?
     public int calculatePoints(Card card, int x, int y) {
         // TODO
-        return false;
-    }
-    public int receiveSecretObjective(Card c1, Card c2) {
-        // TODO
         return 0;
     }
 

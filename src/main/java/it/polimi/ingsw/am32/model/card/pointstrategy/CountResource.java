@@ -28,7 +28,7 @@ public class CountResource implements PointStrategy {
         int times;
         // Get number of specific resources(objects) visible in the field,
         // then dived for the number of resources (objects) requested by objective card.
-        times=field.getActiveRes()[this.type.getValue()]/this.count;
+        times=field.getActiveRes(this.type)/this.count;
         return times;
     }
 
