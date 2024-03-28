@@ -6,6 +6,7 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.Empty;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -41,28 +42,33 @@ class NonObjectiveCardDeckTests {
         nonObjectiveCardDeck = new NonObjectiveCardDeck(cards, DeckType.RESOURCE);
     }
 
+    @DisplayName("draw should return a card when the deck is not empty")
     @Test
     void drawReturnsCardWhenDeckIsNotEmpty() {
         assertEquals(nonObjectiveCard, nonObjectiveCardDeck.draw());
     }
 
+    @DisplayName("draw should return null when the deck is empty")
     @Test
     void drawReturnsNullWhenDeckIsEmpty() {
         nonObjectiveCardDeck.draw(); // remove the only card in the deck
         assertNull(nonObjectiveCardDeck.draw());
     }
 
+    @DisplayName("shuffle should return true when the deck is not empty")
     @Test
     void shuffleReturnsTrueWhenDeckIsNotEmpty() {
         assertTrue(nonObjectiveCardDeck.shuffle());
     }
 
+    @DisplayName("shuffle should return false when the deck is empty")
     @Test
     void shuffleReturnsFalseWhenDeckIsEmpty() {
         nonObjectiveCardDeck.draw(); // remove the only card in the deck
         assertFalse(nonObjectiveCardDeck.shuffle());
     }
 
+    @DisplayName("addCard should add a card to the deck")
     @Test
     void addCardAddsCardToDeck() {
         int[] permRes = new int[]{0, 0, 0, 0, 0, 0, 0};
@@ -87,6 +93,7 @@ class NonObjectiveCardDeckTests {
         assertEquals(newCard, nonObjectiveCardDeck.draw());
     }
 
+    @DisplayName("getDeckType should return the correct deck type")
     @Test
     void getDeckTypeReturnsCorrectDeckType() {
         assertEquals(DeckType.RESOURCE, nonObjectiveCardDeck.getDeckType());
