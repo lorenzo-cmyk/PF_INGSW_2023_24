@@ -11,7 +11,7 @@ import it.polimi.ingsw.am32.model.field.Field;
 public class AllSpecial implements PointStrategy {
     /**
      * Calculates the number of full triplets of special type resources on the field.
-     * If there are 5 quills, 6 inkwells, and 8 manuscripts for example, the number of occurrences should be 1
+     * If there are 1 quills, 3 inkwells, and 2 manuscripts for example, the number of occurrences should be 1
      *
      * @param field Field object which the card belongs to
      * @param x Parameter not used
@@ -23,10 +23,6 @@ public class AllSpecial implements PointStrategy {
         int inkwell_num = field.getActiveRes(ObjectType.INKWELL);
         int manuscript_num = field.getActiveRes(ObjectType.MANUSCRIPT);
 
-        int quill_full_triplets = quill_num/3;
-        int inkwell_full_triplets = inkwell_num/3;
-        int manuscript_full_triplets = manuscript_num/3;
-
-        return Math.min(Math.min(quill_full_triplets, inkwell_full_triplets), manuscript_full_triplets);
+        return Math.min(Math.min(quill_num, inkwell_num), manuscript_num);
     }
 }
