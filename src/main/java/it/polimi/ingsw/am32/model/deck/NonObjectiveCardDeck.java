@@ -12,7 +12,13 @@ import java.util.Collections;
  * @author Lorenzo
  */
 public class NonObjectiveCardDeck {
+    /**
+     * The collection of NonObjectiveCards.
+     */
     private final ArrayList<NonObjectiveCard> cards;
+    /**
+     * The type of the deck.
+     */
     private final DeckType deckType;
 
     protected NonObjectiveCardDeck(ArrayList<NonObjectiveCard> cards, DeckType deckType) {

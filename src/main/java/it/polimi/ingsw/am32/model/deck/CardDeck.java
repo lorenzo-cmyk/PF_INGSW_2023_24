@@ -12,7 +12,13 @@ import java.util.Collections;
  * @author Lorenzo
  */
 public class CardDeck {
+    /**
+     * The collection of Cards.
+     */
     private final ArrayList<Card> cards;
+    /**
+     * The type of the deck.
+     */
     private final DeckType deckType;
 
     protected CardDeck(ArrayList<Card> cards, DeckType deckType) {
