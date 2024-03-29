@@ -7,6 +7,7 @@ import it.polimi.ingsw.am32.model.field.Field;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Player {
 
@@ -131,9 +132,40 @@ public class Player {
         return true;
     }
 
-    public boolean performMove(NonObjectiveCard card, int x, int y, boolean isUp) {
-        // TODO
-        return false;
+    // TODO Javadoc
+    public boolean performMove(int id, int x, int y, boolean isUp) {
+
+        if(gameField == null)
+            return false;
+
+        NonObjectiveCard nonObjectiveCard = null;
+        int tmpVar = -1;
+
+        for (int i = 0; i < hand.size(); i++)
+            if(hand.get(i).getId() == id) {
+                nonObjectiveCard = hand.get(i);
+                tmpVar = i;
+                break;
+            }
+        
+        if(nonObjectiveCard == null)
+            return false;
+        
+        boolean result = gameField.placeCardInField(nonObjectiveCard, x, y, isUp);
+
+        if(!result)
+            return false;
+
+        hand.remove(tmpVar);
+        
+        PointStrategy pointStrategy = nonObjectiveCard.getPointStrategy();
+
+        // TODO check if next line can fail
+        int occurrences = pointStrategy.calculateOccurences(gameField, x, y);
+
+        points = points + occurrences * nonObjectiveCard.getValue();
+
+        return true;
     }
 
     /**
