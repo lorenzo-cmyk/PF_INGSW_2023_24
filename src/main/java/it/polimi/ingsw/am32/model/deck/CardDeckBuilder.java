@@ -16,7 +16,9 @@ import java.util.ArrayList;
  * @author Lorenzo
  */
 public class CardDeckBuilder {
-
+    /**
+     * The ObjectsBuilder object used to perform Strings to Objects conversion.
+     */
     private final ObjectsBuilder objectsBuilder = new ObjectsBuilder();
 
     /**

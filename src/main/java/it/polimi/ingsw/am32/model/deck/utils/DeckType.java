@@ -13,6 +13,9 @@ public enum DeckType {
     STARTING("src/main/resources/it/polimi/ingsw/am32/model/deck/StartingCards.json"),
     OBJECTIVE("src/main/resources/it/polimi/ingsw/am32/model/deck/ObjectiveCards.json");
 
+    /**
+     * The path to the JSON file that contains the card data for the deck.
+     */
     private final String JSONPath;
 
     DeckType(String JSONPath) {
