@@ -34,7 +34,6 @@ class DiagonalsTest {
         Diagonals strategy = new Diagonals(ObjectType.FUNGI,true);
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
-
     @DisplayName("Strategy called on field with 1 card which has Kingdom requested by given card should return 0")
     @Test
     void occurrencesOnFieldWithOneCardKingdomRequiredShouldBeZero() {
@@ -92,14 +91,14 @@ class DiagonalsTest {
         Diagonals strategy = new Diagonals(ObjectType.FUNGI,true);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
-        f.placeCardInField(c1, 1, 1, true);
-        f.placeCardInField(c2, -1, 1, true); // Card placed side-up
+        f.placeCardInField(c1, -1, 1, true);
+        f.placeCardInField(c2, -2, 2, true); // Card placed side-up
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field with 3 cards of required kingdom placed in correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithThreeCardsKingdomRequiredCorrectOrientationShouldBeOne() {
+    void occurrencesOnFieldWithThreeCardsKingdomRequiredCorrectOrientationY_XShouldBeOne() {
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -109,7 +108,18 @@ class DiagonalsTest {
         f.placeCardInField(c3, -3, 3, true); // Card placed side-up
         assertEquals(1, strategy.calculateOccurences(f, 0, 0));
     }
-
+    @DisplayName("Strategy called on field with 3 cards of required kingdom placed in correct orientation should return 1")
+    @Test
+    void occurrencesOnFieldWithThreeCardsKingdomRequiredCorrectOrientationYXShouldBeOne() {
+        Diagonals strategy = new Diagonals(ObjectType.FUNGI,true);
+        NonObjectiveCard c1 = new NonObjectiveCard(1, 0, pointStrategy, CornerType.FUNGI, CornerType.EMPTY, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c2 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c3 = new NonObjectiveCard(3, 0, pointStrategy, CornerType.EMPTY, CornerType.NON_COVERABLE, CornerType.FUNGI, CornerType.FUNGI, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        f.placeCardInField(c1, 1, 1, true); // Card placed side-up
+        f.placeCardInField(c2, 2, 2, true); // Card placed side-up
+        f.placeCardInField(c3, 3, 3, true); // Card placed side-up
+        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+    }
     @DisplayName("Strategy called on field with 3 cards of different Kingdom from the request should return 0")
     @Test
     void occurrencesOnFieldWithThreeCardsFalseKingdomShouldBeZero() {
@@ -130,8 +140,8 @@ class DiagonalsTest {
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c3 = new NonObjectiveCard(13, 0, pointStrategy, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.PLANT, CornerType.PLANT, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         f.placeCardInField(c1, 1, 1, true); // Card placed side-up
-        f.placeCardInField(c2, 2, 2, true); // Card placed side-up
-        f.placeCardInField(c3, -1, 1, true); // Card placed side-up
+        f.placeCardInField(c2, 0, 2, true); // Card placed side-up
+        f.placeCardInField(c3, 1, 3, true); // Card placed side-up
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
 
@@ -215,4 +225,5 @@ class DiagonalsTest {
         f.placeCardInField(c6, -6, 6, true); // Card placed side-up
         assertEquals(2, strategy.calculateOccurences(f, 0, 0));
     }
+
 }
