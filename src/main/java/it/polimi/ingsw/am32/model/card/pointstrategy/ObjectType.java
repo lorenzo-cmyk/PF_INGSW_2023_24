@@ -24,7 +24,7 @@ public enum ObjectType {
 
     /**
      * When an enumeration object is referenced, this method returns its value.
-     * For example, when ObjectType.PLANT is used, a value of 0 will be associated to it.
+     * For example, when ObjectType. PLANT is used, a value of 0 will be associated to it.
      *
      * @return Value of referenced enumeration object
      */

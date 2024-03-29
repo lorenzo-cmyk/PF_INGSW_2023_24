@@ -12,7 +12,7 @@ import java.util.List;
  * objective cards, which in the top left has an Animal card and positioned in the bottom right corner has an Insect card
  * and then under that card is another Insect card placed.
  *
- * @author jie
+ * @author Jie
  */
 public class LConfigurationThree implements PointStrategy {
     /**
@@ -22,6 +22,7 @@ public class LConfigurationThree implements PointStrategy {
      * @param x The x coordinate of the card whose points are being calculated.
      * @param y The y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been fulfilled in this field.
+     * @author Jie
      */
     public int calculateOccurences(Field field, int x, int y) {
         int times = 0;

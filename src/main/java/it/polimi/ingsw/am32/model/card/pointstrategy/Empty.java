@@ -5,7 +5,7 @@ import it.polimi.ingsw.am32.model.field.Field;
  * Empty is one of the classes implemented interface PointStrategy used to calculate for the
  * card, whose placement does not change the player's score points: all start cards and a part of the resources cards.
  *
- * @author jie
+ * @author Jie
  */
 public class Empty implements PointStrategy {
     /**
@@ -15,6 +15,7 @@ public class Empty implements PointStrategy {
      * @param x The x coordinate of the card whose points are being calculated.
      * @param y The y coordinates of the card whose points are being calculated.
      * @return Always one.
+     * @author Jie
      */
     public int calculateOccurences(Field field, int x, int y) {
 

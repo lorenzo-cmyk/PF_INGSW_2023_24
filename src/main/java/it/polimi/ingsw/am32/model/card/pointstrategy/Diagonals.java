@@ -12,11 +12,11 @@ import java.util.*;
  * leftToRight: the type of the diagonal line which returns true for diagonal type y=x and returns false for diagonal
  * type y=-x.
  *
- * @author jie
+ * @author Jie
  */
 public class Diagonals implements PointStrategy {
-    private ObjectType type;
-    private boolean leftToRight;
+    private final ObjectType type;
+    private final boolean leftToRight;
 
     /**
      * Calculate how many times three cards of the same kingdom are placed on the diagonal line.
@@ -25,6 +25,7 @@ public class Diagonals implements PointStrategy {
      * @param x The x coordinate of the card whose points are being calculated.
      * @param y the y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been fulfilled in this field.
+     * @author Jie
      */
     public int calculateOccurences(Field field, int x, int y) {
         int times = 0;
