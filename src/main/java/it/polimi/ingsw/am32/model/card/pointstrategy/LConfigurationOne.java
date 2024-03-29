@@ -12,7 +12,7 @@ import java.util.List;
 * objective cards, which in the bottom right has a Plant card and positioned in the top left corner has a Fungi card
 * and then above that card is another Fungi card placed, that is why we called class as L configuration.
  *
- * @author jie
+ * @author Jie
 */
 public class LConfigurationOne implements PointStrategy {
     /**
@@ -22,6 +22,7 @@ public class LConfigurationOne implements PointStrategy {
      * @param x The x coordinate of the card whose points are being calculated.
      * @param y The y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been fulfilled in this field.
+     * @author Jie
      */
     public int calculateOccurences(Field field, int x, int y) {
         int times = 0;

@@ -7,7 +7,7 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
  * following attributes: each card has a unique ID and a value from zero to five points, and also each has a special
  * PointStrategy that describes the conditions that must be satisfied when using this card to score points.
  *
- * @author jie
+ * @author Jie
  */
 public class Card {
     private final int id;
@@ -20,6 +20,7 @@ public class Card {
      * @param id ID identify a card.
      * @param value Score value of a card.
      * @param pointStrategy The way or strategy to get points.
+     * @author Jie
      */
     public Card(int id, int value, PointStrategy pointStrategy) {
         this.id = id;
@@ -30,6 +31,7 @@ public class Card {
     /**
      * Getter of ID
      * @return id of a given card.
+     * @author Jie
      */
     public int getId() {
         return id;
@@ -38,6 +40,7 @@ public class Card {
     /**
      * Getter of value
      * @return score value of a given card
+     * @author Jie
      */
     public int getValue() {
         return value;
@@ -46,6 +49,7 @@ public class Card {
     /**
      * Getter of point strategy
      * @return the type of strategy used by a given card.
+     * @author Jie
      */
     public PointStrategy getPointStrategy() {
         return pointStrategy;
