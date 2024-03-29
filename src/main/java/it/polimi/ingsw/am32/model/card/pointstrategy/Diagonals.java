@@ -43,15 +43,15 @@ public class Diagonals implements PointStrategy {
             } else
                 return Integer.compare(c1.getY(), c2.getY());
         };
-        dominantKingdom.sort(comparator); // sort arraylist in ascending order
-        while (dominantKingdom.size() > 2) {
+        dominantKingdom.sort(comparator);// sort arraylist in ascending order
+        while (!dominantKingdom.isEmpty()) {
             int xLoc;
             int yLoc;
             xLoc = dominantKingdom.getFirst().getX();
             yLoc = dominantKingdom.getFirst().getY();
             CardPlaced e1;
             boolean condition1 = false; // condition1 marks the existence of the card in the middle of the three diagonal cards
-            for (int i = 0; i < dominantKingdom.size() && !condition1; i++) {
+            for (int i = 1; i < dominantKingdom.size() && !condition1; i++) {
                 if (this.leftToRight) { // case of diagonal y=x.
                     if (dominantKingdom.get(i).getX() == (xLoc + 1) && dominantKingdom.get(i).getY() == (yLoc + 1)) {
                         e1 = dominantKingdom.get(i);
@@ -63,17 +63,17 @@ public class Diagonals implements PointStrategy {
                     }
                 } // check the existence of the cards, then if they existed move them from the list.
                 else { // case of diagonal y=-x.
-                    if (dominantKingdom.get(i).getX() == (xLoc - 1) && dominantKingdom.get(i).getY() == (yLoc + 1)) {
+                    if (dominantKingdom.get(i).getX() == (xLoc + 1) && dominantKingdom.get(i).getY() == (yLoc - 1)) {
                         e1 = dominantKingdom.get(i);
-                        if (dominantKingdom.removeIf(e -> (e.getX() == (xLoc - 2)) && (e.getY() == (yLoc + 2)))) {
+                        if (dominantKingdom.removeIf(e -> (e.getX() == (xLoc + 2)) && (e.getY() == (yLoc - 2)))) {
                             dominantKingdom.remove(e1);
                             times++;
                             condition1 = true;
                         }
                     }
                 }
-                dominantKingdom.remove(dominantKingdom.getFirst());
             }
+            dominantKingdom.remove(dominantKingdom.getFirst());
         }
         return times;
     }
