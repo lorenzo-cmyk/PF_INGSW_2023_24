@@ -5,7 +5,6 @@ import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Field {
 
@@ -29,7 +28,7 @@ public class Field {
     public Field(NonObjectiveCard initialCard, boolean isUp) {
 
         this.activeRes = new int[resourcesSize];
-        this.fieldCards = new ArrayList<CardPlaced>();
+        this.fieldCards = new ArrayList<>();
 
         CardPlaced cardPlaced = new CardPlaced(initialCard, 0, 0, isUp);
         fieldCards.addFirst(cardPlaced);
@@ -204,19 +203,19 @@ public class Field {
 
         for(CornerType cornerType: tmpCorners) {
             if (cornerType == CornerType.PLANT)
-                results[ObjectType.PLANT.getValue()]++;
+                results[CornerType.PLANT.getValue()]++;
             if(cornerType == CornerType.FUNGI)
-                results[ObjectType.FUNGI.getValue()]++;
+                results[CornerType.FUNGI.getValue()]++;
             if(cornerType == CornerType.ANIMAL)
-                results[ObjectType.ANIMAL.getValue()]++;
+                results[CornerType.ANIMAL.getValue()]++;
             if(cornerType == CornerType.INSECT)
-                results[ObjectType.INSECT.getValue()]++;
+                results[CornerType.INSECT.getValue()]++;
             if(cornerType == CornerType.QUILL)
-                results[ObjectType.QUILL.getValue()]++;
+                results[CornerType.QUILL.getValue()]++;
             if(cornerType == CornerType.INKWELL)
-                results[ObjectType.INKWELL.getValue()]++;
+                results[CornerType.INKWELL.getValue()]++;
             if(cornerType == CornerType.MANUSCRIPT)
-                results[ObjectType.MANUSCRIPT.getValue()]++;
+                results[CornerType.MANUSCRIPT.getValue()]++;
         }
 
         return results;
@@ -273,9 +272,9 @@ public class Field {
             result[1] = tmpBases[1] + tmpAdders[1];
             result[2] = tmpBases[2] + tmpAdders[2];
             result[3] = tmpBases[3] + tmpAdders[3];
-            result[4] = tmpBases[4] + tmpAdders[4];
-            result[5] = tmpBases[5] + tmpAdders[5];
-            result[6] = tmpBases[6] + tmpAdders[6];
+            result[4] = tmpAdders[4];
+            result[5] = tmpAdders[5];
+            result[6] = tmpAdders[6];
 
         }
 
