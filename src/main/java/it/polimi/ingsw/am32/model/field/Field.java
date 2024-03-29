@@ -102,17 +102,17 @@ public class Field {
                 return false;
         }
         if (tmpCardsPlaced[1] != null && tmpCardsPlaced[1].getIsUp()) {
-            cornerType[1] = tmpCardsPlaced[1].getNonObjectiveCard().getBottomRight();
+            cornerType[1] = tmpCardsPlaced[1].getNonObjectiveCard().getBottomLeft();
             if (cornerType[1] == CornerType.NON_COVERABLE)
                 return false;
         }
         if (tmpCardsPlaced[2] != null && tmpCardsPlaced[2].getIsUp()) {
-            cornerType[2] = tmpCardsPlaced[2].getNonObjectiveCard().getBottomRight();
+            cornerType[2] = tmpCardsPlaced[2].getNonObjectiveCard().getTopRight();
             if (cornerType[2] == CornerType.NON_COVERABLE)
                 return false;
         }
         if (tmpCardsPlaced[3] != null && tmpCardsPlaced[3].getIsUp()) {
-            cornerType[3] = tmpCardsPlaced[3].getNonObjectiveCard().getBottomRight();
+            cornerType[3] = tmpCardsPlaced[3].getNonObjectiveCard().getTopLeft();
             if (cornerType[3] == CornerType.NON_COVERABLE)
                 return false;
         }
