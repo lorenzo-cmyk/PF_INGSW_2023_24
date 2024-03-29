@@ -219,17 +219,17 @@ class LConfigurationFourTest {
         NonObjectiveCard c9 = new NonObjectiveCard(9, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c10 = new NonObjectiveCard(10, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c11 = new NonObjectiveCard(11, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
-        f.placeCardInField(c1, 1, -3, true);
-        f.placeCardInField(c2, 1, -1, true);
-        f.placeCardInField(c3, 2, 0, true);
-        f.placeCardInField(c4, 1, 1, false);
-        f.placeCardInField(c5, 2, 2, true);
-        f.placeCardInField(c6, 1, 3, true);
-        f.placeCardInField(c7, 2, 4, true);
-        f.placeCardInField(c8, 1, 5, true);
-        f.placeCardInField(c9, 2, 6, true);
-        f.placeCardInField(c10, 1, 7, true);
-        f.placeCardInField(c11, 2, 8, true);
+        f.placeCardInField(c1, 1, -1, true);
+        f.placeCardInField(c2, 1, 1, true);
+        f.placeCardInField(c3, 2, 2, true);
+        f.placeCardInField(c4, 1, 3, false);
+        f.placeCardInField(c5, 2, 4, true);
+        f.placeCardInField(c6, 1, 5, true);
+        f.placeCardInField(c7, 2, 6, true);
+        f.placeCardInField(c8, 1, 7, true);
+        f.placeCardInField(c9, 2, 8, true);
+        f.placeCardInField(c10, 1, 9, true);
+        f.placeCardInField(c11, 2, 10, true);
         assertEquals(3, strategy.calculateOccurences(f, 0, 0));
     }
 
@@ -247,17 +247,17 @@ class LConfigurationFourTest {
         NonObjectiveCard c9 = new NonObjectiveCard(9, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c10 = new NonObjectiveCard(10, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c11 = new NonObjectiveCard(11, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
-        f.placeCardInField(c1, 1, -3, true);
-        f.placeCardInField(c2, 1, -1, true);
-        f.placeCardInField(c3, 2, 0, true);
-        f.placeCardInField(c4, 1, 1, false);
-        f.placeCardInField(c5, 2, 2, true);
-        f.placeCardInField(c6, 1, 3, true);
-        f.placeCardInField(c7, 2, 4, true);
-        f.placeCardInField(c8, 1, 5, true);
-        f.placeCardInField(c9, 2, 6, true);
-        f.placeCardInField(c10, 1, 7, true);
-        f.placeCardInField(c11, 2, 8, true);
+        f.placeCardInField(c1, 1, -1, true);
+        f.placeCardInField(c2, 1, 1, true);
+        f.placeCardInField(c3, 2, 2, true);
+        f.placeCardInField(c4, 1, 3, false);
+        f.placeCardInField(c5, 2, 4, true);
+        f.placeCardInField(c6, 1, 5, true);
+        f.placeCardInField(c7, 2, 6, true);
+        f.placeCardInField(c8, 1, 7, true);
+        f.placeCardInField(c9, 2, 8, true);
+        f.placeCardInField(c10, 1, 9, true);
+        f.placeCardInField(c11, 2, 10, true);
         assertEquals(2, strategy.calculateOccurences(f, 0, 0));
     }
 
@@ -267,15 +267,17 @@ class LConfigurationFourTest {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
-        NonObjectiveCard c4 = new NonObjectiveCard(4, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
+        NonObjectiveCard c4 = new NonObjectiveCard(4, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c5 = new NonObjectiveCard(5, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
-        NonObjectiveCard c6 = new NonObjectiveCard(6, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c6 = new NonObjectiveCard(6, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
+        NonObjectiveCard c7 = new NonObjectiveCard(7, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         f.placeCardInField(c1, -1, -1, true);
         f.placeCardInField(c2, -1, 1, true);
         f.placeCardInField(c3, 0, 2, true);
-        f.placeCardInField(c4, -3, -1, true);
-        f.placeCardInField(c5, -3, -3, true);
-        f.placeCardInField(c6, -2, 0, true);
+        f.placeCardInField(c4, -2, 0, true);
+        f.placeCardInField(c5, -3, -1, true);
+        f.placeCardInField(c6, -4, -2, true);
+        f.placeCardInField(c7, -3, -3, true);
         assertEquals(2, strategy.calculateOccurences(f, 0, 0));
     }
 
@@ -283,17 +285,19 @@ class LConfigurationFourTest {
     @Test
     void occurrencesOnFieldWithTwoLSideToSideVariant2ShouldBeOne() {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
-        NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
+        NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
-        NonObjectiveCard c4 = new NonObjectiveCard(4, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
+        NonObjectiveCard c4 = new NonObjectiveCard(4, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
         NonObjectiveCard c5 = new NonObjectiveCard(5, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
-        NonObjectiveCard c6 = new NonObjectiveCard(6, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c6 = new NonObjectiveCard(6, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
+        NonObjectiveCard c7 = new NonObjectiveCard(7, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         f.placeCardInField(c1, -1, -1, true);
         f.placeCardInField(c2, -1, 1, true);
         f.placeCardInField(c3, 0, 2, true);
-        f.placeCardInField(c4, -3, -1, true);
-        f.placeCardInField(c5, -3, -3, true);
-        f.placeCardInField(c6, -2, 0, true);
+        f.placeCardInField(c4, -2, 0, true);
+        f.placeCardInField(c5, -3, -1, true);
+        f.placeCardInField(c6, -4, -2, true);
+        f.placeCardInField(c7, -3, -3, true);
         assertEquals(1, strategy.calculateOccurences(f, 0, 0));
     }
 
@@ -304,17 +308,17 @@ class LConfigurationFourTest {
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c4 = new NonObjectiveCard(4, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
-        NonObjectiveCard c5 = new NonObjectiveCard(5, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
-        NonObjectiveCard c6 = new NonObjectiveCard(6, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c5 = new NonObjectiveCard(5, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c6 = new NonObjectiveCard(6, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c7 = new NonObjectiveCard(7, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c8 = new NonObjectiveCard(8, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         f.placeCardInField(c1, -1, -1, true);
         f.placeCardInField(c2, -1, 1, true);
         f.placeCardInField(c3, 0, 2, true);
-        f.placeCardInField(c4, -3, -1, true);
-        f.placeCardInField(c5, -3, -3, true);
-        f.placeCardInField(c6, -2, 0, true);
-        f.placeCardInField(c7, -2, -2, true);
+        f.placeCardInField(c4, -2, -2, true);
+        f.placeCardInField(c5, -2, 0, true);
+        f.placeCardInField(c6, -3, -1, true);
+        f.placeCardInField(c7, -3, -3, true);
         f.placeCardInField(c8, -2, -4, true);
         assertEquals(2, strategy.calculateOccurences(f, 0, 0));
     }
