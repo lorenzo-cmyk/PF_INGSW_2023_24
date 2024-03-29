@@ -22,7 +22,7 @@ class AllSpecialTest {
     Field f = new Field(initialCard, true); // Create a new field with face-up initial card
 
     // Setting up strategy object
-    AllSpecial strategy = new AllSpecial();
+    PointStrategy strategy = new AllSpecial();
 
     // Setting up parameters for cards to be placed in the field that are irrelevant for testing
     // For this test, only fungi (red) cards are used of value 0 requiring no resources present in order to be placed
