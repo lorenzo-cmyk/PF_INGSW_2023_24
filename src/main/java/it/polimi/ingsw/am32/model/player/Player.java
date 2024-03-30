@@ -280,11 +280,13 @@ public class Player {
     //---------------------------------------------------------------------------------------------
     // Setters
 
-    // TODO check if used
-    public boolean setPoints(int points) {
+    /**
+     * Setter
+     *
+     * @param points is the value to be set as number of points of the player
+     */
+    public void setPoints(int points) {
         this.points = points;
-        // TODO Return statement
-        return false;
     }
 
     /**
