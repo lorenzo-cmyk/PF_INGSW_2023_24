@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am32.model.field;
 
 import it.polimi.ingsw.am32.model.card.CornerType;
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,7 +13,7 @@ class FieldTest {
      * Execute an Edge and Condition Structural Test on resourceCornersConverter method
      */
     @Test
-    void doStructuralTestingOfResourceCornersConverter(){
+    void doStructuralTestingOfResourceCornersConverter() {
 
         // Edge and Condition Coverage
 
@@ -34,7 +36,7 @@ class FieldTest {
      * Execute an Edge and Condition Structural Test on checkResRequirements method
      */
     @Test
-    void doStructuralTestingCheckResRequirements(){
+    void doStructuralTestingCheckResRequirements() {
 
         // Edge and Condition Coverage
 
@@ -63,5 +65,34 @@ class FieldTest {
         actualResult = Field.checkResRequirements(inputResources, inputRequirements);
 
         assertEquals(expectedResult, actualResult);
+    }
+
+    /**
+     * Execute a Path Coverage Structural Test on resourcesObtained method
+     */
+    @Test
+    void doStructuralTestingResourcesObtained() {
+
+        // Path Coverage
+
+        int[] permRes = new int[]{0,0,2,1};
+        int[] conditionCount = new int[]{0,0,0,0};
+
+        NonObjectiveCard testCard = new NonObjectiveCard(0, 0, null, CornerType.PLANT, CornerType.EMPTY,
+                CornerType.QUILL, CornerType.INKWELL, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY,
+                CornerType.FUNGI, permRes, conditionCount, ObjectType.ANIMAL);
+
+        int[] expectedResult = new int[]{1,0,0,0,1,1,0};
+
+        int[] actualResult = Field.resourcesObtained(testCard, true);
+
+        assertArrayEquals(expectedResult, actualResult);
+
+        expectedResult = new int[]{0,1,2,1,0,0,0};
+
+        actualResult = Field.resourcesObtained(testCard, false);
+
+        assertArrayEquals(expectedResult, actualResult);
+
     }
 }
