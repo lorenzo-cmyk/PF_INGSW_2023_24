@@ -198,7 +198,7 @@ public class Field {
      */
     public static int[] resourceCornersConverter(CornerType first, CornerType second, CornerType third, CornerType forth){
 
-        int[] results = new int[7];
+        int[] results = new int[ObjectType.values().length];
         CornerType[] tmpCorners = new CornerType[]{first, second, third, forth};
 
         for(CornerType cornerType: tmpCorners) {
@@ -232,7 +232,7 @@ public class Field {
      */
     public static boolean checkResRequirements(int[] resources, int[] requirements){
 
-        if(requirements.length >= resources.length)
+        if(requirements.length > resources.length)
             return false;
 
         for (int i = 0; i < requirements.length; i++)
