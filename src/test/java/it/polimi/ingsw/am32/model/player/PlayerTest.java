@@ -367,4 +367,16 @@ class PlayerTest {
         assertTrue(player.getPoints() > initialPoints);
     }
 
+    @DisplayName("updatePointsForObjectives should return false when the pointStrategy of any card is null")
+    @Test
+    void updatePointsForObjectivesShouldReturnFalseWhenPointStrategyOfAnyCardIsNull() {
+        Player player = new Player("test");
+        Card card1 = new Card(1, 1, null);
+        assertNotNull(card1);
+        Card card2 = generateRandomCard();
+        assertNotNull(card2);
+        Card[] cards = {card1, card2};
+        assertFalse(player.updatePointsForObjectives(cards));
+    }
+
 }
