@@ -98,6 +98,9 @@ class FieldTest {
 
     }
 
+    /**
+     * Execute a Path Coverage Structural Test on constructor method
+     */
     @Test
     void doStructuralTestingConstructor() {
 
