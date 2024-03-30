@@ -52,7 +52,7 @@ public class LConfigurationTwo implements PointStrategy {
                         j != cards.size()-1 && // Card is not last card of array
                         cards.get(j+1).getNonObjectiveCard().getKingdom() == ObjectType.PLANT && // Second green card found at the correct spot
                         cards.get(j+1).getX() == cards.get(i).getX() + 1 &&
-                        cards.get(j+1).getY() == cards.get(i).getY() + 2) {
+                        cards.get(j+1).getY() == cards.get(i).getY() + 3) {
                         // Pattern occurrence found
 
                         ArrayList<CardPlaced> tempCards = new ArrayList<CardPlaced>(cards); // Create copy of arraylist
