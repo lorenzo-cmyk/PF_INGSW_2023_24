@@ -91,7 +91,7 @@ public class Player {
         if(tmpSecretObj[0].getId() == id) {
             secretObjective = tmpSecretObj[0];
         } else if (tmpSecretObj[1].getId() == id){
-            secretObjective = tmpSecretObj[0];
+            secretObjective = tmpSecretObj[1];
         } else
             return false;
 
