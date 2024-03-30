@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FieldTest {
 
     /**
-     * Execute an Edge and Condition Structural Test on resourceCornersConverter method
+     * Execute an Edge and Condition Coverage Structural Test on resourceCornersConverter method
      */
     @Test
     void doStructuralTestingOfResourceCornersConverter() {
@@ -33,7 +33,7 @@ class FieldTest {
     }
 
     /**
-     * Execute an Edge and Condition Structural Test on checkResRequirements method
+     * Execute an Edge and Condition Coverage Structural Test on checkResRequirements method
      */
     @Test
     void doStructuralTestingCheckResRequirements() {
