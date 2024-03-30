@@ -5,6 +5,8 @@ import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FieldTest {
@@ -94,5 +96,27 @@ class FieldTest {
 
         assertArrayEquals(expectedResult, actualResult);
 
+    }
+
+    @Test
+    void doStructuralTestingConstructor() {
+
+        // Path Coverage
+
+        int[] permRes = new int[]{0,0,2,1};
+        int[] conditionCount = new int[]{0,0,0,0};
+        boolean isUp = false;
+
+        NonObjectiveCard testInitialCard = new NonObjectiveCard(0, 0, null, CornerType.PLANT, CornerType.EMPTY,
+                CornerType.QUILL, CornerType.INKWELL, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY,
+                CornerType.FUNGI, permRes, conditionCount, ObjectType.ANIMAL);
+
+        Field field = new Field(testInitialCard, isUp);
+
+        ArrayList<CardPlaced> resultingFieldCards = new ArrayList<>();
+        resultingFieldCards.addFirst(new CardPlaced(testInitialCard, 0,0, isUp));
+
+        assertArrayEquals(field.getAllRes(), new int[]{0,1,2,1,0,0,0});
+        assertEquals(resultingFieldCards, field.getFieldCards());
     }
 }
