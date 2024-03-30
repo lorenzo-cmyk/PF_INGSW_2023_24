@@ -29,4 +29,39 @@ class FieldTest {
 
         assertArrayEquals(expectedResults, actualResults);
     }
+
+    /**
+     * Execute an Edge and Condition Structural Test on checkResRequirements method
+     */
+    @Test
+    void doStructuralTestingCheckResRequirements(){
+
+        // Edge and Condition Coverage
+
+        int[] inputResources = new int[]{10};
+        int[] inputRequirements = new int[]{0,0};
+
+        boolean expectedResult = false;
+        boolean actualResult = Field.checkResRequirements(inputResources, inputRequirements);
+
+        assertEquals(expectedResult, actualResult);
+
+
+        inputResources = new int[]{10,10,10,10,0,0,0};
+        inputRequirements = new int[]{20,0,0,0,0,0,0};
+
+        expectedResult = false;
+        actualResult = Field.checkResRequirements(inputResources, inputRequirements);
+
+        assertEquals(expectedResult, actualResult);
+
+
+        inputResources = new int[]{10,10,10,10,0,0,0};
+        inputRequirements = new int[]{0,0,0,0,0,0,0};
+
+        expectedResult = true;
+        actualResult = Field.checkResRequirements(inputResources, inputRequirements);
+
+        assertEquals(expectedResult, actualResult);
+    }
 }
