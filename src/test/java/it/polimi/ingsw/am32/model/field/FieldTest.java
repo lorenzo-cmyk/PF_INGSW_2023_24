@@ -80,9 +80,9 @@ class FieldTest {
         int[] permRes = new int[]{0,0,2,1};
         int[] conditionCount = new int[]{0,0,0,0};
 
-        NonObjectiveCard testCard = new NonObjectiveCard(0, 0, null, CornerType.PLANT, CornerType.EMPTY,
-                CornerType.QUILL, CornerType.INKWELL, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY,
-                CornerType.FUNGI, permRes, conditionCount, ObjectType.ANIMAL);
+        NonObjectiveCard testCard = new NonObjectiveCard(0, 0, null, CornerType.PLANT,
+                CornerType.EMPTY, CornerType.QUILL, CornerType.INKWELL, CornerType.EMPTY, CornerType.EMPTY,
+                CornerType.EMPTY, CornerType.FUNGI, permRes, conditionCount, ObjectType.ANIMAL);
 
         int[] expectedResult = new int[]{1,0,0,0,1,1,0};
 
@@ -110,9 +110,9 @@ class FieldTest {
         int[] conditionCount = new int[]{0,0,0,0};
         boolean isUp = false;
 
-        NonObjectiveCard testInitialCard = new NonObjectiveCard(0, 0, null, CornerType.PLANT, CornerType.EMPTY,
-                CornerType.QUILL, CornerType.INKWELL, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY,
-                CornerType.FUNGI, permRes, conditionCount, ObjectType.ANIMAL);
+        NonObjectiveCard testInitialCard = new NonObjectiveCard(0, 0, null, CornerType.PLANT,
+                CornerType.EMPTY, CornerType.QUILL, CornerType.INKWELL, CornerType.EMPTY, CornerType.EMPTY,
+                CornerType.EMPTY, CornerType.FUNGI, permRes, conditionCount, ObjectType.ANIMAL);
 
         Field field = new Field(testInitialCard, isUp);
 
@@ -121,5 +121,27 @@ class FieldTest {
 
         assertArrayEquals(field.getAllRes(), new int[]{0,1,2,1,0,0,0});
         assertEquals(resultingFieldCards, field.getFieldCards());
+    }
+
+    /**
+     * Execute a Path Coverage Structural Test on availableSpace method
+     */
+    @Test
+    void doStructuralTestingAvailableSpace() {
+
+        // Path Coverage
+
+        int[] permRes = new int[]{0,0,0,0};
+        int[] conditionCount = new int[]{0,0,0,0};
+        boolean isUp = false;
+
+        NonObjectiveCard testInitialCard = new NonObjectiveCard(0, 0, null, CornerType.EMPTY,
+                CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY,
+                CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
+
+        Field field = new Field(testInitialCard, isUp);
+
+        assertFalse(field.availableSpace(0,0));
+        assertTrue(field.availableSpace(1,1));
     }
 }
