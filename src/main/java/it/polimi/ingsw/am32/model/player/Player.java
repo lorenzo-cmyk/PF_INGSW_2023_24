@@ -132,7 +132,16 @@ public class Player {
         return true;
     }
 
-    // TODO Javadoc
+    /**
+     * Tries to put a card in the hand of the player and place it in the field. If the card is placed successfully
+     * calculate the points gained from its placement and add them to those of the player
+     *
+     * @param id is the id of the card in the hand of the player that has to be placed
+     * @param x is the horizontal coordinate of the position
+     * @param y is the vertical coordinate of the position
+     * @param isUp is the side of the card that is going to be visible when placed
+     * @return true if the process was successful, false if not
+     */
     public boolean performMove(int id, int x, int y, boolean isUp) {
 
         if(gameField == null)
@@ -177,6 +186,7 @@ public class Player {
      */
     public boolean updatePointsForObjectives(Card[] objectiveCards) {
 
+        // TODO can i delete the next to line of code?
         if(objectiveCards[0].getPointStrategy() == null || objectiveCards[1].getPointStrategy() == null)
             return false;
 
@@ -190,6 +200,28 @@ public class Player {
         int value2 = objectiveCards[1].getValue();
 
         points = points + value1 * multiplierPoints1 + value2 * multiplierPoints2;
+
+        return true;
+    }
+
+    /**
+     * Calculate the points gained by the player for the secret objective and add them to his current points
+     *
+     * @return true if the process is successful, false if not
+     */
+    public boolean updatePointsForSecretObjective() {
+
+        PointStrategy pointStrategy = secretObjective.getPointStrategy();
+
+        // TODO can i delete the next to line of code?
+        if(pointStrategy == null)
+            return false;
+
+        int multiplierPoints = pointStrategy.calculateOccurences(gameField, 0,0);
+
+        int value = secretObjective.getValue();
+
+        points = points + value * multiplierPoints;
 
         return true;
     }
@@ -280,11 +312,13 @@ public class Player {
     //---------------------------------------------------------------------------------------------
     // Setters
 
-    // TODO check if used
-    public boolean setPoints(int points) {
+    /**
+     * Setter
+     *
+     * @param points is the value to be set as number of points of the player
+     */
+    public void setPoints(int points) {
         this.points = points;
-        // TODO Return statement
-        return false;
     }
 
     /**
