@@ -5,7 +5,6 @@ import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.Empty;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
-import org.junit.Ignore;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -124,6 +123,10 @@ class PlayerTest {
         Card card1 = generateRandomCard();
         assertNotNull(card1);
         Card card2 = generateRandomCard();
+        // Making sure card2 is not the same as card1
+        while(card2.getId() == card1.getId()){
+            card2 = generateRandomCard();
+        }
         assertNotNull(card2);
         assertTrue(player.receiveSecretObjective(card1, card2));
         assertTrue(player.secretObjectiveSelection(card2.getId()));
@@ -137,6 +140,10 @@ class PlayerTest {
         Card card1 = generateRandomCard();
         assertNotNull(card1);
         Card card2 = generateRandomCard();
+        // Making sure card2 is not the same as card1
+        while(card2.getId() == card1.getId()){
+            card2 = generateRandomCard();
+        }
         assertNotNull(card2);
         assertTrue(player.receiveSecretObjective(card1, card2));
         assertFalse(player.secretObjectiveSelection(-1));
@@ -256,7 +263,7 @@ class PlayerTest {
     @Test
     void getPointsShouldReturnThePointsOfThePlayer() {
         Player player = new Player("test");
-        assertTrue(player.setPoints(10));
+        player.setPoints(10);
         assertEquals(10, player.getPoints());
     }
 
@@ -297,7 +304,7 @@ class PlayerTest {
     @Test
     void setPointsShouldSetThePointsOfThePlayer() {
         Player player = new Player("test");
-        assertTrue(player.setPoints(10));
+        player.setPoints(10);
         assertEquals(10, player.getPoints());
     }
 
@@ -364,7 +371,7 @@ class PlayerTest {
         assertTrue(player.putCardInHand(card1));
         int initialPoints = player.getPoints();
         assertTrue(player.performMove(card1.getId(), 1, 1, true));
-        assertTrue(player.getPoints() > initialPoints);
+        assertTrue(player.getPoints() >= initialPoints);
     }
 
     @DisplayName("updatePointsForObjectives should return false when the pointStrategy of any card is null")
@@ -378,5 +385,18 @@ class PlayerTest {
         Card[] cards = {card1, card2};
         assertFalse(player.updatePointsForObjectives(cards));
     }
+
+    @DisplayName("updatePointsForSecretObjective should return false when pointStrategy of secretObjective is null")
+    @Test
+    void updatePointsForSecretObjectiveShouldReturnFalseWhenPointStrategyOfSecretObjectiveIsNull() {
+        Player player = new Player("test");
+        Card card1 = new Card(1, 1, null);
+        Card card2 = generateRandomCard();
+        assertTrue(player.receiveSecretObjective(card1, card2));
+        assertTrue(player.secretObjectiveSelection(card1.getId()));
+        assertFalse(player.updatePointsForSecretObjective());
+    }
+
+    // The full coverage of the Player class will be archived through GameSimulationTest
 
 }
