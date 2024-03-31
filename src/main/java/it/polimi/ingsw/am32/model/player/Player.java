@@ -177,6 +177,7 @@ public class Player {
      */
     public boolean updatePointsForObjectives(Card[] objectiveCards) {
 
+        // TODO can i delete the next to line of code?
         if(objectiveCards[0].getPointStrategy() == null || objectiveCards[1].getPointStrategy() == null)
             return false;
 
@@ -190,6 +191,28 @@ public class Player {
         int value2 = objectiveCards[1].getValue();
 
         points = points + value1 * multiplierPoints1 + value2 * multiplierPoints2;
+
+        return true;
+    }
+
+    /**
+     * Calculate the points gained by the player for the secret objective and add them to his current points
+     *
+     * @return true if the process is successful, false if not
+     */
+    public boolean updatePointsForSecretObjective() {
+
+        PointStrategy pointStrategy = secretObjective.getPointStrategy();
+
+        // TODO can i delete the next to line of code?
+        if(pointStrategy == null)
+            return false;
+
+        int multiplierPoints = pointStrategy.calculateOccurences(gameField, 0,0);
+
+        int value = secretObjective.getValue();
+
+        points = points + value * multiplierPoints;
 
         return true;
     }
