@@ -35,6 +35,7 @@ class LConfigurationOneTest {
         LConfigurationOne strategy = new LConfigurationOne();
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
+    //---There are less than three cards in the field---
     @DisplayName("Strategy called on field with 1 card should return 0")
     @Test
     void occurrencesOnFieldWithOneCardShouldBeZero() {
@@ -53,7 +54,8 @@ class LConfigurationOneTest {
         f.placeCardInField(c2, 0, 2, true); // Card placed side-up
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
-    @DisplayName("Strategy called on field with 3 cards should return 0")
+    //---There are at least three cards on the field---
+    @DisplayName("Strategy called on field with 3 cards placed in the wrong orientation should return 0")
     @Test
     void occurrencesOnFieldWithThreeCardsShouldBeZero() {
         LConfigurationOne strategy = new LConfigurationOne();
@@ -65,7 +67,7 @@ class LConfigurationOneTest {
         f.placeCardInField(c3, -1, 1, true); // Card placed side-up
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
-    @DisplayName("Strategy called on field with 3 cards should return 1")
+    @DisplayName("Strategy called on field with 3 cards placed in the correct orientation should return 1")
     @Test
     void occurrencesOnFieldWithThreeCardsShouldBeOne() {
         LConfigurationOne strategy = new LConfigurationOne();
@@ -179,9 +181,27 @@ class LConfigurationOneTest {
         f.placeCardInField(c5, 3, 1, true); // Card placed side-up
         assertEquals(1, strategy.calculateOccurences(f, 0, 0));
     }
+    @DisplayName("Strategy called on field with 6 cards placed in correct orientation should return 2")
+    @Test
+    void occurrencesOnFieldWithSixCardsCaseShouldBeTwo() {
+        LConfigurationOne strategy = new LConfigurationOne();
+        NonObjectiveCard c1 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c2 = new NonObjectiveCard(1, 0, pointStrategy, CornerType.FUNGI, CornerType.EMPTY, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c3 = new NonObjectiveCard(4, 0, pointStrategy, CornerType.NON_COVERABLE, CornerType.FUNGI, CornerType.EMPTY, CornerType.FUNGI, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c4 = new NonObjectiveCard(10, 0, pointStrategy, CornerType.NON_COVERABLE, CornerType.FUNGI, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
+        NonObjectiveCard c5 = new NonObjectiveCard(13, 0, pointStrategy, CornerType.EMPTY, CornerType.NON_COVERABLE, CornerType.PLANT, CornerType.PLANT, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
+        NonObjectiveCard c6 = new NonObjectiveCard(17, 0, pointStrategy, CornerType.MANUSCRIPT, CornerType.NON_COVERABLE, CornerType.PLANT, CornerType.ANIMAL, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
+        f.placeCardInField(c1, 1, 1, true); // Card placed side-up
+        f.placeCardInField(c2, -1, 1, true); // Card placed side-up
+        f.placeCardInField(c3, 1, -1, true); // Card placed side-up
+        f.placeCardInField(c4, -1, -1, true); // Card placed side-up
+        f.placeCardInField(c5, 0, -2, true); // Card placed side-up
+        f.placeCardInField(c6, 2, -2, true); // Card placed side-up
+        assertEquals(2, strategy.calculateOccurences(f, 0, 0));
+    }
     @DisplayName("Strategy called on field with 8 cards placed in correct orientation should return 2")
     @Test
-    void occurrencesOnFieldWithEightCardsCase2ShouldBeTwo() {
+    void occurrencesOnFieldWithEightCardsCaseShouldBeTwo() {
         LConfigurationOne strategy = new LConfigurationOne();
         NonObjectiveCard c1 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c2 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);

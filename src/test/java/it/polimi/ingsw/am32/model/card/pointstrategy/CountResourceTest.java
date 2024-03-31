@@ -47,18 +47,20 @@ class CountResourceTest {
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
 
-    @DisplayName("Strategy called on the field with 1 card with the quantity of resources or objects visible lower than the quantity requested should return 0")
+    @DisplayName("Strategy called on the field with the amount of resources or objects visible lower than the amount requested should return 0")
     @Test
-    void occurrencesOnFieldWithOneCardNotEnoughResourceShouldBeZero() {
+    void occurrencesOnFieldWithNotEnoughResourceShouldBeZero() {
+        // for example, when the given card is the objective card that returns two points for every three PLANT elements, but only two PLANTs are visible in the field.
         CountResource strategy = new CountResource(ObjectType.PLANT, 3);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         f.placeCardInField(c1, 1, 1, true); // Card placed side-up
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
 
-    @DisplayName("Strategy called on the field with cards satisfied the requirements of the given card for once should return 1")
+    @DisplayName("Strategy called on the field with cards satisfied the resources requirements of the given card for once should return 1")
     @Test
-    void occurrencesOnFieldWithRequirementsSatisfiedOnceShouldBeOne() {
+    void occurrencesOnFieldWithResourcesRequirementsSatisfiedForOnceShouldBeOne() {
+        //Object cards that returns two points for every three PLANTs elements in the field.
         CountResource strategy = new CountResource(ObjectType.PLANT, 3);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -66,9 +68,31 @@ class CountResourceTest {
         f.placeCardInField(c2, -1, 1, true); // Card placed side-up
         assertEquals(1, strategy.calculateOccurences(f, 0, 0));
     }
+    @DisplayName("Strategy called on the field with cards satisfied the objects requirements of the given card for once should return 1")
+    @Test
+    void occurrencesOnFieldWithOneObjectsRequirementsSatisfiedForOnceShouldBeOne() {
+        //Object cards that returns one point for every INKWELL element in the field.
+        CountResource strategy = new CountResource(ObjectType.INKWELL, 1);
+        NonObjectiveCard c1 = new NonObjectiveCard(37, 0, pointStrategy, CornerType.INSECT, CornerType.PLANT, CornerType.INKWELL, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
+        NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
+        f.placeCardInField(c1, 1, 1, true); // Card placed side-up
+        f.placeCardInField(c2, -1, 1, true); // Card placed side-up
+        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+    }
+    @DisplayName("Strategy called on the field with cards satisfied the objects requirements of the given card for once should return 1")
+    @Test
+    void occurrencesOnFieldWithTwoObjectsRequirementsSatisfiedForOnceShouldBeOne() {
+        //Object cards that returns two points for every two INKWELL elements in the field.
+        CountResource strategy = new CountResource(ObjectType.INKWELL, 2);
+        NonObjectiveCard c1 = new NonObjectiveCard(37, 0, pointStrategy, CornerType.INSECT, CornerType.PLANT, CornerType.INKWELL, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
+        NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
+        f.placeCardInField(c1, 1, 1, true); // Card placed side-up
+        f.placeCardInField(c2, -1, 1, true); // Card placed side-up
+        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+    }
     @DisplayName("Strategy called on field with cards satisfied the requirements of the given card for twice should return 2")
     @Test
-    void occurrencesOnFieldWithRequirementsSatisfiedTwiceShouldBeTwo() {
+    void occurrencesOnFieldWithRequirementsSatisfiedForTwiceShouldBeTwo() {
         CountResource strategy = new CountResource(ObjectType.PLANT, 3);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
