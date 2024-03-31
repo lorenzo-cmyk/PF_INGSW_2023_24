@@ -132,7 +132,16 @@ public class Player {
         return true;
     }
 
-    // TODO Javadoc
+    /**
+     * Tries to put a card in the hand of the player and place it in the field. If the card is placed successfully
+     * calculate the points gained from its placement and add them to those of the player
+     *
+     * @param id is the id of the card in the hand of the player that has to be placed
+     * @param x is the horizontal coordinate of the position
+     * @param y is the vertical coordinate of the position
+     * @param isUp is the side of the card that is going to be visible when placed
+     * @return true if the process was successful, false if not
+     */
     public boolean performMove(int id, int x, int y, boolean isUp) {
 
         if(gameField == null)
