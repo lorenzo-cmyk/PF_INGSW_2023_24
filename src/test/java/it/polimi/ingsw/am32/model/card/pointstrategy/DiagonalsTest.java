@@ -34,9 +34,10 @@ class DiagonalsTest {
         Diagonals strategy = new Diagonals(ObjectType.FUNGI,true);
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
+    //---There are less than three cards in the field---
     @DisplayName("Strategy called on field with 1 card which has Kingdom requested by given card should return 0")
     @Test
-    void occurrencesOnFieldWithOneCardKingdomRequiredShouldBeZero() {
+    void occurrencesOnFieldWithOneCardTrueKingdomShouldBeZero() {
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         f.placeCardInField(c1, 1, 1, true); // Card placed side-up
@@ -54,7 +55,7 @@ class DiagonalsTest {
 
     @DisplayName("Strategy called on field with 2 cards of required kingdom placed in correct orientation should return 0")
     @Test
-    void occurrencesOnFieldWithTwoCardsKingdomRequiredCorrectOrientationShouldBeZero() {
+    void occurrencesOnFieldWithTwoCardsTrueKingdomCorrectOrientationShouldBeZero() {
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -76,7 +77,7 @@ class DiagonalsTest {
 
     @DisplayName("Strategy called on field with 2 cards of required kingdom placed in wrong orientation should return 0")
     @Test
-    void occurrencesOnFieldWithTwoCardsKingdomRequiredWrongOrientationShouldBeZero() {
+    void occurrencesOnFieldWithTwoCardsTrueKingdomWrongOrientationShouldBeZero() {
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -95,10 +96,11 @@ class DiagonalsTest {
         f.placeCardInField(c2, -2, 2, true); // Card placed side-up
         assertEquals(0, strategy.calculateOccurences(f, 0, 0));
     }
-
+    //---There are at least three cards on the field---
     @DisplayName("Strategy called on field with 3 cards of required kingdom placed in correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithThreeCardsKingdomRequiredCorrectOrientationY_XShouldBeOne() {
+    void occurrencesOnFieldWithThreeCardsTrueKingdomCorrectOrientationRightToLeftShouldBeOne() {
+        //y=x
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -110,7 +112,8 @@ class DiagonalsTest {
     }
     @DisplayName("Strategy called on field with 3 cards of required kingdom placed in correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithThreeCardsKingdomRequiredCorrectOrientationYXShouldBeOne() {
+    void occurrencesOnFieldWithThreeCardsTrueKingdomCorrectOrientationLeftToRightShouldBeOne() {
+        //y=-x
         Diagonals strategy = new Diagonals(ObjectType.FUNGI,true);
         NonObjectiveCard c1 = new NonObjectiveCard(1, 0, pointStrategy, CornerType.FUNGI, CornerType.EMPTY, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c2 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -134,7 +137,7 @@ class DiagonalsTest {
     }
     @DisplayName("Strategy called on field with 3 cards of required kingdom placed in wrong orientation should return 0")
     @Test
-    void occurrencesOnFieldWithThreeCardsKingdomRequiredWrongOrientationShouldBeZero() {
+    void occurrencesOnFieldWithThreeCardsTrueKingdomWrongOrientationShouldBeZero() {
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -147,7 +150,8 @@ class DiagonalsTest {
 
     @DisplayName("Strategy called on field with 3 cards of required kingdom placed in almost correct orientation should return 0")
     @Test
-    void occurrencesOnFieldWithThreeCardsKingdomRequiredAlmostCorrectOrientationShouldBeZero() {
+    void occurrencesOnFieldWithThreeCardsTrueKingdomAlmostCorrectOrientationShouldBeZero() {
+        //Two cards out of three cards with the correct orientation
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -160,7 +164,7 @@ class DiagonalsTest {
 
     @DisplayName("Strategy called on field with 4 cards of required kingdom placed in correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithFourCardsKingdomRequiredCorrectOrientationShouldBeOne() {
+    void occurrencesOnFieldWithFourCardsTrueKingdomCorrectOrientationShouldBeOne() {
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -175,7 +179,7 @@ class DiagonalsTest {
 
     @DisplayName("Strategy called on field with 5 cards of required kingdom placed in correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithFiveCardsKingdomRequiredCorrectOrientationShouldBeOne() {
+    void occurrencesOnFieldWithFiveCardsTrueKingdomCorrectOrientationShouldBeOne() {
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -191,7 +195,8 @@ class DiagonalsTest {
     }
     @DisplayName("Strategy called on field with 6 cards of required kingdom placed in almost correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithFiveCardsKingdomRequiredAlmostCorrectOrientationShouldBeOne() {
+    void occurrencesOnFieldWithSixCardsTrueKingdomAlmostCorrectOrientationShouldBeOne() {
+        //Five cards out of six cards with the correct orientation.
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -209,7 +214,7 @@ class DiagonalsTest {
     }
     @DisplayName("Strategy called on field with 6 cards of required kingdom placed in correct orientation should return 2")
     @Test
-    void occurrencesOnFieldWithFiveCardsKingdomRequiredCorrectOrientationShouldBeTwo() {
+    void occurrencesOnFieldWithSixCardsKingdomRequiredCorrectOrientationShouldBeTwo() {
         Diagonals strategy = new Diagonals(ObjectType.PLANT,false);
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
