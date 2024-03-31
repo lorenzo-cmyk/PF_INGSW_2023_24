@@ -8,15 +8,15 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * LConfigurationOne is one of the classes implemented interface PointStrategy used to calculate for the
- * objective cards, which in the top left has an Animal card and positioned in the bottom right corner has an Insect card
- * and then under that card is another Insect card placed.
+ * LConfigurationThree is one of the classes that implement the PointStrategy interface used to calculate the
+ * objective cards, which in the top left has an Animal card and in the bottom right corner has an Insect card
+ * and then under that card has another Insect card.
  *
  * @author Jie
  */
 public class LConfigurationThree implements PointStrategy {
     /**
-     * Calculate how many times the L configuration is fulfilled in the player's field, where the top left is an
+     * Calculate how many times the L configuration is fulfilled in the player's field, where in the top left is an
      * Animal card, and in the right down found two Insect cards.
      * @param field Field of play where the card placed.
      * @param x The x coordinate of the card whose points are being calculated.

@@ -6,16 +6,18 @@ import it.polimi.ingsw.am32.model.field.Field;
 import java.util.*;
 
 /**
- * Diagonals is one of the classes implemented interface PointStrategy used to calculate for the
+ * Diagonals is one of the classes that implement the PointStrategy interface used to calculate the
  * objective cards, which count 3 cards of the same kingdom on the diagonal line y=x or y=-x.
- * type: the kingdom requested by objective card.
- * leftToRight: the type of the diagonal line which returns true for diagonal type y=x and returns false for diagonal
- * type y=-x.
- *
  * @author Jie
  */
 public class Diagonals implements PointStrategy {
+    /**
+     * type: the kingdom requested by objective card.
+     */
     private final ObjectType type;
+    /**
+     * leftToRight: the type of the diagonal line which returns true for diagonal type y=x and returns false for diagonal type y=-x.
+     */
     private final boolean leftToRight;
 
     /**
