@@ -77,4 +77,14 @@ public class NonObjectiveCardDeck {
         return deckType;
     }
 
+    /**
+     * Returns the ArrayList containing the NonObjectiveCards. It is used for testing purposes.
+     *
+     * @return The ArrayList containing the NonObjectiveCards.
+     * @author Lorenzo
+     */
+    public ArrayList<NonObjectiveCard> getCards() {
+        return cards;
+    }
+
 }
