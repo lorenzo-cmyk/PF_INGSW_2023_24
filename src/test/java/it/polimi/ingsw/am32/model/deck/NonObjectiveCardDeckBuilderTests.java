@@ -197,11 +197,11 @@ class NonObjectiveCardDeckBuilderTests {
             assertEquals(0, Arrays.stream(card.getConditionCount()).sum());
             // Specific for Starting cards: permRes must be not all-zero.
             assertNotEquals(0, Arrays.stream(card.getPermRes()).sum());
-            // Specific for Starting cards: the back of the card must have all the angles occupied.
-            assertNotEquals(CornerType.EMPTY, card.getTopLeftBack());
-            assertNotEquals(CornerType.EMPTY, card.getTopRightBack());
-            assertNotEquals(CornerType.EMPTY, card.getBottomLeftBack());
-            assertNotEquals(CornerType.EMPTY, card.getBottomRightBack());
+            // Specific for Starting cards: the front of the card must have all the angles occupied.
+            assertNotEquals(CornerType.EMPTY, card.getTopLeft());
+            assertNotEquals(CornerType.EMPTY, card.getTopRight());
+            assertNotEquals(CornerType.EMPTY, card.getBottomLeft());
+            assertNotEquals(CornerType.EMPTY, card.getBottomRight());
             // Specific for Starting cards: the card must not have a kingdom set.
             assertNull(card.getKingdom());
         }
