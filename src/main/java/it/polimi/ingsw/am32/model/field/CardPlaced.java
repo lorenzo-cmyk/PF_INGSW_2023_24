@@ -2,6 +2,8 @@ package it.polimi.ingsw.am32.model.field;
 
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 
+import java.util.Objects;
+
 /**
  * Used to store information about a currently placed card. Stores the position of the card in the player's field
  * along with its orientation.
@@ -73,5 +75,18 @@ public class CardPlaced {
      */
     public boolean getIsUp() {
         return isUp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CardPlaced that = (CardPlaced) o;
+        return getX() == that.getX() && getY() == that.getY() && isUp == that.isUp && Objects.equals(placedCard, that.placedCard);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(placedCard, getX(), getY(), isUp);
     }
 }
