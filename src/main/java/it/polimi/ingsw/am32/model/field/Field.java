@@ -96,23 +96,46 @@ public class Field {
         if(!tmpFilled)
             return false;
 
-        if (tmpCardsPlaced[0] != null && tmpCardsPlaced[0].getIsUp()) {
-            cornerType[0] = tmpCardsPlaced[0].getNonObjectiveCard().getBottomRight();
+        if (tmpCardsPlaced[0] != null) {
+
+            if (tmpCardsPlaced[0].getIsUp())
+                cornerType[0] = tmpCardsPlaced[0].getNonObjectiveCard().getBottomRight();
+            else
+                cornerType[0] = tmpCardsPlaced[0].getNonObjectiveCard().getBottomRightBack();
+
             if (cornerType[0] == CornerType.NON_COVERABLE)
                 return false;
         }
-        if (tmpCardsPlaced[1] != null && tmpCardsPlaced[1].getIsUp()) {
-            cornerType[1] = tmpCardsPlaced[1].getNonObjectiveCard().getBottomLeft();
+
+        if (tmpCardsPlaced[1] != null) {
+
+            if (tmpCardsPlaced[1].getIsUp())
+                cornerType[1] = tmpCardsPlaced[1].getNonObjectiveCard().getBottomLeft();
+            else
+                cornerType[1] = tmpCardsPlaced[1].getNonObjectiveCard().getBottomLeftBack();
+
             if (cornerType[1] == CornerType.NON_COVERABLE)
                 return false;
         }
-        if (tmpCardsPlaced[2] != null && tmpCardsPlaced[2].getIsUp()) {
-            cornerType[2] = tmpCardsPlaced[2].getNonObjectiveCard().getTopRight();
+
+        if (tmpCardsPlaced[2] != null) {
+
+            if (tmpCardsPlaced[2].getIsUp())
+                cornerType[2] = tmpCardsPlaced[2].getNonObjectiveCard().getTopRight();
+            else
+                cornerType[2] = tmpCardsPlaced[2].getNonObjectiveCard().getTopRightBack();
+
             if (cornerType[2] == CornerType.NON_COVERABLE)
                 return false;
         }
-        if (tmpCardsPlaced[3] != null && tmpCardsPlaced[3].getIsUp()) {
-            cornerType[3] = tmpCardsPlaced[3].getNonObjectiveCard().getTopLeft();
+
+        if (tmpCardsPlaced[3] != null) {
+
+            if (tmpCardsPlaced[3].getIsUp())
+                cornerType[3] = tmpCardsPlaced[3].getNonObjectiveCard().getTopLeft();
+            else
+                cornerType[3] = tmpCardsPlaced[3].getNonObjectiveCard().getTopLeftBack();
+
             if (cornerType[3] == CornerType.NON_COVERABLE)
                 return false;
         }
