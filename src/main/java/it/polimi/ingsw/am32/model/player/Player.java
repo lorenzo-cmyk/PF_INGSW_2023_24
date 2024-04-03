@@ -294,7 +294,7 @@ public class Player {
      *
      * @return The initial Card, if it was non already assigned returns null
      */
-    public Card getInitialCard() {
+    public NonObjectiveCard getInitialCard() {
         if( gameField != null)
             return gameField.getCardFromPosition(0,0);
         else {

@@ -5,31 +5,49 @@ import it.polimi.ingsw.am32.model.card.Card;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.deck.CardDeck;
+import it.polimi.ingsw.am32.model.deck.CardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeck;
+import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeckBuilder;
+import it.polimi.ingsw.am32.model.deck.utils.DeckType;
+import it.polimi.ingsw.am32.model.player.Colour;
 import it.polimi.ingsw.am32.model.player.Player;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 // FIXME For all methods: Why do methods need to return boolean?
 public class Match implements ModelInterface {
-    private NonObjectiveCardDeck starterCardsDeck;
-    private CardDeck objectiveCardsDeck;
-    private NonObjectiveCardDeck resourceCardsDeck;
-    private NonObjectiveCardDeck goldCardsDeck;
-    private ArrayList<NonObjectiveCard> currentResourceCards;
-    private ArrayList<NonObjectiveCard> currentGoldCards;
-    private ArrayList<Card> commonObjectives;
-    private ArrayList<Player> players;
+    private final NonObjectiveCardDeck starterCardsDeck;
+    private final CardDeck objectiveCardsDeck;
+    private final NonObjectiveCardDeck resourceCardsDeck;
+    private final NonObjectiveCardDeck goldCardsDeck;
+    private final ArrayList<NonObjectiveCard> currentResourceCards;
+    private final ArrayList<NonObjectiveCard> currentGoldCards;
+    private final ArrayList<Card> commonObjectives;
+    private final ArrayList<Player> players;
     private MatchStatus matchStatus;
     private String currentPlayerID;
     private int currentTurnNumber;
 
+    /**
+     *
+     */
     public Match() {
-        currentResourceCards = new ArrayList<NonObjectiveCard>(); // Need to initialize the arrays
+        NonObjectiveCardDeckBuilder nonObjectiveCardDeckBuilder = new NonObjectiveCardDeckBuilder();
+        CardDeckBuilder cardDeckBuilder = new CardDeckBuilder();
+
+        this.objectiveCardsDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
+        this.starterCardsDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.STARTING);
+        this.resourceCardsDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.RESOURCE);
+        this.goldCardsDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.GOLD);
+
+        currentResourceCards = new ArrayList<NonObjectiveCard>();
         currentGoldCards = new ArrayList<NonObjectiveCard>();
         commonObjectives = new ArrayList<Card>();
-        // TODO
+
+        this.players = new ArrayList<Player>();
     }
 
     public boolean enterLobbyPhase() {
@@ -38,25 +56,24 @@ public class Match implements ModelInterface {
     }
 
     public boolean addPlayer(String nickname) {
-        if (players.contains(nickname)) { // Nickname already in use
-            return false;
-            // FIXME What happens if String = null?
+        for (int i=0; i<players.size(); i++) { // Player with similar nickname already present in list of players
+            if (players.get(i).getNickname().equals(nickname)) return false;
         }
-        else { // Nickname not in use
-            // TODO Need to initialize player
-            return true;
-        }
+        // Nickname not in use
+        Player newplayer = new Player(nickname);
+        players.add(newplayer);
+        return true;
     }
 
     public boolean deletePlayer(String nickname) {
-        if (players.contains(nickname)) { // Nickname in use
-            return true;
-            // TODO Need to remove player
-            // FIXME What happens if String = null?
+        for (int i=0; i<players.size(); i++) {
+            if (players.get(i).getNickname().equals(nickname)) {
+                players.remove(i);
+                return true;
+            }
         }
-        else { // No player found with given nickname
-            return false;
-        }
+        // Player with given nickname not found
+        return false;
     }
 
     public boolean enterPreparationPhase() {
@@ -65,8 +82,19 @@ public class Match implements ModelInterface {
     }
 
     public boolean assignRandomColoursToPlayers() {
-        // TODO Need to add setter in player class. How am i supposed to set the colour? :/
-        return false;
+        ArrayList<Colour> colour_array = new ArrayList<Colour>();
+        colour_array.add(Colour.RED);
+        colour_array.add(Colour.GREEN);
+        colour_array.add(Colour.BLUE);
+        colour_array.add(Colour.YELLOW);
+
+        Collections.shuffle(colour_array);
+
+        for (int i=0; i<players.size(); i++) {
+            players.get(i).setColour(colour_array.get(i));
+        }
+
+        return true;
     }
 
     public boolean assignRandomStartingInitialCardsToPlayers() {
@@ -88,6 +116,12 @@ public class Match implements ModelInterface {
     }
 
     public boolean createFieldPlayer(String nickname, boolean side) {
+        for (int i=0; i<players.size(); i++) { // Scan all players
+            if (players.get(i).getNickname().equals(nickname)) {
+                players.get(i).initializeGameField(true);
+            }
+            return true;
+        }
         return false;
         // TODO
     }
