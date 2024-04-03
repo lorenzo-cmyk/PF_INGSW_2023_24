@@ -6,4 +6,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FieldTest {
 
+    @Test
+    void doStructuralTesting(){
+
+
+    }
 }

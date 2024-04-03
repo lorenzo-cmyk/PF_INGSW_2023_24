@@ -77,4 +77,14 @@ public class CardDeck {
         return deckType;
     }
 
+    /**
+     * Returns the ArrayList containing the Cards. It is used for testing purposes.
+     *
+     * @return The ArrayList containing the Cards.
+     * @author Lorenzo
+     */
+    public ArrayList<Card> getCards() {
+        return cards;
+    }
+
 }
