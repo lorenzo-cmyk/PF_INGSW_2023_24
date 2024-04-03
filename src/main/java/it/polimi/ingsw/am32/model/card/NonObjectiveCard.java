@@ -4,22 +4,28 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
 
 /**
- * Used to represent gold cards, resource cards, and start card.
+ * Creates objects used to represent Gold, Resource, and Start cards.
  *
  * @author anto
  */
 public class NonObjectiveCard extends Card {
-    private final CornerType topLeft; // We store the objects stored on each corner of the card front and back
-    private final CornerType topRight;
-    private final CornerType bottomLeft;
-    private final CornerType bottomRight;
-    private final CornerType topLeftBack;
-    private final CornerType topRightBack;
-    private final CornerType bottomLeftBack;
-    private final CornerType bottomRightBack;
-    private final int[] permRes; // Permanent resources on back of card. Index of each resource dictated by ObjectType enum
-    private final int[] conditionCount; // Resources that need to be present on the field before playing card. Index of each resource dictated by ObjectType enum
-    private final ObjectType kingdom; // Kingdom (colour) of the card
+    /**
+     * Stores the type of resource displayed on the corner of the card.
+     */
+    private final CornerType topLeft, topRight, bottomLeft, bottomRight, topLeftBack, topRightBack, bottomLeftBack, bottomRightBack;
+    /**
+     * Permanent resources present on the back of the card. Index of each resource dictated by ObjectType enum.
+     * Gold and Resource cards always have 1 permanent resource according to their kingdom, while start cards may have more.
+     */
+    private final int[] permRes;
+    /**
+     * Resources that need to be present on the field before the card can be played. Index of each resource dictated by ObjectType enum.
+     */
+    private final int[] conditionCount;
+    /**
+     * Kingdom (colour) the card belongs to.
+     */
+    private final ObjectType kingdom;
 
     /**
      * Constructor of NonObjectiveCard object

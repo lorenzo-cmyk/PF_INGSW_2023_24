@@ -10,7 +10,7 @@ import it.polimi.ingsw.am32.model.field.Field;
  */
 public class AnglesCovered implements PointStrategy {
     /**
-     * Calculates the number of angles covered by the given card.
+     * Calculates the number of corners covered by the given card.
      *
      * @param field Field object which the card belongs to
      * @param x X coordinate of card whose points are being calculated

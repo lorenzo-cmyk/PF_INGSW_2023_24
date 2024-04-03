@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am32.model.card;
 
 /**
- * Stores all the possible Card object types. Includes all resources and objects. Each field is associated with
- * an integer.
+ * Stores all the possible card corner object types. Each field is associated with an integer.
+ * Used to indicate the type of resource present on the corners of Gold, Resource, and Start cards.
  *
  * @author anto
  */
@@ -25,7 +25,7 @@ public enum CornerType {
 
     /**
      * When an enumeration object is referenced, this method returns its value.
-     * For example, when ObjectType.PLANT is used, a value of 0 will be associated to it.
+     * For example, when ObjectType.PLANT.getValue() is called, 0 is returned.
      *
      * @return Value of referenced enumeration object
      */

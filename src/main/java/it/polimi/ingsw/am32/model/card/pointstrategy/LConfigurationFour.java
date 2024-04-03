@@ -13,17 +13,17 @@ import java.util.List;
  * @author anto
  */
 public class LConfigurationFour implements PointStrategy {
-     /**
-     * Calculates the number of right facing L configurations present in the field made of 2 blue and 1 red cards.
-     * The cards are extracted from the field parameter, then, by using streams, a filtered and ordered arraylist
-     * containing only blue (animal) and red (fungi) cards is generated. The ordering is done on the basis of the cards' x and y coordinates.
-     * Cards are ordered by decreasing x coordinate (primary ordering), and then by decreasing y coordinates (secondary ordering).
-     *
-     * @param field Field object which the card belongs to
-     * @param x Parameter not used
-     * @param y Parameter not used
-     * @return Number of found L configurations
-     */
+    /**
+    * Calculates the number of right facing L configurations present in the field made of 2 blue and 1 red cards.
+    * The cards are extracted from the field parameter, then, by using streams, a filtered and ordered arraylist
+    * containing only blue (animal) and red (fungi) cards is generated. The ordering is done on the basis of the cards' x and y coordinates.
+    * Cards are ordered by decreasing x coordinate (primary ordering), and then by decreasing y coordinates (secondary ordering).
+    *
+    * @param field Field object which the card belongs to
+    * @param x Parameter not used
+    * @param y Parameter not used
+    * @return Number of found L configurations
+    */
     public int calculateOccurences(Field field, int x, int y) {
         ArrayList<CardPlaced> fieldCards = field.getFieldCards(); // Get all the cards with their positions
 
@@ -52,7 +52,7 @@ public class LConfigurationFour implements PointStrategy {
                         j != cards.size()-1 && // Card is not last card of array
                         cards.get(j+1).getNonObjectiveCard().getKingdom() == ObjectType.ANIMAL && // Second blue card found at the correct spot
                         cards.get(j+1).getX() == cards.get(i).getX() - 1 &&
-                        cards.get(j+1).getY() == cards.get(i).getY() - 2) {
+                        cards.get(j+1).getY() == cards.get(i).getY() - 3) {
                         // Pattern occurrence found
 
                         ArrayList<CardPlaced> tempCards = new ArrayList<CardPlaced>(cards); // Create copy of arraylist

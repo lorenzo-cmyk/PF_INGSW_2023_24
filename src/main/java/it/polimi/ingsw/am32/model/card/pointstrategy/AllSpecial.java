@@ -4,14 +4,14 @@ import it.polimi.ingsw.am32.model.field.Field;
 
 /**
  * Used for the point calculation of the only objective card which counts the number
- * of triplets of special type resources
+ * of triplets of special type resources.
  *
  * @author anto
  */
 public class AllSpecial implements PointStrategy {
     /**
      * Calculates the number of full triplets of special type resources on the field.
-     * If there are 1 quills, 3 inkwells, and 2 manuscripts for example, the number of occurrences should be 1
+     * If there are 1 quills, 3 inkwells, and 2 manuscripts for example, the number of occurrences should be 1.
      *
      * @param field Field object which the card belongs to
      * @param x Parameter not used

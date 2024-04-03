@@ -1,8 +1,10 @@
 package it.polimi.ingsw.am32.model.card.pointstrategy;
 
 /**
- * Stores all the possible Card object types. Includes all resources and objects. Each field is associated with
+ * Stores all the possible resource object types. Includes all resources and objects. Each field is associated with
  * an integer.
+ * Used to indicate all the possible resources and special objects.
+ * Can be considered a subset of the CornerType enumeration.
  *
  * @author anto
  */
@@ -18,13 +20,12 @@ public enum ObjectType {
     private final int value;
 
     ObjectType(int value) {
-
         this.value = value;
     }
 
     /**
      * When an enumeration object is referenced, this method returns its value.
-     * For example, when ObjectType. PLANT is used, a value of 0 will be associated to it.
+     * For example, when ObjectType.PLANT.getValue() is called, 0 is returned.
      *
      * @return Value of referenced enumeration object
      */
