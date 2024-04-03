@@ -6,16 +6,18 @@ import it.polimi.ingsw.am32.model.field.Field;
 import java.util.*;
 
 /**
- * Diagonals is one of the classes implemented interface PointStrategy used to calculate for the
+ * Diagonals is one of the classes that implement the PointStrategy interface used to calculate the
  * objective cards, which count 3 cards of the same kingdom on the diagonal line y=x or y=-x.
- * type: the kingdom requested by objective card.
- * leftToRight: the type of the diagonal line which returns true for diagonal type y=x and returns false for diagonal
- * type y=-x.
- *
  * @author Jie
  */
 public class Diagonals implements PointStrategy {
+    /**
+     * type: the kingdom requested by objective card.
+     */
     private final ObjectType type;
+    /**
+     * leftToRight: the type of the diagonal line which returns true for diagonal type y=x and returns false for diagonal type y=-x.
+     */
     private final boolean leftToRight;
 
     /**
@@ -43,15 +45,15 @@ public class Diagonals implements PointStrategy {
             } else
                 return Integer.compare(c1.getY(), c2.getY());
         };
-        dominantKingdom.sort(comparator); // sort arraylist in ascending order
-        while (dominantKingdom.size() > 2) {
+        dominantKingdom.sort(comparator);// sort arraylist in ascending order
+        while (!dominantKingdom.isEmpty()) {
             int xLoc;
             int yLoc;
             xLoc = dominantKingdom.getFirst().getX();
             yLoc = dominantKingdom.getFirst().getY();
             CardPlaced e1;
             boolean condition1 = false; // condition1 marks the existence of the card in the middle of the three diagonal cards
-            for (int i = 0; i < dominantKingdom.size() && !condition1; i++) {
+            for (int i = 1; i < dominantKingdom.size() && !condition1; i++) {
                 if (this.leftToRight) { // case of diagonal y=x.
                     if (dominantKingdom.get(i).getX() == (xLoc + 1) && dominantKingdom.get(i).getY() == (yLoc + 1)) {
                         e1 = dominantKingdom.get(i);
@@ -63,17 +65,17 @@ public class Diagonals implements PointStrategy {
                     }
                 } // check the existence of the cards, then if they existed move them from the list.
                 else { // case of diagonal y=-x.
-                    if (dominantKingdom.get(i).getX() == (xLoc - 1) && dominantKingdom.get(i).getY() == (yLoc + 1)) {
+                    if (dominantKingdom.get(i).getX() == (xLoc + 1) && dominantKingdom.get(i).getY() == (yLoc - 1)) {
                         e1 = dominantKingdom.get(i);
-                        if (dominantKingdom.removeIf(e -> (e.getX() == (xLoc - 2)) && (e.getY() == (yLoc + 2)))) {
+                        if (dominantKingdom.removeIf(e -> (e.getX() == (xLoc + 2)) && (e.getY() == (yLoc - 2)))) {
                             dominantKingdom.remove(e1);
                             times++;
                             condition1 = true;
                         }
                     }
                 }
-                dominantKingdom.remove(dominantKingdom.getFirst());
             }
+            dominantKingdom.remove(dominantKingdom.getFirst());
         }
         return times;
     }

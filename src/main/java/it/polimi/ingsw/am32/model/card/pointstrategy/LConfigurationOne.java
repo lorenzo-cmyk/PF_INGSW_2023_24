@@ -8,15 +8,15 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
-* LConfigurationOne is one of the classes implemented interface PointStrategy used to calculate for the
-* objective cards, which in the bottom right has a Plant card and positioned in the top left corner has a Fungi card
-* and then above that card is another Fungi card placed, that is why we called class as L configuration.
+* LConfigurationOne is one of the classes that implement the PointStrategy interface used to calculate the
+* objective cards, which in the bottom right has a Plant card and in the top left corner has a Fungi card
+* and then above that card has another Fungi card.
  *
  * @author Jie
 */
 public class LConfigurationOne implements PointStrategy {
     /**
-     *  Calculate how many times the L configuration is fulfilled in the player's field, where the bottom right is a
+     *  Calculate how many times the L configuration is fulfilled in the player's field, where in the bottom right is a
      *  Plant card, and in the left top found two Fungi cards.
      * @param field Field of play where the card placed.
      * @param x The x coordinate of the card whose points are being calculated.

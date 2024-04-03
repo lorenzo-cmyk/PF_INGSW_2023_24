@@ -10,8 +10,17 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
  * @author Jie
  */
 public class Card {
+    /**
+     * id: Identifier of card.
+     */
     private final int id;
+    /**
+     * value: Value of card from zero to five points.
+     */
     private final int value;
+    /**
+     * pointStrategy: Strategy that should be fulfilled to get the points of card.
+     */
     private final PointStrategy pointStrategy;
 
     /**

@@ -8,15 +8,15 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * LConfigurationOne is one of the classes implemented interface PointStrategy used to calculate for the
- * objective cards, which in the top left has an Animal card and positioned in the bottom right corner has an Insect card
- * and then under that card is another Insect card placed.
+ * LConfigurationThree is one of the classes that implement the PointStrategy interface used to calculate the
+ * objective cards, which in the top left has an Animal card and in the bottom right corner has an Insect card
+ * and then under that card has another Insect card.
  *
  * @author Jie
  */
 public class LConfigurationThree implements PointStrategy {
     /**
-     * Calculate how many times the L configuration is fulfilled in the player's field, where the top left is an
+     * Calculate how many times the L configuration is fulfilled in the player's field, where in the top left is an
      * Animal card, and in the right down found two Insect cards.
      * @param field Field of play where the card placed.
      * @param x The x coordinate of the card whose points are being calculated.
@@ -46,6 +46,7 @@ public class LConfigurationThree implements PointStrategy {
             } else
                 return Integer.compare(c1.getY(), c2.getY());
         };
+
         animalKingdom.sort(comparatorTwo);
         insectKingdom.sort(comparatorTwo);
 
@@ -55,17 +56,20 @@ public class LConfigurationThree implements PointStrategy {
             xLoc = animalKingdom.getFirst().getX();
             yLoc = animalKingdom.getFirst().getY();
             CardPlaced e1;
-            for(int j=0; j<insectKingdom.size()-1&&insectKingdom.get(j).getX()<xLoc+2; j++){ // search for Insect cards that connect to the specific Animal card.
+            for(int j=0; j<insectKingdom.size()&&insectKingdom.get(j).getX()<(xLoc+2); j++){ // search for Insect cards that connect to the specific Animal card.
                 if (insectKingdom.get(j).getX() == (xLoc + 1) && insectKingdom.get(j).getY() == (yLoc - 1)) {
                     e1 = insectKingdom.get(j); // an Insect card found in the top left corner of the specific Animal card.
-                    if (insectKingdom.get(j + 1).getX() == e1.getX() && insectKingdom.get(j + 1).getY() == e1.getY() - 2) {
-                        insectKingdom.remove(insectKingdom.get(j + 1));
+                    if(j!=0){
+                    if (insectKingdom.get(j - 1).getX() == e1.getX() && insectKingdom.get(j - 1).getY() == e1.getY() - 2) {
+                        insectKingdom.remove(insectKingdom.get(j - 1));
                         times++;
+                        insectKingdom.remove(e1);
                     }
-                    insectKingdom.remove(e1);
+                    }
+
                 }
             } // remove elements validated to reduce the search time.
-            insectKingdom.remove(insectKingdom.getFirst());
+            animalKingdom.remove(animalKingdom.getFirst());
         }
         insectKingdom.clear();
         return times;

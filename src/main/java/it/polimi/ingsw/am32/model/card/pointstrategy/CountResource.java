@@ -3,16 +3,19 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 import it.polimi.ingsw.am32.model.field.Field;
 
 /**
- * CountResource is one of the implemented interface PointStrategy used to calculate for the
+ * CountResource is one of the classes that implement the PointStrategy interface used to calculate the
  * objective cards and the gold cards, which count identical resources or objects visible in the play area (field)
  * of the player.
- * type: the kingdom required by the objective card or the type of object required by the gold card.
- * count: number of resources or objects required by the card to get a certain value.
- *
  * @author Jie
  */
 public class CountResource implements PointStrategy {
+    /**
+     * type: the kingdom required by the objective card or the type of object required by the gold card.
+     */
     private ObjectType type;
+    /**
+     * count: the amount of resources or objects required by the card to get a certain value.
+     */
     private int count;
 
     /**

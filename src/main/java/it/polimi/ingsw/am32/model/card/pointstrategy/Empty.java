@@ -2,9 +2,8 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 
 import it.polimi.ingsw.am32.model.field.Field;
 /**
- * Empty is one of the classes implemented interface PointStrategy used to calculate for the
- * card, whose placement does not change the player's score points: all start cards and a part of the resources cards.
- *
+ * Empty is one of the classes that implement the PointStrategy interface used to calculate the
+ * card whose placement returns always 1: all cards with a constant value regardless of other conditions.
  * @author Jie
  */
 public class Empty implements PointStrategy {
