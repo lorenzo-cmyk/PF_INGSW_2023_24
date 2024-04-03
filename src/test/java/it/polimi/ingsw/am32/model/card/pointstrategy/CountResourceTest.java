@@ -85,7 +85,7 @@ class CountResourceTest {
         //Object cards that returns two points for every two INKWELL elements in the field.
         CountResource strategy = new CountResource(ObjectType.INKWELL, 2);
         NonObjectiveCard c1 = new NonObjectiveCard(37, 0, pointStrategy, CornerType.INSECT, CornerType.PLANT, CornerType.INKWELL, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
-        NonObjectiveCard c2 = new NonObjectiveCard(12, 0, pointStrategy, CornerType.PLANT, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
+        NonObjectiveCard c2 = new NonObjectiveCard(6, 0, pointStrategy, CornerType.INKWELL, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         f.placeCardInField(c1, 1, 1, true); // Card placed side-up
         f.placeCardInField(c2, -1, 1, true); // Card placed side-up
         assertEquals(1, strategy.calculateOccurences(f, 0, 0));
