@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CardDeckTests {
+class CardDeckTest {
     private CardDeck cardDeck;
     private Card card;
 

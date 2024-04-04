@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class DeckTypeTests {
+class DeckTypeTest {
     @DisplayName("getDeckType should return the correct deck type for Resource deck")
     @Test
     void getJSONPathForResourceDeck() {
