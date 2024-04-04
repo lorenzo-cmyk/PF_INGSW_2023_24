@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameSimulationTest {
-    @DisplayName("Run a, partial, game simulation to test the game mechanics.")
+    @DisplayName("Run a, partial, game simulation in order to test the game mechanics")
     @Test
     public void runGameSimulation() {
         // Initialize the decks for Resources, Gold, Objective and Starting cards
@@ -38,7 +38,6 @@ public class GameSimulationTest {
 
         // Give the player its starting card
         NonObjectiveCard startingCard = retrieveNonObjectiveCardByID(startingCardDeck, 81);
-        assertNotNull(startingCard);
 
         assertTrue(player.assignStartingCard(startingCard));
         assertEquals(startingCard, player.getHand().getFirst());
@@ -70,11 +69,8 @@ public class GameSimulationTest {
 
         // Give the player two Resource cards and one Gold card
         NonObjectiveCard resourceCard1 = retrieveNonObjectiveCardByID(resourceCardDeck, 23);
-        assertNotNull(resourceCard1);
         NonObjectiveCard resourceCard2 = retrieveNonObjectiveCardByID(resourceCardDeck, 25);
-        assertNotNull(resourceCard2);
         NonObjectiveCard goldCard1 = retrieveNonObjectiveCardByID(goldCardDeck, 77);
-        assertNotNull(goldCard1);
 
         assertTrue(player.putCardInHand(resourceCard1));
         assertEquals(resourceCard1, player.getHand().getLast());
@@ -85,9 +81,7 @@ public class GameSimulationTest {
 
         // Give the player two objective cards and let the player choose one as secret objective
         Card objectiveCard1 = retrieveCardByID(objectiveCardDeck, 94);
-        assertNotNull(objectiveCard1);
         Card objectiveCard2 = retrieveCardByID(objectiveCardDeck, 99);
-        assertNotNull(objectiveCard2);
 
         assertTrue(player.receiveSecretObjective(objectiveCard1, objectiveCard2));
         assertTrue(player.secretObjectiveSelection(objectiveCard1.getId()));
@@ -117,6 +111,7 @@ public class GameSimulationTest {
     public NonObjectiveCard retrieveNonObjectiveCardByID(NonObjectiveCardDeck deck, int id) {
         for (NonObjectiveCard card : deck.getCards()) {
             if (card.getId() == id) {
+                assertNotNull(card);
                 return card;
             }
         }
@@ -126,6 +121,7 @@ public class GameSimulationTest {
     public Card retrieveCardByID(CardDeck deck, int id) {
         for (Card card : deck.getCards()) {
             if (card.getId() == id) {
+                assertNotNull(card);
                 return card;
             }
         }
