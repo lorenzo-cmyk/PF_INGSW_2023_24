@@ -14,7 +14,6 @@ import it.polimi.ingsw.am32.model.player.Player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 // FIXME For all methods: Why do methods need to return boolean?
@@ -31,9 +30,6 @@ public class Match implements ModelInterface {
     private String currentPlayerID;
     private int currentTurnNumber;
 
-    /**
-     *
-     */
     public Match() {
         NonObjectiveCardDeckBuilder nonObjectiveCardDeckBuilder = new NonObjectiveCardDeckBuilder();
         CardDeckBuilder cardDeckBuilder = new CardDeckBuilder();
@@ -82,15 +78,12 @@ public class Match implements ModelInterface {
     }
 
     public boolean assignRandomColoursToPlayers() {
-        ArrayList<Colour> colour_array = new ArrayList<Colour>();
-        colour_array.add(Colour.RED);
-        colour_array.add(Colour.GREEN);
-        colour_array.add(Colour.BLUE);
-        colour_array.add(Colour.YELLOW);
+        ArrayList<Colour> colour_array = new ArrayList<Colour>(Arrays.asList(Colour.values())); // Create ArrayList of colours
+        colour_array.remove(Colour.BLACK); // Remove black from ArrayList
 
         Collections.shuffle(colour_array);
 
-        for (int i=0; i<players.size(); i++) {
+        for (int i=0; i<players.size(); i++) { // Assign colour to each player
             players.get(i).setColour(colour_array.get(i));
         }
 
@@ -111,8 +104,8 @@ public class Match implements ModelInterface {
                 return players.get(i).getInitialCard().getId(); // Get initial card from player and return id
             }
         }
+        // FIXME What if nickname is null?
         return -1;
-        // FIXME Might need to consider what happens if nickname is not present in array
     }
 
     public boolean createFieldPlayer(String nickname, boolean side) {
