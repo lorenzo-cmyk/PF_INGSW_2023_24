@@ -335,8 +335,17 @@ public class GameSimulationTest {
         assertEquals(goldCard5, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
 
+        // Check the card in the field we should only have: 81, 23, 25, 30, 31, 38, 62, 77
+        assertEquals(8, player.getField().getFieldCards().size());
+        // We now are going to use all the objective cards we have to add more points to the player
+        assertTrue(player.updatePointsForSecretObjective());
+        // We should gain 3 points thanks to the secret objective
+        assertEquals(8, player.getPoints());
 
-
+        Card[] commonObjectives = {commonObjective1, commonObjective2};
+        assertTrue(player.updatePointsForObjectives(commonObjectives));
+        // We should gain 2 points thanks to the common objectives
+        assertEquals(10, player.getPoints());
     }
 
     public NonObjectiveCard retrieveNonObjectiveCardByID(NonObjectiveCardDeck deck, int id) throws Exception {
