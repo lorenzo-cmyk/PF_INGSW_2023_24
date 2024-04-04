@@ -242,7 +242,7 @@ public class GameSimulationTest {
         // Turn 4: Draw card 62
         NonObjectiveCard goldCard2 = null;
         try {
-            goldCard2 = retrieveNonObjectiveCardByID(resourceCardDeck, 62);
+            goldCard2 = retrieveNonObjectiveCardByID(goldCardDeck, 62);
         } catch (Exception e) {
             fail("Resource card 62 is not found in the deck.");
         }
@@ -250,7 +250,6 @@ public class GameSimulationTest {
         assertTrue(player.putCardInHand(goldCard2));
         assertEquals(goldCard2, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
-
 
     }
 
