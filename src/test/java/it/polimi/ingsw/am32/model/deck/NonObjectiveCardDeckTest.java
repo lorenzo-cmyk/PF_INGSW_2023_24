@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NonObjectiveCardDeckTests {
+class NonObjectiveCardDeckTest {
     private NonObjectiveCardDeck nonObjectiveCardDeck;
     private NonObjectiveCard nonObjectiveCard;
 

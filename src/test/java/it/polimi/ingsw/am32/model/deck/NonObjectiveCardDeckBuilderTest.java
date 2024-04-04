@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class NonObjectiveCardDeckBuilderTests {
+class NonObjectiveCardDeckBuilderTest {
     private NonObjectiveCardDeckBuilder nonObjectiveCardDeckBuilder;
 
     @BeforeEach

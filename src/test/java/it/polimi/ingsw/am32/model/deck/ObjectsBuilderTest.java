@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ObjectsBuilderTests {
+class ObjectsBuilderTest {
     ObjectsBuilder objectsBuilder = new ObjectsBuilder();
 
     @DisplayName("stringToCornerType should return the correct object")
