@@ -251,6 +251,101 @@ public class GameSimulationTest {
         assertEquals(goldCard2, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
 
+        // Turn 5: Place card 31 on 2,-2 front
+        assertTrue(player.performMove(31, 2, -2, true));
+        // Check if the card is placed correctly
+        assertEquals(player.getField().getCardFromPosition(2, -2), resourceCard5);
+        // Check if the resources are updated correctly
+        assertEquals(1, player.getField().getActiveRes(ObjectType.PLANT));
+        assertEquals(0, player.getField().getActiveRes(ObjectType.FUNGI));
+        assertEquals(2, player.getField().getActiveRes(ObjectType.ANIMAL)); // We lost 1
+        assertEquals(4, player.getField().getActiveRes(ObjectType.INSECT)); // We gained 2
+        assertEquals(1, player.getField().getActiveRes(ObjectType.INKWELL));
+        assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
+        assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
+        // Check if the player has 1 points
+        assertEquals(player.getPoints(), 1);
+        // Check if the player has 2 cards in hand: 62 and 77
+        assertEquals(2, player.getHand().size());
+        // Turn 5: Draw card 55 -- We are not going to use it in this simulation
+        NonObjectiveCard goldCard3 = null;
+        try {
+            goldCard3 = retrieveNonObjectiveCardByID(goldCardDeck, 55);
+        } catch (Exception e) {
+            fail("Resource card 55 is not found in the deck.");
+        }
+        // Give the player the card and check if the player has it
+        assertTrue(player.putCardInHand(goldCard3));
+        assertEquals(goldCard3, player.getHand().getLast());
+        assertEquals(3, player.getHand().size());
+
+        // Turn 6: Place card 77 on 2,0 front
+        assertTrue(player.performMove(77, 2, 0, true));
+        // Check if the card is placed correctly
+        assertEquals(player.getField().getCardFromPosition(2, 0), goldCard1);
+        // Check if the resources are updated correctly
+        assertEquals(1, player.getField().getActiveRes(ObjectType.PLANT));
+        assertEquals(0, player.getField().getActiveRes(ObjectType.FUNGI));
+        assertEquals(2, player.getField().getActiveRes(ObjectType.ANIMAL));
+        assertEquals(4, player.getField().getActiveRes(ObjectType.INSECT));
+        assertEquals(2, player.getField().getActiveRes(ObjectType.INKWELL)); // We gained 1
+        assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
+        assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
+        // Check if the player has 4 points
+        assertEquals(player.getPoints(), 4);
+        // Check if the player has 2 cards in hand: 62 and 55
+        assertEquals(2, player.getHand().size());
+        // Turn 6: Draw card 54 -- We are not going to use it in this simulation
+        NonObjectiveCard goldCard4 = null;
+        try {
+            goldCard4 = retrieveNonObjectiveCardByID(goldCardDeck, 54);
+        } catch (Exception e) {
+            fail("Resource card 54 is not found in the deck.");
+        }
+        // Give the player the card and check if the player has it
+        assertTrue(player.putCardInHand(goldCard4));
+        assertEquals(goldCard4, player.getHand().getLast());
+        assertEquals(3, player.getHand().size());
+
+        // Turn 7: Place card 62 on 1,1 front
+        assertTrue(player.performMove(62, 1, 1, true));
+        // Check if the card is placed correctly
+        assertEquals(player.getField().getCardFromPosition(1, 1), goldCard2);
+        // Check if the resources are updated correctly
+        assertEquals(0, player.getField().getActiveRes(ObjectType.PLANT)); // We lost 1
+        assertEquals(0, player.getField().getActiveRes(ObjectType.FUNGI));
+        assertEquals(2, player.getField().getActiveRes(ObjectType.ANIMAL));
+        assertEquals(4, player.getField().getActiveRes(ObjectType.INSECT));
+        assertEquals(1, player.getField().getActiveRes(ObjectType.INKWELL)); // We lost 1
+        assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
+        assertEquals(1, player.getField().getActiveRes(ObjectType.MANUSCRIPT)); // We gained 1
+        // Check if the player has 5 points -- We gained a point thanks to the card: point calculation is done after the card is placed
+        assertEquals(player.getPoints(), 5);
+        // Check if the player has 2 cards in hand: 54 and 55
+        assertEquals(2, player.getHand().size());
+        // Turn 6: Draw card 53 -- We are not going to use it in this simulation
+        NonObjectiveCard goldCard5 = null;
+        try {
+            goldCard5 = retrieveNonObjectiveCardByID(goldCardDeck, 53);
+        } catch (Exception e) {
+            fail("Resource card 53 is not found in the deck.");
+        }
+        // Give the player the card and check if the player has it
+        assertTrue(player.putCardInHand(goldCard5));
+        assertEquals(goldCard5, player.getHand().getLast());
+        assertEquals(3, player.getHand().size());
+
+        // Check the card in the field we should only have: 81, 23, 25, 30, 31, 38, 62, 77
+        assertEquals(8, player.getField().getFieldCards().size());
+        // We now are going to use all the objective cards we have to add more points to the player
+        assertTrue(player.updatePointsForSecretObjective());
+        // We should gain 3 points thanks to the secret objective
+        assertEquals(8, player.getPoints());
+
+        Card[] commonObjectives = {commonObjective1, commonObjective2};
+        assertTrue(player.updatePointsForObjectives(commonObjectives));
+        // We should gain 2 points thanks to the common objectives
+        assertEquals(10, player.getPoints());
     }
 
     public NonObjectiveCard retrieveNonObjectiveCardByID(NonObjectiveCardDeck deck, int id) throws Exception {

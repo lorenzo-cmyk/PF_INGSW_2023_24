@@ -166,13 +166,18 @@ public class Player {
             return false;
 
         hand.remove(tmpVar);
-        
-        PointStrategy pointStrategy = nonObjectiveCard.getPointStrategy();
 
-        // TODO check if next line can fail
-        int occurrences = pointStrategy.calculateOccurences(gameField, x, y);
+        // All the placeable cards: Gold, Resource and Starting cannot give
+        // points to the player if they are placed with their back-up.
 
-        points = points + occurrences * nonObjectiveCard.getValue();
+        if(isUp){
+            PointStrategy pointStrategy = nonObjectiveCard.getPointStrategy();
+
+            // TODO check if next line can fail
+            int occurrences = pointStrategy.calculateOccurences(gameField, x, y);
+
+            points = points + occurrences * nonObjectiveCard.getValue();
+        }
 
         return true;
     }
