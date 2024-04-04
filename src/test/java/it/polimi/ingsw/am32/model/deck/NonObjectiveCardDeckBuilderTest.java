@@ -102,9 +102,16 @@ class NonObjectiveCardDeckBuilderTest {
             assertEquals(7, card.getPermRes().length);
             assertEquals(7, card.getConditionCount().length);
 
-            // Specific for Resource cards: permRes and conditionCount must be all-zero.
-            assertEquals(0, Arrays.stream(card.getPermRes()).sum());
+            // Specific for Resource cards: conditionCount must be all-zero.
             assertEquals(0, Arrays.stream(card.getConditionCount()).sum());
+            // Specific for Resource cards: permRes[x] can be 1 only if x corresponds to the card's kingdom.
+            for (int j = 0; j < 7; j++) {
+                if (j == card.getKingdom().getValue()) {
+                    assertEquals(1, card.getPermRes()[j]);
+                } else {
+                    assertEquals(0, card.getPermRes()[j]);
+                }
+            }
             // Specific for Resource cards: the back of the card must have all the angles set to EMPTY.
             assertEquals(CornerType.EMPTY, card.getTopLeftBack());
             assertEquals(CornerType.EMPTY, card.getTopRightBack());
@@ -149,8 +156,14 @@ class NonObjectiveCardDeckBuilderTest {
 
             // Specific for Gold cards: conditionCount must be not all-zero.
             assertNotEquals(0, Arrays.stream(card.getConditionCount()).sum());
-            // Specific for Gold cards: permRes must be all-zero.
-            assertEquals(0, Arrays.stream(card.getPermRes()).sum());
+            // Specific for Gold cards: permRes[x] can be 1 only if x corresponds to the card's kingdom.
+            for (int j = 0; j < 7; j++) {
+                if (j == card.getKingdom().getValue()) {
+                    assertEquals(1, card.getPermRes()[j]);
+                } else {
+                    assertEquals(0, card.getPermRes()[j]);
+                }
+            }
             // Specific for Gold cards: the back of the card must have all the angles set to EMPTY.
             assertEquals(CornerType.EMPTY, card.getTopLeftBack());
             assertEquals(CornerType.EMPTY, card.getTopRightBack());
