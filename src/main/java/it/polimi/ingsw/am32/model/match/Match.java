@@ -285,7 +285,7 @@ public class Match implements ModelInterface {
                     }
                     winners.add(player.getNickname());
                 }
-                if (player.getPointsGainedFromObjectives() == tmpScoreObj) {
+                else if (player.getPointsGainedFromObjectives() == tmpScoreObj) {
                     winners.add(player.getNickname());
                 }
             }
