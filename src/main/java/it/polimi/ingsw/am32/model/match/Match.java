@@ -26,7 +26,7 @@ public class Match implements ModelInterface {
     private final NonObjectiveCardDeck goldCardsDeck;
     private final ArrayList<NonObjectiveCard> currentResourceCards;
     private final ArrayList<NonObjectiveCard> currentGoldCards;
-    private final Card[ ]commonObjectives;
+    private final Card[]commonObjectives;
     private final ArrayList<Player> players;
     private MatchStatus matchStatus;
     private String currentPlayerID;
@@ -250,7 +250,7 @@ public class Match implements ModelInterface {
     }
 
     public boolean setLastTurn() {
-        matchStatus= MatchStatus.LAST_TURN;
+        matchStatus = MatchStatus.LAST_TURN;
         return true;
     }
 
@@ -261,9 +261,9 @@ public class Match implements ModelInterface {
     }
 
     public boolean addObjectivePoints() {
-        boolean check=false;
+        boolean check = false;
         for (Player player : players) {
-            check= player.updatePointsForObjectives(commonObjectives) && player.updatePointsForSecretObjective();
+            check = player.updatePointsForObjectives(commonObjectives) && player.updatePointsForSecretObjective();
         }
         return check;
     }
@@ -306,7 +306,7 @@ public class Match implements ModelInterface {
     }
 
     public ArrayList<Integer> getCommonObjectives() {
-        ArrayList<Integer> idCommonObj=new ArrayList<>();
+        ArrayList<Integer> idCommonObj = new ArrayList<>();
         for (Card commonObjective : commonObjectives) {
             int id = commonObjective.getId();
             idCommonObj.add(id);
@@ -333,30 +333,27 @@ public class Match implements ModelInterface {
                 return players.get(i).getSecretObjective().getId();
             }
         }
-        return -1; // FIXME Intellij marks error if this return is not present
+        return -1;
     }
 
     public ArrayList<Integer> getPlayerHand(String nickname) {
-        ArrayList<Integer> retArr = new ArrayList<>();
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
                 ArrayList<NonObjectiveCard> playerHand = players.get(i).getHand(); // Get player hand
                 return (ArrayList<Integer>)playerHand.stream().map(c -> c.getId()).collect(Collectors.toList()); // Extract card ids
-                // TODO Need to check if stream conversion works properly
             }
         }
-        return null; // FIXME What if nickname = null
+        return null; // No player with given nickname found
     }
 
     public ArrayList<CardPlaced> getPlayerField(String nickname) {
-        ArrayList<CardPlaced> playerField=new ArrayList<>();
+        ArrayList<CardPlaced> playerField = null;
         for (Player player : players) {
             if (player.getNickname().equals(nickname)) {
                 playerField = player.getField().getFieldCards();
             }
         }
         return playerField;
-        //FIXME need to check ArrayList<Object>, Object=CardPlaced?
     }
 
     public MatchStatus getMatchStatus() {
