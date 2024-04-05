@@ -305,6 +305,15 @@ public class Player {
         // TODO check if it can be done better
     }
 
+    /**
+     * Getter:
+     *
+     * @return the objective cards received by player.
+     */
+    public Card[] getTmpSecretObj() {
+        return tmpSecretObj;
+    }
+
 
     //---------------------------------------------------------------------------------------------
     // Setters

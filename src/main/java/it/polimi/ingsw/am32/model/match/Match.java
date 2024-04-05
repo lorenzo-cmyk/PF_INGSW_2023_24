@@ -11,6 +11,8 @@ import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
 import it.polimi.ingsw.am32.model.player.Colour;
 import it.polimi.ingsw.am32.model.player.Player;
+import net.bytebuddy.implementation.bytecode.collection.ArrayAccess;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,11 +51,13 @@ public class Match implements ModelInterface {
     public boolean enterLobbyPhase() {
         matchStatus = MatchStatus.LOBBY;
         return true;
+        // FIXME should return void
     }
 
     public boolean addPlayer(String nickname) {
         for (int i=0; i<players.size(); i++) { // Player with similar nickname already present in list of players
-            if (players.get(i).getNickname().equals(nickname)) return false;
+            if (players.get(i).getNickname().equals(nickname))
+                return false;
         }
         // Nickname not in use
         Player newplayer = new Player(nickname);
@@ -75,6 +79,7 @@ public class Match implements ModelInterface {
     public boolean enterPreparationPhase() {
         matchStatus = MatchStatus.PREPARATION;
         return true;
+        // FIXME should return void
     }
 
     public boolean assignRandomColoursToPlayers() {
@@ -88,6 +93,7 @@ public class Match implements ModelInterface {
         }
 
         return true;
+        // FIXME should return void
     }
 
     public boolean assignRandomStartingInitialCardsToPlayers() {
@@ -96,6 +102,7 @@ public class Match implements ModelInterface {
             players.get(i).assignStartingCard(drawnCard); // Place drawn card in player hand
         }
         return true;
+        // FIXME should return void
     }
 
     public int getInitialCardPlayer(String nickname) {
@@ -104,19 +111,17 @@ public class Match implements ModelInterface {
                 return players.get(i).getInitialCard().getId(); // Get initial card from player and return id
             }
         }
-        // FIXME What if nickname is null?
         return -1;
     }
 
     public boolean createFieldPlayer(String nickname, boolean side) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) {
-                players.get(i).initializeGameField(true);
+                players.get(i).initializeGameField(side);
             }
             return true;
         }
         return false;
-        // TODO
     }
 
     public boolean assignRandomStartingResourceCardsToPlayers() {
@@ -127,6 +132,7 @@ public class Match implements ModelInterface {
             }
         }
         return true;
+        // FIXME should return void
     }
 
     public boolean assignRandomStartingGoldCardsToPlayers() {
@@ -135,6 +141,7 @@ public class Match implements ModelInterface {
             players.get(i).putCardInHand(c);
         }
         return true;
+        // FIXME should return void
     }
 
     public boolean pickRandomCommonObjectives() {
@@ -143,23 +150,28 @@ public class Match implements ModelInterface {
             commonObjectives.add(c);
         }
         return true;
-        // FIXME I don't know how useful this method is
+        // FIXME should return void
     }
 
     public boolean assignRandomStartingSecretObjectivesToPlayers() {
         for (int i=0; i<players.size(); i++) {
             Card c1 = objectiveCardsDeck.draw();
             Card c2 = objectiveCardsDeck.draw();
-
             players.get(i).receiveSecretObjective(c1, c2);
         }
         return true;
-        // TODO Need to complete method
+        // FIXME should return void
     }
 
     public ArrayList<Integer> getSecretsObjectivesCardsPlayer(String nickname) {
-        return null;
-        // TODO
+        ArrayList<Integer> idCards = new ArrayList<>();
+        for (int i=0; i<players.size(); i++) {
+            if (players.get(i).getNickname().equals(nickname)) {
+                idCards.add(players.get(i).getTmpSecretObj()[0].getId());
+                idCards.add(players.get(i).getTmpSecretObj()[1].getId());
+            }
+        }
+        return idCards;
     }
 
     public boolean receiveSecretObjectiveChoiceFromPlayer(String nickname, int id) {
@@ -173,53 +185,76 @@ public class Match implements ModelInterface {
 
     public boolean randomizePlayersOrder() {
         Collections.shuffle(players);
-        // FIXME There is no first player attribute
         return true;
+        // FIXME should return void
     }
 
     public boolean enterPlayingPhase() {
         matchStatus = MatchStatus.PLAYING;
         return true;
+        // FIXME should return void
     }
 
     public boolean startTurns() {
-        return false;
+        String currentPlayerID = players.getFirst().getNickname();
+        return true;
+        // FIXME should return void
     }
 
     public boolean placeCard(int id, int x, int y, boolean side) {
+        for (int i=0; i<=players.size(); i++) {
+            if (players.get(i).getNickname().equals(currentPlayerID)) { // Found current player
+                Boolean success = players.get(i).performMove(id, x, y, side); // Place card
+
+                if (!success) return false; // There was an error in the placement of the card
+
+                if (players.get(i).getPoints() >= 20) {
+                    setTerminating();
+                }
+                return true;
+            }
+        }
         return false;
     }
 
-    public boolean drawCard(int id, int deckType) {
+    public boolean drawCard(int deckType, int id) {
+        // TODO
         return false;
     }
 
     public boolean nextTurn() {
+        for (int i=0; i<players.size(); i++) {
+            if (players.get(i).getNickname().equals(currentPlayerID)) {
+                currentPlayerID = (i == players.size() - 1) ? players.getFirst().getNickname() : players.get(i+1).getNickname();
+                return true;
+            }
+        }
         return false;
     }
 
     public boolean setTerminating() {
         matchStatus = MatchStatus.TERMINATING;
         return true;
-        // TODO Need to double check
+        // FIXME Need to double check
     }
 
     public boolean areWeTerminating() {
-        return false;
+        return matchStatus == MatchStatus.TERMINATING;
     }
 
     public boolean isFirstPlayer() {
-        return false;
+        return currentPlayerID.equals(players.getFirst().getNickname());
     }
 
     public boolean setLastTurn() {
-        return false;
+        matchStatus= MatchStatus.LAST_TURN;
+        return true;
     }
 
     public boolean enterTerminatedPhase() {
         matchStatus = MatchStatus.TERMINATED;
         return true;
-        // TODO Need to double check
+        // TODO should return void
     }
 
     public boolean addObjectivePoints() {

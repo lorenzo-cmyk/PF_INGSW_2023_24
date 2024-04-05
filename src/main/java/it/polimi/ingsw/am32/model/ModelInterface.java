@@ -23,7 +23,7 @@ public interface ModelInterface {
     boolean enterPlayingPhase(); // TODO
     boolean startTurns(); // TODO
     boolean placeCard(int id, int x, int y, boolean side); // TODO
-    boolean drawCard(int id, int deckType); // TODO
+    boolean drawCard(int deckType, int id); // TODO
     boolean nextTurn(); // TODO
     boolean setTerminating(); // TODO
     boolean areWeTerminating(); // TODO
