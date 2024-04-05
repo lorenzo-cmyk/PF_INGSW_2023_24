@@ -132,7 +132,7 @@ public class Player {
     }
 
     /**
-     * Tries to put a card in the hand of the player and place it in the field. If the card is placed successfully
+     * Tries to take a card from the hand of the player and place it in the field. If the card is placed successfully
      * calculate the points gained from its placement and add them to those of the player
      *
      * @param id is the id of the card in the hand of the player that has to be placed
