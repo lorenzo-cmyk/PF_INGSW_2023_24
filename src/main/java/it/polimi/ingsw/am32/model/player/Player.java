@@ -20,6 +20,8 @@ public class Player {
     private int points;
     private ArrayList<NonObjectiveCard> hand;
     private Card[] tmpSecretObj;
+    private int pointsGainedFromObjectives = 0;
+    private boolean[] objectivePointsState = new boolean[]{false, false};
 
     private final static int secObjOptions = 2;
 
@@ -175,7 +177,7 @@ public class Player {
             // TODO check if next line can fail
             int occurrences = pointStrategy.calculateOccurences(gameField, x, y);
 
-            points = points + occurrences * nonObjectiveCard.getValue();
+            points += occurrences * nonObjectiveCard.getValue();
         }
 
         return true;
@@ -194,6 +196,9 @@ public class Player {
         if(objectiveCards[0].getPointStrategy() == null || objectiveCards[1].getPointStrategy() == null)
             return false;
 
+        if(objectivePointsState[0])
+            return false;
+
         PointStrategy pointStrategy1 = objectiveCards[0].getPointStrategy();
         PointStrategy pointStrategy2 = objectiveCards[1].getPointStrategy();
 
@@ -203,7 +208,13 @@ public class Player {
         int value1 = objectiveCards[0].getValue();
         int value2 = objectiveCards[1].getValue();
 
-        points = points + value1 * multiplierPoints1 + value2 * multiplierPoints2;
+        int tmpGain = value1 * multiplierPoints1 + value2 * multiplierPoints2;
+
+        pointsGainedFromObjectives += tmpGain;
+
+        objectivePointsState[0] = true;
+
+        points += tmpGain;
 
         return true;
     }
@@ -221,11 +232,20 @@ public class Player {
         if(pointStrategy == null)
             return false;
 
+        if(objectivePointsState[1])
+            return false;
+
         int multiplierPoints = pointStrategy.calculateOccurences(gameField, 0,0);
 
         int value = secretObjective.getValue();
 
-        points = points + value * multiplierPoints;
+        int tmpGain = value * multiplierPoints;
+
+        pointsGainedFromObjectives += tmpGain;
+
+        objectivePointsState[1] = true;
+
+        points += tmpGain;
 
         return true;
     }
@@ -314,6 +334,9 @@ public class Player {
         return tmpSecretObj;
     }
 
+    public int getPointsGainedFromObjectives() {
+        return pointsGainedFromObjectives;
+    }
 
     //---------------------------------------------------------------------------------------------
     // Setters

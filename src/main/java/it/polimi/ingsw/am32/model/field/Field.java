@@ -61,7 +61,6 @@ public class Field {
             return false;
 
         // Checking resource requirements for placement
-        // TODO parlare modifica CornderType e ObjectType per idea
 
         if (!checkResRequirements(activeRes, nonObjectiveCard.getConditionCount()))
             return false;
@@ -159,25 +158,25 @@ public class Field {
 
         int[] resToAdd = resourcesObtained(nonObjectiveCard, isUp);
 
-        activeRes[0] = activeRes[0] + resToAdd[0];
-        activeRes[1] = activeRes[1] + resToAdd[1];
-        activeRes[2] = activeRes[2] + resToAdd[2];
-        activeRes[3] = activeRes[3] + resToAdd[3];
-        activeRes[4] = activeRes[4] + resToAdd[4];
-        activeRes[5] = activeRes[5] + resToAdd[5];
-        activeRes[6] = activeRes[6] + resToAdd[6];
+        activeRes[0] += resToAdd[0];
+        activeRes[1] += resToAdd[1];
+        activeRes[2] += resToAdd[2];
+        activeRes[3] += resToAdd[3];
+        activeRes[4] += resToAdd[4];
+        activeRes[5] += resToAdd[5];
+        activeRes[6] += resToAdd[6];
 
         // Subtract lost resources
 
         int[] resToSub = resourceCornersConverter(cornerType[0], cornerType[1], cornerType[2], cornerType[3]);
 
-        activeRes[0] = activeRes[0] - resToSub[0];
-        activeRes[1] = activeRes[1] - resToSub[1];
-        activeRes[2] = activeRes[2] - resToSub[2];
-        activeRes[3] = activeRes[3] - resToSub[3];
-        activeRes[4] = activeRes[4] - resToSub[4];
-        activeRes[5] = activeRes[5] - resToSub[5];
-        activeRes[6] = activeRes[6] - resToSub[6];
+        activeRes[0] -= resToSub[0];
+        activeRes[1] -= resToSub[1];
+        activeRes[2] -= resToSub[2];
+        activeRes[3] -= resToSub[3];
+        activeRes[4] -= resToSub[4];
+        activeRes[5] -= resToSub[5];
+        activeRes[6] -= resToSub[6];
 
         return true;
     }
