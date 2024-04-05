@@ -13,15 +13,15 @@ public class Player {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
-    private String nickname;
+    private final String nickname;
     private Field gameField;
     private Card secretObjective;
     private Colour colour;
     private int points;
     private ArrayList<NonObjectiveCard> hand;
-    private Card[] tmpSecretObj;
+    private final Card[] tmpSecretObj;
     private int pointsGainedFromObjectives = 0;
-    private boolean[] objectivePointsState = new boolean[]{false, false};
+    private final boolean[] objectivePointsState = new boolean[]{false, false};
 
     private final static int secObjOptions = 2;
 
@@ -59,7 +59,7 @@ public class Player {
         if(hand != null)
             return false;
 
-        hand = new ArrayList<NonObjectiveCard>();
+        hand = new ArrayList<>();
         hand.addLast(initialCard);
         return true;
     }

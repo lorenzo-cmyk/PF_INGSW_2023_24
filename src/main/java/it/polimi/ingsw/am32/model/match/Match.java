@@ -18,18 +18,56 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-// FIXME For all methods: Why do methods need to return boolean?
+/**
+ * Primary class used to represent a single instance of a game.
+ *
+ * @author jie
+ * @author anto
+ */
 public class Match implements ModelInterface {
+    /**
+     * Deck containing all the starter cards of the game.
+     */
     private final NonObjectiveCardDeck starterCardsDeck;
+    /**
+     * Deck containing all the objective cards of the game.
+     */
     private final CardDeck objectiveCardsDeck;
+    /**
+     * Deck containing all the resource cards of the game.
+     */
     private final NonObjectiveCardDeck resourceCardsDeck;
+    /**
+     * Deck containing all the gold cards of the game.
+     */
     private final NonObjectiveCardDeck goldCardsDeck;
+    /**
+     * Contains the resource cards being displayed on the field which may be drawn by the player.
+     */
     private final ArrayList<NonObjectiveCard> currentResourceCards;
+    /**
+     * Contains the gold cards being displayed on the field which may be drawn by the player.
+     */
     private final ArrayList<NonObjectiveCard> currentGoldCards;
-    private final Card[]commonObjectives;
+    /**
+     * Contains the 2 objective cards common to all players.
+     */
+    private final Card[] commonObjectives;
+    /**
+     * Contains the list of all players participating in the game.
+     */
     private final ArrayList<Player> players;
+    /**
+     * Flag indicating the current status of the match.
+     */
     private MatchStatus matchStatus;
+    /**
+     * Nickname that identifies the current player.
+     */
     private String currentPlayerID;
+    /**
+     * The number of the turn.
+     */
     private int currentTurnNumber;
 
     public Match() {
@@ -44,17 +82,24 @@ public class Match implements ModelInterface {
         currentResourceCards = new ArrayList<>();
         currentGoldCards = new ArrayList<>();
 
-        commonObjectives = new Card[0];
+        commonObjectives = new Card[2];
 
         this.players = new ArrayList<>();
     }
 
-    public boolean enterLobbyPhase() {
+    /**
+     * Sets the match status flag to LOBBY.
+     */
+    public void enterLobbyPhase() {
         matchStatus = MatchStatus.LOBBY;
-        return true;
-        // FIXME should return void
     }
 
+    /**
+     * Adds a new player to the game.
+     *
+     * @param nickname The nickname of the player to add to the game
+     * @return true if nickname was not already in use and new player instance could be created, false otherwise
+     */
     public boolean addPlayer(String nickname) {
         for (int i=0; i<players.size(); i++) { // Player with similar nickname already present in list of players
             if (players.get(i).getNickname().equals(nickname))
@@ -66,6 +111,12 @@ public class Match implements ModelInterface {
         return true;
     }
 
+    /**
+     * Removes an existing player instance from the game.
+     *
+     * @param nickname The nickname of the player to delete from the game
+     * @return true if nickname was valid and player instance could be deleted, false otherwise
+     */
     public boolean deletePlayer(String nickname) {
         for (int i=0; i<players.size(); i++) {
             if (players.get(i).getNickname().equals(nickname)) {
@@ -77,13 +128,17 @@ public class Match implements ModelInterface {
         return false;
     }
 
-    public boolean enterPreparationPhase() {
+    /**
+     * Sets the match status flag to PREPARATION.
+     */
+    public void enterPreparationPhase() {
         matchStatus = MatchStatus.PREPARATION;
-        return true;
-        // FIXME should return void
     }
 
-    public boolean assignRandomColoursToPlayers() {
+    /**
+     * Assigns a random colour to each player in the game.
+     */
+    public void assignRandomColoursToPlayers() {
         ArrayList<Colour> colour_array = new ArrayList< >(Arrays.asList(Colour.values())); // Create ArrayList of colours
         colour_array.remove(Colour.BLACK); // Remove black from ArrayList
 
@@ -92,20 +147,24 @@ public class Match implements ModelInterface {
         for (int i=0; i<players.size(); i++) { // Assign colour to each player
             players.get(i).setColour(colour_array.get(i));
         }
-
-        return true;
-        // FIXME should return void
     }
 
-    public boolean assignRandomStartingInitialCardsToPlayers() {
+    /**
+     * Assigns a random starting initial card to each player in the game
+     */
+    public void assignRandomStartingInitialCardsToPlayers() {
         for (int i=0; i<players.size(); i++) { // For each player
             NonObjectiveCard drawnCard = starterCardsDeck.draw(); // Draw a card from the starter cards deck
             players.get(i).assignStartingCard(drawnCard); // Place drawn card in player hand
         }
-        return true;
-        // FIXME should return void
     }
 
+    /**
+     * Returns the id of the starting card of a specific player.
+     *
+     * @param nickname The nickname of the player whose starting card we want to get
+     * @return id of the player's starting card if the player with the given nickname was found in the list of players, -1 otherwise
+     */
     public int getInitialCardPlayer(String nickname) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
@@ -115,6 +174,13 @@ public class Match implements ModelInterface {
         return -1;
     }
 
+    /**
+     * Initializes a particular player's field.
+     *
+     * @param nickname The nickname of the player whose field we want to initialize
+     * @param side The side the starting card will be placed on the player's field
+     * @return true if player's field could be initialized and the nickname was found in the list of players, false otherwise
+     */
     public boolean createFieldPlayer(String nickname, boolean side) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) {
@@ -125,46 +191,57 @@ public class Match implements ModelInterface {
         return false;
     }
 
-    public boolean assignRandomStartingResourceCardsToPlayers() {
+    /**
+     * Assigns the two initial resource cards to each player at the beginning of the game
+     */
+    public void assignRandomStartingResourceCardsToPlayers() {
         for (int i=0; i<players.size(); i++) { // For all players
             for (int j=0; j<2; j++) { // Puts 2 card in each player's hand
                 NonObjectiveCard c = resourceCardsDeck.draw();
                 players.get(i).putCardInHand(c);
             }
         }
-        return true;
-        // FIXME should return void
     }
 
-    public boolean assignRandomStartingGoldCardsToPlayers() {
+    /**
+     * Assigns the two initial gold cards to each player at the beginning of the game
+     */
+    public void assignRandomStartingGoldCardsToPlayers() {
         for (int i=0; i<players.size(); i++) { // For all players
             NonObjectiveCard c = goldCardsDeck.draw(); // Puts 1 card in each player's hand
             players.get(i).putCardInHand(c);
         }
-        return true;
-        // FIXME should return void
     }
 
-    public boolean pickRandomCommonObjectives() {
+    /**
+     * Selects the two initial common objective cards at the beginning of the game
+     */
+    public void pickRandomCommonObjectives() {
         for (int i=0; i<2; i++) {
             Card c = objectiveCardsDeck.draw();
-            commonObjectives[i]=c;
+            commonObjectives[i] = c;
         }
-        return true;
-        // FIXME should return void
     }
 
-    public boolean assignRandomStartingSecretObjectivesToPlayers() {
+    /**
+     * Assigns to each player a secret objective card
+     */
+    public void assignRandomStartingSecretObjectivesToPlayers() {
         for (int i=0; i<players.size(); i++) {
             Card c1 = objectiveCardsDeck.draw();
             Card c2 = objectiveCardsDeck.draw();
             players.get(i).receiveSecretObjective(c1, c2);
         }
-        return true;
-        // FIXME should return void
     }
 
-    public ArrayList<Integer> getSecretsObjectivesCardsPlayer(String nickname) {
+    /**
+     * Returns the ids of the secret objective cards possessed by the player with the given nickname.
+     *
+     * @param nickname Nickname of the player whose secret objective card ids we want
+     * @return An ArrayList containing the ids of the player's secret objective cards if the nickname was found in the list of players,
+     * or an empty ArrayList otherwise
+     */
+    public ArrayList<Integer> getSecretObjectiveCardsPlayer(String nickname) {
         ArrayList<Integer> idCards = new ArrayList<>();
         for (int i=0; i<players.size(); i++) {
             if (players.get(i).getNickname().equals(nickname)) {
@@ -175,32 +252,42 @@ public class Match implements ModelInterface {
         return idCards;
     }
 
+    /**
+     *  Receives the secret objective card selected by the player and saves it in the attribute
+     *  secretObjective.
+     * @param nickname Nickname of player who select the secret objective card.
+     * @param id ID of the objective card selected.
+     * @return True, if the player with that nickname exists and the selection process is successful, otherwise false.
+     */
     public boolean receiveSecretObjectiveChoiceFromPlayer(String nickname, int id) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
-                players.get(i).secretObjectiveSelection(id);
+                return players.get(i).secretObjectiveSelection(id);
             }
         }
-        return true;
+        return false;
     }
 
-    public boolean randomizePlayersOrder() {
+    /**
+     * Shuffles the players ArrayList
+     */
+    public void randomizePlayersOrder() {
         Collections.shuffle(players);
-        return true;
-        // FIXME should return void
     }
 
-    public boolean enterPlayingPhase() {
+    /**
+     * Sets the match status flag to PLAYING.
+     */
+    public void enterPlayingPhase() {
         matchStatus = MatchStatus.PLAYING;
-        return true;
-        // FIXME should return void
     }
 
-    public boolean startTurns() {
+    /**
+     * Resets current turn number to 1 and sets current player to the first player.
+     */
+    public void startTurns() {
         currentPlayerID = players.getFirst().getNickname();
-        currentTurnNumber=1;
-        return true;
-        // FIXME should return void
+        currentTurnNumber = 1;
     }
 
     public boolean placeCard(int id, int x, int y, boolean side) {
@@ -235,39 +322,66 @@ public class Match implements ModelInterface {
         return false;
     }
 
-    public boolean setTerminating() {
+    /**
+     * Sets the match status flag to TERMINATING.
+     */
+    public void setTerminating() {
         matchStatus = MatchStatus.TERMINATING;
-        return true;
-        // FIXME Need to double check
     }
 
+    /**
+     * Checks if game is in terminating phase
+     *
+     * @return true if and only if match status flag is set to TERMINATING
+     */
     public boolean areWeTerminating() {
         return matchStatus == MatchStatus.TERMINATING;
     }
 
+    /**
+     * Checks if the current player is the first player in the list of players.
+     *
+     * @return true if and only if the first player in the list of players is playing
+     */
     public boolean isFirstPlayer() {
         return currentPlayerID.equals(players.getFirst().getNickname());
     }
 
-    public boolean setLastTurn() {
+    /**
+     * Sets the match status flag to LAST_TURN.
+     */
+    public void setLastTurn() {
         matchStatus = MatchStatus.LAST_TURN;
-        return true;
     }
 
-    public boolean enterTerminatedPhase() {
+    /**
+     * Sets the match status flag to TERMINATED.
+     */
+    public void enterTerminatedPhase() {
         matchStatus = MatchStatus.TERMINATED;
-        return true;
-        // TODO should return void
     }
 
+    /**
+     * Control if the process of adding objective cards points to the total scores is successful
+     * @return true, if everything is ok, false otherwise.
+     */
     public boolean addObjectivePoints() {
-        boolean check = false;
+        boolean check;
         for (Player player : players) {
             check = player.updatePointsForObjectives(commonObjectives) && player.updatePointsForSecretObjective();
+            if(!check){
+                return false;
+            }
         }
-        return check;
+        return true;
     }
 
+    /**
+     * Calculates the players that have accumulated the most points. If two players have gained the same amount of points,
+     * the winner is the one with the highest number of points obtained by completing the objectives (secret or common).
+     *
+     * @return ArrayList containing the nicknames of all winners
+     */
     public ArrayList<String> getWinners() {
         ArrayList<String> winners = new ArrayList<>();
         int tmpScoreObj = 0;
@@ -293,18 +407,37 @@ public class Match implements ModelInterface {
         return winners;
     }
 
+    /**
+     * Returns all players' nicknames
+     * @return ArrayList containing all the players' nicknames
+     */
     public ArrayList<String> getPlayersNicknames() {
         return (ArrayList<String>)players.stream().map(p -> p.getNickname()).collect(Collectors.toList());
     }
 
+    /**
+     * Returns the ids of all the drawable face up resource cards.
+     *
+     * @return ArrayList containing the ids of all the drawable face up resource cards
+     */
     public ArrayList<Integer> getCurrentResourcesCards() {
         return (ArrayList<Integer>)currentResourceCards.stream().map(c -> c.getId()).collect(Collectors.toList());
     }
 
+    /**
+     * Returns the ids of all the drawable face up gold cards.
+     *
+     * @return ArrayList containing the ids of all the drawable face up gold cards
+     */
     public ArrayList<Integer> getCurrentGoldCards() {
         return (ArrayList<Integer>)currentGoldCards.stream().map(c -> c.getId()).collect(Collectors.toList());
     }
 
+    /**
+     * Returns the ids of all the common objective cards.
+     *
+     * @return ArrayList containing the ids of all the common objective cards
+     */
     public ArrayList<Integer> getCommonObjectives() {
         ArrayList<Integer> idCommonObj = new ArrayList<>();
         for (Card commonObjective : commonObjectives) {
@@ -314,6 +447,12 @@ public class Match implements ModelInterface {
         return idCommonObj;
     }
 
+    /**
+     * Returns a given player's field's active resources.
+     *
+     * @param nickname Nickname of player whose active resources we want to obtain
+     * @return An array of integers containing the count of active resources in the player's field
+     */
     public int[] getPlayerResources(String nickname) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
@@ -327,6 +466,11 @@ public class Match implements ModelInterface {
         return null;
     }
 
+    /**
+     * Get id of the specified player's secret objective card.
+     * @param nickname Nickname of player whose secret objective card should be analyzed.
+     * @return If exists the nickname in the arraylist players and
+     */
     public int getPlayerSecretObjective(String nickname) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
@@ -336,6 +480,12 @@ public class Match implements ModelInterface {
         return -1;
     }
 
+    /**
+     * Get the id of all cards in the Play's hand.
+     *
+     * @param nickname Nickname of player whose hand should be analyzed.
+     * @return Array list of integer that contains the ID of all cards belong to the specific player's hand.
+     */
     public ArrayList<Integer> getPlayerHand(String nickname) {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
@@ -346,6 +496,13 @@ public class Match implements ModelInterface {
         return null; // No player with given nickname found
     }
 
+    /**
+     * Get all cards placed in the field of the specific player
+     *
+     * @param nickname Nickname of player whose field should be returned
+     * @return The ArrayList of the cards placed in the Field of given player, through which we could get ID, position
+     * and side of every card placed in the field.
+     */
     public ArrayList<CardPlaced> getPlayerField(String nickname) {
         ArrayList<CardPlaced> playerField = null;
         for (Player player : players) {
@@ -355,11 +512,20 @@ public class Match implements ModelInterface {
         }
         return playerField;
     }
-
+    /**
+     * Getter
+     *
+     * @return Status of match
+     */
     public MatchStatus getMatchStatus() {
         return matchStatus;
     }
 
+    /**
+     * Getter
+     *
+     * @return Number of the current turn
+     */
     public int getCurrentTurnNumber() {
         return currentTurnNumber;
     }
