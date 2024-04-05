@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.model.field.CardPlaced;
 import it.polimi.ingsw.am32.model.field.Field;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -29,9 +30,9 @@ public class LConfigurationTwo implements PointStrategy {
 
         List<CardPlaced> orderedCardsTemp = fieldCards.stream() // Converts ArrayList to stream
                 .filter(c -> c.getNonObjectiveCard().getKingdom() == ObjectType.INSECT || c.getNonObjectiveCard().getKingdom() == ObjectType.PLANT) // Filters all non-fungi or non-plants out
-                .sorted((c1, c2) -> (c1.getX() < c2.getX() || (c1.getX() == c2.getX() && c1.getY() < c2.getY())) ? -1 : 1)
+                .sorted(new LConfigurationTwoComparator())
                 .toList();
-        ArrayList<CardPlaced> orderedCards = new ArrayList<CardPlaced>(orderedCardsTemp); // Ordered and filtered cards
+        ArrayList<CardPlaced> orderedCards = new ArrayList<>(orderedCardsTemp); // Ordered and filtered cards
 
         return recursiveOccurrences(orderedCards);
     }
@@ -55,7 +56,7 @@ public class LConfigurationTwo implements PointStrategy {
                         cards.get(j+1).getY() == cards.get(i).getY() + 3) {
                         // Pattern occurrence found
 
-                        ArrayList<CardPlaced> tempCards = new ArrayList<CardPlaced>(cards); // Create copy of arraylist
+                        ArrayList<CardPlaced> tempCards = new ArrayList<>(cards); // Create copy of arraylist
                         tempCards.remove(j+1);
                         tempCards.remove(j);
                         tempCards.remove(i); // Remove cards used in found pattern
@@ -68,5 +69,18 @@ public class LConfigurationTwo implements PointStrategy {
         }
         // No pattern occurrences found
         return 0;
+    }
+}
+
+/**
+ * Comparator used to sort CardPlaced objects according the position of the cards contained in them
+ * Used in stream sorted() method
+ */
+class LConfigurationTwoComparator implements Comparator<CardPlaced> {
+    @Override
+    public int compare(CardPlaced c1, CardPlaced c2) {
+        if (c1.getX() == c2.getX() && c1.getY() == c2.getY()) return 0;
+        else if (c1.getX() < c2.getX() || (c1.getX() == c2.getX() && c1.getY() < c2.getY())) return -1;
+        else return 1;
     }
 }
