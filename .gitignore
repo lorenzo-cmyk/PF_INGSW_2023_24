@@ -4,19 +4,14 @@
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
-.apt_generated
 .classpath
-.factorypath
 .project
 .settings
-.springBeans
 .sts4-cache
-
 
 # Created by https://www.gitignore.io/api/git,java,maven,eclipse,windows
 
 ### Eclipse ###
-
 .metadata
 bin/
 tmp/
@@ -72,18 +67,6 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
-
-### Eclipse Patch ###
-# Eclipse Core
-.project
-
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
-
-# Annotation Processing
-.apt_generated
-
-.sts4-cache/
 
 ### Git ###
 # Created by git for backups. To disable backups in Git:
@@ -190,17 +173,11 @@ build/
 .#*
 *#
 *~
-.classpath
-.project
-.settings
 bin
 build
 target
-dependency-reduced-pom.xml
 *.sublime-*
 /scratch
 .gradle
 README.html
-*.iml
-.idea
 .exercism
