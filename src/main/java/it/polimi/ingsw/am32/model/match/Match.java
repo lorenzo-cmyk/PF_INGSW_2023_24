@@ -9,9 +9,9 @@ import it.polimi.ingsw.am32.model.deck.CardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeck;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
+import it.polimi.ingsw.am32.model.field.CardPlaced;
 import it.polimi.ingsw.am32.model.player.Colour;
 import it.polimi.ingsw.am32.model.player.Player;
-import net.bytebuddy.implementation.bytecode.collection.ArrayAccess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ public class Match implements ModelInterface {
     private final NonObjectiveCardDeck goldCardsDeck;
     private final ArrayList<NonObjectiveCard> currentResourceCards;
     private final ArrayList<NonObjectiveCard> currentGoldCards;
-    private final ArrayList<Card> commonObjectives;
+    private final Card[ ]commonObjectives;
     private final ArrayList<Player> players;
     private MatchStatus matchStatus;
     private String currentPlayerID;
@@ -41,11 +41,12 @@ public class Match implements ModelInterface {
         this.resourceCardsDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.RESOURCE);
         this.goldCardsDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.GOLD);
 
-        currentResourceCards = new ArrayList<NonObjectiveCard>();
-        currentGoldCards = new ArrayList<NonObjectiveCard>();
-        commonObjectives = new ArrayList<Card>();
+        currentResourceCards = new ArrayList<>();
+        currentGoldCards = new ArrayList<>();
 
-        this.players = new ArrayList<Player>();
+        commonObjectives = new Card[0];
+
+        this.players = new ArrayList<>();
     }
 
     public boolean enterLobbyPhase() {
@@ -83,7 +84,7 @@ public class Match implements ModelInterface {
     }
 
     public boolean assignRandomColoursToPlayers() {
-        ArrayList<Colour> colour_array = new ArrayList<Colour>(Arrays.asList(Colour.values())); // Create ArrayList of colours
+        ArrayList<Colour> colour_array = new ArrayList< >(Arrays.asList(Colour.values())); // Create ArrayList of colours
         colour_array.remove(Colour.BLACK); // Remove black from ArrayList
 
         Collections.shuffle(colour_array);
@@ -118,8 +119,8 @@ public class Match implements ModelInterface {
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) {
                 players.get(i).initializeGameField(side);
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -147,7 +148,7 @@ public class Match implements ModelInterface {
     public boolean pickRandomCommonObjectives() {
         for (int i=0; i<2; i++) {
             Card c = objectiveCardsDeck.draw();
-            commonObjectives.add(c);
+            commonObjectives[i]=c;
         }
         return true;
         // FIXME should return void
@@ -196,7 +197,8 @@ public class Match implements ModelInterface {
     }
 
     public boolean startTurns() {
-        String currentPlayerID = players.getFirst().getNickname();
+        currentPlayerID = players.getFirst().getNickname();
+        currentTurnNumber=1;
         return true;
         // FIXME should return void
     }
@@ -204,7 +206,7 @@ public class Match implements ModelInterface {
     public boolean placeCard(int id, int x, int y, boolean side) {
         for (int i=0; i<=players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerID)) { // Found current player
-                Boolean success = players.get(i).performMove(id, x, y, side); // Place card
+                boolean success = players.get(i).performMove(id, x, y, side); // Place card
 
                 if (!success) return false; // There was an error in the placement of the card
 
@@ -226,6 +228,7 @@ public class Match implements ModelInterface {
         for (int i=0; i<players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerID)) {
                 currentPlayerID = (i == players.size() - 1) ? players.getFirst().getNickname() : players.get(i+1).getNickname();
+                currentTurnNumber=currentTurnNumber+1;
                 return true;
             }
         }
@@ -258,11 +261,36 @@ public class Match implements ModelInterface {
     }
 
     public boolean addObjectivePoints() {
-        return false;
+        boolean check=false;
+        for (Player player : players) {
+            check= player.updatePointsForObjectives(commonObjectives) && player.updatePointsForSecretObjective();
+        }
+        return check;
     }
 
     public ArrayList<String> getWinners() {
-        return null;
+        ArrayList<String> winners = new ArrayList<>();
+        int tmpScoreObj = 0;
+        int maxPoints = 0;
+        for (Player value : players) {
+            if (value.getPoints() > maxPoints)
+                maxPoints = value.getPoints();
+        } // search maxPoints.
+        for (Player player : players) {
+            if (player.getPoints() == maxPoints) { // Found the player who has maxPoints
+                if (player.getPointsGainedFromObjectives() > tmpScoreObj) { // Compare the points gained from the Objective cards
+                    tmpScoreObj = player.getPointsGainedFromObjectives();
+                    if (!winners.isEmpty()) {
+                        winners.clear();
+                    }
+                    winners.add(player.getNickname());
+                }
+                if (player.getPointsGainedFromObjectives() == tmpScoreObj) {
+                    winners.add(player.getNickname());
+                }
+            }
+        }
+        return winners;
     }
 
     public ArrayList<String> getPlayersNicknames() {
@@ -278,7 +306,12 @@ public class Match implements ModelInterface {
     }
 
     public ArrayList<Integer> getCommonObjectives() {
-        return (ArrayList<Integer>)commonObjectives.stream().map(c -> c.getId()).collect(Collectors.toList());
+        ArrayList<Integer> idCommonObj=new ArrayList<>();
+        for (Card commonObjective : commonObjectives) {
+            int id = commonObjective.getId();
+            idCommonObj.add(id);
+        }
+        return idCommonObj;
     }
 
     public int[] getPlayerResources(String nickname) {
@@ -304,7 +337,7 @@ public class Match implements ModelInterface {
     }
 
     public ArrayList<Integer> getPlayerHand(String nickname) {
-        ArrayList<Integer> retArr = new ArrayList<Integer>();
+        ArrayList<Integer> retArr = new ArrayList<>();
         for (int i=0; i<players.size(); i++) { // Scan all players
             if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
                 ArrayList<NonObjectiveCard> playerHand = players.get(i).getHand(); // Get player hand
@@ -315,9 +348,15 @@ public class Match implements ModelInterface {
         return null; // FIXME What if nickname = null
     }
 
-    public ArrayList<Object> getPlayerField(String nickname) {
-        return null;
-        // TODO
+    public ArrayList<CardPlaced> getPlayerField(String nickname) {
+        ArrayList<CardPlaced> playerField=new ArrayList<>();
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                playerField = player.getField().getFieldCards();
+            }
+        }
+        return playerField;
+        //FIXME need to check ArrayList<Object>, Object=CardPlaced?
     }
 
     public MatchStatus getMatchStatus() {
