@@ -45,8 +45,17 @@ public class Field {
     //---------------------------------------------------------------------------------------------
     // Methods
 
-    // TODO Javadoc
-    public boolean placeCardInField(NonObjectiveCard nonObjectiveCard, int x, int y, boolean side) {
+    /**
+     * Verifies if it's possible to place the card in the field. If it is, place the card and update the available
+     * resources in the field
+     *
+     * @param nonObjectiveCard is the card to be placed
+     * @param x is the horizontal coordinate of the position
+     * @param y is the vertical coordinate of the position
+     * @param isUp is the side of the card
+     * @return true if the card was successfully placed, false if not
+     */
+    public boolean placeCardInField(NonObjectiveCard nonObjectiveCard, int x, int y, boolean isUp) {
 
         if( x > 40 || x < -40 || y > 40 || y < -40)
             return false;
@@ -142,14 +151,13 @@ public class Field {
 
         // Place card in field
 
-        CardPlaced newCardPlaced = new CardPlaced(nonObjectiveCard, x, y, side);
+        CardPlaced newCardPlaced = new CardPlaced(nonObjectiveCard, x, y, isUp);
 
         fieldCards.addFirst(newCardPlaced);
 
         // Add gained resources
-        // TODO risorse perse/guadagnate
 
-        int[] resToAdd = resourcesObtained(nonObjectiveCard, side);
+        int[] resToAdd = resourcesObtained(nonObjectiveCard, isUp);
 
         activeRes[0] = activeRes[0] + resToAdd[0];
         activeRes[1] = activeRes[1] + resToAdd[1];
@@ -265,7 +273,14 @@ public class Field {
         return true;
     }
 
-    // TODO Javadoc
+    /**
+     * Given the card and the side, return an array of integer where at each position (according to the attribute
+     * value of the enumeration ObjectType) is inserted the number of resources gained if the card is placed
+     *
+     * @param nonObjectiveCard is the card that has to be placed
+     * @param isUp is the side, of the card, relevant to the play
+     * @return the array of integer
+     */
     public static int[] resourcesObtained(NonObjectiveCard nonObjectiveCard, boolean isUp){
 
         int[] result = new int[7];

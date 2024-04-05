@@ -132,7 +132,16 @@ public class Player {
         return true;
     }
 
-    // TODO Javadoc
+    /**
+     * Tries to take a card from the hand of the player and place it in the field. If the card is placed successfully
+     * calculate the points gained from its placement and add them to those of the player
+     *
+     * @param id is the id of the card in the hand of the player that has to be placed
+     * @param x is the horizontal coordinate of the position
+     * @param y is the vertical coordinate of the position
+     * @param isUp is the side of the card that is going to be visible when placed
+     * @return true if the process was successful, false if not
+     */
     public boolean performMove(int id, int x, int y, boolean isUp) {
 
         if(gameField == null)
@@ -182,6 +191,7 @@ public class Player {
      */
     public boolean updatePointsForObjectives(Card[] objectiveCards) {
 
+        // TODO can i delete the next to line of code?
         if(objectiveCards[0].getPointStrategy() == null || objectiveCards[1].getPointStrategy() == null)
             return false;
 
@@ -199,12 +209,27 @@ public class Player {
         return true;
     }
 
-    // TODO is it actually used?
-    public int calculatePoints(Card card, int x, int y) {
-        // TODO
-        return 0;
-    }
+    /**
+     * Calculate the points gained by the player for the secret objective and add them to his current points
+     *
+     * @return true if the process is successful, false if not
+     */
+    public boolean updatePointsForSecretObjective() {
 
+        PointStrategy pointStrategy = secretObjective.getPointStrategy();
+
+        // TODO can i delete the next to line of code?
+        if(pointStrategy == null)
+            return false;
+
+        int multiplierPoints = pointStrategy.calculateOccurences(gameField, 0,0);
+
+        int value = secretObjective.getValue();
+
+        points = points + value * multiplierPoints;
+
+        return true;
+    }
 
     //---------------------------------------------------------------------------------------------
     // Getters
@@ -267,7 +292,7 @@ public class Player {
      *
      * @return The initial Card, if it was non already assigned returns null
      */
-    public Card getInitialCard() {
+    public NonObjectiveCard getInitialCard() {
         if( gameField != null)
             return gameField.getCardFromPosition(0,0);
         else {
@@ -279,6 +304,15 @@ public class Player {
         }
 
         // TODO check if it can be done better
+    }
+
+    /**
+     * Getter:
+     *
+     * @return the objective cards received by player.
+     */
+    public Card[] getTmpSecretObj() {
+        return tmpSecretObj;
     }
 
 
