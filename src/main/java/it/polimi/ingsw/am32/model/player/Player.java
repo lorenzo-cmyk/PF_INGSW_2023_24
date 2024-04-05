@@ -7,7 +7,6 @@ import it.polimi.ingsw.am32.model.field.Field;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Player {
 
@@ -230,13 +229,6 @@ public class Player {
 
         return true;
     }
-
-    // TODO is it actually used?
-    public int calculatePoints(Card card, int x, int y) {
-        // TODO
-        return 0;
-    }
-
 
     //---------------------------------------------------------------------------------------------
     // Getters
