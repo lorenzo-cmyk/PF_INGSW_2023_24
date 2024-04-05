@@ -149,7 +149,7 @@ class LConfigurationThreeTest {
         f.placeCardInField(c4, 0, 4, true); // Card placed side-up
         assertEquals(1, strategy.calculateOccurences(f, 0, 0));
     }
-    @DisplayName("Strategy called on field with 5 cards(three INSEXT Card+ one ANIMAL card + one Casual card) placed in correct orientation should return 1")
+    @DisplayName("Strategy called on field with 5 cards(three INSECT Card + one ANIMAL card + one Casual card) placed in correct orientation should return 1")
     @Test
     void occurrencesOnFieldWithFiveCardsCase1ShouldBeOne() {
         LConfigurationThree strategy = new LConfigurationThree();
