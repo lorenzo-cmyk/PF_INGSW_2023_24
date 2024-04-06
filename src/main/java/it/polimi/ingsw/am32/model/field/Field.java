@@ -214,9 +214,13 @@ public class Field {
      */
     public boolean availableSpace(int x, int y) {
 
+        if (((x + y) % 2) == 1)
+            return false;
+
         for (CardPlaced fieldCard : fieldCards)
             if (fieldCard.getX() == x && fieldCard.getY() == y)
                 return false;
+
         return true;
     }
 
