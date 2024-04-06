@@ -57,7 +57,12 @@ public class Field {
      */
     public boolean placeCardInField(NonObjectiveCard nonObjectiveCard, int x, int y, boolean isUp) {
 
+        // Checking valid position
+
         if( x > 40 || x < -40 || y > 40 || y < -40)
+            return false;
+
+        if (((x + y) % 2) == 1)
             return false;
 
         // Checking resource requirements for placement
@@ -199,6 +204,7 @@ public class Field {
         return null;
     }
 
+    // TODO decidere se necessario se effettivamente piazzabile per carte addiacenti
     /**
      * Verify if a specified space in the field is not already occupied by a card
      *
@@ -212,8 +218,6 @@ public class Field {
             if (fieldCard.getX() == x && fieldCard.getY() == y)
                 return false;
         return true;
-
-        //TODO manca controllo sulle carte addiacenti
     }
 
     /**
