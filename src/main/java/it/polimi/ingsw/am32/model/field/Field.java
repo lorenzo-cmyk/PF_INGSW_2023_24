@@ -67,7 +67,7 @@ public class Field {
 
         // Checking resource requirements for placement
 
-        if (!checkResRequirements(activeRes, nonObjectiveCard.getConditionCount()))
+        if (isUp && !checkResRequirements(activeRes, nonObjectiveCard.getConditionCount()))
             return false;
 
         // Find possible diagonal cards
