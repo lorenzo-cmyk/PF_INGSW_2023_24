@@ -260,8 +260,8 @@ public class Field {
     }
 
     /**
-     * Given the two arrays check if the values of the first array are grater then those of the second array in the
-     * same index for every position of the second array
+     * Given the two arrays check if the values of the first array are greater or equal then those of the second array
+     * in the same index for every position of the second array
      *
      * @param resources is the array that contain the current resources
      * @param requirements is the array of the requirements for the resources
