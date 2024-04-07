@@ -77,7 +77,15 @@ public class Player {
         if (gameField != null || hand == null)
             return false;
 
-        gameField = new Field(hand.getFirst(), isUp);
+        NonObjectiveCard tmpCard = null;
+
+        try {
+            tmpCard = hand.getFirst();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+
+        gameField = new Field(tmpCard, isUp);
         hand.clear();
         return true;
     }
