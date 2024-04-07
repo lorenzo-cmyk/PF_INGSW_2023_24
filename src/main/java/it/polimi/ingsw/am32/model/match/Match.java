@@ -71,19 +71,25 @@ public class Match implements ModelInterface {
     private int currentTurnNumber;
 
     public Match() {
+        // Initialize the deck-builders
         NonObjectiveCardDeckBuilder nonObjectiveCardDeckBuilder = new NonObjectiveCardDeckBuilder();
         CardDeckBuilder cardDeckBuilder = new CardDeckBuilder();
-
+        // Build the decks
         this.objectiveCardsDeck = cardDeckBuilder.buildCardDeck(DeckType.OBJECTIVE);
         this.starterCardsDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.STARTING);
         this.resourceCardsDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.RESOURCE);
         this.goldCardsDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.GOLD);
-
+        // Initialize the lists to store the deck cards visible on the field
         currentResourceCards = new ArrayList<>();
         currentGoldCards = new ArrayList<>();
-
+        // Fill each list with 2 cards
+        for (int i=0; i<2; i++) {
+            currentResourceCards.add(resourceCardsDeck.draw());
+            currentGoldCards.add(goldCardsDeck.draw());
+        }
+        // Initialize the common objectives array. The cards will be picked later as stated in the rules.
         commonObjectives = new Card[2];
-
+        // Initialize the list of players
         this.players = new ArrayList<>();
     }
 
@@ -119,14 +125,7 @@ public class Match implements ModelInterface {
      * @return true if nickname was valid and player instance could be deleted, false otherwise
      */
     public boolean deletePlayer(String nickname) {
-        for (int i=0; i<players.size(); i++) {
-            if (players.get(i).getNickname().equals(nickname)) {
-                players.remove(i);
-                return true;
-            }
-        }
-        // Player with given nickname not found
-        return false;
+        return players.removeIf(player -> player.getNickname().equals(nickname));
     }
 
     /**
@@ -513,6 +512,7 @@ public class Match implements ModelInterface {
         }
         return playerField;
     }
+
     /**
      * Getter
      *
