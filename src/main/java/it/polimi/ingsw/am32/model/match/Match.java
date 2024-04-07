@@ -101,8 +101,9 @@ public class Match implements ModelInterface {
      * @return true if nickname was not already in use and new player instance could be created, false otherwise
      */
     public boolean addPlayer(String nickname) {
-        for (int i=0; i<players.size(); i++) { // Player with similar nickname already present in list of players
-            if (players.get(i).getNickname().equals(nickname))
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname))
+                // Player with similar nickname already present in list of players
                 return false;
         }
         // Nickname not in use
@@ -153,9 +154,9 @@ public class Match implements ModelInterface {
      * Assigns a random starting initial card to each player in the game
      */
     public void assignRandomStartingInitialCardsToPlayers() {
-        for (int i=0; i<players.size(); i++) { // For each player
+        for (Player player : players) { // For each player
             NonObjectiveCard drawnCard = starterCardsDeck.draw(); // Draw a card from the starter cards deck
-            players.get(i).assignStartingCard(drawnCard); // Place drawn card in player hand
+            player.assignStartingCard(drawnCard); // Place drawn card in player hand
         }
     }
 
@@ -166,9 +167,9 @@ public class Match implements ModelInterface {
      * @return id of the player's starting card if the player with the given nickname was found in the list of players, -1 otherwise
      */
     public int getInitialCardPlayer(String nickname) {
-        for (int i=0; i<players.size(); i++) { // Scan all players
-            if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
-                return players.get(i).getInitialCard().getId(); // Get initial card from player and return id
+        for (Player player : players) { // Scan all players
+            if (player.getNickname().equals(nickname)) { // Found player with correct nickname
+                return player.getInitialCard().getId(); // Get initial card from player and return id
             }
         }
         return -1;
@@ -182,9 +183,9 @@ public class Match implements ModelInterface {
      * @return true if player's field could be initialized and the nickname was found in the list of players, false otherwise
      */
     public boolean createFieldPlayer(String nickname, boolean side) {
-        for (int i=0; i<players.size(); i++) { // Scan all players
-            if (players.get(i).getNickname().equals(nickname)) {
-                players.get(i).initializeGameField(side);
+        for (Player player : players) { // Scan all players
+            if (player.getNickname().equals(nickname)) {
+                player.initializeGameField(side);
                 return true;
             }
         }
@@ -195,10 +196,10 @@ public class Match implements ModelInterface {
      * Assigns the two initial resource cards to each player at the beginning of the game
      */
     public void assignRandomStartingResourceCardsToPlayers() {
-        for (int i=0; i<players.size(); i++) { // For all players
-            for (int j=0; j<2; j++) { // Puts 2 card in each player's hand
+        for (Player player : players) { // For all players
+            for (int j = 0; j < 2; j++) { // Puts 2 card in each player's hand
                 NonObjectiveCard c = resourceCardsDeck.draw();
-                players.get(i).putCardInHand(c);
+                player.putCardInHand(c);
             }
         }
     }
@@ -207,9 +208,9 @@ public class Match implements ModelInterface {
      * Assigns the two initial gold cards to each player at the beginning of the game
      */
     public void assignRandomStartingGoldCardsToPlayers() {
-        for (int i=0; i<players.size(); i++) { // For all players
+        for (Player player : players) { // For all players
             NonObjectiveCard c = goldCardsDeck.draw(); // Puts 1 card in each player's hand
-            players.get(i).putCardInHand(c);
+            player.putCardInHand(c);
         }
     }
 
@@ -227,10 +228,10 @@ public class Match implements ModelInterface {
      * Assigns to each player a secret objective card
      */
     public void assignRandomStartingSecretObjectivesToPlayers() {
-        for (int i=0; i<players.size(); i++) {
+        for (Player player : players) {
             Card c1 = objectiveCardsDeck.draw();
             Card c2 = objectiveCardsDeck.draw();
-            players.get(i).receiveSecretObjective(c1, c2);
+            player.receiveSecretObjective(c1, c2);
         }
     }
 
@@ -243,10 +244,10 @@ public class Match implements ModelInterface {
      */
     public ArrayList<Integer> getSecretObjectiveCardsPlayer(String nickname) {
         ArrayList<Integer> idCards = new ArrayList<>();
-        for (int i=0; i<players.size(); i++) {
-            if (players.get(i).getNickname().equals(nickname)) {
-                idCards.add(players.get(i).getTmpSecretObj()[0].getId());
-                idCards.add(players.get(i).getTmpSecretObj()[1].getId());
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                idCards.add(player.getTmpSecretObj()[0].getId());
+                idCards.add(player.getTmpSecretObj()[1].getId());
             }
         }
         return idCards;
@@ -260,9 +261,9 @@ public class Match implements ModelInterface {
      * @return True, if the player with that nickname exists and the selection process is successful, otherwise false.
      */
     public boolean receiveSecretObjectiveChoiceFromPlayer(String nickname, int id) {
-        for (int i=0; i<players.size(); i++) { // Scan all players
-            if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
-                return players.get(i).secretObjectiveSelection(id);
+        for (Player player : players) { // Scan all players
+            if (player.getNickname().equals(nickname)) { // Found player with correct nickname
+                return player.secretObjectiveSelection(id);
             }
         }
         return false;
@@ -412,7 +413,7 @@ public class Match implements ModelInterface {
      * @return ArrayList containing all the players' nicknames
      */
     public ArrayList<String> getPlayersNicknames() {
-        return (ArrayList<String>)players.stream().map(p -> p.getNickname()).collect(Collectors.toList());
+        return (ArrayList<String>)players.stream().map(Player::getNickname).collect(Collectors.toList());
     }
 
     /**
@@ -421,7 +422,7 @@ public class Match implements ModelInterface {
      * @return ArrayList containing the ids of all the drawable face up resource cards
      */
     public ArrayList<Integer> getCurrentResourcesCards() {
-        return (ArrayList<Integer>)currentResourceCards.stream().map(c -> c.getId()).collect(Collectors.toList());
+        return (ArrayList<Integer>)currentResourceCards.stream().map(Card::getId).collect(Collectors.toList());
     }
 
     /**
@@ -430,7 +431,7 @@ public class Match implements ModelInterface {
      * @return ArrayList containing the ids of all the drawable face up gold cards
      */
     public ArrayList<Integer> getCurrentGoldCards() {
-        return (ArrayList<Integer>)currentGoldCards.stream().map(c -> c.getId()).collect(Collectors.toList());
+        return (ArrayList<Integer>)currentGoldCards.stream().map(Card::getId).collect(Collectors.toList());
     }
 
     /**
@@ -454,11 +455,11 @@ public class Match implements ModelInterface {
      * @return An array of integers containing the count of active resources in the player's field
      */
     public int[] getPlayerResources(String nickname) {
-        for (int i=0; i<players.size(); i++) { // Scan all players
-            if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
+        for (Player player : players) { // Scan all players
+            if (player.getNickname().equals(nickname)) { // Found player with correct nickname
                 int[] playerRes = new int[7];
-                for(ObjectType ob : ObjectType.values()) {
-                    playerRes[ob.getValue()] = players.get(i).getField().getActiveRes(ob);
+                for (ObjectType ob : ObjectType.values()) {
+                    playerRes[ob.getValue()] = player.getField().getActiveRes(ob);
                 }
                 return playerRes;
             }
@@ -472,9 +473,9 @@ public class Match implements ModelInterface {
      * @return If exists the nickname in the arraylist players and
      */
     public int getPlayerSecretObjective(String nickname) {
-        for (int i=0; i<players.size(); i++) { // Scan all players
-            if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
-                return players.get(i).getSecretObjective().getId();
+        for (Player player : players) { // Scan all players
+            if (player.getNickname().equals(nickname)) { // Found player with correct nickname
+                return player.getSecretObjective().getId();
             }
         }
         return -1;
@@ -487,10 +488,10 @@ public class Match implements ModelInterface {
      * @return Array list of integer that contains the ID of all cards belong to the specific player's hand.
      */
     public ArrayList<Integer> getPlayerHand(String nickname) {
-        for (int i=0; i<players.size(); i++) { // Scan all players
-            if (players.get(i).getNickname().equals(nickname)) { // Found player with correct nickname
-                ArrayList<NonObjectiveCard> playerHand = players.get(i).getHand(); // Get player hand
-                return (ArrayList<Integer>)playerHand.stream().map(c -> c.getId()).collect(Collectors.toList()); // Extract card ids
+        for (Player player : players) { // Scan all players
+            if (player.getNickname().equals(nickname)) { // Found player with correct nickname
+                ArrayList<NonObjectiveCard> playerHand = player.getHand(); // Get player hand
+                return (ArrayList<Integer>) playerHand.stream().map(Card::getId).collect(Collectors.toList()); // Extract card ids
             }
         }
         return null; // No player with given nickname found
