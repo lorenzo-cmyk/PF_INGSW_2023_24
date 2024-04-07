@@ -12,11 +12,11 @@ public class CountResource implements PointStrategy {
     /**
      * type: the kingdom required by the objective card or the type of object required by the gold card.
      */
-    private ObjectType type;
+    private final ObjectType type;
     /**
      * count: the amount of resources or objects required by the card to get a certain value.
      */
-    private int count;
+    private final int count;
 
     /**
      * Calculate how many times the given objective card or gold card has been fulfilled based on its type of resources
