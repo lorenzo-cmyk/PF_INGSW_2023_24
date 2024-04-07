@@ -267,4 +267,150 @@ class FieldTest {
 
         int [] tmpAllRes = field.getAllRes();
     }
+
+    // Functional Testing
+
+    @DisplayName("Execute Some placement cases and functional verification")
+    @Test
+    void doPlacementFunctionalTesting() {
+
+        int[] permRes = new int[]{0,0,0,0};
+        int[] conditionCount = new int[]{0,0,0,0};
+
+        // 1. verification of non placeability
+
+        NonObjectiveCard testCard1 = new NonObjectiveCard(0,0,null,CornerType.NON_COVERABLE,
+                CornerType.NON_COVERABLE,CornerType.NON_COVERABLE,CornerType.NON_COVERABLE,CornerType.NON_COVERABLE,
+                CornerType.NON_COVERABLE,CornerType.NON_COVERABLE,CornerType.NON_COVERABLE,permRes, conditionCount,
+                ObjectType.ANIMAL);
+
+        Field field = new Field(testCard1, false);
+
+        int[] expectedRes = new int[7];
+
+        assertEquals(testCard1, field.getCardFromPosition(0,0));
+        assertEquals(1, field.getFieldCards().size());
+        assertArrayEquals(expectedRes, field.getAllRes());
+
+
+        assertFalse(field.placeCardInField(testCard1, 0,0, true));
+        assertFalse(field.placeCardInField(testCard1, 0,0, false));
+
+        assertEquals(testCard1, field.getCardFromPosition(0,0));
+        assertEquals(1, field.getFieldCards().size());
+        assertArrayEquals(expectedRes, field.getAllRes());
+
+
+        assertFalse(field.placeCardInField(testCard1, 1,0, true));
+        assertFalse(field.placeCardInField(testCard1, 1,0, false));
+
+        assertEquals(testCard1, field.getCardFromPosition(0,0));
+        assertEquals(1, field.getFieldCards().size());
+        assertArrayEquals(expectedRes, field.getAllRes());
+
+
+        assertFalse(field.placeCardInField(testCard1, 0,40, true));
+        assertFalse(field.placeCardInField(testCard1, 0,40, false));
+
+        assertEquals(testCard1, field.getCardFromPosition(0,0));
+        assertEquals(1, field.getFieldCards().size());
+        assertArrayEquals(expectedRes, field.getAllRes());
+
+
+        assertFalse(field.placeCardInField(testCard1, 100,100, true));
+        assertFalse(field.placeCardInField(testCard1, 100,100, false));
+
+        assertEquals(testCard1, field.getCardFromPosition(0,0));
+        assertEquals(1, field.getFieldCards().size());
+        assertArrayEquals(expectedRes, field.getAllRes());
+
+
+        assertFalse(field.placeCardInField(testCard1, 1,1, true));
+        assertFalse(field.placeCardInField(testCard1, 1,1, false));
+
+        assertEquals(testCard1, field.getCardFromPosition(0,0));
+        assertEquals(1, field.getFieldCards().size());
+        assertArrayEquals(expectedRes, field.getAllRes());
+
+
+        // 2. checking other placeability and stuff ( more details later)
+
+        NonObjectiveCard testCard2 = new NonObjectiveCard(0,0,null,CornerType.EMPTY,
+                CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,
+                CornerType.EMPTY,CornerType.EMPTY,permRes, conditionCount,ObjectType.ANIMAL);
+
+        field = new Field(testCard2, false);
+
+        int[] expectedArray = new int[]{0,0,0,0,0,0,0};
+
+        // 2.1. checking normal placing
+
+        assertTrue(field.placeCardInField(testCard2, 1,1, true));
+
+        assertArrayEquals(expectedArray, (field.getAllRes()));
+        assertEquals(2, field.getFieldCards().size());
+
+        assertTrue(field.placeCardInField(testCard2, 0,2, true));
+
+        assertArrayEquals(expectedArray, (field.getAllRes()));
+        assertEquals(3, field.getFieldCards().size());
+
+        assertTrue(field.placeCardInField(testCard2, -1,1, true));
+
+        assertArrayEquals(expectedArray, (field.getAllRes()));
+        assertEquals(4, field.getFieldCards().size());
+
+        assertTrue(field.placeCardInField(testCard2, -1,3, true));
+
+        assertArrayEquals(expectedArray, (field.getAllRes()));
+        assertEquals(5, field.getFieldCards().size());
+
+        assertFalse(field.placeCardInField(testCard2, 100,100, true));
+
+        assertArrayEquals(expectedArray, (field.getAllRes()));
+        assertEquals(5, field.getFieldCards().size());
+
+        // 2.2. checking overlap not possible
+
+        assertFalse(field.placeCardInField(testCard2, 0,0, true));
+
+        assertArrayEquals(expectedArray, (field.getAllRes()));
+        assertEquals(5, field.getFieldCards().size());
+
+        assertFalse(field.placeCardInField(testCard2, 1,1, true));
+
+        assertArrayEquals(expectedArray, (field.getAllRes()));
+        assertEquals(5, field.getFieldCards().size());
+
+        assertFalse(field.placeCardInField(testCard2, -1,3, true));
+
+        assertArrayEquals(expectedArray, (field.getAllRes()));
+        assertEquals(5, field.getFieldCards().size());
+
+        // 2.3. checking no strange card variation and that getCardFromPosition method works
+
+        assertEquals(field.getCardFromPosition(0,0), field.getCardFromPosition(0,2));
+        assertEquals(field.getCardFromPosition(0,2), field.getCardFromPosition(-1,3));
+
+        // 2.4. checking impossible placement in non valid positions
+
+        assertNull(field.getCardFromPosition(0,1));
+
+        assertNull(field.getCardFromPosition(100,100));
+
+        // 2.5. checking availableSpace method works
+
+        assertFalse(field.availableSpace(0,0));
+
+        assertFalse(field.availableSpace(1,1));
+
+        assertFalse(field.availableSpace(1,2));
+
+        assertTrue(field.availableSpace(1,3));
+
+        assertFalse(field.availableSpace(1,0));
+
+        // TODO parte da discutere (riferito a todo in classe field)
+        assertTrue(field.availableSpace(100,100));
+    }
 }
