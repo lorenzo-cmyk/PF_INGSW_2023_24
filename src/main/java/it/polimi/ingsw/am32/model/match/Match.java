@@ -16,6 +16,7 @@ import it.polimi.ingsw.am32.model.player.Player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -307,7 +308,55 @@ public class Match implements ModelInterface {
     }
 
     public boolean drawCard(int deckType, int id) {
-        // TODO
+        // Retrieve the player who is playing using the currentPlayerID
+        for (Player player : players){
+            if(player.getNickname().equals(currentPlayerID)){
+                // Retrieve the card from the corresponding deck based on the deckType.
+                Optional<NonObjectiveCard> card;
+                switch (deckType){
+                    case 0:
+                        card = Optional.ofNullable(resourceCardsDeck.draw());
+                        break;
+                    case 1:
+                        card = Optional.ofNullable(goldCardsDeck.draw());
+                        break;
+                    case 2:
+                        // Retrieve the card from the currentResourceCards list using the card ID. If the card is not found, return false.
+                        card = currentResourceCards.stream().filter(c -> c.getId() == id).findFirst();
+                        break;
+                    case 3:
+                        // Retrieve the card from the currentGoldCards list using the card ID. If the card is not found, return false.
+                        card = currentGoldCards.stream().filter(c -> c.getId() == id).findFirst();
+                        break;
+                    default:
+                        return false;
+                }
+                // If the card is found, and it's dawn from currentResourceCards or currentGoldCards, remove it from the
+                // list and replenish it if it is possible.
+                if(card.isPresent() && (deckType == 2 || deckType == 3)){
+                    if(deckType == 2){
+                        currentResourceCards.remove(card.get());
+                        if(!resourceCardsDeck.getCards().isEmpty()){
+                            currentResourceCards.add(resourceCardsDeck.draw());
+                        }
+                    } else {
+                        currentGoldCards.remove(card.get());
+                        if(!goldCardsDeck.getCards().isEmpty()){
+                            currentGoldCards.add(goldCardsDeck.draw());
+                        }
+                    }
+                }
+                // If the card is found, and it's dawn from resourceCardsDeck or goldCardsDeck, and the card is not
+                // null, check if them are now both empty to set the Match in TERMINATING state.
+                if((deckType == 0 || deckType == 1) && card.isPresent()){
+                    if(resourceCardsDeck.getCards().isEmpty() && goldCardsDeck.getCards().isEmpty()){
+                        setTerminating();
+                    }
+                }
+                // If the card is found, add it to the player's hand and return true. Otherwise, return false.
+                return card.filter(player::putCardInHand).isPresent();
+            }
+        }
         return false;
     }
 
