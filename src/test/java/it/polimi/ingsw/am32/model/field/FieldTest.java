@@ -413,4 +413,66 @@ class FieldTest {
         // TODO parte da discutere (riferito a todo in classe field)
         assertTrue(field.availableSpace(100,100));
     }
+
+    @DisplayName("Verify purity of getCardFromPosition")
+    @Test
+    void doPurityOfGetCardFromPosition() {
+
+        int[] permRes = new int[]{1,2,0,2};
+        int[] conditionCount = new int[]{0,0,0,0};
+        boolean isUp = false;
+
+        NonObjectiveCard testCard1 = new NonObjectiveCard(0,0,null,CornerType.EMPTY,
+                CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,
+                CornerType.EMPTY,CornerType.EMPTY,permRes, conditionCount,ObjectType.ANIMAL);
+
+        Field field = new Field(testCard1, isUp);
+
+        int[] expectedRes = field.getAllRes();
+        CardPlaced expectedCardPlaced = field.getFieldCards().getFirst();
+        int expectedSize = field.getFieldCards().size();
+
+        assertNotNull(field.getCardFromPosition(0,0));
+
+        assertEquals(expectedRes, field.getAllRes());
+        assertEquals(expectedCardPlaced, field.getFieldCards().getFirst());
+        assertEquals(expectedSize, field.getFieldCards().size());
+
+        assertNull(field.getCardFromPosition(1,1));
+
+        assertEquals(expectedRes, field.getAllRes());
+        assertEquals(expectedCardPlaced, field.getFieldCards().getFirst());
+        assertEquals(expectedSize, field.getFieldCards().size());
+    }
+
+    @DisplayName("Verify purity of availableSpace")
+    @Test
+    void doPurityOfAvailableSpace() {
+
+        int[] permRes = new int[]{1,2,0,2};
+        int[] conditionCount = new int[]{0,0,0,0};
+        boolean isUp = false;
+
+        NonObjectiveCard testCard1 = new NonObjectiveCard(0,0,null,CornerType.EMPTY,
+                CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,
+                CornerType.EMPTY,CornerType.EMPTY,permRes, conditionCount,ObjectType.ANIMAL);
+
+        Field field = new Field(testCard1, isUp);
+
+        int[] expectedRes = field.getAllRes();
+        CardPlaced expectedCardPlaced = field.getFieldCards().getFirst();
+        int expectedSize = field.getFieldCards().size();
+
+        assertFalse(field.availableSpace(0,0));
+
+        assertEquals(expectedRes, field.getAllRes());
+        assertEquals(expectedCardPlaced, field.getFieldCards().getFirst());
+        assertEquals(expectedSize, field.getFieldCards().size());
+
+        assertTrue(field.availableSpace(1,1));
+
+        assertEquals(expectedRes, field.getAllRes());
+        assertEquals(expectedCardPlaced, field.getFieldCards().getFirst());
+        assertEquals(expectedSize, field.getFieldCards().size());
+    }
 }
