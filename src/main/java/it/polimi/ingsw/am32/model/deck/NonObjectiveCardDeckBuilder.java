@@ -107,7 +107,6 @@ public class NonObjectiveCardDeckBuilder {
                 }
             }
         } catch (Exception e) {
-            // TODO: The game has not yet a logging system.
             e.printStackTrace();
             // A card game without cards is not playable. Terminate the program.
             System.exit(1);
