@@ -164,10 +164,17 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        // Assign a random starting initial card to the Player
+        myMatch.assignRandomStartingInitialCardsToPlayers();
         // Test the behaviour of createFieldPlayer
         assertTrue(myMatch.createFieldPlayer("TestPlayerOne", true));
         assertFalse(myMatch.createFieldPlayer("TestPlayerTwo", true));
-        // TODO: Match is not serializing the field of a Player!!
+        // Check that the Player field has been initialized correctly
+        assert(myMatch.getPlayerField("TestPlayerOne").size() == 1);
+        assert(myMatch.getPlayerField("TestPlayerTwo").isEmpty());
+
+        // This test also checks the following methods:
+        // - createFieldPlayer
     }
 
     @DisplayName("assignRandomStartingResourceCardsToPlayers should assign two random Resource card to each Player")

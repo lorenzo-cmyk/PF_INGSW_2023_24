@@ -9,7 +9,6 @@ import it.polimi.ingsw.am32.model.deck.CardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeck;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
-import it.polimi.ingsw.am32.model.field.CardPlaced;
 import it.polimi.ingsw.am32.model.player.Colour;
 import it.polimi.ingsw.am32.model.player.Player;
 
@@ -552,20 +551,26 @@ public class Match implements ModelInterface {
     }
 
     /**
-     * Get all cards placed in the field of the specific player
+     * This method retrieves the field of a specific player in the game.
+     * The field is represented as an ArrayList of integer arrays, where each array represents a card placed on
+     * the field. The elements of the array are the x-coordinate, y-coordinate, id of the card, and a boolean value
+     * (1 for true, 0 for false) indicating whether the card is face up.
      *
-     * @param nickname Nickname of player whose field should be returned
-     * @return The ArrayList of the cards placed in the Field of given player, through which we could get ID, position
-     * and side of every card placed in the field.
+     * @param nickname The nickname of the player whose field we want to retrieve.
+     * @return An ArrayList of integer arrays representing the player's field. Each array represents a card placed on
+     * the field. The elements of the array are the x-coordinate, y-coordinate, id of the card, and a boolean
+     * value (1 for true, 0 for false) indicating whether the card is face up. If no player with the provided
+     * nickname is found, an empty ArrayList is returned.
      */
-    public ArrayList<CardPlaced> getPlayerField(String nickname) {
-        ArrayList<CardPlaced> playerField = null;
-        for (Player player : players) {
-            if (player.getNickname().equals(nickname)) {
-                playerField = player.getField().getFieldCards();
-            }
-        }
-        return playerField;
+    public ArrayList<int[]> getPlayerField(String nickname) {
+        return players.stream()
+                .filter(player -> player.getNickname().equals(nickname))
+                .findFirst()
+                .map(player -> player.getField().getFieldCards().stream()
+                        .map(card -> new int[]{card.getX(), card.getY(), card.getNonObjectiveCard().getId(),
+                                card.getIsUp() ? 1 : 0})
+                        .collect(Collectors.toCollection(ArrayList::new)))
+                .orElse(new ArrayList<>());
     }
 
     /**

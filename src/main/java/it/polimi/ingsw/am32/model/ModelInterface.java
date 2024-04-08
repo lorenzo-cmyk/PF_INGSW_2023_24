@@ -1,7 +1,5 @@
 package it.polimi.ingsw.am32.model;
 
-import it.polimi.ingsw.am32.model.field.CardPlaced;
-
 import java.util.ArrayList;
 
 public interface ModelInterface {
@@ -39,6 +37,6 @@ public interface ModelInterface {
     int[] getPlayerResources(String nickname);
     int getPlayerSecretObjective(String nickname);
     ArrayList<Integer> getPlayerHand(String nickname);
-    ArrayList<CardPlaced> getPlayerField(String nickname);
+    ArrayList<int[]> getPlayerField(String nickname);
     int getCurrentTurnNumber();
 }
