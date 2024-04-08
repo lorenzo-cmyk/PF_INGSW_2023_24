@@ -234,7 +234,7 @@ public class Field {
      * @param forth  is the specific corner of the card
      * @return the array of integer
      */
-    public static int[] resourceCornersConverter(CornerType first, CornerType second, CornerType third, CornerType forth){
+    protected static int[] resourceCornersConverter(CornerType first, CornerType second, CornerType third, CornerType forth){
 
         int[] results = new int[ObjectType.values().length];
         CornerType[] tmpCorners = new CornerType[]{first, second, third, forth};
@@ -268,7 +268,7 @@ public class Field {
      * @return true if the check result is positive, false if the length of the second array is grater than that of
      * the first array or if the checking process resulted negatively
      */
-    public static boolean checkResRequirements(int[] resources, int[] requirements){
+    protected static boolean checkResRequirements(int[] resources, int[] requirements){
 
         if(requirements.length > resources.length)
             return false;
@@ -288,7 +288,7 @@ public class Field {
      * @param isUp is the side, of the card, relevant to the play
      * @return the array of integer
      */
-    public static int[] resourcesObtained(NonObjectiveCard nonObjectiveCard, boolean isUp){
+    protected static int[] resourcesObtained(NonObjectiveCard nonObjectiveCard, boolean isUp){
 
         int[] result = new int[7];
 

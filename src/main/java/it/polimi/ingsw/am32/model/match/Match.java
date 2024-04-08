@@ -509,11 +509,13 @@ public class Match implements ModelInterface {
     public int[] getPlayerResources(String nickname) {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) { // Found player with correct nickname
-                int[] playerRes = new int[7];
-                for (ObjectType ob : ObjectType.values()) {
-                    playerRes[ob.getValue()] = player.getField().getActiveRes(ob);
+                if(!isNull(player.getField())){ // Check if the player has a field (it should always have one, but just in case
+                    int[] playerRes = new int[7];
+                    for (ObjectType ob : ObjectType.values()) {
+                        playerRes[ob.getValue()] = player.getField().getActiveRes(ob);
+                    }
+                    return playerRes;
                 }
-                return playerRes;
             }
         }
         return null;
@@ -527,7 +529,8 @@ public class Match implements ModelInterface {
     public int getPlayerSecretObjective(String nickname) {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) { // Found player with correct nickname
-                return player.getSecretObjective().getId();
+                // Return the ID of the secret objective card of the player. If the player has no secret objective card, return -1.
+                return isNull(player.getSecretObjective()) ? -1 : player.getSecretObjective().getId();
             }
         }
         return -1;
@@ -584,4 +587,28 @@ public class Match implements ModelInterface {
     public int getCurrentTurnNumber() {
         return currentTurnNumber;
     }
+
+    /**
+     * Getter
+     *
+     * @param nickname The nickname of the player whose colour we want to get.
+     * @return The colour of a player.
+     */
+    public int getPlayerColour(String nickname) {
+        return players.stream()
+                .filter(player -> player.getNickname().equals(nickname))
+                .findFirst()
+                .map(player -> player.getColour() != null ? player.getColour().getValue() : -1)
+                .orElse(-1);
+    }
+
+    /**
+     * Getter
+     *
+     * @return The nickname of the current Player.
+     */
+    public String getCurrentPlayerID() {
+        return currentPlayerID;
+    }
+
 }

@@ -108,7 +108,19 @@ public class MatchTest {
         // Assign random colours to each Player
         myMatch.assignRandomColoursToPlayers();
         // Check that each Player has a unique colour
-        // TODO: We cannot retrieve the colour of a Player!!
+        ArrayList<Integer> colours = myMatch.getPlayersNicknames()
+                .stream().map(myMatch::getPlayerColour)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        // We should have 4 different colours
+        assert (colours.stream().distinct().count() == 4);
+        // What happens if I try to get the colour from a non-existing Player?
+        assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
+        // If now I add the Player but I don't assign a colour, the method should return -1
+        assertTrue(myMatch.addPlayer("TestPlayerFive"));
+        assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
+
+        // This test also checks the following methods:
+        // - getPlayerColour
     }
 
     @DisplayName("assignRandomStartingInitialCardsToPlayers should assign a random starting initial card to each Player")
@@ -306,13 +318,14 @@ public class MatchTest {
         myMatch.startTurns();
         // Check that the first player is the first in the list
         assertTrue(myMatch.isFirstPlayer());
-        // TODO: Maybe a currentPlayerID getter should be added to Match!!
+        assertEquals(myMatch.getCurrentPlayerID(), myMatch.getPlayersNicknames().getFirst());
         // Check that the current turn number is 1
         assertEquals(myMatch.getCurrentTurnNumber(), 1);
 
         // This test also checks the following methods:
         // - isFirstPlayer
         // - getCurrentTurnNumber
+        // - getCurrentPlayerID
     }
 
     @DisplayName("nextTurn should increment the current turn number")
@@ -378,4 +391,59 @@ public class MatchTest {
         myMatch.enterTerminatedPhase();
         assert (myMatch.getMatchStatus() == MatchStatus.TERMINATED.getValue());
     }
+
+    @DisplayName("getPlayerHand should return the IDs in the Player's hand. If the Player has not any we expect " +
+            "a null object")
+    @Test
+    public void getPlayerHandShouldReturnTheIDsInThePlayersHand() {
+        Match myMatch = new Match();
+        assertNotNull(myMatch);
+        // Create a new Player
+        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        // Assign a random starting initial card to the Player
+        myMatch.assignRandomStartingInitialCardsToPlayers();
+        // Test the behaviour of getPlayerHand
+        assert(myMatch.getPlayerHand("TestPlayerOne").size() == 1);
+        assertNull(myMatch.getPlayerHand("TestPlayerTwo"));
+    }
+
+    @DisplayName("getPlayerSecretObjective should return the ID of the secret objective card chosen by the Player. " +
+            "If the Player has not any we expect -1")
+    @Test
+    public void getPlayerSecretObjectiveShouldReturnTheIDOfTheSecretObjectiveCardChosenByThePlayer() {
+        Match myMatch = new Match();
+        assertNotNull(myMatch);
+        // Create a new Player
+        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
+        // Assign two random starting secret objectives to the Player
+        myMatch.assignRandomStartingSecretObjectivesToPlayers();
+        // Retrieve the secret objectives of the Player
+        List<Integer> secretObjectives = myMatch.getSecretObjectiveCardsPlayer("TestPlayerOne");
+        // Test the behaviour of receiveSecretObjectiveChoiceFromPlayer
+        assertTrue(myMatch.receiveSecretObjectiveChoiceFromPlayer("TestPlayerOne", secretObjectives.getFirst()));
+        assertEquals(myMatch.getPlayerSecretObjective("TestPlayerOne"), secretObjectives.getFirst());
+        assertEquals(myMatch.getPlayerSecretObjective("TestPlayerTwo"), -1);
+    }
+
+    @DisplayName("getPlayerResources should return the resources of the Player. If the Player has not field " +
+            "initialized yet we expect a null object")
+    @Test
+    public void getPlayerResourcesShouldReturnTheResourcesOfThePlayer() {
+        Match myMatch = new Match();
+        assertNotNull(myMatch);
+        // Create a new Player
+        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
+        // Assign a random starting initial card to the Player
+        myMatch.assignRandomStartingInitialCardsToPlayers();
+        // Initialize the Player field (but only for the first Player)
+        myMatch.createFieldPlayer("TestPlayerOne", true);
+        // Test the behaviour of getPlayerResources
+        // The first Player has field initialized. We expect 7 resources allocated.
+        assertEquals(myMatch.getPlayerResources("TestPlayerOne").length, 7);
+        // The second Player has not field initialized yet
+        assertNull(myMatch.getPlayerResources("TestPlayerTwo"));
+    }
+
 }
