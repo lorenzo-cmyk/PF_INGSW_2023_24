@@ -40,6 +40,5 @@ public interface ModelInterface {
     int getPlayerSecretObjective(String nickname);
     ArrayList<Integer> getPlayerHand(String nickname);
     ArrayList<CardPlaced> getPlayerField(String nickname);
-    int getMatchStatus();
     int getCurrentTurnNumber();
 }
