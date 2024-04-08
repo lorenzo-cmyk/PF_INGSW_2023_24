@@ -603,4 +603,13 @@ public class Match implements ModelInterface {
                 .orElse(-1);
     }
 
+    /**
+     * Getter
+     *
+     * @return The nickname of the current Player.
+     */
+    public String getCurrentPlayerID() {
+        return currentPlayerID;
+    }
+
 }
