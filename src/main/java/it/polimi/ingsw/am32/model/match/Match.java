@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+
 /**
  * Primary class used to represent a single instance of a game.
  *
@@ -490,8 +492,11 @@ public class Match implements ModelInterface {
     public ArrayList<Integer> getCommonObjectives() {
         ArrayList<Integer> idCommonObj = new ArrayList<>();
         for (Card commonObjective : commonObjectives) {
-            int id = commonObjective.getId();
-            idCommonObj.add(id);
+            // We should not return the Card ID if its null!
+            if(!isNull(commonObjective)){
+                int id = commonObjective.getId();
+                idCommonObj.add(id);
+            }
         }
         return idCommonObj;
     }
