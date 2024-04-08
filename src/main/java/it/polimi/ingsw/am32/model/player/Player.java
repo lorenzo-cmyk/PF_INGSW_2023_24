@@ -200,7 +200,6 @@ public class Player {
      */
     public boolean updatePointsForObjectives(Card[] objectiveCards) {
 
-        // TODO can i delete the next to line of code?
         if(objectiveCards[0].getPointStrategy() == null || objectiveCards[1].getPointStrategy() == null)
             return false;
 
@@ -236,7 +235,6 @@ public class Player {
 
         PointStrategy pointStrategy = secretObjective.getPointStrategy();
 
-        // TODO can i delete the next to line of code?
         if(pointStrategy == null)
             return false;
 
@@ -329,8 +327,6 @@ public class Player {
                 return null;
             }
         }
-
-        // TODO check if it can be done better
     }
 
     /**
@@ -372,8 +368,4 @@ public class Player {
         return true;
     }
 
-    //---------------------------------------------------------------------------------------------
-    // ToString
-
-    // TODO parsing method
 }
