@@ -24,7 +24,7 @@ public interface ModelInterface {
     void startTurns();
     boolean placeCard(int id, int x, int y, boolean side);
     boolean drawCard(int deckType, int id);
-    boolean nextTurn();
+    void nextTurn();
     void setTerminating();
     boolean areWeTerminating();
     boolean isFirstPlayer();

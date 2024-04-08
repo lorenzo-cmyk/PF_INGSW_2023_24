@@ -362,15 +362,14 @@ public class Match implements ModelInterface {
         return false;
     }
 
-    public boolean nextTurn() {
+    public void nextTurn() {
         for (int i=0; i<players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerID)) {
                 currentPlayerID = (i == players.size() - 1) ? players.getFirst().getNickname() : players.get(i+1).getNickname();
-                currentTurnNumber=currentTurnNumber+1;
-                return true;
+                currentTurnNumber = currentTurnNumber+1;
+                return;
             }
         }
-        return false;
     }
 
     /**
