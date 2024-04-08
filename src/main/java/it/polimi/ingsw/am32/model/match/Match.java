@@ -588,4 +588,19 @@ public class Match implements ModelInterface {
     public int getCurrentTurnNumber() {
         return currentTurnNumber;
     }
+
+    /**
+     * Getter
+     *
+     * @param nickname The nickname of the player whose colour we want to get.
+     * @return The colour of a player.
+     */
+    public int getPlayerColour(String nickname) {
+        return players.stream()
+                .filter(player -> player.getNickname().equals(nickname))
+                .findFirst()
+                .map(player -> player.getColour() != null ? player.getColour().getValue() : -1)
+                .orElse(-1);
+    }
+
 }

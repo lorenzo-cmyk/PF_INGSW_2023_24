@@ -108,7 +108,19 @@ public class MatchTest {
         // Assign random colours to each Player
         myMatch.assignRandomColoursToPlayers();
         // Check that each Player has a unique colour
-        // TODO: We cannot retrieve the colour of a Player!!
+        ArrayList<Integer> colours = myMatch.getPlayersNicknames()
+                .stream().map(myMatch::getPlayerColour)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        // We should have 4 different colours
+        assert (colours.stream().distinct().count() == 4);
+        // What happens if I try to get the colour from a non-existing Player?
+        assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
+        // If now I add the Player but I don't assign a colour, the method should return -1
+        assertTrue(myMatch.addPlayer("TestPlayerFive"));
+        assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
+
+        // This test also checks the following methods:
+        // - getPlayerColour
     }
 
     @DisplayName("assignRandomStartingInitialCardsToPlayers should assign a random starting initial card to each Player")
