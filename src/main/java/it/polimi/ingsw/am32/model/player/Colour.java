@@ -17,7 +17,7 @@ public enum Colour {
      * Constructor for the Colour enum.
      * @param value The unique integer value to associate with the colour
      */
-    private Colour(int value) {
+    Colour(int value) {
         this.value = value;
     }
 
