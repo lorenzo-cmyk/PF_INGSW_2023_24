@@ -187,8 +187,7 @@ public class Match implements ModelInterface {
     public boolean createFieldPlayer(String nickname, boolean side) {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) {
-                player.initializeGameField(side);
-                return true;
+                return player.initializeGameField(side);
             }
         }
         return false;
