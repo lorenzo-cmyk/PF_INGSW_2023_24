@@ -390,4 +390,59 @@ public class MatchTest {
         myMatch.enterTerminatedPhase();
         assert (myMatch.getMatchStatus() == MatchStatus.TERMINATED.getValue());
     }
+
+    @DisplayName("getPlayerHand should return the IDs in the Player's hand. If the Player has not any we expect " +
+            "a null object")
+    @Test
+    public void getPlayerHandShouldReturnTheIDsInThePlayersHand() {
+        Match myMatch = new Match();
+        assertNotNull(myMatch);
+        // Create a new Player
+        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        // Assign a random starting initial card to the Player
+        myMatch.assignRandomStartingInitialCardsToPlayers();
+        // Test the behaviour of getPlayerHand
+        assert(myMatch.getPlayerHand("TestPlayerOne").size() == 1);
+        assertNull(myMatch.getPlayerHand("TestPlayerTwo"));
+    }
+
+    @DisplayName("getPlayerSecretObjective should return the ID of the secret objective card chosen by the Player. " +
+            "If the Player has not any we expect -1")
+    @Test
+    public void getPlayerSecretObjectiveShouldReturnTheIDOfTheSecretObjectiveCardChosenByThePlayer() {
+        Match myMatch = new Match();
+        assertNotNull(myMatch);
+        // Create a new Player
+        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
+        // Assign two random starting secret objectives to the Player
+        myMatch.assignRandomStartingSecretObjectivesToPlayers();
+        // Retrieve the secret objectives of the Player
+        List<Integer> secretObjectives = myMatch.getSecretObjectiveCardsPlayer("TestPlayerOne");
+        // Test the behaviour of receiveSecretObjectiveChoiceFromPlayer
+        assertTrue(myMatch.receiveSecretObjectiveChoiceFromPlayer("TestPlayerOne", secretObjectives.getFirst()));
+        assertEquals(myMatch.getPlayerSecretObjective("TestPlayerOne"), secretObjectives.getFirst());
+        assertEquals(myMatch.getPlayerSecretObjective("TestPlayerTwo"), -1);
+    }
+
+    @DisplayName("getPlayerResources should return the resources of the Player. If the Player has not field " +
+            "initialized yet we expect a null object")
+    @Test
+    public void getPlayerResourcesShouldReturnTheResourcesOfThePlayer() {
+        Match myMatch = new Match();
+        assertNotNull(myMatch);
+        // Create a new Player
+        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
+        // Assign a random starting initial card to the Player
+        myMatch.assignRandomStartingInitialCardsToPlayers();
+        // Initialize the Player field (but only for the first Player)
+        myMatch.createFieldPlayer("TestPlayerOne", true);
+        // Test the behaviour of getPlayerResources
+        // The first Player has field initialized. We expect 7 resources allocated.
+        assertEquals(myMatch.getPlayerResources("TestPlayerOne").length, 7);
+        // The second Player has not field initialized yet
+        assertNull(myMatch.getPlayerResources("TestPlayerTwo"));
+    }
+
 }
