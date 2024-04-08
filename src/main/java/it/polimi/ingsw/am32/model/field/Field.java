@@ -62,7 +62,7 @@ public class Field {
         if( x > 40 || x < -40 || y > 40 || y < -40)
             return false;
 
-        if (((x + y) % 2) == 1)
+        if (Math.abs((x + y) % 2) == 1)
             return false;
 
         // Checking resource requirements for placement
@@ -214,7 +214,7 @@ public class Field {
      */
     public boolean availableSpace(int x, int y) {
 
-        if (((x + y) % 2) == 1)
+        if (Math.abs((x + y) % 2) == 1)
             return false;
 
         for (CardPlaced fieldCard : fieldCards)
