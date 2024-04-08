@@ -76,7 +76,7 @@ public class Player {
         if (gameField != null || hand == null)
             return false;
 
-        NonObjectiveCard tmpCard = null;
+        NonObjectiveCard tmpCard;
 
         try {
             tmpCard = hand.getFirst();
