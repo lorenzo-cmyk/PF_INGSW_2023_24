@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am32.model;
 
 import it.polimi.ingsw.am32.model.field.CardPlaced;
-import it.polimi.ingsw.am32.model.match.MatchStatus;
 
 import java.util.ArrayList;
 
@@ -41,6 +40,6 @@ public interface ModelInterface {
     int getPlayerSecretObjective(String nickname);
     ArrayList<Integer> getPlayerHand(String nickname);
     ArrayList<CardPlaced> getPlayerField(String nickname);
-    MatchStatus getMatchStatus();
+    int getMatchStatus();
     int getCurrentTurnNumber();
 }
