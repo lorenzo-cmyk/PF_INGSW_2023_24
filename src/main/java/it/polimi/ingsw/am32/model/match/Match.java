@@ -615,4 +615,13 @@ public class Match implements ModelInterface {
         return currentPlayerID;
     }
 
+    /**
+     * Getter
+     *
+     * @return The arraylist which contains all players of this match.
+     */
+    public ArrayList<Player> getPlayers(){
+        return players;
+    }
+
 }
