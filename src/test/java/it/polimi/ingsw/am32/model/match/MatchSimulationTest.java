@@ -3,46 +3,39 @@ import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.player.Player;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MatchSimulationTest {
+    Match myMatch = new Match();
 
     @DisplayName("Run a, partial, game simulation in order to test the game mechanics")
     @Test
     public void runGameSimulation() {
-        // Create the match
-        Match myMatch = new Match();
-        assertNotNull(myMatch);
         //Lobby phase
         myMatch.enterLobbyPhase();
-        assertEquals(0, myMatch.getMatchStatus());
-
 
         // Initialize the list of players
 
-        myMatch.addPlayer("Alice");
-        myMatch.addPlayer("Bob");
-        myMatch.addPlayer("Carlo");
-        myMatch.addPlayer("Daniel");
-        assertEquals("Alice", myMatch.getPlayers().get(0).getNickname());
-        assertEquals("Bob", myMatch.getPlayers().get(1).getNickname());
-        assertEquals("Carlo", myMatch.getPlayers().get(2).getNickname());
-        assertEquals("Daniel", myMatch.getPlayers().get(3).getNickname());
-        assertEquals(4, myMatch.getPlayers().size());
+        assertTrue(myMatch.addPlayer("Alice"));
+        assertTrue(myMatch.addPlayer("Bob"));
+        assertTrue(myMatch.addPlayer("Carlo"));
+        assertTrue(myMatch.addPlayer("Daniel"));
 
-        //Preparation phase
+        // Preparation phase
         myMatch.enterPreparationPhase();
-        assertEquals(1, myMatch.getMatchStatus());
         myMatch.assignRandomColoursToPlayers();
 
         myMatch.assignRandomStartingInitialCardsToPlayers();
 
-        //create Field for players
+        // Create Field for players
         for (Player player : myMatch.getPlayers()) {
-            myMatch.createFieldPlayer(player.getNickname(), true);
+            Random rand = new Random();
+            boolean randomSide = rand.nextBoolean();
+            myMatch.createFieldPlayer(player.getNickname(), randomSide);
         }
 
         myMatch.assignRandomStartingResourceCardsToPlayers();
@@ -54,60 +47,93 @@ class MatchSimulationTest {
         // Playing phase
         myMatch.enterPlayingPhase();
         myMatch.startTurns();
-        //
 
-        /*for (Player player : myMatch.getPlayers()) {
-            boolean successful = false;
-            Random rand = new Random();
-            while(!successful){
-                int[] randomCoordinate = availableSpaceCurrentPlayer().get(rand.nextInt(availableSpaceCurrentPlayer().size()));
-                NonObjectiveCard randomHandCard = player.getHand().get(rand.nextInt(player.getHand().size()));
-                boolean randomSide = rand.nextBoolean();
-                successful=player.performMove(randomCoordinate[0], randomCoordinate[1], randomHandCard.getId(), randomSide);
-            }
-            int randomType= rand.nextInt(4);
-            int randomCurrentCard=0;
-            if(randomType==2){
-                randomCurrentCard=myMatch.getCurrentResourcesCards().get(rand.nextInt(2));}
-            if(randomType==3){
-                randomCurrentCard=myMatch.getCurrentGoldCards().get(rand.nextInt(2));
-            }
-            myMatch.drawCard(randomType,randomCurrentCard);
+        while (myMatch.getMatchStatus() != MatchStatus.TERMINATED.getValue()) { // We keep playing until we've rea
+            // Simulate a game turn
+            for (Player player : myMatch.getPlayers()) { // Loops through each player
+                if (!player.getNickname().equals(myMatch.getCurrentPlayerID()))
+                    continue; // The selected player doesn't have playing rights
 
-        }*/
+                if (myMatch.isFirstPlayer()) { // The first player is playing
+                    if (myMatch.areWeTerminating()) { // We are in the terminating phase
+                        myMatch.setLastTurn(); // If we were in the terminating phase, and the first player has played, we play the last turn
+                    } else if (myMatch.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) { // If we were in the last turn phase, and we looped back to the first player, we've finished the game
+                        myMatch.enterTerminatedPhase();
+                        break;
+                    }
+                }
 
+                boolean successful = false; // Flag indicating whether card placement was successful
+                Random rand = new Random(); // Crate new random number generator
+                while (!successful) { // Keep looping until a valid move is found
+                    ArrayList<int[]> availablePos = availableSpacesPlayer(player); // Get all the available positions in the player's field
+                    int[] randomCoordinate = availablePos.get(rand.nextInt(availablePos.size())); // Get a random available space
 
-    }
-    /*public ArrayList<int[]> availableSpaceCurrentPlayer () {
-        int[] temp = new int[2];
-        ArrayList<int[]> availableCoordinate = new ArrayList<>();
-        for (int j = 0; j < myMatch.getPlayers().size(); j++) {
-            if (myMatch.getPlayers().get(j).getNickname().equals(myMatch.getCurrentPlayerID())) {
-                int Ax, Ay;
-                Ax = myMatch.getPlayerField(myMatch.getCurrentPlayerID()).get(j)[0];
-                Ay = myMatch.getPlayerField(myMatch.getCurrentPlayerID()).get(j)[1];
-                if (myMatch.getPlayers().get(j).getField().availableSpace(Ax + 1, Ay + 1)) {
-                    temp[0] = Ax + 1;
-                    temp[1] = Ay + 1;
-                    availableCoordinate.add(temp);
+                    NonObjectiveCard randomHandCard = player.getHand().get(rand.nextInt(player.getHand().size())); // Get a random card from the player's hand
+                    boolean randomSide = rand.nextBoolean();// Get a random side in which to place the card
+                    successful = player.performMove(randomHandCard.getId(),randomCoordinate[0], randomCoordinate[1], randomSide);// Attempt to place the card
                 }
-                if (myMatch.getPlayers().get(j).getField().availableSpace(Ax - 1, Ay - 1)) {
-                    temp[0] = Ax - 1;
-                    temp[1] = Ay - 1;
-                    availableCoordinate.add(temp);
+
+                // Draw a random card
+                int randomType = rand.nextInt(4); // Randomly select the type of card to draw
+                int randomCurrentCard;
+
+                switch (randomType) {
+                    case 2: // If the random type is 2, draw a resource card from the current resource cards
+                        randomCurrentCard = myMatch.getCurrentResourcesCards().get(rand.nextInt(2)); // Randomly select a resource card
+                        break;
+                    case 3: // If the random type is 3, draw a gold card from the current gold cards
+                        randomCurrentCard = myMatch.getCurrentGoldCards().get(rand.nextInt(2)); // Randomly select a gold card
+                        break;
+                    default:
+                        randomCurrentCard = 0;
+                        break;
                 }
-                if (myMatch.getPlayers().get(j).getField().availableSpace(Ax + 1, Ay - 1)) {
-                    temp[0] = Ax + 1;
-                    temp[1] = Ay - 1;
-                    availableCoordinate.add(temp);
-                }
-                if (myMatch.getPlayers().get(j).getField().availableSpace(Ax - 1, Ay + 1)) {
-                    temp[0] = Ax - 1;
-                    temp[1] = Ay + 1;
-                    availableCoordinate.add(temp);
-                }
+
+                assertTrue(myMatch.drawCard(randomType, randomCurrentCard));
+
+                myMatch.nextTurn();
             }
         }
+
+        // Terminated phase
+        assertTrue(myMatch.addObjectivePoints());
+        ArrayList<String> winners = myMatch.getWinners();
+    }
+
+    /**
+     * Returns the available spaces where a card can be played in the given player's field
+     * @param player The player whose field we want to check
+     * @return An ArrayList of int arrays containing the available spaces
+     */
+    public ArrayList<int[]> availableSpacesPlayer (Player player) {
+        int[] temp = new int[2];
+        ArrayList<int[]> availableCoordinate = new ArrayList<>();
+                for (int j = 0; j < player.getField().getFieldCards().size(); j++) {
+                    int Ax, Ay;
+                    Ax = player.getField().getFieldCards().get(j).getX();
+                    Ay = player.getField().getFieldCards().get(j).getY();
+                    if (player.getField().availableSpace(Ax + 1, Ay + 1)) {
+                        temp[0] = Ax + 1;
+                        temp[1] = Ay + 1;
+                        availableCoordinate.add(temp);
+                    }
+                    if (player.getField().availableSpace(Ax - 1, Ay - 1)) {
+                        temp[0] = Ax - 1;
+                        temp[1] = Ay - 1;
+                        availableCoordinate.add(temp);
+                    }
+                    if (player.getField().availableSpace(Ax + 1, Ay - 1)) {
+                        temp[0] = Ax + 1;
+                        temp[1] = Ay - 1;
+                        availableCoordinate.add(temp);
+                    }
+                    if (player.getField().availableSpace(Ax - 1, Ay + 1)) {
+                        temp[0] = Ax - 1;
+                        temp[1] = Ay + 1;
+                        availableCoordinate.add(temp);
+                    }
+                }
         return availableCoordinate;
-    }*/
+    }
 }
