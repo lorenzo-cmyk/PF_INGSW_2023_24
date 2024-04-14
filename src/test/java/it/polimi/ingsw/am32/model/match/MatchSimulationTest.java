@@ -5,12 +5,17 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 class MatchSimulationTest {
     Match myMatch = new Match(); // Create a new match
+    private static final Logger LOGGER = LogManager.getLogger("MatchSimulationLogger");
 
     @DisplayName("Run a, partial, game simulation in order to test the game mechanics")
     @Test
@@ -21,10 +26,9 @@ class MatchSimulationTest {
         double pickingResourceCardWeight = 0.3; // Probability of picking a resource card after placing
 
         // Lobby phase
-        myMatch.enterLobbyPhase();
+        myMatch.enterLobbyPhase(); LOGGER.info("Entered lobby phase");
         // Initialize the list of players
         int numPlayers = rand.nextInt(3) + 2; // Randomly select the number of players;
-        System.out.println("Number of players: " + numPlayers); //Todo: remove
         switch (numPlayers) {
             case 2:
                 assertTrue(myMatch.addPlayer("Alice"));
@@ -41,48 +45,48 @@ class MatchSimulationTest {
                 assertTrue(myMatch.addPlayer("Carlo"));
                 assertTrue(myMatch.addPlayer("Daniel"));
                 break;
-        }
+        } LOGGER.info("Generated players");
 
         // Preparation phase
-        myMatch.enterPreparationPhase();
-        myMatch.assignRandomColoursToPlayers();
-        myMatch.assignRandomStartingInitialCardsToPlayers();
+        myMatch.enterPreparationPhase(); LOGGER.info("Entered preparation phase");
+        myMatch.assignRandomColoursToPlayers(); LOGGER.info("Assigned random colours to players");
+        myMatch.assignRandomStartingInitialCardsToPlayers(); LOGGER.info("Assigned random initial cards to players");
         // Create Field for players
         for (Player player : myMatch.getPlayers()) {
             boolean randomSide = rand.nextBoolean();
             myMatch.createFieldPlayer(player.getNickname(), randomSide);
-        }
+        } LOGGER.info("Created player fields");
         // Assign random starting resource cards, gold cards, common objectives and secret objectives to players
-        myMatch.assignRandomStartingResourceCardsToPlayers();
-        myMatch.assignRandomStartingGoldCardsToPlayers();
-        myMatch.pickRandomCommonObjectives();
-        myMatch.assignRandomStartingSecretObjectivesToPlayers();
+        myMatch.assignRandomStartingResourceCardsToPlayers(); LOGGER.info("Assigned random starting resource cards to players");
+        myMatch.assignRandomStartingGoldCardsToPlayers(); LOGGER.info("Assigned random starting gold cards to players");
+        myMatch.pickRandomCommonObjectives(); LOGGER.info("Picked random common objective");
+        myMatch.assignRandomStartingSecretObjectivesToPlayers(); LOGGER.info("Assigned random starting secret objective cards to players");
         for(Player player : myMatch.getPlayers()) {
             myMatch.receiveSecretObjectiveChoiceFromPlayer(player.getNickname(), myMatch.getSecretObjectiveCardsPlayer(player.getNickname()).get(1));
-        }
+        } LOGGER.info("Received secret objective choice from players");
 
-        myMatch.randomizePlayersOrder();
+        myMatch.randomizePlayersOrder(); LOGGER.info("Randomized player order");
 
         // Playing phase
-        myMatch.enterPlayingPhase();
-        myMatch.startTurns();
-        System.out.println("The first player is: " + myMatch.getCurrentPlayerID()); //Todo: remove
+        myMatch.enterPlayingPhase(); LOGGER.info("Entered playing phase");
+        myMatch.startTurns(); logGameState("Started game");
 
-        while (myMatch.getMatchStatus() != MatchStatus.TERMINATED.getValue()) { // Keep looping until the match is terminated
+        while (myMatch.getMatchStatus() != MatchStatus.TERMINATED.getValue()) {
+            // Keep looping until the match is terminated
             // Simulate a game turn
-            for (Player player : myMatch.getPlayers()) { // Loops through each player
-                if (!player.getNickname().equals(myMatch.getCurrentPlayerID()))
+            for (Player player : myMatch.getPlayers()) { logGameState("Looping through players");
+                // Loops through each player
+                if (!player.getNickname().equals(myMatch.getCurrentPlayerNickname())) { logGameState("Access violation detected");
                     continue; // The selected player doesn't have playing rights
+                }
                 if (myMatch.isFirstPlayer()) { // The first player is playing
                     if (myMatch.areWeTerminating()) { // We are in the terminating phase
-                        myMatch.setLastTurn(); // If we were in the terminating phase, and the first player has played, we play the last turn
+                        myMatch.setLastTurn(); logGameState("Entered last turn"); // If we were in the terminating phase, and the first player has played, we play the last turn
                     } else if (myMatch.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) { // If we were in the last turn phase, and we looped back to the first player, we've finished the game
-                        myMatch.enterTerminatedPhase();
+                        myMatch.enterTerminatedPhase(); logGameState("The game is ended");
                         break; // Game is finished
                     }
-                }
-                System.out.println("The current player is: " + player.getNickname()); //Todo: remove
-                System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
+                } logGameState("We are starting the player's turn");
                 boolean successful = false; // Flag indicating whether card placement was successful
                 boolean noPossibleMove = false; // Flag indicating whether the player cannot make a move on their field due to lack of space
 
@@ -92,16 +96,16 @@ class MatchSimulationTest {
                     int[] randomCoordinate = availablePos.get(rand.nextInt(availablePos.size())); // Get a random available space
 
                     if (availablePos.isEmpty()) { // If the player cannot make any move
-                        noPossibleMove = true;
+                        noPossibleMove = true; LOGGER.info("No possible move are left!");
                         break;
                     }
 
                     NonObjectiveCard randomHandCard = player.getHand().get(rand.nextInt(player.getHand().size())); // Get a random card from the player's hand
                     boolean randomSide = Math.random() > flippedCardWeight; // Get a random placement side for the card
 
-                    successful = myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide); // Attempt to place the card
-                }
-                System.out.println("The match status after placedCard is " + myMatch.getMatchStatus()); //Todo: remove
+                    // Attempt to place a card
+                    successful = myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide); LOGGER.info("Attempted to place card: " + randomHandCard.getId() + " at " + randomCoordinate[0] + ", " + randomCoordinate[1] + " with side " + randomSide);
+                } logGameState("Placed card");
 
                 // Drawing phase
                 if (myMatch.getMatchStatus()!=MatchStatus.LAST_TURN.getValue() && !noPossibleMove) {
@@ -163,42 +167,77 @@ class MatchSimulationTest {
                                 randomCurrentCard = 0;
                                 expectedOutcome = false;
                                 break;
-                        }
-
-                        //Todo: remove
-                        System.out.println(myMatch.getResourceCardsDeck().size());
-                        System.out.println(myMatch.getGoldCardsDeck().size());
-                        System.out.println(myMatch.getCurrentResourcesCards().size());
-                        System.out.println(myMatch.getCurrentGoldCards().size());
-                        System.out.println("Looping inside draw!");
+                        } LOGGER.info("Trying to draw. randomType: " + randomType + " randomCurrentCard: " + randomCurrentCard + " expectedOutcome: " + expectedOutcome);
 
                         assert(myMatch.drawCard(randomType, randomCurrentCard) == expectedOutcome);
 
                         // If the all decks are empty, we have a problem with drawCard
                         if (myMatch.getResourceCardsDeck().isEmpty() && myMatch.getGoldCardsDeck().isEmpty() &&
-                            myMatch.getCurrentResourcesCards().isEmpty() && myMatch.getCurrentGoldCards().isEmpty()) {
+                            myMatch.getCurrentResourcesCards().isEmpty() && myMatch.getCurrentGoldCards().isEmpty()) { LOGGER.fatal("All decks are empty");
                             fail();
                         }
 
                         validDraw = expectedOutcome;
-                        System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
-                    }
+                    } logGameState("Drew card");
                 }
             myMatch.nextTurn();
-            System.out.println("-----------"); //Todo: remove
             }
-        }
+        } logGameState("Terminated game");
 
         // Terminated phase
-        System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
-        assertTrue(myMatch.addObjectivePoints());
+        assertTrue(myMatch.addObjectivePoints()); logGameState("Added objective points to players");
 
-        ArrayList<String> winners = myMatch.getWinners();
-        System.out.println("The winners are: " + winners); //Todo: remove
-        for(Player player : myMatch.getPlayers()) { //Todo: remove
-            System.out.println(player.getNickname() + " has " + player.getPoints() + " points" + " and has " + player.getPointsGainedFromObjectives()); //Todo: remove
+        ArrayList<String> winners = myMatch.getWinners(); logGameState("Calculated winners");
+        LOGGER.info("The winner is : " + winners);
+    }
+
+    /**
+     * A special method used to log the entire state of the game
+     * @param debugString Info string used to understand at what line of code game was logged
+     *
+     * @author Lorenzo
+     */
+    public void logGameState(String debugString){
+        LOGGER.info("#########################################################");
+
+        // Log the match status
+        LOGGER.info("Debugger status: " + debugString);
+        LOGGER.info("Match status: " + myMatch.getMatchStatus());
+
+        // Log the current turn number
+        LOGGER.info("Current turn number: " + myMatch.getCurrentTurnNumber());
+        // Log the current player
+        LOGGER.info("Current player: " + myMatch.getCurrentPlayerNickname());
+        // Log if the current player is the first player
+        LOGGER.info("Is first player: " + myMatch.isFirstPlayer());
+
+        // Log the common objectives
+        LOGGER.info("Common objectives: " + myMatch.getCommonObjectives());
+        // Log the current resource cards
+        LOGGER.info("Current resource cards: " + myMatch.getCurrentResourcesCards());
+        // Log the current gold cards
+        LOGGER.info("Current gold cards: " + myMatch.getCurrentGoldCards());
+
+        // Log how many cards are in the resource deck
+        LOGGER.info("Resource deck size: " + myMatch.getResourceCardsDeck().size());
+        // Log how many cards are in the gold deck
+        LOGGER.info("Gold deck size: " + myMatch.getGoldCardsDeck().size());
+
+        // Log the players
+        for (Player player : myMatch.getPlayers()) {
+            LOGGER.info("=====================================");
+            LOGGER.info("Player: " + player.getNickname());
+            LOGGER.info("Player's colour: " + myMatch.getPlayerColour(player.getNickname()));
+            LOGGER.info("Player's initial cards: " + myMatch.getInitialCardPlayer(player.getNickname()));
+            LOGGER.info("Player's secret objectives: " + myMatch.getSecretObjectiveCardsPlayer(player.getNickname()));
+            LOGGER.info("Player's resources: " + Arrays.toString(myMatch.getPlayerResources(player.getNickname())));
+            LOGGER.info("Player's hand:" + myMatch.getPlayerHand(player.getNickname()));
+            LOGGER.info("Player's field: ");
+            for (int[] subarray : myMatch.getPlayerField(player.getNickname())) {
+                LOGGER.info("\t" + Arrays.toString(subarray));
+            }
         }
-
+        LOGGER.info("=====================================");
     }
 
     /**
