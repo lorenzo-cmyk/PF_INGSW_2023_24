@@ -66,7 +66,7 @@ public class Match implements ModelInterface {
     /**
      * Nickname that identifies the current player.
      */
-    private String currentPlayerID;
+    private String currentPlayerNickname;
     /**
      * The number of the turn.
      */
@@ -141,7 +141,7 @@ public class Match implements ModelInterface {
      * Assigns a random colour to each player in the game.
      */
     public void assignRandomColoursToPlayers() {
-        ArrayList<Colour> colour_array = new ArrayList< >(Arrays.asList(Colour.values())); // Create ArrayList of colours
+        ArrayList<Colour> colour_array = new ArrayList<>(Arrays.asList(Colour.values())); // Create ArrayList of colours
         colour_array.remove(Colour.BLACK); // Remove black from ArrayList
 
         Collections.shuffle(colour_array);
@@ -287,18 +287,18 @@ public class Match implements ModelInterface {
      * Resets current turn number to 1 and sets current player to the first player.
      */
     public void startTurns() {
-        currentPlayerID = players.getFirst().getNickname();
+        currentPlayerNickname = players.getFirst().getNickname();
         currentTurnNumber = 1;
     }
 
     public boolean placeCard(int id, int x, int y, boolean side) {
         for (int i=0; i<=players.size(); i++) {
-            if (players.get(i).getNickname().equals(currentPlayerID)) { // Found current player
+            if (players.get(i).getNickname().equals(currentPlayerNickname)) { // Found current player
                 boolean success = players.get(i).performMove(id, x, y, side); // Place card
 
                 if (!success) return false; // There was an error in the placement of the card
 
-                if (getMatchStatus()!=MatchStatus.LAST_TURN.getValue()&&players.get(i).getPoints() >= 20) {
+                if (getMatchStatus()!=MatchStatus.LAST_TURN.getValue() && players.get(i).getPoints() >= 20) {
                     setTerminating();
                 }
                 return true;
@@ -308,9 +308,9 @@ public class Match implements ModelInterface {
     }
 
     public boolean drawCard(int deckType, int id) {
-        // Retrieve the player who is playing using the currentPlayerID
+        // Retrieve the player who is playing using the currentPlayerNickname
         for (Player player : players){
-            if(player.getNickname().equals(currentPlayerID)){
+            if(player.getNickname().equals(currentPlayerNickname)){
                 // Retrieve the card from the corresponding deck based on the deckType.
                 Optional<NonObjectiveCard> card;
                 switch (deckType){
@@ -372,8 +372,8 @@ public class Match implements ModelInterface {
 
     public void nextTurn() {
         for (int i=0; i<players.size(); i++) {
-            if (players.get(i).getNickname().equals(currentPlayerID)) {
-                currentPlayerID = (i == players.size() - 1) ? players.getFirst().getNickname() : players.get(i+1).getNickname();
+            if (players.get(i).getNickname().equals(currentPlayerNickname)) {
+                currentPlayerNickname = (i == players.size() - 1) ? players.getFirst().getNickname() : players.get(i+1).getNickname();
                 currentTurnNumber = currentTurnNumber+1;
                 return;
             }
@@ -402,7 +402,7 @@ public class Match implements ModelInterface {
      * @return true if and only if the first player in the list of players is playing
      */
     public boolean isFirstPlayer() {
-        return currentPlayerID.equals(players.getFirst().getNickname());
+        return currentPlayerNickname.equals(players.getFirst().getNickname());
     }
 
     /**
@@ -622,7 +622,7 @@ public class Match implements ModelInterface {
      * @return The nickname of the current Player.
      */
     public String getCurrentPlayerID() {
-        return currentPlayerID;
+        return currentPlayerNickname;
     }
 
     /**

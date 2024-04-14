@@ -210,6 +210,8 @@ public class Field {
      * @param x is the coordinate on the horizontal axis for the space searched
      * @param y is the coordinate on the vertical axis for the space searched
      * @return true if the space is available, false if not
+     *
+     * @author anto, Jie
      */
     public boolean availableSpace(int x, int y) {
         if (Math.abs((x + y) % 2) == 1)
@@ -219,16 +221,39 @@ public class Field {
             if (fieldCard.getX() == x && fieldCard.getY() == y)
                 return false; // Found a card occupying x,y
 
-        // Check if the space is surrounded by cards with non-coverable corners
-        if(getCardFromPosition(x+1,y-1)!=null && getCardFromPosition(x+1,y-1).getTopLeft()==CornerType.NON_COVERABLE) return false;
-        if(getCardFromPosition(x-1,y-1)!=null && getCardFromPosition(x-1, y-1).getTopRight()==CornerType.NON_COVERABLE) return false;
-        if(getCardFromPosition(x+1,y+1)!=null && getCardFromPosition(x+1,y+1).getBottomLeft()==CornerType.NON_COVERABLE) return false;
-        if(getCardFromPosition(x-1,y+1)!=null && getCardFromPosition(x-1,y+1).getBottomRight()==CornerType.NON_COVERABLE) return false;
+        // Conditions for space availability:
+        // - At least one card must be adjacent to positions x and y (diagonally)
+        // - No adjacent card can have a non-coverable corner at x and y
 
-        if (getCardFromPosition(x+1,y-1) == null && getCardFromPosition(x-1,y-1) == null && // No cards with corners near x,y
-            getCardFromPosition(x+1,y+1) == null && getCardFromPosition(x-1,y+1) == null) return false;
+        boolean adjacentCards = false; // Flag indicating whether there are no adjacent cards
+        for (CardPlaced cardPlaced : fieldCards) { // Scan all cards on the field
+            if (cardPlaced.getX() == x+1 && cardPlaced.getY() == y-1) { // Found card at the bottom right
+                adjacentCards = true;
+                if (cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getTopLeft() == CornerType.NON_COVERABLE) {
+                    return false;
+                }
+            }
+            else if (cardPlaced.getX() == x-1 && cardPlaced.getY() == y-1) {
+                adjacentCards = true;
+                if (cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getTopRight() == CornerType.NON_COVERABLE) {
+                    return false;
+                }
+            }
+            else if (cardPlaced.getX() == x+1 && cardPlaced.getY() == y+1) {
+                adjacentCards = true;
+                if (cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getBottomLeft() == CornerType.NON_COVERABLE) {
+                    return false;
+                }
+            }
+            else if (cardPlaced.getX() == x-1 && cardPlaced.getY() == y+1) {
+                adjacentCards = true;
+                if (cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getBottomRight() == CornerType.NON_COVERABLE) {
+                    return false;
+                }
+            }
+        }
 
-        return true;
+        return adjacentCards;
     }
 
     /**

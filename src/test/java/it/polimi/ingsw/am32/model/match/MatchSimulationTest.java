@@ -15,14 +15,15 @@ class MatchSimulationTest {
     @DisplayName("Run a, partial, game simulation in order to test the game mechanics")
     @Test
     public void runGameSimulation() {
-
-        double flippedCardWeight = 0.15; // Probability that a card is placed on its pack
-        double pickingResourceCardWeight = 0.3; // Probability of picking a resource card after placing
         Random rand = new Random(); // Crate new random number generator
+
+        double flippedCardWeight = 0.15; // Probability that a card is placed on its back (excluding starting card)
+        double pickingResourceCardWeight = 0.3; // Probability of picking a resource card after placing
+
         // Lobby phase
         myMatch.enterLobbyPhase();
         // Initialize the list of players
-        int numPlayers = rand. nextInt(3) + 2; // Randomly select the number of players;
+        int numPlayers = rand.nextInt(3) + 2; // Randomly select the number of players;
         System.out.println("Number of players: " + numPlayers); //Todo: remove
         switch (numPlayers) {
             case 2:
@@ -37,10 +38,6 @@ class MatchSimulationTest {
             case 4:
                 assertTrue(myMatch.addPlayer("Alice"));
                 assertTrue(myMatch.addPlayer("Bob"));
-                assertTrue(myMatch.addPlayer("Carlo"));
-                assertTrue(myMatch.addPlayer("Daniel"));
-                break;
-            default:
                 assertTrue(myMatch.addPlayer("Carlo"));
                 assertTrue(myMatch.addPlayer("Daniel"));
                 break;
@@ -81,7 +78,7 @@ class MatchSimulationTest {
                         myMatch.setLastTurn(); // If we were in the terminating phase, and the first player has played, we play the last turn
                     } else if (myMatch.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) { // If we were in the last turn phase, and we looped back to the first player, we've finished the game
                         myMatch.enterTerminatedPhase();
-                        break;
+                        break; // Game is finished
                     }
                 }
                 System.out.println("The current player is: " + player.getNickname()); //Todo: remove
@@ -99,7 +96,7 @@ class MatchSimulationTest {
                     }
 
                     NonObjectiveCard randomHandCard = player.getHand().get(rand.nextInt(player.getHand().size())); // Get a random card from the player's hand
-                    boolean randomSide = Math.random() > flippedCardWeight; // Get a random side in which to place the card
+                    boolean randomSide = Math.random() > flippedCardWeight; // Get a random placement side for the card
 
                     successful = myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide); // Attempt to place the card
                 }
