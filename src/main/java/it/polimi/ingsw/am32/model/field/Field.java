@@ -204,22 +204,29 @@ public class Field {
         return null;
     }
 
-    // TODO decidere se necessario se effettivamente piazzabile per carte addiacenti
     /**
-     * Verify if a specified space in the field is not already occupied by a card
+     * Verify whether a card can be freely placed at the given coordinates
      *
      * @param x is the coordinate on the horizontal axis for the space searched
      * @param y is the coordinate on the vertical axis for the space searched
      * @return true if the space is available, false if not
      */
     public boolean availableSpace(int x, int y) {
-
         if (Math.abs((x + y) % 2) == 1)
-            return false;
+            return false; // Impossible position
 
         for (CardPlaced fieldCard : fieldCards)
             if (fieldCard.getX() == x && fieldCard.getY() == y)
-                return false;
+                return false; // Found a card occupying x,y
+
+        // Check if the space is surrounded by cards with non-coverable corners
+        if(getCardFromPosition(x+1,y-1)!=null && getCardFromPosition(x+1,y-1).getTopLeft()==CornerType.NON_COVERABLE) return false;
+        if(getCardFromPosition(x-1,y-1)!=null && getCardFromPosition(x-1, y-1).getTopRight()==CornerType.NON_COVERABLE) return false;
+        if(getCardFromPosition(x+1,y+1)!=null && getCardFromPosition(x+1,y+1).getBottomLeft()==CornerType.NON_COVERABLE) return false;
+        if(getCardFromPosition(x-1,y+1)!=null && getCardFromPosition(x-1,y+1).getBottomRight()==CornerType.NON_COVERABLE) return false;
+
+        if (getCardFromPosition(x+1,y-1) == null && getCardFromPosition(x-1,y-1) == null && // No cards with corners near x,y
+            getCardFromPosition(x+1,y+1) == null && getCardFromPosition(x-1,y+1) == null) return false;
 
         return true;
     }

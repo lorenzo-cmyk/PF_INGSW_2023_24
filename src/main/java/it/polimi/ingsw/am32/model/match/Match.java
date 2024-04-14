@@ -298,7 +298,7 @@ public class Match implements ModelInterface {
 
                 if (!success) return false; // There was an error in the placement of the card
 
-                if (players.get(i).getPoints() >= 20) {
+                if (getMatchStatus()!=MatchStatus.LAST_TURN.getValue()&&players.get(i).getPoints() >= 20) {
                     setTerminating();
                 }
                 return true;
@@ -348,11 +348,11 @@ public class Match implements ModelInterface {
                 }
                 // If the card is found, and it's dawn from resourceCardsDeck or goldCardsDeck, and the card is not
                 // null, check if them are now both empty to set the Match in TERMINATING state.
-                if((deckType == 0 || deckType == 1) && card.isPresent()){
+                //if((deckType == 0 || deckType == 1) && card.isPresent()){ TODO: check
                     if(resourceCardsDeck.getCards().isEmpty() && goldCardsDeck.getCards().isEmpty()){
                         setTerminating();
                     }
-                }
+               //}
                 // If the card is found, add it to the player's hand and return true. Otherwise, return false.
                 return card.filter(player::putCardInHand).isPresent();
             }
@@ -620,8 +620,16 @@ public class Match implements ModelInterface {
      *
      * @return The arraylist which contains all players of this match.
      */
-    public ArrayList<Player> getPlayers(){
+    protected ArrayList<Player> getPlayers(){
         return players;
+    }
+
+    protected ArrayList<NonObjectiveCard> getResourceCardsDeck() {
+        return resourceCardsDeck.getCards();
+    }
+
+    protected ArrayList<NonObjectiveCard> getGoldCardsDeck() {
+        return goldCardsDeck.getCards();
     }
 
 }

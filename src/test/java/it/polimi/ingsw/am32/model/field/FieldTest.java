@@ -140,7 +140,7 @@ class FieldTest {
         assertFalse(field.availableSpace(1,0));
 
         assertFalse(field.availableSpace(0,0));
-        assertTrue(field.availableSpace(0,2));
+        assertTrue(field.availableSpace(-1,1));
         assertTrue(field.availableSpace(1,1));
     }
 
@@ -411,7 +411,7 @@ class FieldTest {
         assertFalse(field.availableSpace(1,0));
 
         // TODO parte da discutere (riferito a todo in classe field)
-        assertTrue(field.availableSpace(100,100));
+        assertFalse(field.availableSpace(100,100));
     }
 
     @DisplayName("Verify purity of getCardFromPosition")
