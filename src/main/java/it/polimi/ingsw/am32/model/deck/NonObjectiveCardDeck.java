@@ -30,7 +30,6 @@ public class NonObjectiveCardDeck {
      * Draws (and removes) the top card from the deck.
      *
      * @return NonObjectiveCard object at the top of the deck if card is available, null otherwise.
-     * @author Lorenzo
      */
     public NonObjectiveCard draw() {
         if (cards.isEmpty()) return null;
@@ -45,7 +44,6 @@ public class NonObjectiveCardDeck {
      * Randomly rearranges the cards.
      *
      * @return True if deck is not empty, false if deck is empty.
-     * @author Lorenzo
      */
     public boolean shuffle() {
         if (cards.isEmpty()) return false;
@@ -60,7 +58,6 @@ public class NonObjectiveCardDeck {
      *
      * @param card NonObjectiveCard to add
      * @return True if card was successfully added, false otherwise.
-     * @author Lorenzo
      */
     public boolean addCard(NonObjectiveCard card) {
         cards.add(card);
@@ -71,7 +68,6 @@ public class NonObjectiveCardDeck {
      * Returns the type of the deck.
      *
      * @return The DeckType enum constant that represents the type of the deck.
-     * @author Lorenzo
      */
     public DeckType getDeckType() {
         return deckType;
@@ -81,7 +77,6 @@ public class NonObjectiveCardDeck {
      * Returns the ArrayList containing the NonObjectiveCards. It is used for testing purposes.
      *
      * @return The ArrayList containing the NonObjectiveCards.
-     * @author Lorenzo
      */
     public ArrayList<NonObjectiveCard> getCards() {
         return cards;

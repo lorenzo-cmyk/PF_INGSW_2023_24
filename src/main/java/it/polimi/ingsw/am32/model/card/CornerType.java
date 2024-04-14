@@ -4,7 +4,7 @@ package it.polimi.ingsw.am32.model.card;
  * Stores all the possible card corner object types. Each field is associated with an integer.
  * Used to indicate the type of resource present on the corners of Gold, Resource, and Start cards.
  *
- * @author anto
+ * @author Antony
  */
 public enum CornerType {
     PLANT(0),

@@ -26,7 +26,6 @@ public class CardDeckBuilder {
      *
      * @param deckType The type of the deck to be built.
      * @return A CardDeck object containing the cards of the specified type.
-     * @author Lorenzo
      */
     public CardDeck buildCardDeck(DeckType deckType) {
         if (deckType != DeckType.OBJECTIVE) {
@@ -44,7 +43,6 @@ public class CardDeckBuilder {
      *
      * @param deckType The type of the deck to be loaded.
      * @return An ArrayList of Card objects
-     * @author Lorenzo
      */
     private ArrayList<Card> loadCardsFromDisk(DeckType deckType) {
         // Initialize the ArrayList to store the cards

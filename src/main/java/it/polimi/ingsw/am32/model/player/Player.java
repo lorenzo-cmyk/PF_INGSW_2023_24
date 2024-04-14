@@ -8,6 +8,10 @@ import it.polimi.ingsw.am32.model.field.Field;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
+/**
+ * This class is responsible for managing the player's actions and status.
+ * @author Matteo
+ */
 public class Player {
 
     //---------------------------------------------------------------------------------------------

@@ -27,7 +27,6 @@ public class Diagonals implements PointStrategy {
      * @param x The x coordinate of the card whose points are being calculated.
      * @param y the y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been fulfilled in this field.
-     * @author Jie
      */
     public int calculateOccurences(Field field, int x, int y) {
         int times = 0;
@@ -85,7 +84,6 @@ public class Diagonals implements PointStrategy {
      *
      * @param type  ObjectType to search for.
      * @param leftToRight Determine the type of diagonal line.
-     * @author Lorenzo
      */
     public Diagonals(ObjectType type, boolean leftToRight) {
         this.type = type;
