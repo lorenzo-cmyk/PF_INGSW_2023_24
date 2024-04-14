@@ -115,7 +115,7 @@ public class MatchTest {
         assert (colours.stream().distinct().count() == 4);
         // What happens if I try to get the colour from a non-existing Player?
         assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
-        // If now I add the Player but I don't assign a colour, the method should return -1
+        // If now I add the Player, but I don't assign a colour, the method should return -1
         assertTrue(myMatch.addPlayer("TestPlayerFive"));
         assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
 
