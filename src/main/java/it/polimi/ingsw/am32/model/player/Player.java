@@ -182,7 +182,6 @@ public class Player {
         if(isUp){
             PointStrategy pointStrategy = nonObjectiveCard.getPointStrategy();
 
-            // TODO check if next line can fail
             int occurrences = pointStrategy.calculateOccurences(gameField, x, y);
 
             points += occurrences * nonObjectiveCard.getValue();
