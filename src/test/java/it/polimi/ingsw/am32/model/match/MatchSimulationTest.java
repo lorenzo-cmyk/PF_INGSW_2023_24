@@ -86,6 +86,7 @@ class MatchSimulationTest {
                 boolean successful = false; // Flag indicating whether card placement was successful
                 boolean noPossibleMove = false; // Flag indicating whether the player cannot make a move on their field due to lack of space
 
+                // Placing card phase
                 while (!successful) { // Keep looping until a valid move is found
                     ArrayList<int[]> availablePos = availableSpacesPlayer(player); // Get all the available positions in the player's field
                     int[] randomCoordinate = availablePos.get(rand.nextInt(availablePos.size())); // Get a random available space
@@ -101,138 +102,141 @@ class MatchSimulationTest {
                     successful = myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide); // Attempt to place the card
                 }
                 System.out.println("The match status after placedCard is " + myMatch.getMatchStatus()); //Todo: remove
+
                 // Drawing phase
-                if(myMatch.getMatchStatus()!=MatchStatus.LAST_TURN.getValue()) { // If we are not in the last turn phase
-                    if (!noPossibleMove) { // Enter drawing phase only if the player managed to put down a card
-                        // Draw a random card
-                        boolean validDraw = false; // Flag indicating whether the draw was valid
+                if (myMatch.getMatchStatus()!=MatchStatus.LAST_TURN.getValue() && !noPossibleMove) {
+                    // We enter the drawing phase only if we are not on the last round of turns, and if we previously managed to place a card
+                    // Draw a random card
+                    boolean validDraw = false; // Flag indicating whether the draw was valid
+                    while (!validDraw) { // Keep looping until a valid draw is made
+                        boolean expectedOutcome;
+                        int randomType; // Randomly select the type of card to draw
 
-                        while (!validDraw) { // Keep looping until a valid draw is made
-                            boolean expectedOutcome;
-                            int randomType; // Randomly select the type of card to draw
+                        double num = Math.random(); // Get a number between 0 and 1
+                        // Randomly select the type of card to draw with set weight
+                        if (num < pickingResourceCardWeight / 2)
+                            randomType = 0;
+                        else if (num < pickingResourceCardWeight) randomType = 2;
+                        else if (num < (pickingResourceCardWeight + 1) / 2) randomType = 1;
+                        else randomType = 3;
 
-                            double num = Math.random(); // Get a number between 0 and 1
+                        int randomCurrentCard;
 
-                            if (num < pickingResourceCardWeight / 2)
-                                randomType = 0; // Randomly select the type of card to draw
-                            else if (num < pickingResourceCardWeight) randomType = 2;
-                            else if (num < (pickingResourceCardWeight + 1) / 2) randomType = 1;
-                            else randomType = 3;
-
-                            int randomCurrentCard;
-
-                            switch (randomType) {
-                                case 0:
-                                    randomCurrentCard = 0;
-                                    if (myMatch.getResourceCardsDeck().isEmpty()) {
-                                        expectedOutcome = false;
-                                        break;
-                                    }
-                                    expectedOutcome = true;
-                                    break;
-                                case 1:
-                                    randomCurrentCard = 0;
-                                    if (myMatch.getGoldCardsDeck().isEmpty()) {
-                                        expectedOutcome = false;
-                                        break;
-                                    }
-                                    expectedOutcome = true;
-                                    break;
-                                case 2:
-                                    // If the random type is 2, draw a resource card from the current resource cards.
-                                    // If the current resource cards are empty check that resource deck is also empty otherwise we have a problem with drawCard.
-                                    if (myMatch.getCurrentResourcesCards().isEmpty()) {
-                                        expectedOutcome = false;
-                                        randomCurrentCard = 0;
-                                        break;
-                                    }
-                                    randomCurrentCard = myMatch.getCurrentResourcesCards().get(rand.nextInt(myMatch.getCurrentResourcesCards().size())); // Randomly select a resource card
-                                    expectedOutcome = true;
-                                    break;
-                                case 3: // If the random type is 3, draw a gold card from the current gold cards
-                                    if (myMatch.getCurrentGoldCards().isEmpty()) {
-                                        expectedOutcome = false;
-                                        randomCurrentCard = 0;
-                                        break;
-                                    }
-                                    randomCurrentCard = myMatch.getCurrentGoldCards().get(rand.nextInt(myMatch.getCurrentGoldCards().size())); // Randomly select a gold card
-                                    expectedOutcome = true;
-                                    break;
-                                default:
-                                    randomCurrentCard = 0;
+                        switch (randomType) {
+                            case 0:
+                                randomCurrentCard = 0;
+                                if (myMatch.getResourceCardsDeck().isEmpty()) {
                                     expectedOutcome = false;
                                     break;
-                            }
-                            //Todo: remove
-                            System.out.println(myMatch.getResourceCardsDeck().size());
-                            System.out.println(myMatch.getGoldCardsDeck().size());
-                            System.out.println(myMatch.getCurrentResourcesCards().size());
-                            System.out.println(myMatch.getCurrentGoldCards().size());
-                            System.out.println("Looping inside draw!");
-
-                            assert (myMatch.drawCard(randomType, randomCurrentCard) == expectedOutcome);
-                            // If the all decks are empty, we have a problem with drawCard
-                            if(myMatch.getResourceCardsDeck().isEmpty()&&myMatch.getGoldCardsDeck().isEmpty()&&myMatch.getCurrentResourcesCards().isEmpty()&&myMatch.getCurrentGoldCards().isEmpty()) {
-                                fail();
-                            }
-                            validDraw = expectedOutcome;
-                            System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
+                                }
+                                expectedOutcome = true;
+                                break;
+                            case 1:
+                                randomCurrentCard = 0;
+                                if (myMatch.getGoldCardsDeck().isEmpty()) {
+                                    expectedOutcome = false;
+                                    break;
+                                }
+                                expectedOutcome = true;
+                                break;
+                            case 2:
+                                // If the random type is 2, draw a resource card from the current resource cards.
+                                // If the current resource cards are empty check that resource deck is also empty otherwise we have a problem with drawCard.
+                                if (myMatch.getCurrentResourcesCards().isEmpty()) {
+                                    expectedOutcome = false;
+                                    randomCurrentCard = 0;
+                                    break;
+                                }
+                                randomCurrentCard = myMatch.getCurrentResourcesCards().get(rand.nextInt(myMatch.getCurrentResourcesCards().size())); // Randomly select a resource card
+                                expectedOutcome = true;
+                                break;
+                            case 3: // If the random type is 3, draw a gold card from the current gold cards
+                                if (myMatch.getCurrentGoldCards().isEmpty()) {
+                                    expectedOutcome = false;
+                                    randomCurrentCard = 0;
+                                    break;
+                                }
+                                randomCurrentCard = myMatch.getCurrentGoldCards().get(rand.nextInt(myMatch.getCurrentGoldCards().size())); // Randomly select a gold card
+                                expectedOutcome = true;
+                                break;
+                            default:
+                                randomCurrentCard = 0;
+                                expectedOutcome = false;
+                                break;
                         }
+
+                        //Todo: remove
+                        System.out.println(myMatch.getResourceCardsDeck().size());
+                        System.out.println(myMatch.getGoldCardsDeck().size());
+                        System.out.println(myMatch.getCurrentResourcesCards().size());
+                        System.out.println(myMatch.getCurrentGoldCards().size());
+                        System.out.println("Looping inside draw!");
+
+                        assert(myMatch.drawCard(randomType, randomCurrentCard) == expectedOutcome);
+
+                        // If the all decks are empty, we have a problem with drawCard
+                        if (myMatch.getResourceCardsDeck().isEmpty() && myMatch.getGoldCardsDeck().isEmpty() &&
+                            myMatch.getCurrentResourcesCards().isEmpty() && myMatch.getCurrentGoldCards().isEmpty()) {
+                            fail();
+                        }
+
+                        validDraw = expectedOutcome;
+                        System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
                     }
                 }
-                myMatch.nextTurn();
-                System.out.println("-----------"); //Todo: remove
-                }
+            myMatch.nextTurn();
+            System.out.println("-----------"); //Todo: remove
             }
-
-            // Terminated phase
-            System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
-            assertTrue(myMatch.addObjectivePoints());
-
-            ArrayList<String> winners = myMatch.getWinners();
-            System.out.println("The winners are: " + winners); //Todo: remove
-            for(Player player : myMatch.getPlayers()) { //Todo: remove
-                System.out.println(player.getNickname() + " has " + player.getPoints() + " points" + " and has " + player.getPointsGainedFromObjectives()); //Todo: remove
-            }
-
         }
 
-        /**
-         * Returns the available spaces where a card can be played in the given player's field
-         * @param player The player whose field we want to check
-         * @return An ArrayList of int arrays containing the available spaces
-         */
-        public ArrayList<int[]> availableSpacesPlayer (@NotNull Player player){
-            ArrayList<int[]> availableCoordinate = new ArrayList<>(); // Create a new ArrayList of int arrays to store the available coordinates
-            for (int j = 0; j < player.getField().getFieldCards().size(); j++) { // Loop through all the cards in the player's field
-                int Ax, Ay;
-                Ax = player.getField().getFieldCards().get(j).getX();
-                Ay = player.getField().getFieldCards().get(j).getY();
-                if (player.getField().availableSpace(Ax+1,Ay+1)) { // Check if the space to the right and below the card is available
-                    int[] temp = new int[2];
-                    temp[0] = Ax + 1;
-                    temp[1] = Ay + 1;
-                    availableCoordinate.add(temp);
-                }
-                if (player.getField().availableSpace(Ax - 1, Ay - 1)) { // Check if the space to the left and above the card is available
-                    int[] temp = new int[2];
-                    temp[0] = Ax - 1;
-                    temp[1] = Ay - 1;
-                    availableCoordinate.add(temp);
-                }
-                if (player.getField().availableSpace(Ax + 1, Ay - 1)) { // Check if the space to the right and above the card is available
-                    int[] temp = new int[2];
-                    temp[0] = Ax + 1;
-                    temp[1] = Ay - 1;
-                    availableCoordinate.add(temp);
-                }
-                if (player.getField().availableSpace(Ax - 1, Ay + 1)) { // Check if the space to the left and below the card is available
-                    int[] temp = new int[2];
-                    temp[0] = Ax - 1;
-                    temp[1] = Ay + 1;
-                    availableCoordinate.add(temp);
-                }
-            }
-            return availableCoordinate;
+        // Terminated phase
+        System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
+        assertTrue(myMatch.addObjectivePoints());
+
+        ArrayList<String> winners = myMatch.getWinners();
+        System.out.println("The winners are: " + winners); //Todo: remove
+        for(Player player : myMatch.getPlayers()) { //Todo: remove
+            System.out.println(player.getNickname() + " has " + player.getPoints() + " points" + " and has " + player.getPointsGainedFromObjectives()); //Todo: remove
         }
+
+    }
+
+    /**
+     * Returns the available spaces where a card can be played in the given player's field
+     * @param player The player whose field we want to check
+     * @return An ArrayList of int arrays containing the available spaces
+     */
+    public ArrayList<int[]> availableSpacesPlayer (@NotNull Player player){
+        ArrayList<int[]> availableCoordinate = new ArrayList<>(); // Create a new ArrayList of int arrays to store the available coordinates
+        for (int j = 0; j < player.getField().getFieldCards().size(); j++) { // Loop through all the cards in the player's field
+            int Ax, Ay;
+            Ax = player.getField().getFieldCards().get(j).getX();
+            Ay = player.getField().getFieldCards().get(j).getY();
+            if (player.getField().availableSpace(Ax+1,Ay+1)) { // Check if the space to the right and below the card is available
+                int[] temp = new int[2];
+                temp[0] = Ax + 1;
+                temp[1] = Ay + 1;
+                availableCoordinate.add(temp);
+            }
+            if (player.getField().availableSpace(Ax - 1, Ay - 1)) { // Check if the space to the left and above the card is available
+                int[] temp = new int[2];
+                temp[0] = Ax - 1;
+                temp[1] = Ay - 1;
+                availableCoordinate.add(temp);
+            }
+            if (player.getField().availableSpace(Ax + 1, Ay - 1)) { // Check if the space to the right and above the card is available
+                int[] temp = new int[2];
+                temp[0] = Ax + 1;
+                temp[1] = Ay - 1;
+                availableCoordinate.add(temp);
+            }
+            if (player.getField().availableSpace(Ax - 1, Ay + 1)) { // Check if the space to the left and below the card is available
+                int[] temp = new int[2];
+                temp[0] = Ax - 1;
+                temp[1] = Ay + 1;
+                availableCoordinate.add(temp);
+            }
+        }
+        return availableCoordinate;
+    }
 }
