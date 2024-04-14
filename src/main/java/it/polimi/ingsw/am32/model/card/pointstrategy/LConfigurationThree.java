@@ -22,7 +22,6 @@ public class LConfigurationThree implements PointStrategy {
      * @param x The x coordinate of the card whose points are being calculated.
      * @param y The y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been fulfilled in this field.
-     * @author Jie
      */
     public int calculateOccurences(Field field, int x, int y) {
         int times = 0;

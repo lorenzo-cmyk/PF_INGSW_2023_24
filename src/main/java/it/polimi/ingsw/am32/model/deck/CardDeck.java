@@ -30,7 +30,6 @@ public class CardDeck {
      * Draws (and removes) the top card from the deck.
      *
      * @return Card object at the top of the deck if card is available, null otherwise.
-     * @author Lorenzo
      */
     public Card draw() {
         if (cards.isEmpty()) return null;
@@ -45,7 +44,6 @@ public class CardDeck {
      * Randomly rearranges the cards.
      *
      * @return True if deck is not empty, false if deck is empty.
-     * @author Lorenzo
      */
     public boolean shuffle() {
         if (cards.isEmpty()) return false;
@@ -60,7 +58,6 @@ public class CardDeck {
      *
      * @param card Card to add
      * @return True if card was successfully added, false otherwise.
-     * @author Lorenzo
      */
     public boolean addCard(Card card) {
         cards.add(card);
@@ -71,7 +68,6 @@ public class CardDeck {
      * Returns the type of the deck.
      *
      * @return The DeckType enum constant that represents the type of the deck.
-     * @author Lorenzo
      */
     public DeckType getDeckType() {
         return deckType;
@@ -81,7 +77,6 @@ public class CardDeck {
      * Returns the ArrayList containing the Cards. It is used for testing purposes.
      *
      * @return The ArrayList containing the Cards.
-     * @author Lorenzo
      */
     public ArrayList<Card> getCards() {
         return cards;

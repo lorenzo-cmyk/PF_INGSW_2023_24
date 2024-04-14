@@ -26,7 +26,6 @@ public enum DeckType {
      * Returns the path to the JSON file that contains the card data for the deck.
      *
      * @return the path to the JSON file
-     * @author Lorenzo
      */
     public String getJSONPath() {
         return JSONPath;

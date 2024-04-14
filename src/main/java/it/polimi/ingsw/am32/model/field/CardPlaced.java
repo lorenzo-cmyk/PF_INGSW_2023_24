@@ -8,6 +8,7 @@ import java.util.Objects;
  * Used to store information about a currently placed card. Stores the position of the card in the player's field
  * along with its orientation.
  * The coordinates are those of the center of the card.
+ * @author Matteo
  */
 public class CardPlaced {
 

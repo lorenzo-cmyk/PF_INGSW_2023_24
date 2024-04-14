@@ -6,7 +6,7 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
 /**
  * Creates objects used to represent Gold, Resource, and Start cards.
  *
- * @author anto
+ * @author Antony
  */
 public class NonObjectiveCard extends Card {
     /**

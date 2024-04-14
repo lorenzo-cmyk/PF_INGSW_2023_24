@@ -27,7 +27,6 @@ public class NonObjectiveCardDeckBuilder {
      *
      * @param deckType The type of the deck to be built.
      * @return A NonObjectiveCardDeck object containing the cards of the specified type.
-     * @author Lorenzo
      */
     public NonObjectiveCardDeck buildNonObjectiveCardDeck(DeckType deckType) {
         if (deckType == DeckType.OBJECTIVE) {
@@ -45,7 +44,6 @@ public class NonObjectiveCardDeckBuilder {
      *
      * @param deckType The type of the deck to be loaded.
      * @return An ArrayList of NonObjectiveCard objects
-     * @author Lorenzo
      */
     private ArrayList<NonObjectiveCard> loadCardsFromDisk(DeckType deckType) {
         // Initialize the ArrayList to store the cards

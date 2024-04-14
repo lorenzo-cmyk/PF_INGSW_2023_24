@@ -6,7 +6,7 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
  * Used to indicate all the possible resources and special objects.
  * Can be considered a subset of the CornerType enumeration.
  *
- * @author anto
+ * @author Antony
  */
 public enum ObjectType {
     PLANT(0),
