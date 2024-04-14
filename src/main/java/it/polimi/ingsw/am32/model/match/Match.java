@@ -339,20 +339,30 @@ public class Match implements ModelInterface {
                         if(!resourceCardsDeck.getCards().isEmpty()){
                             currentResourceCards.add(resourceCardsDeck.draw());
                         }
+                        else if(!goldCardsDeck.getCards().isEmpty()) { // If resourceCardsDeck is empty, draw from goldCardsDeck
+                            currentResourceCards.add(goldCardsDeck.draw());
+                        }
                     } else {
                         currentGoldCards.remove(card.get());
                         if(!goldCardsDeck.getCards().isEmpty()){
                             currentGoldCards.add(goldCardsDeck.draw());
                         }
+                        else if(!resourceCardsDeck.getCards().isEmpty()) { // If the goldCardsDeck is empty, draw from the resourceCardsDeck
+                            currentGoldCards.add(resourceCardsDeck.draw());
+                        }
+                    }
+                    // After drawing a card, check if both decks are empty to set the Match in TERMINATING state.
+                    if(resourceCardsDeck.getCards().isEmpty() && goldCardsDeck.getCards().isEmpty()) {
+                        setTerminating();
                     }
                 }
                 // If the card is found, and it's dawn from resourceCardsDeck or goldCardsDeck, and the card is not
                 // null, check if them are now both empty to set the Match in TERMINATING state.
-                //if((deckType == 0 || deckType == 1) && card.isPresent()){ TODO: check
+                if((deckType == 0 || deckType == 1) && card.isPresent()){
                     if(resourceCardsDeck.getCards().isEmpty() && goldCardsDeck.getCards().isEmpty()){
                         setTerminating();
                     }
-               //}
+               }
                 // If the card is found, add it to the player's hand and return true. Otherwise, return false.
                 return card.filter(player::putCardInHand).isPresent();
             }
