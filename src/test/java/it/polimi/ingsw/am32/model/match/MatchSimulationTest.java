@@ -76,7 +76,7 @@ class MatchSimulationTest {
             // Simulate a game turn
             for (Player player : myMatch.getPlayers()) { logGameState("Looping through players");
                 // Loops through each player
-                if (!player.getNickname().equals(myMatch.getCurrentPlayerID())) { logGameState("Access violation detected");
+                if (!player.getNickname().equals(myMatch.getCurrentPlayerNickname())) { logGameState("Access violation detected");
                     continue; // The selected player doesn't have playing rights
                 }
                 if (myMatch.isFirstPlayer()) { // The first player is playing
@@ -207,7 +207,7 @@ class MatchSimulationTest {
         // Log the current turn number
         LOGGER.info("Current turn number: " + myMatch.getCurrentTurnNumber());
         // Log the current player
-        LOGGER.info("Current player: " + myMatch.getCurrentPlayerID());
+        LOGGER.info("Current player: " + myMatch.getCurrentPlayerNickname());
         // Log if the current player is the first player
         LOGGER.info("Is first player: " + myMatch.isFirstPlayer());
 

@@ -325,14 +325,14 @@ public class MatchTest {
         myMatch.startTurns();
         // Check that the first player is the first in the list
         assertTrue(myMatch.isFirstPlayer());
-        assertEquals(myMatch.getCurrentPlayerID(), myMatch.getPlayersNicknames().getFirst());
+        assertEquals(myMatch.getCurrentPlayerNickname(), myMatch.getPlayersNicknames().getFirst());
         // Check that the current turn number is 1
         assertEquals(myMatch.getCurrentTurnNumber(), 1);
 
         // This test also checks the following methods:
         // - isFirstPlayer
         // - getCurrentTurnNumber
-        // - getCurrentPlayerID
+        // - getCurrentPlayerNickname
     }
 
     @DisplayName("nextTurn should increment the current turn number")
