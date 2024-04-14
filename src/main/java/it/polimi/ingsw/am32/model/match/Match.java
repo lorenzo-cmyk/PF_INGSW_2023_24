@@ -292,6 +292,14 @@ public class Match implements ModelInterface {
         currentTurnNumber = 1;
     }
 
+    /**
+     * Places a card on the field of the player with the given nickname.
+     * @param id The id of the card to place
+     * @param x The x-coordinate of the card
+     * @param y The y-coordinate of the card
+     * @param side The side of the card
+     * @return true if the card was successfully placed, false otherwise
+     */
     public boolean placeCard(int id, int x, int y, boolean side) {
         for (int i=0; i<=players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerNickname)) { // Found current player
@@ -307,7 +315,12 @@ public class Match implements ModelInterface {
         }
         return false;
     }
-
+/**
+ * This method is used to draw a card from the deck of the game.
+ * @param deckType The type of deck from which the card is drawn. 0 for resourceCardsDeck, 1 for goldCardsDeck, 2 for currentResourceCards, 3 for currentGoldCards.
+ * @param id If the deckType is 2 or 3, the id parameter is used to identify the card to be drawn.
+ * @return true if the card was successfully drawn and added to the player's hand, false otherwise.
+ */
     public boolean drawCard(int deckType, int id) {
         // Retrieve the player who is playing using the currentPlayerNickname
         for (Player player : players){
