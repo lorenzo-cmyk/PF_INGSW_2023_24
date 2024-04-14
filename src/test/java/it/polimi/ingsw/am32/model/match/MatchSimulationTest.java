@@ -69,13 +69,13 @@ class MatchSimulationTest {
         // Playing phase
         myMatch.enterPlayingPhase();
         myMatch.startTurns();
+        System.out.println("The first player is: " + myMatch.getCurrentPlayerID()); //Todo: remove
 
         while (myMatch.getMatchStatus() != MatchStatus.TERMINATED.getValue()) { // Keep looping until the match is terminated
             // Simulate a game turn
             for (Player player : myMatch.getPlayers()) { // Loops through each player
                 if (!player.getNickname().equals(myMatch.getCurrentPlayerID()))
                     continue; // The selected player doesn't have playing rights
-                System.out.println(myMatch.getCurrentPlayerID());
                 if (myMatch.isFirstPlayer()) { // The first player is playing
                     if (myMatch.areWeTerminating()) { // We are in the terminating phase
                         myMatch.setLastTurn(); // If we were in the terminating phase, and the first player has played, we play the last turn
@@ -84,7 +84,8 @@ class MatchSimulationTest {
                         break;
                     }
                 }
-
+                System.out.println("The current player is: " + player.getNickname()); //Todo: remove
+                System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
                 boolean successful = false; // Flag indicating whether card placement was successful
                 boolean noPossibleMove = false; // Flag indicating whether the player cannot make a move on their field due to lack of space
 
@@ -100,11 +101,9 @@ class MatchSimulationTest {
                     NonObjectiveCard randomHandCard = player.getHand().get(rand.nextInt(player.getHand().size())); // Get a random card from the player's hand
                     boolean randomSide = Math.random() > flippedCardWeight; // Get a random side in which to place the card
 
-                    System.out.println("Looping inside !successful");
-
                     successful = myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide); // Attempt to place the card
-                    System.out.println(myMatch.getMatchStatus()); //Todo: remove
                 }
+                System.out.println("The match status after placedCard is " + myMatch.getMatchStatus()); //Todo: remove
                 // Drawing phase
                 if(myMatch.getMatchStatus()!=MatchStatus.LAST_TURN.getValue()) { // If we are not in the last turn phase
                     if (!noPossibleMove) { // Enter drawing phase only if the player managed to put down a card
@@ -142,7 +141,8 @@ class MatchSimulationTest {
                                     }
                                     expectedOutcome = true;
                                     break;
-                                case 2: // If the random type is 2, draw a resource card from the current resource cards.
+                                case 2:
+                                    // If the random type is 2, draw a resource card from the current resource cards.
                                     // If the current resource cards are empty check that resource deck is also empty otherwise we have a problem with drawCard.
                                     if (myMatch.getCurrentResourcesCards().isEmpty()) {
                                         expectedOutcome = false;
@@ -174,16 +174,22 @@ class MatchSimulationTest {
                             System.out.println("Looping inside draw!");
 
                             assert (myMatch.drawCard(randomType, randomCurrentCard) == expectedOutcome);
+                            // If the all decks are empty, we have a problem with drawCard
+                            if(myMatch.getResourceCardsDeck().isEmpty()&&myMatch.getGoldCardsDeck().isEmpty()&&myMatch.getCurrentResourcesCards().isEmpty()&&myMatch.getCurrentGoldCards().isEmpty()) {
+                                fail();
+                            }
                             validDraw = expectedOutcome;
-                            System.out.println(myMatch.getMatchStatus());//Todo: remove
+                            System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
                         }
                     }
                 }
                 myMatch.nextTurn();
+                System.out.println("-----------"); //Todo: remove
                 }
             }
 
             // Terminated phase
+            System.out.println("The match status is: " + myMatch.getMatchStatus()); //Todo: remove
             assertTrue(myMatch.addObjectivePoints());
 
             ArrayList<String> winners = myMatch.getWinners();
