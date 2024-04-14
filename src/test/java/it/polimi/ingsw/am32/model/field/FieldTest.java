@@ -410,7 +410,6 @@ class FieldTest {
 
         assertFalse(field.availableSpace(1,0));
 
-        // TODO parte da discutere (riferito a todo in classe field)
         assertFalse(field.availableSpace(100,100));
     }
 

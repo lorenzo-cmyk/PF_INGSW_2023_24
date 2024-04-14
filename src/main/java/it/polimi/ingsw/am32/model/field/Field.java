@@ -94,7 +94,6 @@ public class Field {
         }
 
         // Check if exist at least one
-        // TODO it might exist a better algorithm
 
         CornerType[] cornerType = new CornerType[4];
 
