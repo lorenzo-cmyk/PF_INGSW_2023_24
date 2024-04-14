@@ -14,7 +14,6 @@ public class ObjectsBuilder {
      *
      * @param str the string to be converted. It should match one of the CornerType enum values.
      * @return The corresponding CornerType enum value, if the string matches, null if it doesn't.
-     * @author Lorenzo
      */
     protected CornerType stringToCornerType(String str) {
         return switch (str) {
@@ -36,7 +35,6 @@ public class ObjectsBuilder {
      *
      * @param str the string to be converted. It should match one of the ObjectType enum values.
      * @return The corresponding ObjectType enum value, if the string matches, null if it doesn't.
-     * @author Lorenzo
      */
     protected ObjectType stringToObjectType(String str) {
         return switch (str) {
@@ -59,7 +57,6 @@ public class ObjectsBuilder {
      * @param pointStrategyCount       The number of a given object to be counted. @see CountResource
      * @param pointStrategyLeftToRight The axis on which the strategy is going to perform the search.
      * @return The corresponding PointStrategy object, if the parameters provided are valid, null if they don't.
-     * @author Lorenzo
      */
     protected PointStrategy stringsToPointStrategy(String pointStrategy, String pointStrategyType,
                                                    int pointStrategyCount, boolean pointStrategyLeftToRight) {

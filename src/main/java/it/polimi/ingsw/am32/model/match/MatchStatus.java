@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model.match;
 /**
  * The MatchStatus enum represents the different states a match can be in.
  * Each state is associated with a specific integer value.
+ * @author Lorenzo
  */
 public enum MatchStatus {
     // The match is in the lobby state, waiting for players to join.

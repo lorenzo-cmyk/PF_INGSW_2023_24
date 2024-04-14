@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model.player;
 /**
  * This enum represents the different colours a player can have in the game.
  * Each colour is associated with a unique integer value.
+ * @author Matteo
  */
 public enum Colour {
     RED(0),    // Represents the colour red, associated with the value 0

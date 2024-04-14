@@ -6,6 +6,10 @@ import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 
 import java.util.ArrayList;
 
+/**
+ * Used to store information about the field of the player. It contains the cards placed and the resources available.
+ * @author Matteo
+ */
 public class Field {
 
     //---------------------------------------------------------------------------------------------
@@ -94,7 +98,6 @@ public class Field {
         }
 
         // Check if exist at least one
-        // TODO it might exist a better algorithm
 
         CornerType[] cornerType = new CornerType[4];
 

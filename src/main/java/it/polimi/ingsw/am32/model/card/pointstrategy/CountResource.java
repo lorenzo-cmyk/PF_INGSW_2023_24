@@ -26,7 +26,6 @@ public class CountResource implements PointStrategy {
      * @param x The x coordinate of the card whose points are being calculated.
      * @param y The y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been satisfied in this field.
-     * @author Jie
      */
     public int calculateOccurences(Field field, int x, int y) {
         int times;
@@ -41,7 +40,6 @@ public class CountResource implements PointStrategy {
      *
      * @param type  ObjectType to count.
      * @param count Minimum cardinality of a resource group to be reported.
-     * @author Lorenzo
      */
     public CountResource(ObjectType type, int count) {
         this.type = type;

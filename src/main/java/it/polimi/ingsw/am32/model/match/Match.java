@@ -23,8 +23,9 @@ import static java.util.Objects.isNull;
 /**
  * Primary class used to represent a single instance of a game.
  *
- * @author jie
- * @author anto
+ * @author Jie
+ * @author Antony
+ * @author Lorenzo
  */
 public class Match implements ModelInterface {
     /**
@@ -626,7 +627,7 @@ public class Match implements ModelInterface {
     }
 
     /**
-     * Getter
+     * Getter. Used only for testing purposes.
      *
      * @return The arraylist which contains all players of this match.
      */
@@ -634,10 +635,20 @@ public class Match implements ModelInterface {
         return players;
     }
 
+    /**
+     * Getter. Used only for testing purposes.
+     *
+     * @return The arraylist  of cards that make up the resource cards deck.
+     */
     protected ArrayList<NonObjectiveCard> getResourceCardsDeck() {
         return resourceCardsDeck.getCards();
     }
 
+    /**
+     * Getter. Used only for testing purposes.
+     *
+     * @return The arraylist  of cards that make up the gold cards deck.
+     */
     protected ArrayList<NonObjectiveCard> getGoldCardsDeck() {
         return goldCardsDeck.getCards();
     }

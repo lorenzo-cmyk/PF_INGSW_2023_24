@@ -6,7 +6,7 @@ import it.polimi.ingsw.am32.model.field.Field;
 /**
  * Used for cards whose points are calculated on the basis of how many corners the card covers.
  *
- * @author anto
+ * @author Antony
  */
 public class AnglesCovered implements PointStrategy {
     /**

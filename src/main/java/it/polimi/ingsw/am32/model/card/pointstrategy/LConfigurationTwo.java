@@ -11,7 +11,7 @@ import java.util.List;
  * Used for the point calculation of the only objective card which counts the number of left facing Ls made from 2
  * stacked vertical green cards and 1 purple card to the bottom left in the player's field.
  *
- * @author anto
+ * @author Antony
  */
 public class LConfigurationTwo implements PointStrategy {
     /**

@@ -17,7 +17,6 @@ public interface PointStrategy {
      * @param x the x coordinate of the card whose points are being calculated.
      * @param y the y coordinates of the card whose points are being calculated.
      * @return the number of times the card's point strategy has been met in this field.
-     * @author Jie
      */
     int calculateOccurences(Field field, int x, int y);
 }
