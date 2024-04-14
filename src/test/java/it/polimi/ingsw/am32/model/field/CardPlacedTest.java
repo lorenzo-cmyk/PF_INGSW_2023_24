@@ -43,17 +43,17 @@ class CardPlacedTest {
         assertEquals(y,testCardPlaced.getY());
         assertEquals(isUp,testCardPlaced.getIsUp());
 
-        assertTrue(testCardPlaced.equals(testCardPlaced));
+        assertEquals(testCardPlaced, testCardPlaced);
 
-        assertFalse(testCardPlaced.equals(null));
-        assertFalse(testCardPlaced.equals(testCard));
+        assertNotEquals(null, testCardPlaced);
+        assertNotEquals(testCardPlaced, testCard);
 
-        assertFalse(testCardPlaced.equals(testCardPlaced3));
-        assertFalse(testCardPlaced.equals(testCardPlaced4));
-        assertFalse(testCardPlaced.equals(testCardPlaced5));
-        assertFalse(testCardPlaced.equals(testCardPlaced6));
+        assertNotEquals(testCardPlaced, testCardPlaced3);
+        assertNotEquals(testCardPlaced, testCardPlaced4);
+        assertNotEquals(testCardPlaced, testCardPlaced5);
+        assertNotEquals(testCardPlaced, testCardPlaced6);
 
-        assertTrue(testCardPlaced.equals(testCardPlaced2));
+        assertEquals(testCardPlaced, testCardPlaced2);
         testCardPlaced.hashCode();
     }
 }
