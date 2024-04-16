@@ -186,7 +186,7 @@ public class Player {
         if(isUp){
             PointStrategy pointStrategy = nonObjectiveCard.getPointStrategy();
 
-            int occurrences = pointStrategy.calculateOccurences(gameField, x, y);
+            int occurrences = pointStrategy.calculateOccurrences(gameField, x, y);
 
             points += occurrences * nonObjectiveCard.getValue();
         }
@@ -212,8 +212,8 @@ public class Player {
         PointStrategy pointStrategy1 = objectiveCards[0].getPointStrategy();
         PointStrategy pointStrategy2 = objectiveCards[1].getPointStrategy();
 
-        int multiplierPoints1 = pointStrategy1.calculateOccurences(gameField, 0,0);
-        int multiplierPoints2 = pointStrategy2.calculateOccurences(gameField, 0,0);
+        int multiplierPoints1 = pointStrategy1.calculateOccurrences(gameField, 0,0);
+        int multiplierPoints2 = pointStrategy2.calculateOccurrences(gameField, 0,0);
 
         int value1 = objectiveCards[0].getValue();
         int value2 = objectiveCards[1].getValue();
@@ -244,7 +244,7 @@ public class Player {
         if(objectivePointsState[1])
             return false;
 
-        int multiplierPoints = pointStrategy.calculateOccurences(gameField, 0,0);
+        int multiplierPoints = pointStrategy.calculateOccurrences(gameField, 0,0);
 
         int value = secretObjective.getValue();
 

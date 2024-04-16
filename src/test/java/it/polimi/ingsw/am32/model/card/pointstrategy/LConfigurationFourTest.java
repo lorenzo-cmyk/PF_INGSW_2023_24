@@ -36,7 +36,7 @@ class LConfigurationFourTest {
     @DisplayName("Strategy called on empty field containing just initial card should return 0")
     @Test
     void occurrencesOnEmptyFieldShouldBeZero() {
-        assertEquals(0, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(0, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing 2 stacked animal cards should return 0")
@@ -46,7 +46,7 @@ class LConfigurationFourTest {
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         f.placeCardInField(c1, 1, 1, true);
         f.placeCardInField(c2, 1, -1, true);
-        assertEquals(0, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(0, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing animal card and fungi card that almost make a pattern should return 0")
@@ -58,7 +58,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c1, 1, -1, true);
         f.placeCardInField(c2, 1, 1, true);
         f.placeCardInField(c3, 2, 2, true);
-        assertEquals(0, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(0, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing single full pattern should return 1")
@@ -70,7 +70,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c1, 1, -1, true);
         f.placeCardInField(c2, 1, 1, true);
         f.placeCardInField(c3, 2, 2, true);
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing single full pattern with one card turned should return 1")
@@ -82,7 +82,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c1, 1, -1, true);
         f.placeCardInField(c2, 1, 1, false);
         f.placeCardInField(c3, 2, 2, true);
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing single full pattern with all cards turned should return 1")
@@ -94,7 +94,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c1, 1, -1, false);
         f.placeCardInField(c2, 1, 1, false);
         f.placeCardInField(c3, 2, 2, false);
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing single full pattern and a partial pattern overlapping it should return 1")
@@ -110,7 +110,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c3, 2, 2, true);
         f.placeCardInField(c4, 1, 3, true);
         f.placeCardInField(c5, 2, 4, true);
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing single full pattern and a partial pattern overlapping it with one card turned should return 1")
@@ -126,7 +126,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c3, 2, 2, true);
         f.placeCardInField(c4, 1, 3, true);
         f.placeCardInField(c5, 2, 4, true);
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing almost single full pattern and a partial pattern overlapping it should return 0")
@@ -142,7 +142,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c3, 2, 2, true);
         f.placeCardInField(c4, 1, 3, true);
         f.placeCardInField(c5, 2, 4, true);
-        assertEquals(0, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(0, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing triple overlapping pattern should return 2")
@@ -162,7 +162,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c5, 2, 4, true);
         f.placeCardInField(c6, 1, 5, true);
         f.placeCardInField(c7, 2, 6, true);
-        assertEquals(2, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(2, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing triple overlapping pattern and one card turned should return 2")
@@ -182,7 +182,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c5, 2, 4, true);
         f.placeCardInField(c6, 1, 5, true);
         f.placeCardInField(c7, 2, 6, true);
-        assertEquals(2, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(2, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing triple overlapping pattern and one non animal card breaking the pattern should return 1")
@@ -202,7 +202,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c5, 2, 4, true);
         f.placeCardInField(c6, 1, 5, true);
         f.placeCardInField(c7, 2, 6, true);
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing 5-fold overlapping pattern should return 3")
@@ -230,7 +230,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c9, 2, 8, true);
         f.placeCardInField(c10, 1, 9, true);
         f.placeCardInField(c11, 2, 10, true);
-        assertEquals(3, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(3, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing 5-fold overlapping pattern and one non animal card breaking the pattern should return 2")
@@ -258,7 +258,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c9, 2, 8, true);
         f.placeCardInField(c10, 1, 9, true);
         f.placeCardInField(c11, 2, 10, true);
-        assertEquals(2, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(2, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing double full pattern side to side should return 2")
@@ -278,7 +278,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c5, -3, -1, true);
         f.placeCardInField(c6, -4, -2, true);
         f.placeCardInField(c7, -3, -3, true);
-        assertEquals(2, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(2, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing double full pattern side to side and one non animal card breaking one pattern should return 1")
@@ -298,7 +298,7 @@ class LConfigurationFourTest {
         f.placeCardInField(c5, -3, -1, true);
         f.placeCardInField(c6, -4, -2, true);
         f.placeCardInField(c7, -3, -3, true);
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field containing complex pattern should return 2")
@@ -320,6 +320,6 @@ class LConfigurationFourTest {
         f.placeCardInField(c6, -3, -1, true);
         f.placeCardInField(c7, -3, -3, true);
         f.placeCardInField(c8, -2, -4, true);
-        assertEquals(2, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(2, strategy.calculateOccurrences(f, 0, 0));
     }
 }

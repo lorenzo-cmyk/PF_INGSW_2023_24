@@ -27,7 +27,7 @@ public class CountResource implements PointStrategy {
      * @param y The y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been satisfied in this field.
      */
-    public int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurrences(Field field, int x, int y) {
         int times;
         // Get number of specific resources(objects) visible in the field,
         // then dived for the number of resources (objects) requested by objective card.

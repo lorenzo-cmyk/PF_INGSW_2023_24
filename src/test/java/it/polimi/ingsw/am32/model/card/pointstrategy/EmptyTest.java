@@ -32,7 +32,7 @@ class EmptyTest {
     @Test
     void occurrencesOnEmptyFieldShouldBeOne() {
         Empty strategy = new Empty();
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 
     @DisplayName("Strategy called on field with 1 card not initial card should return 1")
@@ -41,6 +41,6 @@ class EmptyTest {
         Empty strategy = new Empty();
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         f.placeCardInField(c1, 1, 1, true); // Card placed side-up
-        assertEquals(1, strategy.calculateOccurences(f, 0, 0));
+        assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 }
