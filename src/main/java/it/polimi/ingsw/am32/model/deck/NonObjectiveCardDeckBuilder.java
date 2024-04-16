@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
+import it.polimi.ingsw.am32.model.exceptions.MissingJSONException;
+import it.polimi.ingsw.am32.model.exceptions.WrongDeckTypeException;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,10 +29,11 @@ public class NonObjectiveCardDeckBuilder {
      *
      * @param deckType The type of the deck to be built.
      * @return A NonObjectiveCardDeck object containing the cards of the specified type.
+     * @exception  WrongDeckTypeException Thrown if the deckType parameter does not match any DeckType
      */
     public NonObjectiveCardDeck buildNonObjectiveCardDeck(DeckType deckType) {
         if (deckType == DeckType.OBJECTIVE) {
-            return null;
+            throw new WrongDeckTypeException("Attempted to build a Card deck using NonObjectiveCardDeckBuilder.");
         } else {
             NonObjectiveCardDeck deck = new NonObjectiveCardDeck(loadCardsFromDisk(deckType), deckType);
             deck.shuffle();
@@ -44,6 +47,7 @@ public class NonObjectiveCardDeckBuilder {
      *
      * @param deckType The type of the deck to be loaded.
      * @return An ArrayList of NonObjectiveCard objects
+     * @exception MissingJSONException Thrown if the JSON could not be loaded
      */
     private ArrayList<NonObjectiveCard> loadCardsFromDisk(DeckType deckType) {
         // Initialize the ArrayList to store the cards
@@ -105,9 +109,7 @@ public class NonObjectiveCardDeckBuilder {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            // A card game without cards is not playable. Terminate the program.
-            System.exit(1);
+            throw new MissingJSONException("Unable to load JSON file");
         }
         // Return the ArrayList
         return cards;

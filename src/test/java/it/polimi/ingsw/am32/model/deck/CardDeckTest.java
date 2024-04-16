@@ -36,24 +36,11 @@ class CardDeckTest {
         assertNull(cardDeck.draw());
     }
 
-    @DisplayName("shuffle should return true when the deck is not empty")
-    @Test
-    void shuffleReturnsTrueWhenDeckIsNotEmpty() {
-        assertTrue(cardDeck.shuffle());
-    }
-
-    @DisplayName("shuffle should return false when the deck is empty")
-    @Test
-    void shuffleReturnsFalseWhenDeckIsEmpty() {
-        cardDeck.draw(); // remove the only card in the deck
-        assertFalse(cardDeck.shuffle());
-    }
-
     @DisplayName("addCard should add a card to the deck")
     @Test
     void addCardAddsCardToDeck() {
         Card newCard = new Card(1, 1, new Empty());
-        assertTrue(cardDeck.addCard(newCard));
+        cardDeck.addCard(newCard);
         assertEquals(newCard, cardDeck.draw());
     }
 

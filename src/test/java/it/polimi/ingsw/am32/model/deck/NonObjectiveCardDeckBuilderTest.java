@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model.deck;
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
+import it.polimi.ingsw.am32.model.exceptions.WrongDeckTypeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ class NonObjectiveCardDeckBuilderTest {
     @DisplayName("buildNonObjectiveCardDeck should return null for the Objective deck")
     @Test
     void buildNonObjectiveCardDeckReturnsNullForObjectiveDeckType() {
-        assertNull(nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.OBJECTIVE));
+        assertThrows(WrongDeckTypeException.class, () -> nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.OBJECTIVE));
     }
 
     @DisplayName("buildNonObjectiveCardDeck should return a NonObjectiveCardDeck for the Resource deck")

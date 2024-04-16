@@ -9,6 +9,7 @@ import it.polimi.ingsw.am32.model.deck.CardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeck;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
+import it.polimi.ingsw.am32.model.exceptions.WrongDeckTypeException;
 import it.polimi.ingsw.am32.model.player.Colour;
 import it.polimi.ingsw.am32.model.player.Player;
 
