@@ -3,6 +3,8 @@ package it.polimi.ingsw.am32.model.field;
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
+import it.polimi.ingsw.am32.model.exceptions.InvalidPositionException;
+import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
 
 import java.util.ArrayList;
 
@@ -57,22 +59,24 @@ public class Field {
      * @param x is the horizontal coordinate of the position
      * @param y is the vertical coordinate of the position
      * @param isUp is the side of the card
-     * @return true if the card was successfully placed, false if not
+     * @throws InvalidPositionException if the position is not valid
+     * @throws MissingRequirementsException if the resources are not enough
      */
-    public boolean placeCardInField(NonObjectiveCard nonObjectiveCard, int x, int y, boolean isUp) {
+    public void placeCardInField(NonObjectiveCard nonObjectiveCard, int x, int y, boolean isUp)
+            throws InvalidPositionException, MissingRequirementsException {
 
         // Checking valid position
 
         if( x > 40 || x < -40 || y > 40 || y < -40)
-            return false;
+            throw new InvalidPositionException("Attempted to place a card out of range.");
 
         if (Math.abs((x + y) % 2) == 1)
-            return false;
+            throw new InvalidPositionException("Attempted to place a card in a non even position.");
 
         // Checking resource requirements for placement
 
         if (isUp && !checkResRequirements(activeRes, nonObjectiveCard.getConditionCount()))
-            return false;
+            throw new MissingRequirementsException("Requirements not fulfilled.");
 
         // Find possible diagonal cards
 
@@ -85,7 +89,7 @@ public class Field {
 
 
             if (tmpX == x && tmpY == y)
-                return false;
+                throw new InvalidPositionException("Attempted to place a card in an occupied position.");
 
             if (tmpX == x - 1 && tmpY == y + 1)
                 tmpCardsPlaced[0] = cardPlaced;
@@ -110,7 +114,7 @@ public class Field {
             }
 
         if(!tmpFilled)
-            return false;
+            throw new InvalidPositionException("Attempted to place a card in an isolated position.");
 
         if (tmpCardsPlaced[0] != null) {
 
@@ -120,7 +124,7 @@ public class Field {
                 cornerType[0] = tmpCardsPlaced[0].getNonObjectiveCard().getBottomRightBack();
 
             if (cornerType[0] == CornerType.NON_COVERABLE)
-                return false;
+                throw new InvalidPositionException("Attempted to place a card in a non-coverable position.");
         }
 
         if (tmpCardsPlaced[1] != null) {
@@ -131,7 +135,7 @@ public class Field {
                 cornerType[1] = tmpCardsPlaced[1].getNonObjectiveCard().getBottomLeftBack();
 
             if (cornerType[1] == CornerType.NON_COVERABLE)
-                return false;
+                throw new InvalidPositionException("Attempted to place a card in a non-coverable position.");
         }
 
         if (tmpCardsPlaced[2] != null) {
@@ -142,7 +146,7 @@ public class Field {
                 cornerType[2] = tmpCardsPlaced[2].getNonObjectiveCard().getTopRightBack();
 
             if (cornerType[2] == CornerType.NON_COVERABLE)
-                return false;
+                throw new InvalidPositionException("Attempted to place a card in a non-coverable position.");
         }
 
         if (tmpCardsPlaced[3] != null) {
@@ -153,7 +157,7 @@ public class Field {
                 cornerType[3] = tmpCardsPlaced[3].getNonObjectiveCard().getTopLeftBack();
 
             if (cornerType[3] == CornerType.NON_COVERABLE)
-                return false;
+                throw new InvalidPositionException("Attempted to place a card in a non-coverable position.");
         }
 
         // Place card in field
@@ -185,8 +189,6 @@ public class Field {
         activeRes[4] -= resToSub[4];
         activeRes[5] -= resToSub[5];
         activeRes[6] -= resToSub[6];
-
-        return true;
     }
 
     /**

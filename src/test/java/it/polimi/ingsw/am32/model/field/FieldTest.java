@@ -3,9 +3,12 @@ package it.polimi.ingsw.am32.model.field;
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
+import it.polimi.ingsw.am32.model.exceptions.InvalidPositionException;
+import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -167,7 +170,7 @@ class FieldTest {
 
     @DisplayName("Execute a Path Coverage Structural Test on availableSpace method")
     @Test
-    void doStructuralTestingPlaceCardInField() {
+    void doStructuralTestingPlaceCardInField() throws MissingRequirementsException, InvalidPositionException {
 
         // Edge and Condition Coverage
 
@@ -189,12 +192,12 @@ class FieldTest {
 
         // Verify valid position
 
-        assertFalse(mainTestfield.placeCardInField(testCardBasic, 41, 1, isUp));
-        assertFalse(mainTestfield.placeCardInField(testCardBasic, -41, 1, isUp));
-        assertFalse(mainTestfield.placeCardInField(testCardBasic, 1, 41, isUp));
-        assertFalse(mainTestfield.placeCardInField(testCardBasic, 1, -41, isUp));
+        assertThrows(InvalidPositionException.class, MissingRequirementsException.class, ()-> mainTestfield.placeCardInField(testCardBasic, 41, 1, isUp));
+        assertThrows(InvalidPositionException.class, MissingRequirementsException.class, ()->mainTestfield.placeCardInField(testCardBasic, -41, 1, isUp));
+        assertThrows(InvalidPositionException.class, MissingRequirementsException.class, ()->mainTestfield.placeCardInField(testCardBasic, 1, 41, isUp));
+        assertThrows(InvalidPositionException.class, MissingRequirementsException.class, ()->mainTestfield.placeCardInField(testCardBasic, 1, -41, isUp));
 
-        assertFalse(mainTestfield.placeCardInField(testCardBasic, 1, 0, isUp));
+        assertThrows(InvalidPositionException.class, MissingRequirementsException.class, ()->mainTestfield.placeCardInField(testCardBasic, 1, 0, isUp));
 
         int[] unreachableRequirements = new int[]{2,2,2,2};
 

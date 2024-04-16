@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model.player;
 import it.polimi.ingsw.am32.model.card.Card;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
+import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.field.Field;
 
 import java.util.ArrayList;
@@ -56,16 +57,15 @@ public class Player {
      * Place the initial card in the hand of the player
      *
      * @param initialCard is the initial card assigned by the match
-     * @return true if the assignment was successful, false if the hand wasn't empty and the assignment failed
+     * @exception NonEmptyHandException Hand was not empty when we tried to assign the starting card
      */
-    public boolean assignStartingCard(NonObjectiveCard initialCard) {
+    public void assignStartingCard(NonObjectiveCard initialCard) {
 
         if(hand != null)
-            return false;
+            throw new NonEmptyHandException("Attempted to assign starting card with non-empty hand.");
 
         hand = new ArrayList<>();
         hand.addLast(initialCard);
-        return true;
     }
 
 
@@ -73,24 +73,18 @@ public class Player {
      * Create the field and place the initial card in it
      *
      * @param isUp denote the side of the card chosen by the player
-     * @return true if the process was successful, false if the method was already executed
+     * @exception NonEmptyFieldException When the field is not empty when I try to initialize it
+     * @exception NullHandException Hand was not empty when  tried to assign a starting card
      */
-    public boolean initializeGameField(boolean isUp) {
+    public void initializeGameField(boolean isUp) {
 
-        if (gameField != null || hand == null)
-            return false;
+        if (gameField != null)
+            throw new NonEmptyFieldException("Attempted to initialize a non-null gameField");
+        if (hand == null)
+            throw new NullHandException("Attempted to place the starting card with empty hand.");
 
-        NonObjectiveCard tmpCard;
-
-        try {
-            tmpCard = hand.getFirst();
-        } catch (NoSuchElementException e) {
-            return false;
-        }
-
-        gameField = new Field(tmpCard, isUp);
+        gameField = new Field(hand.getFirst(), isUp);
         hand.clear();
-        return true;
     }
 
 
@@ -98,17 +92,15 @@ public class Player {
      * Search in the player hand for the card that has to be selected and saved as the secret objective
      *
      * @param id of the card chosen by the player
-     * @return true if the card was successfully chosen, false if the card wasn't in the hand of the player
+     * @throws InvalidSelectionException Tried to choose a non-valid secret objective card
      */
-    public boolean secretObjectiveSelection(int id) {
+    public void secretObjectiveSelection(int id) throws InvalidSelectionException {
         if(tmpSecretObj[0].getId() == id) {
             secretObjective = tmpSecretObj[0];
-        } else if (tmpSecretObj[1].getId() == id){
+        } else if (tmpSecretObj[1].getId() == id) {
             secretObjective = tmpSecretObj[1];
         } else
-            return false;
-
-        return true;
+            throw new InvalidSelectionException("Attempted to select a card that was not in the options.");
     }
 
 
@@ -117,16 +109,15 @@ public class Player {
      *
      * @param firstCard is the first choice for the secret objective
      * @param secondCard is the second choice for the secret objective
-     * @return true if the cards where successfully saved for later selection, false if not
+     * @exception SecretObjectiveCardException Tried to receive secret objective when already received
      */
-    public boolean receiveSecretObjective(Card firstCard, Card secondCard) {
+    public void receiveSecretObjective(Card firstCard, Card secondCard) {
 
         if(tmpSecretObj[0] != null || tmpSecretObj[1] != null)
-            return false;
+            throw new SecretObjectiveCardException("Attempted to receive secret objective when already received.");
 
         tmpSecretObj[0] = firstCard;
         tmpSecretObj[1] = secondCard;
-        return true;
     }
 
 
@@ -134,15 +125,17 @@ public class Player {
      * tries to put a card in the hand of the player
      *
      * @param newCard is the card that has to be added to the hand of the player
-     * @return true if successfully added, false if not
+     * @exception NullHandException Tried to add a card to a null hand
+     * @exception InvalidHandSizeException Hand size was somehow greater than 3
      */
-    public boolean putCardInHand(NonObjectiveCard newCard) {
+    public void putCardInHand(NonObjectiveCard newCard) {
 
-        if(hand == null || hand.size() >= 3)
-            return false;
+        if (hand == null)
+            throw new NullHandException("Attempted to add a card to a null hand.");
+        if (hand.size() >= 3)
+            throw new InvalidHandSizeException("Invalid hand size: " + hand.size());
 
         hand.addLast(newCard);
-        return true;
     }
 
     /**
@@ -153,12 +146,15 @@ public class Player {
      * @param x is the horizontal coordinate of the position
      * @param y is the vertical coordinate of the position
      * @param isUp is the side of the card that is going to be visible when placed
-     * @return true if the process was successful, false if not
+     * @throws InvalidSelectionException Tried to place a card that was not in the player's hand
+     * @throws MissingRequirementsException Tried to place a card in a position that was not empty
+     * @throws InvalidPositionException Tried to place a card in a position that was not valid
+     * @exception  NullFieldException Tried to place a card in a null field
      */
-    public boolean performMove(int id, int x, int y, boolean isUp) {
+    public void performMove(int id, int x, int y, boolean isUp) throws InvalidSelectionException, MissingRequirementsException, InvalidPositionException {
 
         if(gameField == null)
-            return false;
+            throw new NullFieldException("Attempted to place a card in a null field.");
 
         NonObjectiveCard nonObjectiveCard = null;
         int tmpVar = -1;
@@ -171,12 +167,9 @@ public class Player {
             }
         
         if(nonObjectiveCard == null)
-            return false;
+            throw new InvalidSelectionException("Attempted to place a card that was not in the player's hand.");
         
-        boolean result = gameField.placeCardInField(nonObjectiveCard, x, y, isUp);
-
-        if(!result)
-            return false;
+        gameField.placeCardInField(nonObjectiveCard, x, y, isUp);
 
         hand.remove(tmpVar);
 
@@ -190,8 +183,6 @@ public class Player {
 
             points += occurrences * nonObjectiveCard.getValue();
         }
-
-        return true;
     }
 
     /**
@@ -199,15 +190,17 @@ public class Player {
      * to the current personal points
      *
      * @param objectiveCards are the common objectives used to calculate the extra points
-     * @return true if the points were successfully calculated and added, false if not
+     * @exception NullPointStrategyException Found a card with a null PointStrategy
+     * @throws AlreadyComputedPointsException Tried to calculate points when they were already calculated
      */
-    public boolean updatePointsForObjectives(Card[] objectiveCards) {
+    public void updatePointsForObjectives(Card[] objectiveCards) throws AlreadyComputedPointsException {
 
         if(objectiveCards[0].getPointStrategy() == null || objectiveCards[1].getPointStrategy() == null)
-            return false;
+            throw new NullPointStrategyException("Objective cards have invalid strategies for calculating points");
 
+        // Check if the points have already been calculated for the objectives
         if(objectivePointsState[0])
-            return false;
+            throw new AlreadyComputedPointsException("Already calculated points from common objectives");
 
         PointStrategy pointStrategy1 = objectiveCards[0].getPointStrategy();
         PointStrategy pointStrategy2 = objectiveCards[1].getPointStrategy();
@@ -225,24 +218,23 @@ public class Player {
         objectivePointsState[0] = true;
 
         points += tmpGain;
-
-        return true;
     }
 
     /**
      * Calculate the points gained by the player for the secret objective and add them to his current points
      *
-     * @return true if the process is successful, false if not
+     * @exception NullPointStrategyException Found a card with a null PointStrategy
+     * @throws AlreadyComputedPointsException Tried to calculate points when they were already calculated
      */
-    public boolean updatePointsForSecretObjective() {
+    public void updatePointsForSecretObjective() throws AlreadyComputedPointsException {
 
         PointStrategy pointStrategy = secretObjective.getPointStrategy();
 
         if(pointStrategy == null)
-            return false;
+            throw new NullPointStrategyException("Objective cards have invalid strategies for calculating points");
 
         if(objectivePointsState[1])
-            return false;
+            throw new AlreadyComputedPointsException("Already calculated points from secret objectives");
 
         int multiplierPoints = pointStrategy.calculateOccurrences(gameField, 0,0);
 
@@ -255,8 +247,6 @@ public class Player {
         objectivePointsState[1] = true;
 
         points += tmpGain;
-
-        return true;
     }
 
     //---------------------------------------------------------------------------------------------
@@ -361,14 +351,13 @@ public class Player {
      * assign a colour to the player if it doesn't have already one
      *
      * @param colour is the colour of the player
-     * @return true if successfully assigned, false if not
+     * @exception NonNullColourException Try to set the colour when it was already set.
      */
-    public boolean setColour(Colour colour) {
+    public void setColour(Colour colour) {
         if(this.colour != null)
-            return false;
+            throw new NonNullColourException("Attempted to assign a colour to a player that already has one.");
 
         this.colour = colour;
-        return true;
     }
 
 }

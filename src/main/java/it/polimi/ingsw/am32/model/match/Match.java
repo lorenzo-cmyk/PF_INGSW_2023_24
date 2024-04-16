@@ -9,7 +9,7 @@ import it.polimi.ingsw.am32.model.deck.CardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeck;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
-import it.polimi.ingsw.am32.model.exceptions.WrongDeckTypeException;
+import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.player.Colour;
 import it.polimi.ingsw.am32.model.player.Player;
 
@@ -108,28 +108,29 @@ public class Match implements ModelInterface {
      * Adds a new player to the game.
      *
      * @param nickname The nickname of the player to add to the game
-     * @return true if nickname was not already in use and new player instance could be created, false otherwise
+     * @throws DuplicateNicknameException Nickname taken
      */
-    public boolean addPlayer(String nickname) {
+    public void addPlayer(String nickname) throws DuplicateNicknameException {
         for (Player player : players) {
             if (player.getNickname().equals(nickname))
                 // Player with similar nickname already present in list of players
-                return false;
+                throw new DuplicateNicknameException("Nickname cannot be used as it is already taken.");
         }
         // Nickname not in use
         Player newplayer = new Player(nickname);
         players.add(newplayer);
-        return true;
     }
 
     /**
      * Removes an existing player instance from the game.
      *
      * @param nickname The nickname of the player to delete from the game
-     * @return true if nickname was valid and player instance could be deleted, false otherwise
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players
      */
-    public boolean deletePlayer(String nickname) {
-        return players.removeIf(player -> player.getNickname().equals(nickname));
+    public void deletePlayer(String nickname) throws PlayerNotFoundException {
+        if(!players.removeIf(player -> player.getNickname().equals(nickname))){
+            throw new PlayerNotFoundException("Player not found in the list of players");
+        }
     }
 
     /**
@@ -167,15 +168,16 @@ public class Match implements ModelInterface {
      * Returns the id of the starting card of a specific player.
      *
      * @param nickname The nickname of the player whose starting card we want to get
-     * @return id of the player's starting card if the player with the given nickname was found in the list of players, -1 otherwise
+     * @return id of the player's starting card if the player with the given nickname was found in the list of players
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players
      */
-    public int getInitialCardPlayer(String nickname) {
+    public int getInitialCardPlayer(String nickname) throws PlayerNotFoundException{
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) { // Found player with correct nickname
                 return player.getInitialCard().getId(); // Get initial card from player and return id
             }
         }
-        return -1;
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
     /**
@@ -183,15 +185,15 @@ public class Match implements ModelInterface {
      *
      * @param nickname The nickname of the player whose field we want to initialize
      * @param side The side the starting card will be placed on the player's field
-     * @return true if player's field could be initialized and the nickname was found in the list of players, false otherwise
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players
      */
-    public boolean createFieldPlayer(String nickname, boolean side) {
+    public void createFieldPlayer(String nickname, boolean side) throws PlayerNotFoundException {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) {
-                return player.initializeGameField(side);
+                player.initializeGameField(side);
             }
         }
-        return false;
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
     /**
@@ -256,19 +258,21 @@ public class Match implements ModelInterface {
     }
 
     /**
-     *  Receives the secret objective card selected by the player and saves it in the attribute
-     *  secretObjective.
+     * Receives the secret objective card selected by the player and saves it in the attribute
+     * secretObjective.
+     *
      * @param nickname Nickname of player who select the secret objective card.
      * @param id ID of the objective card selected.
-     * @return True, if the player with that nickname exists and the selection process is successful, otherwise false.
+     * @throws InvalidSelectionException if the card selected is not valid.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
-    public boolean receiveSecretObjectiveChoiceFromPlayer(String nickname, int id) {
+    public void receiveSecretObjectiveChoiceFromPlayer(String nickname, int id) throws InvalidSelectionException, PlayerNotFoundException {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) { // Found player with correct nickname
-                return player.secretObjectiveSelection(id);
+                player.secretObjectiveSelection(id);
             }
         }
-        return false;
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
     /**
@@ -299,30 +303,30 @@ public class Match implements ModelInterface {
      * @param x The x-coordinate of the card
      * @param y The y-coordinate of the card
      * @param side The side of the card
-     * @return true if the card was successfully placed, false otherwise
+     * @throws InvalidSelectionException if the card selected is not valid.
+     * @throws MissingRequirementsException if the requirements of given card are not met.
+     * @throws InvalidPositionException if the position selected is not valid position.
      */
-    public boolean placeCard(int id, int x, int y, boolean side) {
+    public void placeCard(int id, int x, int y, boolean side) throws InvalidSelectionException, MissingRequirementsException, InvalidPositionException {
         for (int i=0; i<=players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerNickname)) { // Found current player
-                boolean success = players.get(i).performMove(id, x, y, side); // Place card
-
-                if (!success) return false; // There was an error in the placement of the card
-
+                players.get(i).performMove(id, x, y, side); // Place card
                 if (getMatchStatus()!=MatchStatus.LAST_TURN.getValue() && players.get(i).getPoints() >= 20) {
                     setTerminating();
                 }
-                return true;
+
+                return;
             }
         }
-        return false;
     }
 /**
  * This method is used to draw a card from the deck of the game.
  * @param deckType The type of deck from which the card is drawn. 0 for resourceCardsDeck, 1 for goldCardsDeck, 2 for currentResourceCards, 3 for currentGoldCards.
  * @param id If the deckType is 2 or 3, the id parameter is used to identify the card to be drawn.
- * @return true if the card was successfully drawn and added to the player's hand, false otherwise.
+ * @throws DrawException if the deckType selected for draw is not valid or the id of the card is not found.
+ * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
  */
-    public boolean drawCard(int deckType, int id) {
+    public void drawCard(int deckType, int id) throws DrawException, PlayerNotFoundException {
         // Retrieve the player who is playing using the currentPlayerNickname
         for (Player player : players){
             if(player.getNickname().equals(currentPlayerNickname)){
@@ -344,7 +348,7 @@ public class Match implements ModelInterface {
                         card = currentGoldCards.stream().filter(c -> c.getId() == id).findFirst();
                         break;
                     default:
-                        return false;
+                        throw new DrawException("Invalid deck type.");
                 }
                 // If the card is found, and it's dawn from currentResourceCards or currentGoldCards, remove it from the
                 // list and replenish it if it is possible.
@@ -378,11 +382,15 @@ public class Match implements ModelInterface {
                         setTerminating();
                     }
                }
-                // If the card is found, add it to the player's hand and return true. Otherwise, return false.
-                return card.filter(player::putCardInHand).isPresent();
+                // If the card is found, add it to the player's hand.
+                if(card.isPresent()){
+                    player.putCardInHand(card.get());
+                } else {
+                    throw new DrawException("Card not found.");
+                }
             }
         }
-        return false;
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
     public void nextTurn() {
@@ -435,18 +443,14 @@ public class Match implements ModelInterface {
     }
 
     /**
-     * Control if the process of adding objective cards points to the total scores is successful
-     * @return true, if everything is ok, false otherwise.
+     * Control if the process of adding objective cards points to the total scores is successful.
+     * @throws AlreadyComputedPointsException Tried to calculate points when they were already calculated.
      */
-    public boolean addObjectivePoints() {
-        boolean check;
+    public void addObjectivePoints() throws AlreadyComputedPointsException {
         for (Player player : players) {
-            check = player.updatePointsForObjectives(commonObjectives) && player.updatePointsForSecretObjective();
-            if(!check){
-                return false;
-            }
+            player.updatePointsForObjectives(commonObjectives);
+            player.updatePointsForSecretObjective();
         }
-        return true;
     }
 
     /**
@@ -528,8 +532,9 @@ public class Match implements ModelInterface {
      *
      * @param nickname Nickname of player whose active resources we want to obtain
      * @return An array of integers containing the count of active resources in the player's field
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
-    public int[] getPlayerResources(String nickname) {
+    public int[] getPlayerResources(String nickname) throws PlayerNotFoundException {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) { // Found player with correct nickname
                 if(!isNull(player.getField())){ // Check if the player has a field (it should always have one, but just in case
@@ -541,22 +546,23 @@ public class Match implements ModelInterface {
                 }
             }
         }
-        return null;
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
     /**
      * Get id of the specified player's secret objective card.
      * @param nickname Nickname of player whose secret objective card should be analyzed.
      * @return If exists the nickname in the arraylist players and
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
-    public int getPlayerSecretObjective(String nickname) {
+    public int getPlayerSecretObjective(String nickname) throws PlayerNotFoundException {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) { // Found player with correct nickname
                 // Return the ID of the secret objective card of the player. If the player has no secret objective card, return -1.
                 return isNull(player.getSecretObjective()) ? -1 : player.getSecretObjective().getId();
             }
         }
-        return -1;
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
     /**
@@ -564,15 +570,16 @@ public class Match implements ModelInterface {
      *
      * @param nickname Nickname of player whose hand should be analyzed.
      * @return Array list of integer that contains the ID of all cards belong to the specific player's hand.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
-    public ArrayList<Integer> getPlayerHand(String nickname) {
+    public ArrayList<Integer> getPlayerHand(String nickname) throws PlayerNotFoundException {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) { // Found player with correct nickname
                 ArrayList<NonObjectiveCard> playerHand = player.getHand(); // Get player hand
                 return (ArrayList<Integer>) playerHand.stream().map(Card::getId).collect(Collectors.toList()); // Extract card ids
             }
         }
-        return null; // No player with given nickname found
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
     /**
@@ -586,16 +593,21 @@ public class Match implements ModelInterface {
      * the field. The elements of the array are the x-coordinate, y-coordinate, id of the card, and a boolean
      * value (1 for true, 0 for false) indicating whether the card is face up. If no player with the provided
      * nickname is found, an empty ArrayList is returned.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
-    public ArrayList<int[]> getPlayerField(String nickname) {
-        return players.stream()
+    public ArrayList<int[]> getPlayerField(String nickname) throws PlayerNotFoundException {
+        Optional<Player> playerOptional = players.stream()
                 .filter(player -> player.getNickname().equals(nickname))
-                .findFirst()
-                .map(player -> player.getField().getFieldCards().stream()
-                        .map(card -> new int[]{card.getX(), card.getY(), card.getNonObjectiveCard().getId(),
-                                card.getIsUp() ? 1 : 0})
-                        .collect(Collectors.toCollection(ArrayList::new)))
-                .orElse(new ArrayList<>());
+                .findFirst();
+
+        if (!playerOptional.isPresent()) {
+            throw new PlayerNotFoundException("Player not found in the list of players");
+        }
+
+        return playerOptional.get().getField().getFieldCards().stream()
+                .map(card -> new int[]{card.getX(), card.getY(), card.getNonObjectiveCard().getId(),
+                        card.getIsUp() ? 1 : 0})
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
@@ -622,13 +634,23 @@ public class Match implements ModelInterface {
      *
      * @param nickname The nickname of the player whose colour we want to get.
      * @return The colour of a player.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
-    public int getPlayerColour(String nickname) {
-        return players.stream()
+    public int getPlayerColour(String nickname) throws PlayerNotFoundException, NullColourException {
+        Optional<Player> playerOptional = players.stream()
                 .filter(player -> player.getNickname().equals(nickname))
-                .findFirst()
-                .map(player -> player.getColour() != null ? player.getColour().getValue() : -1)
-                .orElse(-1);
+                .findFirst();
+
+        if (!playerOptional.isPresent()) {
+            throw new PlayerNotFoundException("Player not found in the list of players");
+        }
+
+        Colour playerColour = playerOptional.get().getColour();
+        if (playerColour == null) {
+            throw new NullColourException("Player's colour is not set");
+        }
+
+        return playerColour.getValue();
     }
 
     /**

@@ -2,6 +2,8 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.exceptions.InvalidPositionException;
+import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
 import it.polimi.ingsw.am32.model.field.Field;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,7 @@ class EmptyTest {
 
     @DisplayName("Strategy called on field with 1 card not initial card should return 1")
     @Test
-    void occurrencesOnFieldWithOneCardKingdomRequiredShouldBeOne() {
+    void occurrencesOnFieldWithOneCardKingdomRequiredShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         Empty strategy = new Empty();
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         f.placeCardInField(c1, 1, 1, true); // Card placed side-up
