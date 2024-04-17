@@ -5,6 +5,10 @@ import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.Empty;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
+import it.polimi.ingsw.am32.model.exceptions.InvalidSelectionException;
+import it.polimi.ingsw.am32.model.exceptions.NonEmptyFieldException;
+import it.polimi.ingsw.am32.model.exceptions.NonEmptyHandException;
+import it.polimi.ingsw.am32.model.exceptions.SecretObjectiveCardException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +61,7 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
+        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card));
         assertEquals(card, player.getHand().getFirst());
     }
 
@@ -69,8 +73,8 @@ class PlayerTest {
         assertNotNull(card1);
         NonObjectiveCard card2 = generateRandomNonObjectiveCard();
         assertNotNull(card2);
-        assertTrue(player.assignStartingCard(card1));
-        assertFalse(player.assignStartingCard(card2));
+        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card1));
+        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card2));
         assertNotEquals(card2, player.getHand().getFirst());
     }
 
@@ -80,8 +84,8 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
-        assertTrue(player.initializeGameField(true));
+        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card));
+        assertThrows(NonEmptyFieldException.class,()->player.initializeGameField(true));
         assertEquals(card, player.getField().getCardFromPosition(0, 0));
     }
 
@@ -91,16 +95,15 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
-        assertTrue(player.initializeGameField(true));
-        assertFalse(player.initializeGameField(true));
+        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card));
+        assertThrows(NonEmptyFieldException.class,()->player.initializeGameField(true));
     }
 
     @DisplayName("initializeGameField should return false when hand is null")
     @Test
     void initializeGameFieldShouldReturnFalseWhenHandIsNull() {
         Player player = new Player("test");
-        assertFalse(player.initializeGameField(true));
+        assertThrows(NonEmptyFieldException.class,()->player.initializeGameField(true));
     }
 
     @DisplayName("secretObjectiveSelection should return true when ID matches one of the cards and should set the secretObjective accordingly - Card 1")
@@ -111,8 +114,8 @@ class PlayerTest {
         assertNotNull(card1);
         Card card2 = generateRandomCard();
         assertNotNull(card2);
-        assertTrue(player.receiveSecretObjective(card1, card2));
-        assertTrue(player.secretObjectiveSelection(card1.getId()));
+        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, card2));
+        assertThrows(InvalidSelectionException.class,()->player.secretObjectiveSelection(card1.getId()));
         assertEquals(card1, player.getSecretObjective());
     }
 
@@ -128,8 +131,8 @@ class PlayerTest {
             card2 = generateRandomCard();
         }
         assertNotNull(card2);
-        assertTrue(player.receiveSecretObjective(card1, card2));
-        assertTrue(player.secretObjectiveSelection(card2.getId()));
+        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, card2));
+        assertThrows(InvalidSelectionException.class,()->player.secretObjectiveSelection(card2.getId()));
         assertEquals(card2, player.getSecretObjective());
     }
 
@@ -145,8 +148,9 @@ class PlayerTest {
             card2 = generateRandomCard();
         }
         assertNotNull(card2);
-        assertTrue(player.receiveSecretObjective(card1, card2));
-        assertFalse(player.secretObjectiveSelection(-1));
+        Card finalCard = card2;
+        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, finalCard));
+        assertThrows(InvalidSelectionException.class,()->player.secretObjectiveSelection(-1));
     }
 
     @DisplayName("receiveSecretObjective should return true when tmpSecretObj is null")
@@ -157,7 +161,7 @@ class PlayerTest {
         assertNotNull(card1);
         Card card2 = generateRandomCard();
         assertNotNull(card2);
-        assertTrue(player.receiveSecretObjective(card1, card2));
+        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, card2));
     }
 
     @DisplayName("receiveSecretObjective should return false when tmpSecretObj is not null")
@@ -172,8 +176,8 @@ class PlayerTest {
         assertNotNull(card3);
         Card card4 = generateRandomCard();
         assertNotNull(card4);
-        assertTrue(player.receiveSecretObjective(card1, card2));
-        assertFalse(player.receiveSecretObjective(card3, card4));
+        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, card2));
+        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card3, card4));
     }
 
     @DisplayName("putCardInHand should return true when hand size is less than 3 and hand is not null. Also, the card should be added to the hand.")

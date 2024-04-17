@@ -2,6 +2,8 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.exceptions.InvalidPositionException;
+import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
 import it.polimi.ingsw.am32.model.field.Field;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +43,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing 2 stacked animal cards should return 0")
     @Test
-    void occurrencesOnFieldWithAlmostOneLVariant1ShouldBeZero() {
+    void occurrencesOnFieldWithAlmostOneLVariant1ShouldBeZero() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         f.placeCardInField(c1, 1, 1, true);
@@ -51,7 +53,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing animal card and fungi card that almost make a pattern should return 0")
     @Test
-    void occurrencesOnFieldWithAlmostOneLVariant2ShouldBeZero() {
+    void occurrencesOnFieldWithAlmostOneLVariant2ShouldBeZero() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -63,7 +65,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing single full pattern should return 1")
     @Test
-    void occurrencesOnFieldWithOneLVariant1ShouldBeOne() {
+    void occurrencesOnFieldWithOneLVariant1ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -75,7 +77,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing single full pattern with one card turned should return 1")
     @Test
-    void occurrencesOnFieldWithOneLVariant2ShouldBeOne() {
+    void occurrencesOnFieldWithOneLVariant2ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -87,7 +89,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing single full pattern with all cards turned should return 1")
     @Test
-    void occurrencesOnFieldWithOneLVariant3ShouldBeOne() {
+    void occurrencesOnFieldWithOneLVariant3ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -99,7 +101,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing single full pattern and a partial pattern overlapping it should return 1")
     @Test
-    void occurrencesOnFieldWithOneLWithOverlapVariant1ShouldBeOne() {
+    void occurrencesOnFieldWithOneLWithOverlapVariant1ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -115,7 +117,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing single full pattern and a partial pattern overlapping it with one card turned should return 1")
     @Test
-    void occurrencesOnFieldWithOneLWithOverlapVariant2ShouldBeOne() {
+    void occurrencesOnFieldWithOneLWithOverlapVariant2ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -131,7 +133,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing almost single full pattern and a partial pattern overlapping it should return 0")
     @Test
-    void occurrencesOnFieldWithAlmostOneLWithOverlapVariant1ShouldBeZero() {
+    void occurrencesOnFieldWithAlmostOneLWithOverlapVariant1ShouldBeZero() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -147,7 +149,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing triple overlapping pattern should return 2")
     @Test
-    void occurrencesOnFieldWithTripleOverlappingLVariant1ShouldBeTwo() {
+    void occurrencesOnFieldWithTripleOverlappingLVariant1ShouldBeTwo() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -167,7 +169,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing triple overlapping pattern and one card turned should return 2")
     @Test
-    void occurrencesOnFieldWithTripleOverlappingLVariant2ShouldBeTwo() {
+    void occurrencesOnFieldWithTripleOverlappingLVariant2ShouldBeTwo() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -187,7 +189,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing triple overlapping pattern and one non animal card breaking the pattern should return 1")
     @Test
-    void occurrencesOnFieldWithTripleOverlappingLVariant3ShouldBeOne() {
+    void occurrencesOnFieldWithTripleOverlappingLVariant3ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -207,7 +209,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing 5-fold overlapping pattern should return 3")
     @Test
-    void occurrencesOnFieldWithFiveFoldOverlappingLVariant1ShouldBeThree() {
+    void occurrencesOnFieldWithFiveFoldOverlappingLVariant1ShouldBeThree() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -235,7 +237,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing 5-fold overlapping pattern and one non animal card breaking the pattern should return 2")
     @Test
-    void occurrencesOnFieldWithFiveFoldOverlappingLVariant2ShouldBeTwo() {
+    void occurrencesOnFieldWithFiveFoldOverlappingLVariant2ShouldBeTwo() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.INSECT);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -263,7 +265,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing double full pattern side to side should return 2")
     @Test
-    void occurrencesOnFieldWithTwoLSideToSideVariant1ShouldBeTwo() {
+    void occurrencesOnFieldWithTwoLSideToSideVariant1ShouldBeTwo() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -283,7 +285,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing double full pattern side to side and one non animal card breaking one pattern should return 1")
     @Test
-    void occurrencesOnFieldWithTwoLSideToSideVariant2ShouldBeOne() {
+    void occurrencesOnFieldWithTwoLSideToSideVariant2ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -303,7 +305,7 @@ class LConfigurationFourTest {
 
     @DisplayName("Strategy called on field containing complex pattern should return 2")
     @Test
-    void occurrencesOnFieldWithComplexPatternVariant1ShouldBeTwo() {
+    void occurrencesOnFieldWithComplexPatternVariant1ShouldBeTwo() throws MissingRequirementsException, InvalidPositionException {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);

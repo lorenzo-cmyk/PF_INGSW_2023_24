@@ -171,7 +171,7 @@ class LConfigurationOneTest {
     }
     @DisplayName("Strategy called on field with 4 cards placed in correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithFourCardsCase5ShouldBeOne() {
+    void occurrencesOnFieldWithFourCardsCase5ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         LConfigurationOne strategy = new LConfigurationOne();
         NonObjectiveCard c1 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c2 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -185,7 +185,7 @@ class LConfigurationOneTest {
     }
     @DisplayName("Strategy called on field with 5 cards(two FUNGI Card+ two PLANT card + one Casual card) placed in correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithFiveCardsCase1ShouldBeOne() {
+    void occurrencesOnFieldWithFiveCardsCase1ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         LConfigurationOne strategy = new LConfigurationOne();
         NonObjectiveCard c1 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c2 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -201,7 +201,7 @@ class LConfigurationOneTest {
     }
     @DisplayName("Strategy called on field with 5 cards(three FUNGI Card+ one PLANT card + one Casual card) placed in correct orientation should return 1")
     @Test
-    void occurrencesOnFieldWithFiveCardsCase2ShouldBeOne() {
+    void occurrencesOnFieldWithFiveCardsCase2ShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
         LConfigurationOne strategy = new LConfigurationOne();
         NonObjectiveCard c1 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c2 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
@@ -217,7 +217,7 @@ class LConfigurationOneTest {
     }
     @DisplayName("Strategy called on field with 6 cards placed in correct orientation should return 2")
     @Test
-    void occurrencesOnFieldWithSixCardsCaseShouldBeTwo() {
+    void occurrencesOnFieldWithSixCardsCaseShouldBeTwo() throws MissingRequirementsException, InvalidPositionException {
         LConfigurationOne strategy = new LConfigurationOne();
         NonObjectiveCard c1 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c2 = new NonObjectiveCard(1, 0, pointStrategy, CornerType.FUNGI, CornerType.EMPTY, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
@@ -235,7 +235,7 @@ class LConfigurationOneTest {
     }
     @DisplayName("Strategy called on field with 8 cards placed in correct orientation should return 2")
     @Test
-    void occurrencesOnFieldWithEightCardsCaseShouldBeTwo() {
+    void occurrencesOnFieldWithEightCardsCaseShouldBeTwo() throws MissingRequirementsException, InvalidPositionException {
         LConfigurationOne strategy = new LConfigurationOne();
         NonObjectiveCard c1 = new NonObjectiveCard(2, 0, pointStrategy, CornerType.FUNGI, CornerType.FUNGI, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.FUNGI);
         NonObjectiveCard c2 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);

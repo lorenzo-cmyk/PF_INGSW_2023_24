@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am32.model.match;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.InvalidSelectionException;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.model.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +22,7 @@ class MatchSimulationTest {
 
     @DisplayName("Run a, partial, game simulation in order to test the game mechanics")
     @Test
-    public void runGameSimulation() {
+    public void runGameSimulation() throws DuplicateNicknameException, PlayerNotFoundException, InvalidSelectionException {
         Random rand = new Random(); // Crate new random number generator
 
         double flippedCardWeight = 0.15; // Probability that a card is placed on its back (excluding starting card)
@@ -31,19 +34,19 @@ class MatchSimulationTest {
         int numPlayers = rand.nextInt(3) + 2; // Randomly select the number of players;
         switch (numPlayers) {
             case 2:
-                assertTrue(myMatch.addPlayer("Alice"));
-                assertTrue(myMatch.addPlayer("Bob"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Alice"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Bob"));
                 break;
             case 3:
-                assertTrue(myMatch.addPlayer("Alice"));
-                assertTrue(myMatch.addPlayer("Bob"));
-                assertTrue(myMatch.addPlayer("Carlo"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Alice"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Bob"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Carlo"));
                 break;
             case 4:
-                assertTrue(myMatch.addPlayer("Alice"));
-                assertTrue(myMatch.addPlayer("Bob"));
-                assertTrue(myMatch.addPlayer("Carlo"));
-                assertTrue(myMatch.addPlayer("Daniel"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Alice"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Bob"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Carlo"));
+                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Daniel"));
                 break;
         } LOGGER.info("Generated players");
 
