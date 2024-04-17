@@ -74,6 +74,9 @@ public class Match implements ModelInterface {
      */
     private int currentTurnNumber;
 
+    /**
+     * Constructor: Initialize a new Match instance. It builds the decks and place the needed cards on the field.
+     */
     public Match() {
         // Initialize the deck-builders
         NonObjectiveCardDeckBuilder nonObjectiveCardDeckBuilder = new NonObjectiveCardDeckBuilder();
@@ -331,25 +334,17 @@ public class Match implements ModelInterface {
         for (Player player : players){
             if(player.getNickname().equals(currentPlayerNickname)){
                 // Retrieve the card from the corresponding deck based on the deckType.
-                Optional<NonObjectiveCard> card;
-                switch (deckType){
-                    case 0:
-                        card = Optional.ofNullable(resourceCardsDeck.draw());
-                        break;
-                    case 1:
-                        card = Optional.ofNullable(goldCardsDeck.draw());
-                        break;
-                    case 2:
+                Optional<NonObjectiveCard> card = switch (deckType) {
+                    case 0 -> Optional.ofNullable(resourceCardsDeck.draw());
+                    case 1 -> Optional.ofNullable(goldCardsDeck.draw());
+                    case 2 ->
                         // Retrieve the card from the currentResourceCards list using the card ID. If the card is not found, return false.
-                        card = currentResourceCards.stream().filter(c -> c.getId() == id).findFirst();
-                        break;
-                    case 3:
+                            currentResourceCards.stream().filter(c -> c.getId() == id).findFirst();
+                    case 3 ->
                         // Retrieve the card from the currentGoldCards list using the card ID. If the card is not found, return false.
-                        card = currentGoldCards.stream().filter(c -> c.getId() == id).findFirst();
-                        break;
-                    default:
-                        throw new DrawException("Invalid deck type.");
-                }
+                            currentGoldCards.stream().filter(c -> c.getId() == id).findFirst();
+                    default -> throw new DrawException("Invalid deck type.");
+                };
                 // If the card is found, and it's dawn from currentResourceCards or currentGoldCards, remove it from the
                 // list and replenish it if it is possible.
                 if(card.isPresent() && (deckType == 2 || deckType == 3)){
@@ -600,7 +595,7 @@ public class Match implements ModelInterface {
                 .filter(player -> player.getNickname().equals(nickname))
                 .findFirst();
 
-        if (!playerOptional.isPresent()) {
+        if (playerOptional.isEmpty()) {
             throw new PlayerNotFoundException("Player not found in the list of players");
         }
 
@@ -635,13 +630,14 @@ public class Match implements ModelInterface {
      * @param nickname The nickname of the player whose colour we want to get.
      * @return The colour of a player.
      * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     * @throws NullColourException if the player's colour is not set.
      */
     public int getPlayerColour(String nickname) throws PlayerNotFoundException, NullColourException {
         Optional<Player> playerOptional = players.stream()
                 .filter(player -> player.getNickname().equals(nickname))
                 .findFirst();
 
-        if (!playerOptional.isPresent()) {
+        if (playerOptional.isEmpty()) {
             throw new PlayerNotFoundException("Player not found in the list of players");
         }
 
