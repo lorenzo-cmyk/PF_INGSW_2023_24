@@ -247,28 +247,29 @@ class FieldTest {
         }
     }
 
-    @DisplayName("Execute a Path Coverage Structural Test on all Getters")
-    @Test
-    void doStructuralTestingGetters() {
-
-        // Path Coverage
-
-        int[] permRes = new int[]{0,0,0,0};
-        int[] conditionCount = new int[]{0,0,0,0};
-        boolean isUp = true;
-
-        NonObjectiveCard testInitialCard = new NonObjectiveCard(0, 0, null, CornerType.EMPTY,
-                CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY,
-                CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
-
-        Field field = new Field(testInitialCard, isUp);
-
-        ArrayList<CardPlaced> tmpCards = field.getFieldCards();
-
-        int tmpResource = field.getActiveRes(ObjectType.ANIMAL);
-
-        int [] tmpAllRes = field.getAllRes();
-    }
+//    Warning: the following test is disabled because it has not any assertions in it.
+//    @DisplayName("Execute a Path Coverage Structural Test on all Getters")
+//    @Test
+//    void doStructuralTestingGetters() {
+//
+//        // Path Coverage
+//
+//        int[] permRes = new int[]{0,0,0,0};
+//        int[] conditionCount = new int[]{0,0,0,0};
+//        boolean isUp = true;
+//
+//        NonObjectiveCard testInitialCard = new NonObjectiveCard(0, 0, null, CornerType.EMPTY,
+//                CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY,
+//                CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
+//
+//        Field field = new Field(testInitialCard, isUp);
+//
+//        ArrayList<CardPlaced> tmpCards = field.getFieldCards();
+//
+//        int tmpResource = field.getActiveRes(ObjectType.ANIMAL);
+//
+//        int [] tmpAllRes = field.getAllRes();
+//    }
 
     // Functional Testing
 
