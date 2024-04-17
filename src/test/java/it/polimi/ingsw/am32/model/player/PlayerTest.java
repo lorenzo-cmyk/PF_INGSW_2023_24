@@ -52,7 +52,7 @@ class PlayerTest {
         return new Card(rand.nextInt(16) + 87, rand.nextInt(6), new Empty());
     }
 
-    @DisplayName("assignStartingCard should not crash when hand is null and should initialize the hand with the card")
+    @DisplayName("assignStartingCard should return true when hand is null and should initialize the hand with the card")
     @Test
     void assignStartingCardShouldReturnTrueWhenHandIsNull() {
         Player player = new Player("test");

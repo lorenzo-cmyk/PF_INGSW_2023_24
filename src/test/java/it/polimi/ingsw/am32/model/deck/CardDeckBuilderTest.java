@@ -17,7 +17,7 @@ class CardDeckBuilderTest {
         cardDeckBuilder = new CardDeckBuilder();
     }
 
-    @DisplayName("buildCardDeck should expect exception for non-Objective deck type")
+    @DisplayName("buildCardDeck should return null for non-Objective deck type")
     @Test
     void buildCardDeckReturnsNullForNonObjectiveDeckType() {
         assertThrows(WrongDeckTypeException.class, () -> cardDeckBuilder.buildCardDeck(DeckType.RESOURCE));
