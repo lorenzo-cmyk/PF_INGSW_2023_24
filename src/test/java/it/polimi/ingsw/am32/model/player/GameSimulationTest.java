@@ -8,6 +8,10 @@ import it.polimi.ingsw.am32.model.deck.CardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeck;
 import it.polimi.ingsw.am32.model.deck.NonObjectiveCardDeckBuilder;
 import it.polimi.ingsw.am32.model.deck.utils.DeckType;
+import it.polimi.ingsw.am32.model.exceptions.AlreadyComputedPointsException;
+import it.polimi.ingsw.am32.model.exceptions.InvalidPositionException;
+import it.polimi.ingsw.am32.model.exceptions.InvalidSelectionException;
+import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -44,12 +48,12 @@ public class GameSimulationTest {
         } catch (Exception e) {
             fail("Starting card not found in the deck.");
         }
-        assertTrue(player.assignStartingCard(startingCard));
+        player.assignStartingCard(startingCard);
         // Check if the player has the starting card
         assertEquals(startingCard, player.getHand().getFirst());
 
         // Let the player initialize its field -- Placed 81 on 0,0 back
-        assertTrue(player.initializeGameField(false));
+        player.initializeGameField(false);
 
         // Check if the player has a field
         assertNotNull(player.getField());
@@ -72,7 +76,7 @@ public class GameSimulationTest {
         assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
 
         // Give the player its colour
-        assertTrue(player.setColour(Colour.BLUE));
+        player.setColour(Colour.BLUE);
         // Check if the player has got the colour
         assertEquals(Colour.BLUE, player.getColour());
 
@@ -96,11 +100,11 @@ public class GameSimulationTest {
             fail("Gold card 77 is not found in the deck.");
         }
         // Give the player the cards and check if the player has them
-        assertTrue(player.putCardInHand(resourceCard1));
+        player.putCardInHand(resourceCard1);
         assertEquals(resourceCard1, player.getHand().getLast());
-        assertTrue(player.putCardInHand(resourceCard2));
+        player.putCardInHand(resourceCard2);
         assertEquals(resourceCard2, player.getHand().getLast());
-        assertTrue(player.putCardInHand(goldCard1));
+        player.putCardInHand(goldCard1);
         assertEquals(goldCard1, player.getHand().getLast());
 
         // Give the player two objective cards and let the player choose one as its secret objective
@@ -117,9 +121,13 @@ public class GameSimulationTest {
             fail("Objective card 99 is not found in the deck.");
         }
         // Let the player receive the cards and choose one as its secret objective
-        assertTrue(player.receiveSecretObjective(objectiveCard1, objectiveCard2));
+        player.receiveSecretObjective(objectiveCard1, objectiveCard2);
         // The player will choose Objective card 94 as its secret objective
-        assertTrue(player.secretObjectiveSelection(94));
+        try {
+            player.secretObjectiveSelection(94);
+        } catch (InvalidSelectionException e) {
+            fail();
+        }
         // Check if the player has the secret objective
         assertEquals(objectiveCard1, player.getSecretObjective());
 
@@ -140,7 +148,11 @@ public class GameSimulationTest {
         // We are now ready to play!
 
         // Turn 1: Place card 23 on -1,-1 front
-        assertTrue(player.performMove(23, -1, -1, true));
+        try {
+            player.performMove(23, -1, -1, true);
+        } catch (InvalidSelectionException | MissingRequirementsException | InvalidPositionException e) {
+            fail();
+        }
         // Check if the card is placed correctly
         assertEquals(player.getField().getCardFromPosition(-1, -1), resourceCard1);
         // Check if the resources are updated correctly
@@ -163,12 +175,15 @@ public class GameSimulationTest {
             fail("Resource card 30 is not found in the deck.");
         }
         // Give the player the card and check if the player has it
-        assertTrue(player.putCardInHand(resourceCard3));
+        player.putCardInHand(resourceCard3);
         assertEquals(resourceCard3, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
-
-        // Turn 2: Place card 25 on -1,-1 front
-        assertTrue(player.performMove(25, 0, -2, true));
+        // Turn 2: Place card 25 on 0,-2 front
+        try {
+            player.performMove(25, 0, -2, true);
+        } catch (InvalidSelectionException | MissingRequirementsException | InvalidPositionException e) {
+            fail();
+        }
         // Check if the card is placed correctly
         assertEquals(player.getField().getCardFromPosition(0, -2), resourceCard2);
         // Check if the resources are updated correctly
@@ -191,12 +206,16 @@ public class GameSimulationTest {
             fail("Resource card 38 is not found in the deck.");
         }
         // Give the player the card and check if the player has it
-        assertTrue(player.putCardInHand(resourceCard4));
+        player.putCardInHand(resourceCard4);
         assertEquals(resourceCard4, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
 
         // Turn 3: Place card 30 on 1,-3 front
-        assertTrue(player.performMove(30, 1, -3, true));
+        try {
+            player.performMove(30, 1, -3, true);
+        } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
         // Check if the card is placed correctly
         assertEquals(player.getField().getCardFromPosition(1, -3), resourceCard3);
         // Check if the resources are updated correctly
@@ -219,12 +238,16 @@ public class GameSimulationTest {
             fail("Resource card 31 is not found in the deck.");
         }
         // Give the player the card and check if the player has it
-        assertTrue(player.putCardInHand(resourceCard5));
+        player.putCardInHand(resourceCard5);
         assertEquals(resourceCard5, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
 
         // Turn 4: Place card 38 on 1,-1 back
-        assertTrue(player.performMove(38, 1, -1, false));
+        try {
+            player.performMove(38, 1, -1, false);
+        } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
         // Check if the card is placed correctly
         assertEquals(player.getField().getCardFromPosition(1, -1), resourceCard4);
         // Check if the resources are updated correctly
@@ -247,12 +270,16 @@ public class GameSimulationTest {
             fail("Resource card 62 is not found in the deck.");
         }
         // Give the player the card and check if the player has it
-        assertTrue(player.putCardInHand(goldCard2));
+        player.putCardInHand(goldCard2);
         assertEquals(goldCard2, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
 
         // Turn 5: Place card 31 on 2,-2 front
-        assertTrue(player.performMove(31, 2, -2, true));
+        try {
+            player.performMove(31, 2, -2, true);
+        } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
         // Check if the card is placed correctly
         assertEquals(player.getField().getCardFromPosition(2, -2), resourceCard5);
         // Check if the resources are updated correctly
@@ -275,12 +302,16 @@ public class GameSimulationTest {
             fail("Resource card 55 is not found in the deck.");
         }
         // Give the player the card and check if the player has it
-        assertTrue(player.putCardInHand(goldCard3));
+        player.putCardInHand(goldCard3);
         assertEquals(goldCard3, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
 
         // Turn 6: Place card 77 on 2,0 front
-        assertTrue(player.performMove(77, 2, 0, true));
+        try {
+            player.performMove(77, 2, 0, true);
+        } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
         // Check if the card is placed correctly
         assertEquals(player.getField().getCardFromPosition(2, 0), goldCard1);
         // Check if the resources are updated correctly
@@ -303,12 +334,16 @@ public class GameSimulationTest {
             fail("Resource card 54 is not found in the deck.");
         }
         // Give the player the card and check if the player has it
-        assertTrue(player.putCardInHand(goldCard4));
+        player.putCardInHand(goldCard4);
         assertEquals(goldCard4, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
 
         // Turn 7: Place card 62 on 1,1 front
-        assertTrue(player.performMove(62, 1, 1, true));
+        try {
+            player.performMove(62, 1, 1, true);
+        } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
         // Check if the card is placed correctly
         assertEquals(player.getField().getCardFromPosition(1, 1), goldCard2);
         // Check if the resources are updated correctly
@@ -331,19 +366,27 @@ public class GameSimulationTest {
             fail("Resource card 53 is not found in the deck.");
         }
         // Give the player the card and check if the player has it
-        assertTrue(player.putCardInHand(goldCard5));
+        player.putCardInHand(goldCard5);
         assertEquals(goldCard5, player.getHand().getLast());
         assertEquals(3, player.getHand().size());
 
         // Check the card in the field we should only have: 81, 23, 25, 30, 31, 38, 62, 77
         assertEquals(8, player.getField().getFieldCards().size());
         // We now are going to use all the objective cards we have to add more points to the player
-        assertTrue(player.updatePointsForSecretObjective());
+        try {
+            player.updatePointsForSecretObjective();
+        } catch (AlreadyComputedPointsException e) {
+            fail();
+        }
         // We should gain 3 points thanks to the secret objective
         assertEquals(8, player.getPoints());
 
         Card[] commonObjectives = {commonObjective1, commonObjective2};
-        assertTrue(player.updatePointsForObjectives(commonObjectives));
+        try {
+            player.updatePointsForObjectives(commonObjectives);
+        } catch (AlreadyComputedPointsException e) {
+            fail();
+        }
         // We should gain 2 points thanks to the common objectives
         assertEquals(10, player.getPoints());
     }
