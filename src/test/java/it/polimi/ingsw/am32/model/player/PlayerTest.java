@@ -5,10 +5,7 @@ import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.Empty;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
-import it.polimi.ingsw.am32.model.exceptions.InvalidSelectionException;
-import it.polimi.ingsw.am32.model.exceptions.NonEmptyFieldException;
-import it.polimi.ingsw.am32.model.exceptions.NonEmptyHandException;
-import it.polimi.ingsw.am32.model.exceptions.SecretObjectiveCardException;
+import it.polimi.ingsw.am32.model.exceptions.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -55,13 +52,13 @@ class PlayerTest {
         return new Card(rand.nextInt(16) + 87, rand.nextInt(6), new Empty());
     }
 
-    @DisplayName("assignStartingCard should return true when hand is null and should initialize the hand with the card")
+    @DisplayName("assignStartingCard should not crash when hand is null and should initialize the hand with the card")
     @Test
     void assignStartingCardShouldReturnTrueWhenHandIsNull() {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card));
+        assertDoesNotThrow(()->player.assignStartingCard(card));
         assertEquals(card, player.getHand().getFirst());
     }
 
@@ -73,7 +70,7 @@ class PlayerTest {
         assertNotNull(card1);
         NonObjectiveCard card2 = generateRandomNonObjectiveCard();
         assertNotNull(card2);
-        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card1));
+        assertDoesNotThrow(()->player.assignStartingCard(card1));
         assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card2));
         assertNotEquals(card2, player.getHand().getFirst());
     }
@@ -84,8 +81,8 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card));
-        assertThrows(NonEmptyFieldException.class,()->player.initializeGameField(true));
+        assertDoesNotThrow(()->player.assignStartingCard(card));
+        assertDoesNotThrow(()->player.initializeGameField(true));
         assertEquals(card, player.getField().getCardFromPosition(0, 0));
     }
 
@@ -95,15 +92,16 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertThrows(NonEmptyHandException.class,()->player.assignStartingCard(card));
-        assertThrows(NonEmptyFieldException.class,()->player.initializeGameField(true));
+        assertDoesNotThrow(()->player.assignStartingCard(card));
+        assertDoesNotThrow(()->player.initializeGameField(true));
+        assertThrows(NonNullFieldException.class, ()->player.initializeGameField(true));
     }
 
     @DisplayName("initializeGameField should return false when hand is null")
     @Test
     void initializeGameFieldShouldReturnFalseWhenHandIsNull() {
         Player player = new Player("test");
-        assertThrows(NonEmptyFieldException.class,()->player.initializeGameField(true));
+        assertThrows(NullHandException.class,()->player.initializeGameField(true));
     }
 
     @DisplayName("secretObjectiveSelection should return true when ID matches one of the cards and should set the secretObjective accordingly - Card 1")
@@ -114,8 +112,8 @@ class PlayerTest {
         assertNotNull(card1);
         Card card2 = generateRandomCard();
         assertNotNull(card2);
-        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, card2));
-        assertThrows(InvalidSelectionException.class,()->player.secretObjectiveSelection(card1.getId()));
+        assertDoesNotThrow(()->player.receiveSecretObjective(card1, card2));
+        assertDoesNotThrow(()->player.secretObjectiveSelection(card1.getId()));
         assertEquals(card1, player.getSecretObjective());
     }
 
@@ -125,15 +123,16 @@ class PlayerTest {
         Player player = new Player("test");
         Card card1 = generateRandomCard();
         assertNotNull(card1);
-        Card card2 = generateRandomCard();
         // Making sure card2 is not the same as card1
+        Card card2 = generateRandomCard();
         while(card2.getId() == card1.getId()){
             card2 = generateRandomCard();
         }
-        assertNotNull(card2);
-        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, card2));
-        assertThrows(InvalidSelectionException.class,()->player.secretObjectiveSelection(card2.getId()));
-        assertEquals(card2, player.getSecretObjective());
+        final Card card3 = card2;
+        assertNotNull(card3);
+        assertDoesNotThrow(()->player.receiveSecretObjective(card1, card3));
+        assertDoesNotThrow(()->player.secretObjectiveSelection(card3.getId()));
+        assertEquals(card3, player.getSecretObjective());
     }
 
     @DisplayName("secretObjectiveSelection should return false when id does not match any of the cards")
@@ -149,7 +148,7 @@ class PlayerTest {
         }
         assertNotNull(card2);
         Card finalCard = card2;
-        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, finalCard));
+        assertDoesNotThrow(() -> player.receiveSecretObjective(card1, finalCard));
         assertThrows(InvalidSelectionException.class,()->player.secretObjectiveSelection(-1));
     }
 
@@ -161,7 +160,7 @@ class PlayerTest {
         assertNotNull(card1);
         Card card2 = generateRandomCard();
         assertNotNull(card2);
-        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, card2));
+        assertDoesNotThrow(()->player.receiveSecretObjective(card1, card2));
     }
 
     @DisplayName("receiveSecretObjective should return false when tmpSecretObj is not null")
@@ -176,7 +175,7 @@ class PlayerTest {
         assertNotNull(card3);
         Card card4 = generateRandomCard();
         assertNotNull(card4);
-        assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card1, card2));
+        assertDoesNotThrow(()->player.receiveSecretObjective(card1, card2));
         assertThrows(SecretObjectiveCardException.class,()->player.receiveSecretObjective(card3, card4));
     }
 
@@ -188,8 +187,8 @@ class PlayerTest {
         assertNotNull(startingCard);
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(startingCard)); // Hand should not be null
-        assertTrue(player.putCardInHand(card));
+        assertDoesNotThrow(() -> player.assignStartingCard(startingCard)); // Hand should not be null
+        assertDoesNotThrow(() -> player.putCardInHand(card));
         assertEquals(card, player.getHand().getLast());
     }
 
@@ -205,13 +204,13 @@ class PlayerTest {
         assertNotNull(card3);
         NonObjectiveCard card4 = generateRandomNonObjectiveCard();
         assertNotNull(card4);
-        assertTrue(player.assignStartingCard(card1)); // Hand should not be null
+        assertDoesNotThrow(() -> player.assignStartingCard(card1)); // Hand should not be null
         assertEquals(card1, player.getHand().getLast());
-        assertTrue(player.putCardInHand(card2));
+        assertDoesNotThrow(() -> player.putCardInHand(card2));
         assertEquals(card2, player.getHand().getLast());
-        assertTrue(player.putCardInHand(card3));
+        assertDoesNotThrow(() -> player.putCardInHand(card3));
         assertEquals(card3, player.getHand().getLast());
-        assertFalse(player.putCardInHand(card4));
+        assertThrows(InvalidHandSizeException.class, () -> player.putCardInHand(card4));
         assertNotEquals(card4, player.getHand().getLast());
     }
 
@@ -221,7 +220,7 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertFalse(player.putCardInHand(card));
+        assertThrows(NullHandException.class, () -> player.putCardInHand(card));
     }
 
     @DisplayName("getNickname should return the nickname of the player")
@@ -237,8 +236,8 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
-        assertTrue(player.initializeGameField(true));
+        assertDoesNotThrow(() -> player.assignStartingCard(card));
+        assertDoesNotThrow(() -> player.initializeGameField(true));
         assertNotNull(player.getField());
     }
 
@@ -250,8 +249,8 @@ class PlayerTest {
         assertNotNull(card1);
         Card card2 = generateRandomCard();
         assertNotNull(card2);
-        assertTrue(player.receiveSecretObjective(card1, card2));
-        assertTrue(player.secretObjectiveSelection(card1.getId()));
+        assertDoesNotThrow(() -> player.receiveSecretObjective(card1, card2));
+        assertDoesNotThrow(() -> player.secretObjectiveSelection(card1.getId()));
         assertEquals(card1, player.getSecretObjective());
     }
 
@@ -259,7 +258,7 @@ class PlayerTest {
     @Test
     void getColourShouldReturnTheColourOfThePlayer() {
         Player player = new Player("test");
-        assertTrue(player.setColour(Colour.RED));
+        assertDoesNotThrow(() -> player.setColour(Colour.RED));
         assertEquals(Colour.RED, player.getColour());
     }
 
@@ -277,7 +276,7 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
+        assertDoesNotThrow(() -> player.assignStartingCard(card));
         assertNotNull(player.getHand());
         assertEquals(card, player.getHand().getFirst());
     }
@@ -288,7 +287,7 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
+        assertDoesNotThrow(() -> player.assignStartingCard(card));
         assertEquals(card, player.getInitialCard());
     }
 
@@ -298,8 +297,8 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
-        assertTrue(player.initializeGameField(true));
+        assertDoesNotThrow(() -> player.assignStartingCard(card));
+        assertDoesNotThrow(() -> player.initializeGameField(true));
         assertEquals(card, player.getInitialCard());
         assertEquals(card, player.getField().getCardFromPosition(0, 0));
     }
@@ -317,7 +316,7 @@ class PlayerTest {
     void setColourShouldSetTheColourOfThePlayerReturnTrue() {
         Player player = new Player("test");
         assertNull(player.getColour());
-        assertTrue(player.setColour(Colour.RED));
+        assertDoesNotThrow(() -> player.setColour(Colour.RED));
         assertEquals(Colour.RED, player.getColour());
     }
 
@@ -325,16 +324,16 @@ class PlayerTest {
     @Test
     void setColourShouldNotSetTheColourOfThePlayerIfAlreadySet() {
         Player player = new Player("test");
-        assertTrue(player.setColour(Colour.RED));
+        assertDoesNotThrow(() -> player.setColour(Colour.RED));
         assertEquals(Colour.RED, player.getColour());
-        assertFalse(player.setColour(Colour.BLUE));
+        assertThrows(NonNullColourException.class, () -> player.setColour(Colour.BLUE));
     }
 
     @DisplayName("performMove should return false when Field is null")
     @Test
     void performMoveShouldReturnFalseWhenGameFieldIsNull() {
         Player player = new Player("test");
-        assertFalse(player.performMove(1, 0, 0, true));
+        assertThrows(NullFieldException.class, () ->  player.performMove(1, 0, 0, true));
     }
 
     @DisplayName("performMove should return false when card with given ID is not in hand")
@@ -343,11 +342,11 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
-        assertTrue(player.initializeGameField(true));
+        assertDoesNotThrow(() -> player.assignStartingCard(card));
+        assertDoesNotThrow(() -> player.initializeGameField(true));
         NonObjectiveCard card1 = generateRandomNonObjectiveCard();
-        assertTrue(player.putCardInHand(card1));
-        assertFalse(player.performMove(999, 1, 1, true));
+        assertDoesNotThrow(() -> player.putCardInHand(card1));
+        assertThrows(InvalidSelectionException.class, () -> player.performMove(999, 1, 1, true));
     }
 
     @DisplayName("performMove should return false when placing card in field fails")
@@ -356,11 +355,11 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
-        assertTrue(player.initializeGameField(true));
+        assertDoesNotThrow(() -> player.assignStartingCard(card));
+        assertDoesNotThrow(() -> player.initializeGameField(true));
         NonObjectiveCard card1 = generateRandomNonObjectiveCard();
-        assertTrue(player.putCardInHand(card1));
-        assertFalse(player.performMove(card1.getId(), 5, 5, true)); // Assuming 5,5 is an invalid position
+        assertDoesNotThrow(() -> player.putCardInHand(card1));
+        assertThrows(InvalidPositionException.class, () -> player.performMove(card1.getId(), 5, 5, true)); // Assuming 5,5 is an invalid position
     }
 
     @DisplayName("performMove should return true when move is valid and update points accordingly")
@@ -369,12 +368,12 @@ class PlayerTest {
         Player player = new Player("test");
         NonObjectiveCard card = generateRandomNonObjectiveCard();
         assertNotNull(card);
-        assertTrue(player.assignStartingCard(card));
-        assertTrue(player.initializeGameField(true));
+        assertDoesNotThrow(() -> player.assignStartingCard(card));
+        assertDoesNotThrow(() -> player.initializeGameField(true));
         NonObjectiveCard card1 = generateRandomNonObjectiveCard();
-        assertTrue(player.putCardInHand(card1));
+        assertDoesNotThrow(() -> player.putCardInHand(card1));
         int initialPoints = player.getPoints();
-        assertTrue(player.performMove(card1.getId(), 1, 1, true));
+        assertDoesNotThrow(() -> player.performMove(card1.getId(), 1, 1, true));
         assertTrue(player.getPoints() >= initialPoints);
     }
 
@@ -387,7 +386,7 @@ class PlayerTest {
         Card card2 = generateRandomCard();
         assertNotNull(card2);
         Card[] cards = {card1, card2};
-        assertFalse(player.updatePointsForObjectives(cards));
+        assertThrows(NullPointStrategyException.class, () -> player.updatePointsForObjectives(cards));
     }
 
     @DisplayName("updatePointsForSecretObjective should return false when pointStrategy of secretObjective is null")
@@ -396,9 +395,9 @@ class PlayerTest {
         Player player = new Player("test");
         Card card1 = new Card(1, 1, null);
         Card card2 = generateRandomCard();
-        assertTrue(player.receiveSecretObjective(card1, card2));
-        assertTrue(player.secretObjectiveSelection(card1.getId()));
-        assertFalse(player.updatePointsForSecretObjective());
+        assertDoesNotThrow(() -> player.receiveSecretObjective(card1, card2));
+        assertDoesNotThrow(() -> player.secretObjectiveSelection(card1.getId()));
+        assertThrows(NullPointStrategyException.class, player::updatePointsForSecretObjective);
     }
 
     // The full coverage of the Player class will be archived through GameSimulationTest

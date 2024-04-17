@@ -54,7 +54,7 @@ public class Player {
     // Methods
 
     /**
-     * Place the initial card in the hand of the player
+     * Initializes the player hand and places the initial card in the player's hand
      *
      * @param initialCard is the initial card assigned by the match
      * @exception NonEmptyHandException Hand was not empty when we tried to assign the starting card
@@ -73,13 +73,13 @@ public class Player {
      * Create the field and place the initial card in it
      *
      * @param isUp denote the side of the card chosen by the player
-     * @exception NonEmptyFieldException When the field is not empty when I try to initialize it
-     * @exception NullHandException Hand was not empty when  tried to assign a starting card
+     * @exception NonNullFieldException Field existed already (was not null)
+     * @exception NullHandException Hand was null when tried to assign the starting card
      */
     public void initializeGameField(boolean isUp) {
 
         if (gameField != null)
-            throw new NonEmptyFieldException("Attempted to initialize a non-null gameField");
+            throw new NonNullFieldException("Attempted to initialize a non-null gameField");
         if (hand == null)
             throw new NullHandException("Attempted to place the starting card with empty hand.");
 
