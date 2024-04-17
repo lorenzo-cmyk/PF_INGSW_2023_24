@@ -8,7 +8,6 @@ import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.*;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -170,7 +169,7 @@ class FieldTest {
 
     @DisplayName("Execute a Path Coverage Structural Test on availableSpace method")
     @Test
-    void doStructuralTestingPlaceCardInField() throws MissingRequirementsException, InvalidPositionException {
+    void doStructuralTestingPlaceCardInField() {
 
         // Edge and Condition Coverage
 
@@ -206,7 +205,7 @@ class FieldTest {
 
         // Verify resources requirements (second part later: index {1})
 
-        assertThrows(MissingRequirementsException.class, ()-> mainTestfield.placeCardInField(testCardBasic, 1, 1, isUp));
+        assertThrows(MissingRequirementsException.class, ()-> mainTestfield.placeCardInField(testCardRequirements, 1, 1, isUp));
 
         // Verify space availability
         assertThrows(InvalidPositionException.class, ()-> mainTestfield.placeCardInField(testCardBasic, 0,0,isUp));
@@ -233,15 +232,19 @@ class FieldTest {
         assertThrows(InvalidPositionException.class, ()->tmpField2.placeCardInField(testCardBasic, 1, -1, isUp));
 
         // verify placement process executed successfully (includes extra part {1} and {2})
-        assertThrows(InvalidPositionException.class, ()->mainTestfield.placeCardInField(testCardBasic, -1, 1, isUp));// {1}
-        assertThrows(InvalidPositionException.class, ()->mainTestfield.placeCardInField(testCardBasic, 1, 1, isUp));
-        assertThrows(InvalidPositionException.class, ()->mainTestfield.placeCardInField(testCardBasic, -1, -1, isUp));
-        assertThrows(InvalidPositionException.class, ()->mainTestfield.placeCardInField(testCardBasic, 1, -1, isUp));
+        try {
+            mainTestfield.placeCardInField(testCardBasic, -1, 1, !isUp);
+            mainTestfield.placeCardInField(testCardBasic, 1, 1, isUp);
+            mainTestfield.placeCardInField(testCardBasic, -1, -1, isUp);
+            mainTestfield.placeCardInField(testCardBasic, 1, -1, isUp);
 
-        assertThrows(InvalidPositionException.class, ()->mainTestfield.placeCardInField(testCardBasic, 0, 2, isUp));          // {2}
-        assertThrows(InvalidPositionException.class, ()->mainTestfield.placeCardInField(testCardBasic, 2, 0, isUp));          // {2}
-        assertThrows(InvalidPositionException.class, ()->mainTestfield.placeCardInField(testCardBasic, 0, -2, isUp));         // {2}
-        assertThrows(InvalidPositionException.class, ()->mainTestfield.placeCardInField(testCardBasic, -2, 0, isUp));         // {2}
+            mainTestfield.placeCardInField(testCardBasic, 0, 2, isUp);
+            mainTestfield.placeCardInField(testCardBasic, 2, 0, isUp);
+            mainTestfield.placeCardInField(testCardBasic, 0, -2, isUp);
+            mainTestfield.placeCardInField(testCardBasic, -2, 0, isUp);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @DisplayName("Execute a Path Coverage Structural Test on all Getters")
@@ -283,7 +286,7 @@ class FieldTest {
                 CornerType.NON_COVERABLE,CornerType.NON_COVERABLE,CornerType.NON_COVERABLE,permRes, conditionCount,
                 ObjectType.ANIMAL);
 
-        Field field = new Field(testCard1, false);
+        final Field field = new Field(testCard1, false);
 
         int[] expectedRes = new int[7];
 
@@ -291,42 +294,40 @@ class FieldTest {
         assertEquals(1, field.getFieldCards().size());
         assertArrayEquals(expectedRes, field.getAllRes());
 
-
-        Field finalField = field;
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 0,0, true));
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 0,0, false));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 0,0, true));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 0,0, false));
 
         assertEquals(testCard1, field.getCardFromPosition(0,0));
         assertEquals(1, field.getFieldCards().size());
         assertArrayEquals(expectedRes, field.getAllRes());
 
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 1,0, true));
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 1,0, false));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 1,0, true));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 1,0, false));
 
         assertEquals(testCard1, field.getCardFromPosition(0,0));
         assertEquals(1, field.getFieldCards().size());
         assertArrayEquals(expectedRes, field.getAllRes());
 
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 0,40, true));
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 0,40, false));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 0,40, true));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 0,40, false));
 
         assertEquals(testCard1, field.getCardFromPosition(0,0));
         assertEquals(1, field.getFieldCards().size());
         assertArrayEquals(expectedRes, field.getAllRes());
 
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 100,100, true));
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 100,100, false));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 100,100, true));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 100,100, false));
 
         assertEquals(testCard1, field.getCardFromPosition(0,0));
         assertEquals(1, field.getFieldCards().size());
         assertArrayEquals(expectedRes, field.getAllRes());
 
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 1,1, true));
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard1, 1,1, false));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 1,1, true));
+        assertThrows(InvalidPositionException.class, () -> field.placeCardInField(testCard1, 1,1, false));
 
         assertEquals(testCard1, field.getCardFromPosition(0,0));
         assertEquals(1, field.getFieldCards().size());
@@ -339,77 +340,78 @@ class FieldTest {
                 CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,CornerType.EMPTY,
                 CornerType.EMPTY,CornerType.EMPTY,permRes, conditionCount,ObjectType.ANIMAL);
 
-        field = new Field(testCard2, false);
+        final Field field2 = new Field(testCard2, false);
 
         int[] expectedArray = new int[]{0,0,0,0,0,0,0};
 
         // 2.1. checking normal placing
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard2, 1,1, true));
+        assertDoesNotThrow(() -> field2.placeCardInField(testCard2, 1,1, true));
 
-        assertArrayEquals(expectedArray, (field.getAllRes()));
-        assertEquals(2, field.getFieldCards().size());
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard2, 0,2, true));
+        assertArrayEquals(expectedArray, (field2.getAllRes()));
+        assertEquals(2, field2.getFieldCards().size());
 
-        assertArrayEquals(expectedArray, (field.getAllRes()));
-        assertEquals(3, field.getFieldCards().size());
+        assertDoesNotThrow(() -> field2.placeCardInField(testCard2, 0,2, true));
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard2, -1,1, true));
+        assertArrayEquals(expectedArray, (field2.getAllRes()));
+        assertEquals(3, field2.getFieldCards().size());
 
-        assertArrayEquals(expectedArray, (field.getAllRes()));
-        assertEquals(4, field.getFieldCards().size());
+        assertDoesNotThrow(() -> field2.placeCardInField(testCard2, -1,1, true));
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard2, -1,3, true));
+        assertArrayEquals(expectedArray, (field2.getAllRes()));
+        assertEquals(4, field2.getFieldCards().size());
 
-        assertArrayEquals(expectedArray, (field.getAllRes()));
-        assertEquals(5, field.getFieldCards().size());
+        assertDoesNotThrow(() -> field2.placeCardInField(testCard2, -1,3, true));
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard2, 100,100, true));
+        assertArrayEquals(expectedArray, (field2.getAllRes()));
+        assertEquals(5, field2.getFieldCards().size());
 
-        assertArrayEquals(expectedArray, (field.getAllRes()));
-        assertEquals(5, field.getFieldCards().size());
+        assertThrows(InvalidPositionException.class, () -> field2.placeCardInField(testCard2, 100,100, true));
+
+        assertArrayEquals(expectedArray, (field2.getAllRes()));
+        assertEquals(5, field2.getFieldCards().size());
 
         // 2.2. checking overlap not possible
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard2, 0,0, true));
+        assertThrows(InvalidPositionException.class, () -> field2.placeCardInField(testCard2, 0,0, true));
 
-        assertArrayEquals(expectedArray, (field.getAllRes()));
-        assertEquals(5, field.getFieldCards().size());
+        assertArrayEquals(expectedArray, (field2.getAllRes()));
+        assertEquals(5, field2.getFieldCards().size());
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard2, 1,1, true));
+        assertThrows(InvalidPositionException.class, () -> field2.placeCardInField(testCard2, 1,1, true));
 
-        assertArrayEquals(expectedArray, (field.getAllRes()));
-        assertEquals(5, field.getFieldCards().size());
+        assertArrayEquals(expectedArray, (field2.getAllRes()));
+        assertEquals(5, field2.getFieldCards().size());
 
-        assertThrows(InvalidPositionException.class, () -> finalField.placeCardInField(testCard2, -1,3, true));
+        assertThrows(InvalidPositionException.class, () -> field2.placeCardInField(testCard2, -1,3, true));
 
-        assertArrayEquals(expectedArray, (field.getAllRes()));
-        assertEquals(5, field.getFieldCards().size());
+        assertArrayEquals(expectedArray, (field2.getAllRes()));
+        assertEquals(5, field2.getFieldCards().size());
 
         // 2.3. checking no strange card variation and that getCardFromPosition method works
 
-        assertEquals(field.getCardFromPosition(0,0), field.getCardFromPosition(0,2));
-        assertEquals(field.getCardFromPosition(0,2), field.getCardFromPosition(-1,3));
+        assertEquals(field2.getCardFromPosition(0,0), field2.getCardFromPosition(0,2));
+        assertEquals(field2.getCardFromPosition(0,2), field2.getCardFromPosition(-1,3));
 
         // 2.4. checking impossible placement in non valid positions
 
-        assertNull(field.getCardFromPosition(0,1));
+        assertNull(field2.getCardFromPosition(0,1));
 
-        assertNull(field.getCardFromPosition(100,100));
+        assertNull(field2.getCardFromPosition(100,100));
 
         // 2.5. checking availableSpace method works
 
-        assertFalse(field.availableSpace(0,0));
+        assertFalse(field2.availableSpace(0,0));
 
-        assertFalse(field.availableSpace(1,1));
+        assertFalse(field2.availableSpace(1,1));
 
-        assertFalse(field.availableSpace(1,2));
+        assertFalse(field2.availableSpace(1,2));
 
-        assertTrue(field.availableSpace(1,3));
+        assertTrue(field2.availableSpace(1,3));
 
-        assertFalse(field.availableSpace(1,0));
+        assertFalse(field2.availableSpace(1,0));
 
-        assertFalse(field.availableSpace(100,100));
+        assertFalse(field2.availableSpace(100,100));
     }
 
     @DisplayName("Verify purity of getCardFromPosition")
