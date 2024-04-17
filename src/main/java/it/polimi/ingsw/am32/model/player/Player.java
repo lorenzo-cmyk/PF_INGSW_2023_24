@@ -331,6 +331,11 @@ public class Player {
         return tmpSecretObj;
     }
 
+    /**
+     * Getter:
+     *
+     * @return the points gained from the objectives
+     */
     public int getPointsGainedFromObjectives() {
         return pointsGainedFromObjectives;
     }
@@ -348,7 +353,7 @@ public class Player {
     }
 
     /**
-     * assign a colour to the player if it doesn't have already one
+     * Assign a colour to the player if it doesn't have already one
      *
      * @param colour is the colour of the player
      * @exception NonNullColourException Try to set the colour when it was already set.
