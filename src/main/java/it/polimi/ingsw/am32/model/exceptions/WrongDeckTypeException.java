@@ -9,6 +9,8 @@ package it.polimi.ingsw.am32.model.exceptions;
 public class WrongDeckTypeException extends RuntimeException {
     /**
      * Constructs a new WrongDeckTypeException.
+     *
+     * @param message the message that explains the error
      */
     public WrongDeckTypeException(String message) {
         super(message);
