@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.model.exceptions.*;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("ALL")
 public interface ModelInterface {
     void enterLobbyPhase();
     void addPlayer(String nickname) throws DuplicateNicknameException;
