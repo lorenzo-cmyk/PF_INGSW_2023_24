@@ -43,7 +43,7 @@ class LConfigurationTwoTest {
 
     @DisplayName("Strategy called on field containing 2 stacked plant cards should return 0")
     @Test
-    void occurrencesOnFieldWithAlmostOneLVariant1ShouldBeZero() throws MissingRequirementsException, InvalidPositionException {
+    void occurrencesOnFieldWithAlmostOneLVariant1ShouldBeZero() {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
         try {

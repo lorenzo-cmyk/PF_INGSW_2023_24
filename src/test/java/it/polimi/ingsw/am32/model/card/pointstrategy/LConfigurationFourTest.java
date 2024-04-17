@@ -390,8 +390,8 @@ class LConfigurationFourTest {
             f.placeCardInField(c1, -1, -1, true);
             f.placeCardInField(c2, -1, 1, true);
             f.placeCardInField(c3, 0, 2, true);
-            f.placeCardInField(c4, -2, 0, true);
-            f.placeCardInField(c5, -2, 2, true);
+            f.placeCardInField(c4, -2, -2, true);
+            f.placeCardInField(c5, -2, 0, true);
             f.placeCardInField(c6, -3, -1, true);
             f.placeCardInField(c7, -3, -3, true);
             f.placeCardInField(c8, -2, -4, true);
