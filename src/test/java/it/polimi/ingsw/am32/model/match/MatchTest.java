@@ -1,9 +1,15 @@
 package it.polimi.ingsw.am32.model.match;
 
+import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.NullColourException;
+import it.polimi.ingsw.am32.model.exceptions.NullFieldException;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
+import it.polimi.ingsw.am32.model.player.Player;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -56,12 +62,12 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Add a new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
         // The new Player should be now present
         ArrayList<String> nicknames = myMatch.getPlayersNicknames();
         assertTrue(nicknames.stream().anyMatch(p -> p.equals("TestPlayerOne")));
         // I will try to add this Player again but addPlayer should not add it
-        assertFalse(myMatch.addPlayer("TestPlayerOne"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerOne"));
         nicknames = myMatch.getPlayersNicknames();
         assert (nicknames.size() == 1);
 
@@ -75,13 +81,13 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Add a new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
         assert (myMatch.getPlayersNicknames().size() == 1);
         // I will try to remove a non-existing Player
-        assertFalse(myMatch.deletePlayer("TestPlayerTwo"));
+        assertThrows(PlayerNotFoundException.class, () -> myMatch.deletePlayer("TestPlayerTwo"));
         assert (myMatch.getPlayersNicknames().size() == 1);
         // I will try to remove an exiting Player
-        assertTrue(myMatch.deletePlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.deletePlayer("TestPlayerOne"));
         assert (myMatch.getPlayersNicknames().isEmpty());
     }
 
@@ -101,23 +107,25 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create four new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
-        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
-        assertTrue(myMatch.addPlayer("TestPlayerThree"));
-        assertTrue(myMatch.addPlayer("TestPlayerFour"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerTwo"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerThree"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerFour"));
         // Assign random colours to each Player
         myMatch.assignRandomColoursToPlayers();
         // Check that each Player has a unique colour
-        ArrayList<Integer> colours = myMatch.getPlayersNicknames()
-                .stream().map(myMatch::getPlayerColour)
-                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
-        // We should have 4 different colours
-        assert (colours.stream().distinct().count() == 4);
+        for (Player p : myMatch.getPlayers()) {
+            for (Player p2 : myMatch.getPlayers()) {
+                if (p != p2) {
+                    assert(p.getColour() != p2.getColour());
+                }
+            }
+        }
         // What happens if I try to get the colour from a non-existing Player?
-        assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
+        assertThrows(PlayerNotFoundException.class, () ->myMatch.getPlayerColour("TestPlayerFive"));
         // If now I add the Player, but I don't assign a colour, the method should return -1
-        assertTrue(myMatch.addPlayer("TestPlayerFive"));
-        assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
+        assertDoesNotThrow(() ->myMatch.addPlayer("TestPlayerFive"));
+        assertThrows(NullColourException.class, () -> myMatch.getPlayerColour("TestPlayerFive"));
 
         // This test also checks the following methods:
         // - getPlayerColour
@@ -129,15 +137,22 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create four new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
-        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
-        assertTrue(myMatch.addPlayer("TestPlayerThree"));
-        assertTrue(myMatch.addPlayer("TestPlayerFour"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerTwo"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerThree"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerFour"));
         // Assign random starting initial cards to each Player
         myMatch.assignRandomStartingInitialCardsToPlayers();
         // Check that each Player has a unique starting initial card
         ArrayList<?> startingCardsID = myMatch.getPlayersNicknames()
-                .stream().map(myMatch::getInitialCardPlayer)
+                .stream().map(nickname -> {
+                    try {
+                        return myMatch.getInitialCardPlayer(nickname);
+                    } catch (PlayerNotFoundException e) {
+                        fail();
+                    }
+                    return 0; // To force the flatmap to have a return value in case of failure. To make the compiler happy mostly.
+                })
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         // We should have 4 starting cards
         assert (startingCardsID.size() == 4);
@@ -151,11 +166,13 @@ public class MatchTest {
     public void getInitialCardPlayerShouldReturnTheIDOfTheInitialCardOfAPlayer() {
         Match myMatch = new Match();
         assertNotNull(myMatch);
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
         myMatch.assignRandomStartingInitialCardsToPlayers();
         // Test the behaviour of getInitialCardPlayer
-        assert (myMatch.getInitialCardPlayer("TestPlayerOne") != -1);
-        assert (myMatch.getInitialCardPlayer("TestPlayerTwo") == -1);
+        assertDoesNotThrow(() -> myMatch.getInitialCardPlayer("TestPlayerOne"));
+        assertThrows(PlayerNotFoundException.class,  () -> {
+            myMatch.getInitialCardPlayer("TestPlayerTwo");
+        });
     }
 
     @DisplayName("createFieldPlayer should initialize the Player field")
@@ -163,15 +180,19 @@ public class MatchTest {
     public void createFieldPlayerShouldInitializeThePlayerField() {
         Match myMatch = new Match();
         assertNotNull(myMatch);
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
         // Assign a random starting initial card to the Player
         myMatch.assignRandomStartingInitialCardsToPlayers();
         // Test the behaviour of createFieldPlayer
-        assertTrue(myMatch.createFieldPlayer("TestPlayerOne", true));
-        assertFalse(myMatch.createFieldPlayer("TestPlayerTwo", true));
+        assertDoesNotThrow(() -> myMatch.createFieldPlayer("TestPlayerOne", true));
+        assertThrows(PlayerNotFoundException.class, () -> myMatch.createFieldPlayer("TestPlayerTwo", true));
         // Check that the Player field has been initialized correctly
-        assert(myMatch.getPlayerField("TestPlayerOne").size() == 1);
-        assert(myMatch.getPlayerField("TestPlayerTwo").isEmpty());
+        try {
+            assertEquals(myMatch.getPlayerField("TestPlayerOne").size(), 1);
+        } catch (PlayerNotFoundException e) {
+            fail();
+        }
+        assertThrows(PlayerNotFoundException.class, () -> myMatch.getPlayerField("TestPlayerTwo"));
 
         // This test also checks the following methods:
         // - createFieldPlayer
@@ -183,18 +204,25 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create four new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
-        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
-        assertTrue(myMatch.addPlayer("TestPlayerThree"));
-        assertTrue(myMatch.addPlayer("TestPlayerFour"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerTwo"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerThree"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerFour"));
         // Assign random starting card to each Player (we need to assign the initial card first)
         myMatch.assignRandomStartingInitialCardsToPlayers();
         // Assign random starting resource cards to each Player
         myMatch.assignRandomStartingResourceCardsToPlayers();
         // Check the number of cards assigned to each Player
         List<Integer> cards = myMatch.getPlayersNicknames().stream()
-                .flatMap(nickname -> myMatch.getPlayerHand(nickname)
-                        .stream()).toList();
+                .flatMap(nickname -> {
+                    try {
+                        return myMatch.getPlayerHand(nickname)
+                                .stream();
+                    } catch (PlayerNotFoundException e) {
+                        fail();
+                    }
+                    return null; // To force the flatmap to have a return value in case of failure. To make the compiler happy mostly.
+                }).toList();
         // We should have 12 different cards
         assert (cards.stream().distinct().count() == 12);
     }
@@ -205,18 +233,25 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create four new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
-        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
-        assertTrue(myMatch.addPlayer("TestPlayerThree"));
-        assertTrue(myMatch.addPlayer("TestPlayerFour"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerTwo"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerThree"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerFour"));
         // Assign random starting card to each Player (we need to assign the initial card first)
         myMatch.assignRandomStartingInitialCardsToPlayers();
         // Assign random starting gold cards to each Player
         myMatch.assignRandomStartingGoldCardsToPlayers();
         // Check the number of cards assigned to each Player
         List<Integer> cards = myMatch.getPlayersNicknames().stream()
-                .flatMap(nickname -> myMatch.getPlayerHand(nickname)
-                        .stream()).toList();
+                .flatMap(nickname -> {
+                    try {
+                        return myMatch.getPlayerHand(nickname)
+                            .stream();
+                    } catch (PlayerNotFoundException e) {
+                        fail();
+                    }
+                    return null; // To force the flatmap to have a return value in case of failure. To make the compiler happy mostly.
+                }).toList();
         // We should have 8 different cards
         assert (cards.stream().distinct().count() == 8);
     }
@@ -244,10 +279,10 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create four new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
-        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
-        assertTrue(myMatch.addPlayer("TestPlayerThree"));
-        assertTrue(myMatch.addPlayer("TestPlayerFour"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerTwo"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerThree"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerFour"));
         // Assign random starting secret objectives to each Player
         myMatch.assignRandomStartingSecretObjectivesToPlayers();
         // Check the number of cards assigned to each Player
@@ -264,7 +299,7 @@ public class MatchTest {
     public void getSecretObjectiveCardsPlayerShouldReturnTheIDOfTheSecretObjectiveCardOfAPlayer() {
         Match myMatch = new Match();
         assertNotNull(myMatch);
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
         myMatch.assignRandomStartingSecretObjectivesToPlayers();
         // Test the behaviour of getSecretObjectiveCardsPlayer
         assert (myMatch.getSecretObjectiveCardsPlayer("TestPlayerOne").size() == 2);
@@ -277,14 +312,14 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create a new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
         // Assign two random starting secret objectives to the Player
         myMatch.assignRandomStartingSecretObjectivesToPlayers();
         // Retrieve the secret objectives of the Player
         List<Integer> secretObjectives = myMatch.getSecretObjectiveCardsPlayer("TestPlayerOne");
         // Test the behaviour of receiveSecretObjectiveChoiceFromPlayer
-        assertTrue(myMatch.receiveSecretObjectiveChoiceFromPlayer("TestPlayerOne", secretObjectives.getFirst()));
-        assertFalse(myMatch.receiveSecretObjectiveChoiceFromPlayer("TestPlayerTwo", 0));
+        assertDoesNotThrow(() -> myMatch.receiveSecretObjectiveChoiceFromPlayer("TestPlayerOne", secretObjectives.getFirst()));
+        assertThrows(PlayerNotFoundException.class, () ->  myMatch.receiveSecretObjectiveChoiceFromPlayer("TestPlayerTwo", 0));
     }
 
     @DisplayName("randomizePlayersOrder should shuffle the players order")
@@ -294,7 +329,13 @@ public class MatchTest {
         assertNotNull(myMatch);
         // Create four new Player
         List<String> nicknamesCopy = Stream.of("TestPlayerOne", "TestPlayerTwo", "TestPlayerThree",
-                "TestPlayerFour").peek(myMatch::addPlayer).toList();
+                "TestPlayerFour").peek(nickname -> {
+            try {
+                myMatch.addPlayer(nickname);
+            } catch (DuplicateNicknameException e) {
+                fail();
+            }
+        }).toList();
         // Randomize the players order
         myMatch.randomizePlayersOrder();
         // Check that the players order has been shuffled
@@ -317,8 +358,13 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create four new Player
-        Stream.of("TestPlayerOne", "TestPlayerTwo", "TestPlayerThree", "TestPlayerFour")
-                .forEach(myMatch::addPlayer);
+        for (String s : Arrays.asList("TestPlayerOne", "TestPlayerTwo", "TestPlayerThree", "TestPlayerFour")) {
+            try {
+                myMatch.addPlayer(s);
+            } catch (DuplicateNicknameException e) {
+                fail();
+            }
+        }
         // Randomize the players order
         myMatch.randomizePlayersOrder();
         // Start the turns
@@ -341,8 +387,13 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create four new Player
-        Stream.of("TestPlayerOne", "TestPlayerTwo", "TestPlayerThree", "TestPlayerFour")
-                .forEach(myMatch::addPlayer);
+        for (String s : Arrays.asList("TestPlayerOne", "TestPlayerTwo", "TestPlayerThree", "TestPlayerFour")) {
+            try {
+                myMatch.addPlayer(s);
+            } catch (DuplicateNicknameException e) {
+                fail();
+            }
+        }
         // Randomize the players order
         myMatch.randomizePlayersOrder();
         // Start the turns
@@ -406,12 +457,16 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create a new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
         // Assign a random starting initial card to the Player
         myMatch.assignRandomStartingInitialCardsToPlayers();
         // Test the behaviour of getPlayerHand
-        assert(myMatch.getPlayerHand("TestPlayerOne").size() == 1);
-        assertNull(myMatch.getPlayerHand("TestPlayerTwo"));
+        try {
+            assertEquals(myMatch.getPlayerHand("TestPlayerOne").size(), 1);
+        } catch (PlayerNotFoundException e) {
+            fail();
+        }
+        assertThrows(PlayerNotFoundException.class, () -> myMatch.getPlayerHand("TestPlayerTwo"));
     }
 
     @DisplayName("getPlayerSecretObjective should return the ID of the secret objective card chosen by the Player. " +
@@ -421,16 +476,24 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create a new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
-        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerTwo"));
         // Assign two random starting secret objectives to the Player
         myMatch.assignRandomStartingSecretObjectivesToPlayers();
         // Retrieve the secret objectives of the Player
         List<Integer> secretObjectives = myMatch.getSecretObjectiveCardsPlayer("TestPlayerOne");
         // Test the behaviour of receiveSecretObjectiveChoiceFromPlayer
-        assertTrue(myMatch.receiveSecretObjectiveChoiceFromPlayer("TestPlayerOne", secretObjectives.getFirst()));
-        assertEquals(myMatch.getPlayerSecretObjective("TestPlayerOne"), secretObjectives.getFirst());
-        assertEquals(myMatch.getPlayerSecretObjective("TestPlayerTwo"), -1);
+        assertDoesNotThrow(() -> myMatch.receiveSecretObjectiveChoiceFromPlayer("TestPlayerOne", secretObjectives.getFirst()));
+        try {
+            assertEquals(myMatch.getPlayerSecretObjective("TestPlayerOne"), secretObjectives.getFirst());
+        } catch (PlayerNotFoundException e) {
+            fail();
+        }
+        try {
+            assertEquals(-1, myMatch.getPlayerSecretObjective("TestPlayerTwo"));
+        } catch (PlayerNotFoundException e) {
+            fail();
+        }
     }
 
     @DisplayName("getPlayerResources should return the resources of the Player. If the Player has not field " +
@@ -440,17 +503,25 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create a new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
-        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerTwo"));
         // Assign a random starting initial card to the Player
         myMatch.assignRandomStartingInitialCardsToPlayers();
         // Initialize the Player field (but only for the first Player)
-        myMatch.createFieldPlayer("TestPlayerOne", true);
+        try {
+            myMatch.createFieldPlayer("TestPlayerOne", true);
+        } catch (PlayerNotFoundException e) {
+            fail();
+        }
         // Test the behaviour of getPlayerResources
         // The first Player has field initialized. We expect 7 resources allocated.
-        assertEquals(myMatch.getPlayerResources("TestPlayerOne").length, 7);
+        try {
+            assertEquals(myMatch.getPlayerResources("TestPlayerOne").length, 7);
+        } catch (PlayerNotFoundException e) {
+            fail();
+        }
         // The second Player has not field initialized yet
-        assertNull(myMatch.getPlayerResources("TestPlayerTwo"));
+        assertThrows(NullFieldException.class, () -> myMatch.getPlayerResources("TestPlayerTwo"));
     }
 
 }

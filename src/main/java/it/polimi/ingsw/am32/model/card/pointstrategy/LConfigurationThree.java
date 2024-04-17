@@ -23,7 +23,7 @@ public class LConfigurationThree implements PointStrategy {
      * @param y The y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been fulfilled in this field.
      */
-    public int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurrences(Field field, int x, int y) {
         int times = 0;
         List<CardPlaced> animalKingdom = new ArrayList<>(); // create Arraylist to store all cards of animal Kingdom visible in field.
         for (CardPlaced i : field.getFieldCards()) {

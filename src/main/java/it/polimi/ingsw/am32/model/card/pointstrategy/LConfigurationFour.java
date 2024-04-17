@@ -25,7 +25,7 @@ public class LConfigurationFour implements PointStrategy {
     * @param y Parameter not used
     * @return Number of found L configurations
     */
-    public int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurrences(Field field, int x, int y) {
         ArrayList<CardPlaced> fieldCards = field.getFieldCards(); // Get all the cards with their positions
 
         List<CardPlaced> orderedCardsTemp = fieldCards.stream() // Converts ArrayList to stream

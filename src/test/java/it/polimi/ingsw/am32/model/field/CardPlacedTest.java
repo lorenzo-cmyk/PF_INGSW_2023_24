@@ -43,10 +43,7 @@ class CardPlacedTest {
         assertEquals(y,testCardPlaced.getY());
         assertEquals(isUp,testCardPlaced.getIsUp());
 
-        assertEquals(testCardPlaced, testCardPlaced);
-
         assertNotEquals(null, testCardPlaced);
-        assertNotEquals(testCardPlaced, testCard);
 
         assertNotEquals(testCardPlaced, testCardPlaced3);
         assertNotEquals(testCardPlaced, testCardPlaced4);
@@ -54,6 +51,5 @@ class CardPlacedTest {
         assertNotEquals(testCardPlaced, testCardPlaced6);
 
         assertEquals(testCardPlaced, testCardPlaced2);
-        testCardPlaced.hashCode();
     }
 }

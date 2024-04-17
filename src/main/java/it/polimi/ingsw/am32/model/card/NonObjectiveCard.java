@@ -63,46 +63,101 @@ public class NonObjectiveCard extends Card {
         this.kingdom = kingdom;
     }
 
+    /**
+     * Getter of topLeft
+     *
+     * @return Top left corner object
+     */
     public CornerType getTopLeft() {
         return topLeft;
     }
 
+    /**
+     * Getter of topRight
+     *
+     * @return Top right corner object
+     */
     public CornerType getTopRight() {
         return topRight;
     }
 
+    /**
+     * Getter of bottomLeft
+     *
+     * @return Bottom left corner object
+     */
     public CornerType getBottomLeft() {
         return bottomLeft;
     }
 
+    /**
+     * Getter of bottomRight
+     *
+     * @return Bottom right corner object
+     */
     public CornerType getBottomRight() {
         return bottomRight;
     }
 
+    /**
+     * Getter of topLeftBack
+     *
+     * @return Top left corner object at the back
+     */
     public CornerType getTopLeftBack() {
         return topLeftBack;
     }
 
+    /**
+     * Getter of topRightBack
+     *
+     * @return Top right corner object at the back
+     */
     public CornerType getTopRightBack() {
         return topRightBack;
     }
 
+    /**
+     * Getter of bottomLeftBack
+     *
+     * @return Bottom left corner object at the back
+     */
     public CornerType getBottomLeftBack() {
         return bottomLeftBack;
     }
 
+    /**
+     * Getter of bottomRightBack
+     *
+     * @return Bottom right corner object at the back
+     */
     public CornerType getBottomRightBack() {
         return bottomRightBack;
     }
 
+    /**
+     * Getter of permRes
+     *
+     * @return Permanent resources of the card
+     */
     public int[] getPermRes() {
         return permRes;
     }
 
+    /**
+     * Getter of conditionCount
+     *
+     * @return Resources needed to place the card
+     */
     public int[] getConditionCount() {
         return conditionCount;
     }
 
+    /**
+     * Getter of kingdom
+     *
+     * @return Kingdom of card
+     */
     public ObjectType getKingdom() {
         return kingdom;
     }

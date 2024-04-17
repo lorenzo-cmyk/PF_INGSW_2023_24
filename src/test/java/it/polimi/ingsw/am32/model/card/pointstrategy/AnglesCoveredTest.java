@@ -2,6 +2,8 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
 
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.exceptions.InvalidPositionException;
+import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
 import it.polimi.ingsw.am32.model.field.Field;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,34 +41,50 @@ class AnglesCoveredTest {
 
     @DisplayName("Strategy called on field with strategy card placed on initial card at the top right (excluding initial card) should return 1")
     @Test
-    void occurrencesOnFieldWithOneCardAtTopRightOfInitialCardShouldBeOne() {
+    void occurrencesOnFieldWithOneCardAtTopRightOfInitialCardShouldBeOne()  {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
-        f.placeCardInField(c1, 1, 1, true); // Card placed side-up
-        assertEquals(1, strategy.calculateOccurences(f, 1, 1));
+        try {
+            f.placeCardInField(c1, 1, 1, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        assertEquals(1, strategy.calculateOccurrences(f, 1, 1));
     }
 
     @DisplayName("Strategy called on field with strategy card placed on initial card at the top left (excluding initial card) should return 1")
     @Test
     void occurrencesOnFieldWithOneCardAtTopLeftOfInitialCardShouldBeOne() {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
-        f.placeCardInField(c1, -1, 1, true); // Card placed side-up
-        assertEquals(1, strategy.calculateOccurences(f, -1, 1));
+        try {
+            f.placeCardInField(c1, -1, 1, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        assertEquals(1, strategy.calculateOccurrences(f, -1, 1));
     }
 
     @DisplayName("Strategy called on field with strategy card placed on initial card at the bottom right (excluding initial card) should return 1")
     @Test
     void occurrencesOnFieldWithOneCardAtBottomRightOfInitialCardShouldBeOne() {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
-        f.placeCardInField(c1, 1, -1, true); // Card placed side-up
-        assertEquals(1, strategy.calculateOccurences(f, 1, -1));
+        try {
+            f.placeCardInField(c1, 1, -1, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        assertEquals(1, strategy.calculateOccurrences(f, 1, -1));
     }
 
     @DisplayName("Strategy called on field with strategy card placed on initial card at the bottom left (excluding initial card) should return 1")
     @Test
     void occurrencesOnFieldWithOneCardAtBottomLeftOfInitialCardShouldBeOne() {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
-        f.placeCardInField(c1, -1, -1, true); // Card placed side-up
-        assertEquals(1, strategy.calculateOccurences(f, -1, -1));
+        try {
+            f.placeCardInField(c1, -1, -1, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        assertEquals(1, strategy.calculateOccurrences(f, -1, -1));
     }
 
     @DisplayName("Strategy called on field with strategy card covering the bottom right of one card, and the top right of another should return 2")
@@ -75,35 +93,75 @@ class AnglesCoveredTest {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
-        f.placeCardInField(c1, 1, 1, true); // Card placed side-up
-        f.placeCardInField(c2, 1, -1, true); // Card placed side-up
-        f.placeCardInField(c3, 2, 0, true); // Card placed side-up
-        assertEquals(2, strategy.calculateOccurences(f, 2, 0));
+        try {
+            f.placeCardInField(c1, 1, 1, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        try {
+            f.placeCardInField(c2, 1, -1, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        try {
+            f.placeCardInField(c3, 2, 0, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        assertEquals(2, strategy.calculateOccurrences(f, 2, 0));
     }
 
     @DisplayName("Strategy called on field with strategy card covering the bottom right, bottom left, and top left of various cards should return 3")
     @Test
-    void occurrencesOnFieldWithStrategyCardCoveringBottomRightAndBottomLeftAndTopLeftShouldBeThree() {
+    void occurrencesOnFieldWithStrategyCardCoveringBottomRightAndBottomLeftAndTopLeftShouldBeThree()  {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
-        f.placeCardInField(c1, 1, -1, true); // Card placed side-up
-        f.placeCardInField(c2, 2, 0, true); // Card placed side-up
-        f.placeCardInField(c3, 2, -2, true); // Card placed side-up
-        assertEquals(3, strategy.calculateOccurences(f, 1, -1));
+        try {
+            f.placeCardInField(c1, 1, -1, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        try {
+            f.placeCardInField(c2, 2, 0, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        try {
+            f.placeCardInField(c3, 2, -2, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        assertEquals(3, strategy.calculateOccurrences(f, 1, -1));
     }
 
     @DisplayName("Strategy called on field with strategy card covering the bottom right, bottom left, top left, and top right of various cards should return 4")
     @Test
-    void occurrencesOnFieldWithStrategyCardCoveringBottomRightAndBottomLeftAndTopLeftAndTopRightShouldBeFour() {
+    void occurrencesOnFieldWithStrategyCardCoveringBottomRightAndBottomLeftAndTopLeftAndTopRightShouldBeFour()  {
         NonObjectiveCard c1 = new NonObjectiveCard(1, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
         NonObjectiveCard c2 = new NonObjectiveCard(2, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
         NonObjectiveCard c3 = new NonObjectiveCard(3, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
         NonObjectiveCard c4 = new NonObjectiveCard(4, value, pointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, kingdom);
-        f.placeCardInField(c1, 1, -1, true); // Card placed side-up
-        f.placeCardInField(c2, 2, 0, true); // Card placed side-up
-        f.placeCardInField(c3, 2, -2, true); // Card placed side-up
-        f.placeCardInField(c4, 0, -2, true); // Card placed side-up
-        assertEquals(4, strategy.calculateOccurences(f, 1, -1));
+        try {
+            f.placeCardInField(c1, 1, -1, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        try {
+            f.placeCardInField(c2, 2, 0, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        try {
+            f.placeCardInField(c3, 2, -2, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        try {
+            f.placeCardInField(c4, 0, -2, true); // Card placed side-up
+        } catch (InvalidPositionException | MissingRequirementsException e) {
+            fail();
+        }
+        assertEquals(4, strategy.calculateOccurrences(f, 1, -1));
     }
 }

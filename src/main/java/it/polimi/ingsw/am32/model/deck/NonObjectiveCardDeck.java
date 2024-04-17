@@ -42,26 +42,18 @@ public class NonObjectiveCardDeck {
 
     /**
      * Randomly rearranges the cards.
-     *
-     * @return True if deck is not empty, false if deck is empty.
      */
-    public boolean shuffle() {
-        if (cards.isEmpty()) return false;
-        else {
-            Collections.shuffle(cards);
-            return true;
-        }
+    public void shuffle() {
+        Collections.shuffle(cards);
     }
 
     /**
      * Adds a card to the top of the deck.
      *
      * @param card NonObjectiveCard to add
-     * @return True if card was successfully added, false otherwise.
      */
-    public boolean addCard(NonObjectiveCard card) {
+    public void addCard(NonObjectiveCard card) {
         cards.add(card);
-        return true;
     }
 
     /**

@@ -28,7 +28,7 @@ public class Diagonals implements PointStrategy {
      * @param y the y coordinates of the card whose points are being calculated.
      * @return Number of times that objective card has been fulfilled in this field.
      */
-    public int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurrences(Field field, int x, int y) {
         int times = 0;
         List<CardPlaced> dominantKingdom = new ArrayList<>(); // create Arraylist to store all cards that belong the Kingdom requested by objective Card.
         for (CardPlaced i : field.getFieldCards()) {

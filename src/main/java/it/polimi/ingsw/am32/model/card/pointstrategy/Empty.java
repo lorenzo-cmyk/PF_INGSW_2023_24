@@ -15,7 +15,7 @@ public class Empty implements PointStrategy {
      * @param y The y coordinates of the card whose points are being calculated.
      * @return Always one.
      */
-    public int calculateOccurences(Field field, int x, int y) {
+    public int calculateOccurrences(Field field, int x, int y) {
 
         return 1; // for cards that have value constant
     }

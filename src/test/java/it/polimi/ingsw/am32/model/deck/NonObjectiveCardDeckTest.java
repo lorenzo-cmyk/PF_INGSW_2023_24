@@ -55,19 +55,6 @@ class NonObjectiveCardDeckTest {
         assertNull(nonObjectiveCardDeck.draw());
     }
 
-    @DisplayName("shuffle should return true when the deck is not empty")
-    @Test
-    void shuffleReturnsTrueWhenDeckIsNotEmpty() {
-        assertTrue(nonObjectiveCardDeck.shuffle());
-    }
-
-    @DisplayName("shuffle should return false when the deck is empty")
-    @Test
-    void shuffleReturnsFalseWhenDeckIsEmpty() {
-        nonObjectiveCardDeck.draw(); // remove the only card in the deck
-        assertFalse(nonObjectiveCardDeck.shuffle());
-    }
-
     @DisplayName("addCard should add a card to the deck")
     @Test
     void addCardAddsCardToDeck() {
@@ -89,7 +76,7 @@ class NonObjectiveCardDeckTest {
                 conditionCount,
                 ObjectType.INSECT
         );
-        assertTrue(nonObjectiveCardDeck.addCard(newCard));
+        nonObjectiveCardDeck.addCard(newCard);
         assertEquals(newCard, nonObjectiveCardDeck.draw());
     }
 
