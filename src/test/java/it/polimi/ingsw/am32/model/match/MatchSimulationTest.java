@@ -1,8 +1,6 @@
 package it.polimi.ingsw.am32.model.match;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
-import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
-import it.polimi.ingsw.am32.model.exceptions.InvalidSelectionException;
-import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
+import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +20,7 @@ class MatchSimulationTest {
 
     @DisplayName("Run a, partial, game simulation in order to test the game mechanics")
     @Test
-    public void runGameSimulation() throws DuplicateNicknameException, PlayerNotFoundException, InvalidSelectionException {
+    public void runGameSimulation() {
         Random rand = new Random(); // Crate new random number generator
 
         double flippedCardWeight = 0.15; // Probability that a card is placed on its back (excluding starting card)
@@ -57,7 +55,11 @@ class MatchSimulationTest {
         // Create Field for players
         for (Player player : myMatch.getPlayers()) {
             boolean randomSide = rand.nextBoolean();
-            myMatch.createFieldPlayer(player.getNickname(), randomSide);
+            try{
+            myMatch.createFieldPlayer(player.getNickname(), randomSide);}
+            catch (PlayerNotFoundException e) {
+                fail();
+            }
         } LOGGER.info("Created player fields");
         // Assign random starting resource cards, gold cards, common objectives and secret objectives to players
         myMatch.assignRandomStartingResourceCardsToPlayers(); LOGGER.info("Assigned random starting resource cards to players");
@@ -65,7 +67,11 @@ class MatchSimulationTest {
         myMatch.pickRandomCommonObjectives(); LOGGER.info("Picked random common objective");
         myMatch.assignRandomStartingSecretObjectivesToPlayers(); LOGGER.info("Assigned random starting secret objective cards to players");
         for(Player player : myMatch.getPlayers()) {
-            myMatch.receiveSecretObjectiveChoiceFromPlayer(player.getNickname(), myMatch.getSecretObjectiveCardsPlayer(player.getNickname()).get(1));
+            try{
+                myMatch.receiveSecretObjectiveChoiceFromPlayer(player.getNickname(), myMatch.getSecretObjectiveCardsPlayer(player.getNickname()).get(0));
+            } catch (InvalidSelectionException | PlayerNotFoundException e) {
+                fail();
+            }
         } LOGGER.info("Received secret objective choice from players");
 
         myMatch.randomizePlayersOrder(); LOGGER.info("Randomized player order");
@@ -107,7 +113,13 @@ class MatchSimulationTest {
                     boolean randomSide = Math.random() > flippedCardWeight; // Get a random placement side for the card
 
                     // Attempt to place a card
-                    successful = myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide); LOGGER.info("Attempted to place card: " + randomHandCard.getId() + " at " + randomCoordinate[0] + ", " + randomCoordinate[1] + " with side " + randomSide);
+                    try {
+                        myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide);
+                        successful =true;
+                    } catch (InvalidSelectionException | MissingRequirementsException | InvalidPositionException e) {
+                        fail();
+                    }
+                    LOGGER.info("Attempted to place card: " + randomHandCard.getId() + " at " + randomCoordinate[0] + ", " + randomCoordinate[1] + " with side " + randomSide);
                 } logGameState("Placed card");
 
                 // Drawing phase
@@ -171,6 +183,7 @@ class MatchSimulationTest {
                                 expectedOutcome = false;
                                 break;
                         } LOGGER.info("Trying to draw. randomType: " + randomType + " randomCurrentCard: " + randomCurrentCard + " expectedOutcome: " + expectedOutcome);
+
 
                         assert(myMatch.drawCard(randomType, randomCurrentCard) == expectedOutcome);
 

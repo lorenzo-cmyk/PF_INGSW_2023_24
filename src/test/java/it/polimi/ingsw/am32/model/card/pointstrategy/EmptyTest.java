@@ -39,10 +39,14 @@ class EmptyTest {
 
     @DisplayName("Strategy called on field with 1 card not initial card should return 1")
     @Test
-    void occurrencesOnFieldWithOneCardKingdomRequiredShouldBeOne() throws MissingRequirementsException, InvalidPositionException {
+    void occurrencesOnFieldWithOneCardKingdomRequiredShouldBeOne() {
         Empty strategy = new Empty();
         NonObjectiveCard c1 = new NonObjectiveCard(11, 0, pointStrategy, CornerType.PLANT, CornerType.EMPTY, CornerType.PLANT, CornerType.NON_COVERABLE, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.PLANT);
-        f.placeCardInField(c1, 1, 1, true); // Card placed side-up
+        try {
+            f.placeCardInField(c1, 1, 1, true); // Card placed side-up
+        } catch (MissingRequirementsException | InvalidPositionException e) {
+            fail();
+        }
         assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
 }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am32.model.match;
 
+import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -56,12 +58,12 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Add a new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerOne"));
         // The new Player should be now present
         ArrayList<String> nicknames = myMatch.getPlayersNicknames();
         assertTrue(nicknames.stream().anyMatch(p -> p.equals("TestPlayerOne")));
         // I will try to add this Player again but addPlayer should not add it
-        assertFalse(myMatch.addPlayer("TestPlayerOne"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerOne"));
         nicknames = myMatch.getPlayersNicknames();
         assert (nicknames.size() == 1);
 
@@ -75,13 +77,13 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Add a new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerOne"));
         assert (myMatch.getPlayersNicknames().size() == 1);
         // I will try to remove a non-existing Player
-        assertFalse(myMatch.deletePlayer("TestPlayerTwo"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerTwo"));
         assert (myMatch.getPlayersNicknames().size() == 1);
         // I will try to remove an exiting Player
-        assertTrue(myMatch.deletePlayer("TestPlayerOne"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerOne"));
         assert (myMatch.getPlayersNicknames().isEmpty());
     }
 
@@ -101,10 +103,10 @@ public class MatchTest {
         Match myMatch = new Match();
         assertNotNull(myMatch);
         // Create four new Player
-        assertTrue(myMatch.addPlayer("TestPlayerOne"));
-        assertTrue(myMatch.addPlayer("TestPlayerTwo"));
-        assertTrue(myMatch.addPlayer("TestPlayerThree"));
-        assertTrue(myMatch.addPlayer("TestPlayerFour"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerOne"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerTwo"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerThree"));
+        assertThrows(DuplicateNicknameException.class, () -> myMatch.addPlayer("TestPlayerFour"));
         // Assign random colours to each Player
         myMatch.assignRandomColoursToPlayers();
         // Check that each Player has a unique colour
@@ -114,9 +116,9 @@ public class MatchTest {
         // We should have 4 different colours
         assert (colours.stream().distinct().count() == 4);
         // What happens if I try to get the colour from a non-existing Player?
-        assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
+        assertThrows(PlayerNotFoundException.class, () ->myMatch.getPlayerColour("TestPlayerFive"));
         // If now I add the Player, but I don't assign a colour, the method should return -1
-        assertTrue(myMatch.addPlayer("TestPlayerFive"));
+        assertThrows(PlayerNotFoundException.class, () ->myMatch.getPlayerColour("TestPlayerFive"));
         assert (myMatch.getPlayerColour("TestPlayerFive") == -1);
 
         // This test also checks the following methods:
