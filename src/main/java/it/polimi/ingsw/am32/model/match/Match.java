@@ -385,6 +385,7 @@ public class Match implements ModelInterface {
                 // If the card is found, add it to the player's hand.
                 if(card.isPresent()){
                     player.putCardInHand(card.get());
+                    return;
                 } else {
                     throw new DrawException("Card not found.");
                 }

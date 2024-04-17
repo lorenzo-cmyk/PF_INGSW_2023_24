@@ -68,7 +68,7 @@ class MatchSimulationTest {
         myMatch.assignRandomStartingSecretObjectivesToPlayers(); LOGGER.info("Assigned random starting secret objective cards to players");
         for(Player player : myMatch.getPlayers()) {
             try{
-                myMatch.receiveSecretObjectiveChoiceFromPlayer(player.getNickname(), myMatch.getSecretObjectiveCardsPlayer(player.getNickname()).get(0));
+                myMatch.receiveSecretObjectiveChoiceFromPlayer(player.getNickname(), myMatch.getSecretObjectiveCardsPlayer(player.getNickname()).getFirst());
             } catch (InvalidSelectionException | PlayerNotFoundException e) {
                 fail();
             }
@@ -115,9 +115,9 @@ class MatchSimulationTest {
                     // Attempt to place a card
                     try {
                         myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide);
-                        successful =true;
+                        successful = true;
                     } catch (InvalidSelectionException | MissingRequirementsException | InvalidPositionException e) {
-                        e.printStackTrace();
+                        successful = false;
                     }
                     LOGGER.info("Attempted to place card: " + randomHandCard.getId() + " at " + randomCoordinate[0] + ", " + randomCoordinate[1] + " with side " + randomSide);
                 } logGameState("Placed card");
@@ -128,7 +128,6 @@ class MatchSimulationTest {
                     // Draw a random card
                     boolean validDraw = false; // Flag indicating whether the draw was valid
                     while (!validDraw) { // Keep looping until a valid draw is made
-                        boolean expectedOutcome;
                         int randomType; // Randomly select the type of card to draw (from which deck to draw)
 
                         double num = Math.random(); // Get a number between 0 and 1
@@ -142,55 +141,25 @@ class MatchSimulationTest {
                         int randomCurrentCard;
 
                         switch (randomType) {
-                            case 0:
-                                randomCurrentCard = 0;
-                                if (myMatch.getResourceCardsDeck().isEmpty()) {
-                                    expectedOutcome = false;
-                                    break;
-                                }
-                                expectedOutcome = true;
-                                break;
-                            case 1:
-                                randomCurrentCard = 0;
-                                if (myMatch.getGoldCardsDeck().isEmpty()) {
-                                    expectedOutcome = false;
-                                    break;
-                                }
-                                expectedOutcome = true;
-                                break;
                             case 2:
                                 // If the random type is 2, draw a resource card from the current resource cards.
                                 // If the current resource cards are empty check that resource deck is also empty otherwise we have a problem with drawCard.
-                                if (myMatch.getCurrentResourcesCards().isEmpty()) {
-                                    expectedOutcome = false;
-                                    randomCurrentCard = 0;
-                                    break;
-                                }
                                 randomCurrentCard = myMatch.getCurrentResourcesCards().get(rand.nextInt(myMatch.getCurrentResourcesCards().size())); // Randomly select a resource card
-                                expectedOutcome = true;
                                 break;
-                            case 3: // If the random type is 3, draw a gold card from the current gold cards
-                                if (myMatch.getCurrentGoldCards().isEmpty()) {
-                                    expectedOutcome = false;
-                                    randomCurrentCard = 0;
-                                    break;
-                                }
+                            case 3: // If the random type is 3, draw a gold card from the current gold card
                                 randomCurrentCard = myMatch.getCurrentGoldCards().get(rand.nextInt(myMatch.getCurrentGoldCards().size())); // Randomly select a gold card
-                                expectedOutcome = true;
                                 break;
                             default:
                                 randomCurrentCard = 0;
-                                expectedOutcome = false;
                                 break;
-                        } LOGGER.info("Trying to draw. randomType: " + randomType + " randomCurrentCard: " + randomCurrentCard + " expectedOutcome: " + expectedOutcome);
+                        }
 
                         try {
                             myMatch.drawCard(randomType, randomCurrentCard);
-                            expectedOutcome = true;
                         } catch (PlayerNotFoundException e) {
-                            e.printStackTrace();
+                            fail();
                         } catch (DrawException e) {
-                            expectedOutcome = false;
+                            continue;
                         }
 
                         // If the all decks are empty, we have a problem with drawCard
@@ -199,7 +168,7 @@ class MatchSimulationTest {
                             fail();
                         }
 
-                        validDraw = expectedOutcome;
+                        validDraw = true;
                     } logGameState("Drew card");
                 }
             myMatch.nextTurn();
