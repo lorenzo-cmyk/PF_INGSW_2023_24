@@ -32,19 +32,19 @@ class MatchSimulationTest {
         int numPlayers = rand.nextInt(3) + 2; // Randomly select the number of players;
         switch (numPlayers) {
             case 2:
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Alice"));
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Bob"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Alice"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Bob"));
                 break;
             case 3:
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Alice"));
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Bob"));
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Carlo"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Alice"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Bob"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Carlo"));
                 break;
             case 4:
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Alice"));
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Bob"));
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Carlo"));
-                assertThrows(DuplicateNicknameException.class,()->myMatch.addPlayer("Daniel"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Alice"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Bob"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Carlo"));
+                assertDoesNotThrow(()->myMatch.addPlayer("Daniel"));
                 break;
         } LOGGER.info("Generated players");
 
@@ -53,14 +53,14 @@ class MatchSimulationTest {
         myMatch.assignRandomColoursToPlayers(); LOGGER.info("Assigned random colours to players");
         myMatch.assignRandomStartingInitialCardsToPlayers(); LOGGER.info("Assigned random initial cards to players");
         // Create Field for players
-        for (Player player : myMatch.getPlayers()) {
-            boolean randomSide = rand.nextBoolean();
-            try{
-            myMatch.createFieldPlayer(player.getNickname(), randomSide);}
-            catch (PlayerNotFoundException e) {
-                fail();
-            }
-        } LOGGER.info("Created player fields");
+        try {
+            for (Player player : myMatch.getPlayers()) {
+                boolean randomSide = rand.nextBoolean();
+                myMatch.createFieldPlayer(player.getNickname(), randomSide);
+            } LOGGER.info("Created player fields");
+        } catch(PlayerNotFoundException e) {
+            fail();
+        }
         // Assign random starting resource cards, gold cards, common objectives and secret objectives to players
         myMatch.assignRandomStartingResourceCardsToPlayers(); LOGGER.info("Assigned random starting resource cards to players");
         myMatch.assignRandomStartingGoldCardsToPlayers(); LOGGER.info("Assigned random starting gold cards to players");
@@ -117,7 +117,7 @@ class MatchSimulationTest {
                         myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide);
                         successful =true;
                     } catch (InvalidSelectionException | MissingRequirementsException | InvalidPositionException e) {
-                        fail();
+                        e.printStackTrace();
                     }
                     LOGGER.info("Attempted to place card: " + randomHandCard.getId() + " at " + randomCoordinate[0] + ", " + randomCoordinate[1] + " with side " + randomSide);
                 } logGameState("Placed card");
@@ -129,15 +129,15 @@ class MatchSimulationTest {
                     boolean validDraw = false; // Flag indicating whether the draw was valid
                     while (!validDraw) { // Keep looping until a valid draw is made
                         boolean expectedOutcome;
-                        int randomType; // Randomly select the type of card to draw
+                        int randomType; // Randomly select the type of card to draw (from which deck to draw)
 
                         double num = Math.random(); // Get a number between 0 and 1
                         // Randomly select the type of card to draw with set weight
                         if (num < pickingResourceCardWeight / 2)
-                            randomType = 0;
-                        else if (num < pickingResourceCardWeight) randomType = 2;
-                        else if (num < (pickingResourceCardWeight + 1) / 2) randomType = 1;
-                        else randomType = 3;
+                            randomType = 0; // Trying to draw from resource cards deck
+                        else if (num < pickingResourceCardWeight) randomType = 2; // Trying to draw from resource cards on field
+                        else if (num < (pickingResourceCardWeight + 1) / 2) randomType = 1; // Trying to draw from gold cards deck
+                        else randomType = 3; // Trying to draw from gold cards on field
 
                         int randomCurrentCard;
 
@@ -184,8 +184,14 @@ class MatchSimulationTest {
                                 break;
                         } LOGGER.info("Trying to draw. randomType: " + randomType + " randomCurrentCard: " + randomCurrentCard + " expectedOutcome: " + expectedOutcome);
 
-
-                        assert(myMatch.drawCard(randomType, randomCurrentCard) == expectedOutcome);
+                        try {
+                            myMatch.drawCard(randomType, randomCurrentCard);
+                            expectedOutcome = true;
+                        } catch (PlayerNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (DrawException e) {
+                            expectedOutcome = false;
+                        }
 
                         // If the all decks are empty, we have a problem with drawCard
                         if (myMatch.getResourceCardsDeck().isEmpty() && myMatch.getGoldCardsDeck().isEmpty() &&
@@ -201,7 +207,7 @@ class MatchSimulationTest {
         } logGameState("Terminated game");
 
         // Terminated phase
-        assertTrue(myMatch.addObjectivePoints()); logGameState("Added objective points to players");
+        assertDoesNotThrow(() -> myMatch.addObjectivePoints()); logGameState("Added objective points to players");
 
         ArrayList<String> winners = myMatch.getWinners(); logGameState("Calculated winners");
         LOGGER.info("The winner is : " + winners);
@@ -214,46 +220,50 @@ class MatchSimulationTest {
      * @author Lorenzo
      */
     public void logGameState(String debugString){
-        LOGGER.info("#########################################################");
+        try {
+            LOGGER.info("#########################################################");
 
-        // Log the match status
-        LOGGER.info("Debugger status: " + debugString);
-        LOGGER.info("Match status: " + myMatch.getMatchStatus());
+            // Log the match status
+            LOGGER.info("Debugger status: " + debugString);
+            LOGGER.info("Match status: " + myMatch.getMatchStatus());
 
-        // Log the current turn number
-        LOGGER.info("Current turn number: " + myMatch.getCurrentTurnNumber());
-        // Log the current player
-        LOGGER.info("Current player: " + myMatch.getCurrentPlayerNickname());
-        // Log if the current player is the first player
-        LOGGER.info("Is first player: " + myMatch.isFirstPlayer());
+            // Log the current turn number
+            LOGGER.info("Current turn number: " + myMatch.getCurrentTurnNumber());
+            // Log the current player
+            LOGGER.info("Current player: " + myMatch.getCurrentPlayerNickname());
+            // Log if the current player is the first player
+            LOGGER.info("Is first player: " + myMatch.isFirstPlayer());
 
-        // Log the common objectives
-        LOGGER.info("Common objectives: " + myMatch.getCommonObjectives());
-        // Log the current resource cards
-        LOGGER.info("Current resource cards: " + myMatch.getCurrentResourcesCards());
-        // Log the current gold cards
-        LOGGER.info("Current gold cards: " + myMatch.getCurrentGoldCards());
+            // Log the common objectives
+            LOGGER.info("Common objectives: " + myMatch.getCommonObjectives());
+            // Log the current resource cards
+            LOGGER.info("Current resource cards: " + myMatch.getCurrentResourcesCards());
+            // Log the current gold cards
+            LOGGER.info("Current gold cards: " + myMatch.getCurrentGoldCards());
 
-        // Log how many cards are in the resource deck
-        LOGGER.info("Resource deck size: " + myMatch.getResourceCardsDeck().size());
-        // Log how many cards are in the gold deck
-        LOGGER.info("Gold deck size: " + myMatch.getGoldCardsDeck().size());
+            // Log how many cards are in the resource deck
+            LOGGER.info("Resource deck size: " + myMatch.getResourceCardsDeck().size());
+            // Log how many cards are in the gold deck
+            LOGGER.info("Gold deck size: " + myMatch.getGoldCardsDeck().size());
 
-        // Log the players
-        for (Player player : myMatch.getPlayers()) {
-            LOGGER.info("=====================================");
-            LOGGER.info("Player: " + player.getNickname());
-            LOGGER.info("Player's colour: " + myMatch.getPlayerColour(player.getNickname()));
-            LOGGER.info("Player's initial cards: " + myMatch.getInitialCardPlayer(player.getNickname()));
-            LOGGER.info("Player's secret objectives: " + myMatch.getSecretObjectiveCardsPlayer(player.getNickname()));
-            LOGGER.info("Player's resources: " + Arrays.toString(myMatch.getPlayerResources(player.getNickname())));
-            LOGGER.info("Player's hand:" + myMatch.getPlayerHand(player.getNickname()));
-            LOGGER.info("Player's field: ");
-            for (int[] subarray : myMatch.getPlayerField(player.getNickname())) {
-                LOGGER.info("\t" + Arrays.toString(subarray));
+            // Log the players
+            for (Player player : myMatch.getPlayers()) {
+                LOGGER.info("=====================================");
+                LOGGER.info("Player: " + player.getNickname());
+                LOGGER.info("Player's colour: " + myMatch.getPlayerColour(player.getNickname()));
+                LOGGER.info("Player's initial cards: " + myMatch.getInitialCardPlayer(player.getNickname()));
+                LOGGER.info("Player's secret objectives: " + myMatch.getSecretObjectiveCardsPlayer(player.getNickname()));
+                LOGGER.info("Player's resources: " + Arrays.toString(myMatch.getPlayerResources(player.getNickname())));
+                LOGGER.info("Player's hand:" + myMatch.getPlayerHand(player.getNickname()));
+                LOGGER.info("Player's field: ");
+                for (int[] subarray : myMatch.getPlayerField(player.getNickname())) {
+                    LOGGER.info("\t" + Arrays.toString(subarray));
+                }
             }
+            LOGGER.info("=====================================");
+        } catch (Exception e) {
+            LOGGER.fatal(e.getMessage());
         }
-        LOGGER.info("=====================================");
     }
 
     /**

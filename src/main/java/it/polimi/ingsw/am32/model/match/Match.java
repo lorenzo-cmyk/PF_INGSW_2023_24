@@ -194,6 +194,7 @@ public class Match implements ModelInterface {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) {
                 player.initializeGameField(side);
+                return;
             }
         }
         throw new PlayerNotFoundException("Player not found in the list of players");
@@ -273,6 +274,7 @@ public class Match implements ModelInterface {
         for (Player player : players) { // Scan all players
             if (player.getNickname().equals(nickname)) { // Found player with correct nickname
                 player.secretObjectiveSelection(id);
+                return;
             }
         }
         throw new PlayerNotFoundException("Player not found in the list of players");
@@ -282,7 +284,10 @@ public class Match implements ModelInterface {
      * Shuffles the players ArrayList
      */
     public void randomizePlayersOrder() {
-        Collections.shuffle(players);
+        ArrayList<Player> originalOrder = new ArrayList<>(players);
+        do {
+            Collections.shuffle(players);
+        } while (players.equals(originalOrder));
     }
 
     /**
@@ -326,7 +331,7 @@ public class Match implements ModelInterface {
  * This method is used to draw a card from the deck of the game.
  * @param deckType The type of deck from which the card is drawn. 0 for resourceCardsDeck, 1 for goldCardsDeck, 2 for currentResourceCards, 3 for currentGoldCards.
  * @param id If the deckType is 2 or 3, the id parameter is used to identify the card to be drawn.
- * @throws DrawException if the deckType selected for draw is not valid or the id of the card is not found.
+ * @throws DrawException if the deckType selected for draw is not valid or the id of the card is not found. Gets also thrown if the deck is empty
  * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
  */
     public void drawCard(int deckType, int id) throws DrawException, PlayerNotFoundException {
@@ -528,6 +533,7 @@ public class Match implements ModelInterface {
      * @param nickname Nickname of player whose active resources we want to obtain
      * @return An array of integers containing the count of active resources in the player's field
      * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     * @exception NullFieldException if the player's field is null.
      */
     public int[] getPlayerResources(String nickname) throws PlayerNotFoundException {
         for (Player player : players) { // Scan all players
@@ -538,6 +544,8 @@ public class Match implements ModelInterface {
                         playerRes[ob.getValue()] = player.getField().getActiveRes(ob);
                     }
                     return playerRes;
+                } else {
+                    throw new NullFieldException("Player's field is null.");
                 }
             }
         }
