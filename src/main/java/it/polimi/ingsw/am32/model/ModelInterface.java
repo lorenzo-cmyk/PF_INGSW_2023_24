@@ -23,7 +23,7 @@ public interface ModelInterface {
     void randomizePlayersOrder();
     void enterPlayingPhase();
     void startTurns();
-    void placeCard(int id, int x, int y, boolean side) throws InvalidSelectionException, MissingRequirementsException, InvalidPositionException;
+    void placeCard(int id, int x, int y, boolean side) throws InvalidSelectionException, MissingRequirementsException, InvalidPositionException, PlayerNotFoundException;
     void drawCard(int deckType, int id) throws DrawException, PlayerNotFoundException;
     void nextTurn();
     void setTerminating();
