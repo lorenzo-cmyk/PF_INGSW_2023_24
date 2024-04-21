@@ -329,6 +329,22 @@ public class Match implements ModelInterface {
         }
         throw new PlayerNotFoundException("currentPlayerNickname not found in the list of players");
     }
+
+    /**
+     * Rollback the last placement of the current player.
+     * @throws RollbackException if the rollback is not possible.
+     * @throws PlayerNotFoundException if currentPlayerNickname was not found in the list of players.
+     */
+    public void rollbackPlacement() throws RollbackException, PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(currentPlayerNickname)) {
+                player.rollbackMove();
+                return;
+            }
+        }
+        throw new PlayerNotFoundException("currentPlayerNickname not found in the list of players");
+    }
+
 /**
  * This method is used to draw a card from the deck of the game.
  * @param deckType The type of deck from which the card is drawn. 0 for resourceCardsDeck, 1 for goldCardsDeck, 2 for currentResourceCards, 3 for currentGoldCards.

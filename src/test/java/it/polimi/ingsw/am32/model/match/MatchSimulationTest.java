@@ -123,8 +123,20 @@ class MatchSimulationTest {
                     LOGGER.info("Attempted to place card: " + randomHandCard.getId() + " at " + randomCoordinate[0] + ", " + randomCoordinate[1] + " with side " + randomSide);
                 } logGameState("Placed card");
 
+                boolean revertedPlacement = Math.random() < 0.2; // Probability of reverting the placement
+                if (revertedPlacement) { // If the placement is reverted
+                    try {
+                        myMatch.rollbackPlacement();
+                    } catch (PlayerNotFoundException | RollbackException e) {
+                        fail();
+                    }
+                    LOGGER.info("Reverted placement");
+                } else {
+                    LOGGER.info("Confirmed placement");
+                }
+
                 // Drawing phase
-                if (myMatch.getMatchStatus()!=MatchStatus.LAST_TURN.getValue() && !noPossibleMove) {
+                if (myMatch.getMatchStatus()!=MatchStatus.LAST_TURN.getValue() && !noPossibleMove && !revertedPlacement) {
                     // We enter the drawing phase only if we are not on the last round of turns, and if we previously managed to place a card
                     // Draw a random card
                     boolean validDraw = false; // Flag indicating whether the draw was valid
