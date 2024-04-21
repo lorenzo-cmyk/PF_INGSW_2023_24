@@ -116,7 +116,8 @@ class MatchSimulationTest {
                     try {
                         myMatch.placeCard(randomHandCard.getId(), randomCoordinate[0], randomCoordinate[1], randomSide);
                         successful = true;
-                    } catch (InvalidSelectionException | MissingRequirementsException | InvalidPositionException e) {
+                    } catch (InvalidSelectionException | MissingRequirementsException | InvalidPositionException |
+                             PlayerNotFoundException e) {
                         successful = false;
                     }
                     LOGGER.info("Attempted to place card: " + randomHandCard.getId() + " at " + randomCoordinate[0] + ", " + randomCoordinate[1] + " with side " + randomSide);
