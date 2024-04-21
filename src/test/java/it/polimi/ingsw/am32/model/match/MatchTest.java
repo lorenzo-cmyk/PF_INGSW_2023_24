@@ -34,7 +34,7 @@ public class MatchTest {
         assertNotNull(myMatch.getPlayersNicknames());
         assert (myMatch.getPlayersNicknames().isEmpty());
         // matchStatus should not be defined yet (null)
-        assertEquals(myMatch.getMatchStatus(), -1);
+        assertEquals(-1, myMatch.getMatchStatus());
         // currentTurnNumber should be 0
         assert (myMatch.getCurrentTurnNumber() == 0);
 
@@ -188,7 +188,7 @@ public class MatchTest {
         assertThrows(PlayerNotFoundException.class, () -> myMatch.createFieldPlayer("TestPlayerTwo", true));
         // Check that the Player field has been initialized correctly
         try {
-            assertEquals(myMatch.getPlayerField("TestPlayerOne").size(), 1);
+            assertEquals(1, myMatch.getPlayerField("TestPlayerOne").size());
         } catch (PlayerNotFoundException e) {
             fail();
         }
@@ -373,7 +373,7 @@ public class MatchTest {
         assertTrue(myMatch.isFirstPlayer());
         assertEquals(myMatch.getCurrentPlayerNickname(), myMatch.getPlayersNicknames().getFirst());
         // Check that the current turn number is 1
-        assertEquals(myMatch.getCurrentTurnNumber(), 1);
+        assertEquals(1, myMatch.getCurrentTurnNumber());
 
         // This test also checks the following methods:
         // - isFirstPlayer
@@ -401,11 +401,11 @@ public class MatchTest {
         // Check that the first player is the first in the list
         assertTrue(myMatch.isFirstPlayer());
         // Check that the current turn number is 1
-        assertEquals(myMatch.getCurrentTurnNumber(), 1);
+        assertEquals(1, myMatch.getCurrentTurnNumber());
         // Go to the next turn
         myMatch.nextTurn();
         // Check that the current turn number is 2
-        assertEquals(myMatch.getCurrentTurnNumber(), 2);
+        assertEquals(2, myMatch.getCurrentTurnNumber());
         // isFirstPlayer should return false now
         assertFalse(myMatch.isFirstPlayer());
     }
@@ -462,7 +462,7 @@ public class MatchTest {
         myMatch.assignRandomStartingInitialCardsToPlayers();
         // Test the behaviour of getPlayerHand
         try {
-            assertEquals(myMatch.getPlayerHand("TestPlayerOne").size(), 1);
+            assertEquals(1, myMatch.getPlayerHand("TestPlayerOne").size());
         } catch (PlayerNotFoundException e) {
             fail();
         }
@@ -516,7 +516,7 @@ public class MatchTest {
         // Test the behaviour of getPlayerResources
         // The first Player has field initialized. We expect 7 resources allocated.
         try {
-            assertEquals(myMatch.getPlayerResources("TestPlayerOne").length, 7);
+            assertEquals(7, myMatch.getPlayerResources("TestPlayerOne").length);
         } catch (PlayerNotFoundException e) {
             fail();
         }

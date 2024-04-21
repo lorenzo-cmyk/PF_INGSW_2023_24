@@ -164,7 +164,7 @@ public class GameSimulationTest {
         assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
         assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
         // Check if the player has 0 points
-        assertEquals(player.getPoints(), 0);
+        assertEquals(0, player.getPoints());
         // Check if the player has 2 cards in hand: 25 and 77
         assertEquals(2, player.getHand().size());
         // Turn 1: Draw card 30
@@ -195,7 +195,7 @@ public class GameSimulationTest {
         assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
         assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
         // Check if the player has 0 points
-        assertEquals(player.getPoints(), 0);
+        assertEquals(0, player.getPoints());
         // Check if the player has 2 cards in hand: 30 and 77
         assertEquals(2, player.getHand().size());
         // Turn 2: Draw card 38
@@ -227,7 +227,7 @@ public class GameSimulationTest {
         assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
         assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
         // Check if the player has 1 points
-        assertEquals(player.getPoints(), 1);
+        assertEquals(1, player.getPoints());
         // Check if the player has 2 cards in hand: 38 and 77
         assertEquals(2, player.getHand().size());
         // Turn 3: Draw card 31
@@ -259,7 +259,7 @@ public class GameSimulationTest {
         assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
         assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
         // Check if the player has 1 points
-        assertEquals(player.getPoints(), 1);
+        assertEquals(1, player.getPoints());
         // Check if the player has 2 cards in hand: 31 and 77
         assertEquals(2, player.getHand().size());
         // Turn 4: Draw card 62
@@ -291,7 +291,7 @@ public class GameSimulationTest {
         assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
         assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
         // Check if the player has 1 points
-        assertEquals(player.getPoints(), 1);
+        assertEquals(1, player.getPoints());
         // Check if the player has 2 cards in hand: 62 and 77
         assertEquals(2, player.getHand().size());
         // Turn 5: Draw card 55 -- We are not going to use it in this simulation
@@ -323,7 +323,7 @@ public class GameSimulationTest {
         assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
         assertEquals(0, player.getField().getActiveRes(ObjectType.MANUSCRIPT));
         // Check if the player has 4 points
-        assertEquals(player.getPoints(), 4);
+        assertEquals(4, player.getPoints());
         // Check if the player has 2 cards in hand: 62 and 55
         assertEquals(2, player.getHand().size());
         // Turn 6: Draw card 54 -- We are not going to use it in this simulation
@@ -355,7 +355,7 @@ public class GameSimulationTest {
         assertEquals(0, player.getField().getActiveRes(ObjectType.QUILL));
         assertEquals(1, player.getField().getActiveRes(ObjectType.MANUSCRIPT)); // We gained 1
         // Check if the player has 5 points -- We gained a point thanks to the card: point calculation is done after the card is placed
-        assertEquals(player.getPoints(), 5);
+        assertEquals(5, player.getPoints());
         // Check if the player has 2 cards in hand: 54 and 55
         assertEquals(2, player.getHand().size());
         // Turn 6: Draw card 53 -- We are not going to use it in this simulation

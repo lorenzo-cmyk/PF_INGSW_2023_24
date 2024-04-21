@@ -118,7 +118,7 @@ class FieldTest {
         ArrayList<CardPlaced> resultingFieldCards = new ArrayList<>();
         resultingFieldCards.addFirst(new CardPlaced(testInitialCard, 0,0, isUp));
 
-        assertArrayEquals(field.getAllRes(), new int[]{0,1,2,1,0,0,0});
+        assertArrayEquals(new int[]{0,1,2,1,0,0,0}, field.getAllRes());
         assertEquals(resultingFieldCards, field.getFieldCards());
     }
 
