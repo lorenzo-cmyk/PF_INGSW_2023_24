@@ -30,6 +30,7 @@ public class Player {
 
     private final static int secObjOptions = 2;
 
+    private int oldPoints;
 
     //---------------------------------------------------------------------------------------------
     // Constructors
@@ -43,6 +44,7 @@ public class Player {
         this.nickname = nickname;
         this.gameField = null;
         this.points = 0;
+        this.oldPoints = 0;
         this.secretObjective = null;
         this.hand = null;
         this.colour = null;
@@ -176,6 +178,9 @@ public class Player {
         // All the placeable cards: Gold, Resource and Starting cannot give
         // points to the player if they are placed with their back-up.
 
+        // Backup the current points in case we need to revert the move later
+        oldPoints = points;
+
         if(isUp){
             PointStrategy pointStrategy = nonObjectiveCard.getPointStrategy();
 
@@ -247,6 +252,24 @@ public class Player {
         objectivePointsState[1] = true;
 
         points += tmpGain;
+    }
+
+    /**
+     * This method is used to roll back the last move performed by the player.
+     * It restores the game field and the player's points to their previous state.
+     *
+     * @throws RollbackException if the game field is null, indicating that no move has been made yet.
+     */
+    public void rollbackMove() throws RollbackException {
+        // If the field is null, we cannot roll back the move. Throw a NullFieldException exception.
+        if(gameField == null)
+            throw new NullFieldException("Attempted to rollback a move with a null field.");
+        // If the field is not null, perform the rollback.
+        NonObjectiveCard card = gameField.rollback();
+        // If the card is not null, restore it to the player's hand.
+        hand.addLast(card);
+        // Restore the old points.
+        points = oldPoints;
     }
 
     //---------------------------------------------------------------------------------------------

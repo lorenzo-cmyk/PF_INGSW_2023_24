@@ -314,19 +314,37 @@ public class Match implements ModelInterface {
      * @throws InvalidSelectionException if the card selected is not valid.
      * @throws MissingRequirementsException if the requirements of given card are not met.
      * @throws InvalidPositionException if the position selected is not valid position.
+     * @throws PlayerNotFoundException if currentPlayerNickname was not found in the list of players.
      */
-    public void placeCard(int id, int x, int y, boolean side) throws InvalidSelectionException, MissingRequirementsException, InvalidPositionException {
+    public void placeCard(int id, int x, int y, boolean side) throws InvalidSelectionException,
+            MissingRequirementsException, InvalidPositionException, PlayerNotFoundException {
         for (int i=0; i<=players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerNickname)) { // Found current player
                 players.get(i).performMove(id, x, y, side); // Place card
                 if (getMatchStatus()!=MatchStatus.LAST_TURN.getValue() && players.get(i).getPoints() >= 20) {
                     setTerminating();
                 }
-
                 return;
             }
         }
+        throw new PlayerNotFoundException("currentPlayerNickname not found in the list of players");
     }
+
+    /**
+     * Rollback the last placement of the current player.
+     * @throws RollbackException if the rollback is not possible.
+     * @throws PlayerNotFoundException if currentPlayerNickname was not found in the list of players.
+     */
+    public void rollbackPlacement() throws RollbackException, PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(currentPlayerNickname)) {
+                player.rollbackMove();
+                return;
+            }
+        }
+        throw new PlayerNotFoundException("currentPlayerNickname not found in the list of players");
+    }
+
 /**
  * This method is used to draw a card from the deck of the game.
  * @param deckType The type of deck from which the card is drawn. 0 for resourceCardsDeck, 1 for goldCardsDeck, 2 for currentResourceCards, 3 for currentGoldCards.

@@ -400,6 +400,28 @@ class PlayerTest {
         assertThrows(NullPointStrategyException.class, player::updatePointsForSecretObjective);
     }
 
+    @DisplayName("Verify the rollback process - Player class")
+    @Test
+    void verifyTheRollbackProcessPlayerClass() {
+        Player player = new Player("test");
+        NonObjectiveCard card = generateRandomNonObjectiveCard();
+        assertNotNull(card);
+        assertDoesNotThrow(() -> player.assignStartingCard(card));
+        // If the Field in not initialized, the rollback should throw an exception
+        assertThrows(NullFieldException.class, player::rollbackMove);
+        assertDoesNotThrow(() -> player.initializeGameField(true));
+        NonObjectiveCard card1 = generateRandomNonObjectiveCard();
+        assertDoesNotThrow(() -> player.putCardInHand(card1));
+        int initialPoints = player.getPoints();
+        assertDoesNotThrow(() -> player.performMove(card1.getId(), 1, 1, true));
+        assertTrue(player.getPoints() >= initialPoints);
+        // If the rollback is successful, the points should be the same as before the move
+        assertDoesNotThrow(player::rollbackMove);
+        assertEquals(initialPoints, player.getPoints());
+        // We should be able to find the card in the hand after the rollback
+        assertEquals(card1, player.getHand().getLast());
+    }
+
     // The full coverage of the Player class will be archived through GameSimulationTest
 
 }
