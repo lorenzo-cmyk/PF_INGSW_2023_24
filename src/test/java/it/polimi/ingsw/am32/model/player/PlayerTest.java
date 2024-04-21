@@ -418,6 +418,8 @@ class PlayerTest {
         // If the rollback is successful, the points should be the same as before the move
         assertDoesNotThrow(player::rollbackMove);
         assertEquals(initialPoints, player.getPoints());
+        // We should be able to find the card in the hand after the rollback
+        assertEquals(card1, player.getHand().getLast());
     }
 
     // The full coverage of the Player class will be archived through GameSimulationTest

@@ -265,7 +265,9 @@ public class Player {
         if(gameField == null)
             throw new NullFieldException("Attempted to rollback a move with a null field.");
         // If the field is not null, perform the rollback.
-        gameField.rollback();
+        NonObjectiveCard card = gameField.rollback();
+        // If the card is not null, restore it to the player's hand.
+        hand.addLast(card);
         // Restore the old points.
         points = oldPoints;
     }
