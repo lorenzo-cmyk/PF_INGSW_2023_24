@@ -2,17 +2,47 @@ package it.polimi.ingsw.am32.model.field;
 
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
+import it.polimi.ingsw.am32.model.card.pointstrategy.Empty;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.exceptions.InvalidPositionException;
 import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
+import it.polimi.ingsw.am32.model.exceptions.RollbackException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FieldTest {
+
+    /**
+     * This method is used to generate a random NonObjectiveCard
+     */
+    private NonObjectiveCard generateRandomNonObjectiveCard(){
+        Random rand = new Random();
+        int[] permRes = new int[]{0, 0, 0, 0, 0, 0, 0};
+        int[] conditionCount = new int[]{0, 0, 0, 0, 0, 0, 0};
+        return new NonObjectiveCard(
+                // NonObjectiveCard ID goes from 1 to 86 (inclusive)
+                rand.nextInt(86) + 1,
+                // NonObjectiveCard Value goes from 0 to 5 (inclusive)
+                rand.nextInt(6),
+                new Empty(),
+                CornerType.PLANT,
+                CornerType.ANIMAL,
+                CornerType.FUNGI,
+                CornerType.INSECT,
+                CornerType.QUILL,
+                CornerType.INKWELL,
+                CornerType.MANUSCRIPT,
+                CornerType.NON_COVERABLE,
+                permRes,
+                conditionCount,
+                ObjectType.INSECT
+        );
+    }
 
     // Structural Testing
 
@@ -476,4 +506,44 @@ class FieldTest {
         assertEquals(expectedCardPlaced, field.getFieldCards().getFirst());
         assertEquals(expectedSize, field.getFieldCards().size());
     }
+
+    @DisplayName("Verify the rollback process - Field class")
+    @Test
+    void doRollbackFunctionalTesting() {
+
+        // Generate the initial card
+        NonObjectiveCard startingCard = generateRandomNonObjectiveCard();
+        // Initialize the field
+        Field field = new Field(startingCard, false);
+        int[] expectedResources = field.getAllRes();
+
+        // Test the rollback process. It should fail as we can't remove the starting card
+        assertThrows(RollbackException.class, field::rollback);
+        // Check that the field is still the same
+        assertEquals(expectedResources, field.getAllRes());
+        assertEquals(1, field.getFieldCards().size());
+        assertEquals(startingCard, field.getCardFromPosition(0,0));
+
+        // Generate a new card
+        NonObjectiveCard newCard = generateRandomNonObjectiveCard();
+        // Place the new card in the field
+        try {
+            field.placeCardInField(newCard, 1, 1, false);
+            // Check that the field has been updated
+            assertEquals(2, field.getFieldCards().size());
+            assertEquals(newCard, field.getCardFromPosition(1,1));
+            // Rollback the last move. It should work as we can remove the last card placed.
+            NonObjectiveCard removedCard = field.rollback();
+            // Check the removed card
+            assertEquals(newCard, removedCard);
+            // Check that the field has been updated
+            assertEquals(1, field.getFieldCards().size());
+            assertNull(field.getCardFromPosition(1,1));
+            // Check that the resources are the same as before
+            assertEquals(expectedResources, field.getAllRes());
+        } catch (InvalidPositionException | MissingRequirementsException | RollbackException e) {
+            fail();
+        }
+    }
+
 }

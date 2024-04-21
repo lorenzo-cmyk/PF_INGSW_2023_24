@@ -5,6 +5,7 @@ import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
 import it.polimi.ingsw.am32.model.exceptions.InvalidPositionException;
 import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
+import it.polimi.ingsw.am32.model.exceptions.RollbackException;
 
 import java.util.ArrayList;
 
@@ -21,6 +22,7 @@ public class Field {
     private final int[] activeRes;
     private static final int resourcesSize = 7;
 
+    private final int[] oldActiveRes;
 
     //---------------------------------------------------------------------------------------------
     // Constructors
@@ -34,6 +36,7 @@ public class Field {
     public Field(NonObjectiveCard initialCard, boolean isUp) {
 
         this.activeRes = new int[resourcesSize];
+        this.oldActiveRes = new int[resourcesSize];
         this.fieldCards = new ArrayList<>();
 
         CardPlaced cardPlaced = new CardPlaced(initialCard, 0, 0, isUp);
@@ -165,6 +168,10 @@ public class Field {
         CardPlaced newCardPlaced = new CardPlaced(nonObjectiveCard, x, y, isUp);
 
         fieldCards.addFirst(newCardPlaced);
+
+        // Backup old resources in case of later rollback.
+        // This is done by overwriting the oldActiveRes array with the current activeRes array
+        System.arraycopy(activeRes, 0, oldActiveRes, 0, resourcesSize);
 
         // Add gained resources
 
@@ -392,5 +399,31 @@ public class Field {
      */
     public int[] getAllRes(){
         return activeRes;
+    }
+
+    /**
+     * This method is used to roll back the last operation performed on the field. It removes the last card placed
+     * in the field and restores the resources to their previous state.
+     *
+     * @return The NonObjectiveCard that was removed from the field.
+     * @throws RollbackException if the field is empty or if there is only the starting card in the field.
+     */
+    public NonObjectiveCard rollback() throws RollbackException {
+        // We can't roll back if there is only one card in the field. We can't remove the starting card.
+        if (fieldCards.size() == 1) {
+            throw new RollbackException("The field has only the starting card in it.");
+        } else if (fieldCards.isEmpty()) {
+            throw new RollbackException("The field is empty.");
+        }
+
+        // Remove the last card placed in the field.
+        CardPlaced removedCard = fieldCards.removeFirst();
+
+        // Restore resources to previous state.
+        // This is done by overwriting the activeRes array with the oldActiveRes array.
+        System.arraycopy(oldActiveRes, 0, activeRes, 0, resourcesSize);
+
+        // Return the removed card.
+        return removedCard.getNonObjectiveCard();
     }
 }
