@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.Timer;
 
 import it.polimi.ingsw.am32.chat.Chat;
-import it.polimi.ingsw.am32.chat.ChatInterface;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.network.NodeInterface;
@@ -16,7 +15,7 @@ public class GameController implements GameControllerInterface{
     private final ArrayList<VirtualView> listeners;
     private final ArrayList<NodeTriple> nodeList;
     private final ModelInterface model;
-    private final ChatInterface chat;
+    private final Chat chat;
     private final Timer timer;
     private final String creatorName;
     private final int id;

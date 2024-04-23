@@ -176,7 +176,15 @@
   "gameCurrentGoldCards": [22, 23],
   "gameResourcesDeckSize": 30,
   "gameGoldDeckSize": 31,
-  "matchStatus": "Status"
+  "matchStatus": "Status",
+  "playerChatHistory": [
+    {
+      "senderNickname": "playerName",
+      "recipientNickname": "playerName",
+      "multicastFlag": true,
+      "content": "Message"
+    }
+  ]
 }
 ```
 
