@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am32.network;
 
 import it.polimi.ingsw.am32.controller.GameController;
-import it.polimi.ingsw.am32.message.OutMessage;
+import it.polimi.ingsw.am32.message.StoCMessage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -36,7 +36,7 @@ public class SKServerNode implements Runnable {
 
     }
 
-    public void uploadToClient(OutMessage msg) {
+    public void uploadToClient(StoCMessage msg) {
 
     }
 }
