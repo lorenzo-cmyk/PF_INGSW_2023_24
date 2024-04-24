@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am32.network;
 
 import it.polimi.ingsw.am32.controller.GameController;
-import it.polimi.ingsw.am32.message.CtoSMessage;
-import it.polimi.ingsw.am32.message.StoCMessage;
+import it.polimi.ingsw.am32.message.toServer.CtoSMessage;
+import it.polimi.ingsw.am32.message.toClient.StoCMessage;
 
 public class RMIServerNode implements RMIServerNodeInt, NodeInterface {
     private GameController gameController;

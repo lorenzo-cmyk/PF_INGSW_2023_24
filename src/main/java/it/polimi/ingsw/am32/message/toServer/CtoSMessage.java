@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am32.message;
+package it.polimi.ingsw.am32.message.toServer;
 
 import it.polimi.ingsw.am32.controller.GameController;
 

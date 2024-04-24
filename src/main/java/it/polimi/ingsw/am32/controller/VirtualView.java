@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.controller;
 
-import it.polimi.ingsw.am32.message.StoCMessage;
+import it.polimi.ingsw.am32.message.toClient.StoCMessage;
 import it.polimi.ingsw.am32.network.NodeInterface;
 
 import java.util.concurrent.BlockingQueue;
