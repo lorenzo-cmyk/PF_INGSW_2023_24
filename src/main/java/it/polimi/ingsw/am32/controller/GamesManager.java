@@ -2,12 +2,13 @@ package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.NoGameFoundException;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * This class represents a manager for all the games that are currently being played.
  * Class is a Singleton, meaning that only one instance of it can be created.
  *
- * @author anto
+ * @author Anto
  */
 public class GamesManager {
     /**
@@ -36,13 +37,29 @@ public class GamesManager {
     }
 
     /**
-     * Creates a new game and adds it to the list of games
+     * Creates a new game and adds it to the list of games. Game ids will be assigned randomly
      *
      * @param creatorName A string indicating the name of the player that created the game
      * @return The game that was created
      */
     public GameController createGame(String creatorName) {
-        GameController game = new GameController(creatorName);
+        Random random = new Random();
+        int rand = 0;
+
+        boolean foundUnique = false; // Flag indicating whether a valid game id has been found
+        while (!foundUnique) { // Loop until a valid game id is found
+            rand = random.nextInt();
+            foundUnique = true; // id available, exit loop
+
+            for (GameController game : games) { // Scan games to see if id is available
+                if (game.getId() == rand) { // id not valid as it is already taken
+                   foundUnique = false;
+                   break;
+                }
+            }
+        }
+
+        GameController game = new GameController(creatorName, rand);
         games.add(game);
         return game;
     }
