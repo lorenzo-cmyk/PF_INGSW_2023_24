@@ -1,17 +1,17 @@
 package it.polimi.ingsw.am32.message;
 
-import it.polimi.ingsw.am32.controller.GameController;
+import it.polimi.ingsw.am32.controller.VirtualView;
 
-public class StoCMessage implements Message {
-    private int gameID;
-    private String nickname;
+/**
+ * This interface represents a message from the server to the client.
+ * It contains a single method to deliver the message to a virtual view.
+ */
+public interface StoCMessage {
 
-    public StoCMessage(int gameID, String nickname) {
-        this.gameID = gameID;
-        this.nickname = nickname;
-    }
-
-    public void elaborateMessage(GameController gameController) {
-         // TODO
-    }
+    /**
+     * Delivers the message to the specified virtual view.
+     *
+     * @param virtualView The virtual view to which the message should be delivered
+     */
+    void deliverMessage(VirtualView virtualView);
 }
