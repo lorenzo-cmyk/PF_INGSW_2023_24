@@ -5,6 +5,10 @@ import java.util.Timer;
 
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
+import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
+import it.polimi.ingsw.am32.controller.exceptions.ListenerNotFoundException;
+import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.network.NodeInterface;
 import it.polimi.ingsw.am32.network.RMIServerNode;
@@ -55,6 +59,11 @@ public class GameController implements GameControllerInterface {
         this.creatorName = creatorName;
         this.id = id;
         //TODO timer
+
+        // Setup the model
+        model.enterLobbyPhase();
+        addPlayer(creatorName);
+
     }
 
     public void submitChatMessage(ChatMessage message){
@@ -75,8 +84,11 @@ public class GameController implements GameControllerInterface {
         // TODO: Check for duplicate listeners?
     }
 
-    public void removeListener(VirtualView listener) {
-        //TODO
+    public void removeListener(VirtualView listener) throws ListenerNotFoundException {
+        boolean present = listeners.remove(listener); // Flag indicating if listener was present in the list of listeners
+        if (!present) {
+            throw new ListenerNotFoundException("Listener does not exist");
+        }
     }
 
     public void disconnect(NodeInterface node) {
@@ -90,6 +102,27 @@ public class GameController implements GameControllerInterface {
     public RMIServerNode reconFromDeath(String nickname){
         //TODO
         return null;
+    }
+
+    public void addPlayer(String nickname) {
+        try {
+            model.addPlayer(nickname);
+        } catch (DuplicateNicknameException e){
+           throw new CriticalFailureException("Player " + nickname + " already in game");
+        }
+    }
+
+    public void deletePlayer(String nickname) {
+        try {
+            model.deletePlayer(nickname);
+        } catch (PlayerNotFoundException e) {
+            // TODO
+        }
+        // TODO
+    }
+
+    public void startGame(String nickname) {
+        // TODO
     }
 
     public int getId() {

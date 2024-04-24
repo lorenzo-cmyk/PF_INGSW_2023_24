@@ -71,9 +71,10 @@ public class GamesManager {
      * @return The GameController of the game with the given code
      * @throws NoGameFoundException If no game with the given code is found
      */
-    public GameController accessGame(int gameCode) throws NoGameFoundException {
+    public GameController accessGame(int gameCode, String nickname) throws NoGameFoundException {
         for (GameController game : games) {
             if (game.getId() == gameCode) {
+                game.addPlayer(nickname);
                 return game;
             }
         }
