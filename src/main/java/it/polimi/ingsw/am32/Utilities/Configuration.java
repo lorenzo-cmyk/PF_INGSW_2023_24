@@ -146,11 +146,24 @@ public class Configuration {
     //---------------------------------------------------------------------------------------------
     // Methods
 
+    /**
+     * Verify that the new port number comply with port rules and in that case returns it.
+     *
+     * @param newPort is the new port number that has to be evaluated to substitute the default one
+     * @param defaultPort is the default port number. It has to be a valid port number
+     * @return the new port number if valid, the default one otherwise
+     */
     private int portValidator(int newPort, int defaultPort) {
         if(newPort > 1023 && newPort < 65536) return newPort;
         return defaultPort;
     }
 
+    /**
+     * Verify that the given ip comply with ipv4 rules and in that case returns it.
+     *
+     * @param ipToValidate is the new ip that has to be evaluated
+     * @return the given ip if valid, the previous valid ip otherwise
+     */
     private String serverIpValidator(String ipToValidate) {
 
         // TODO rivalutare algoritmo
@@ -205,8 +218,9 @@ public class Configuration {
     // Getters
 
     /**
-     * Return the singleton instance of this class. If the instance was never initialized before it will be created
-     * assuming there are no startup parameters.
+     * Return the singleton instance of this class.
+     * <br>
+     * If the instance was never initialized before it will be created assuming there are no startup parameters.
      *
      * @return the instance
      */
@@ -264,7 +278,7 @@ public class Configuration {
     }
 
     /**
-     * Return the server ip used by the server
+     * Return the server ip used by the server.
      *
      * @return a {@link String} indicating the port
      */
@@ -273,7 +287,7 @@ public class Configuration {
     }
 
     /**
-     * Return the executor service used by the server cor thread management
+     * Return the executor service used by the server cor thread management.
      *
      * @return an {@link ExecutorService}
      */
