@@ -13,8 +13,10 @@ import java.util.concurrent.Executors;
 /**
  * This class is responsible for managing and storing server configuration parameters.
  * <br>
- * This class implements the <i><b>singleton pattern</b></i> allowing the server configuration to be retrieved everywhere
- * in the project
+ * This class implements the <i><b>singleton pattern</b></i> allowing the server configuration to be unique and
+ * retrievable everywhere in the project.
+ * <br>
+ * Configuration options come from 3 sources: hardcoded, config file, startup parameters
  *
  * @author Matteo
  */
