@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.Utilities;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.polimi.ingsw.am32.Server;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +19,7 @@ public class Configuration {
     private static Configuration instance;
     private int rmiPort;
     private int socketPort;
-    private int pingTimePeriod;
+    private int pingTimeInterval;
     private int maxPingCount;
     private String serverIp;
     private ExecutorService executorService;
@@ -33,7 +34,7 @@ public class Configuration {
 
         socketPort = 30000;
         rmiPort = 30001;
-        pingTimePeriod = 5000;
+        pingTimeInterval = 5000;
         maxPingCount = 3;
         serverIp = "127.0.0.1";
         executorService = Executors.newCachedThreadPool();
@@ -73,7 +74,7 @@ public class Configuration {
             } catch (Exception ignored){}
 
             try {
-                pingTimePeriod = jsonNode.get("pingTimePeriod").asInt();
+                pingTimeInterval = jsonNode.get("pingTimePeriod").asInt();
             } catch (Exception ignored){}
 
             try {
@@ -85,7 +86,7 @@ public class Configuration {
             } catch (Exception ignored){}
         }
 
-        // overwrite server parameters with data from startup arguments
+        // overwrite server configuration with data from startup parameters
 
         int i = 0;
         while (i < args.length) {
@@ -106,7 +107,7 @@ public class Configuration {
                 switch (arg) {
                     case "-sp" -> socketPortArgs = portValidator(Integer.parseInt(args[i + 1]), socketPortArgs);
                     case "-rp" -> rmiPortArgs = portValidator(Integer.parseInt(args[i + 1]), rmiPortArgs);
-                    case "-ptp" -> pingTimePeriod = Integer.parseInt(args[i + 1]);
+                    case "-ptp" -> pingTimeInterval = Integer.parseInt(args[i + 1]);
                     case "-mpc" -> maxPingCount = Integer.parseInt(args[i + 1]);
                     case "-si" -> serverIp = serverIpValidator(args[i + 1]);
                 }
@@ -143,7 +144,7 @@ public class Configuration {
 
         System.out.println("Socket port: " + socketPort);
         System.out.println("RMI port: " + rmiPort);
-        System.out.println("Ping time period: " + pingTimePeriod);
+        System.out.println("Ping time period: " + pingTimeInterval);
         System.out.println("Max Ping count: " + maxPingCount);
         System.out.println("Server ip: " + serverIp);
     }
@@ -159,16 +160,18 @@ public class Configuration {
 
     private String serverIpValidator(String ipToValidate) {
 
+        // TODO rivalutare algoritmo
+
         char[] workingIp = ipToValidate.toCharArray();
         int prevIndex = 0;
         int counter = 0;
         int tmp;
-        int workingLenght = 15;
+        int workingLength = 15;
 
-        if(workingIp.length < workingLenght)
-            workingLenght = workingIp.length;
+        if(workingIp.length < workingLength)
+            workingLength = workingIp.length;
 
-        for(int i = 0; i < workingLenght; i++) {
+        for(int i = 0; i < workingLength; i++) {
 
             if(workingIp[i] == '.') {
                 counter++;
@@ -208,36 +211,79 @@ public class Configuration {
     //---------------------------------------------------------------------------------------------
     // Getters
 
+    /**
+     * Return the singleton instance of this class. If the instance was never initialized before it will be created
+     * assuming there are no startup parameters.
+     *
+     * @return the instance
+     */
     public static Configuration getInstance() {
         if (instance == null) instance = new Configuration(new String[0]);
         return instance;
     }
 
+    /**
+     * Return the singleton instance of this class using the parameters unless the instance already exists.
+     *
+     * @param args are the parameters used to overwrite the standard server configuration
+     * @return the instance
+     * @Note: please invoke this method only in {@link Server} class
+     */
     public static Configuration createInstance(String[] args) {
         if (instance == null) instance = new Configuration(args);
         return instance;
     }
 
+    /**
+     * Return the RMI port used by the server
+     *
+     * @return an integer indicating the port
+     */
     public int getRmiPort() {
         return rmiPort;
     }
 
+    /**
+     * Return the socket port used by the server
+     *
+     * @return an integer indicating the port
+     */
     public int getSocketPort() {
         return socketPort;
     }
 
-    public int getPingTimePeriod() {
-        return pingTimePeriod;
+    /**
+     * Return the interval of time between pings used to evaluate if the connection is still alive.
+     *
+     * @return an integer indicating the interval in millisecond
+     */
+    public int getPingTimeInterval() {
+        return pingTimeInterval;
     }
 
+    /**
+     * Return the maximum amount of missed pings before the connection can be considered dead.
+     *
+     * @return an integer indicating the amount of pings
+     */
     public int getMaxPingCount() {
         return maxPingCount;
     }
 
+    /**
+     * Return the server ip used by the server
+     *
+     * @return a {@link String} indicating the port
+     */
     public String getServerIp() {
         return serverIp;
     }
 
+    /**
+     * Return the executor service used by the server cor thread management
+     *
+     * @return an {@link ExecutorService}
+     */
     public ExecutorService getExecutorService() {
         return executorService;
     }
