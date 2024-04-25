@@ -24,6 +24,62 @@ public class Configuration {
 
 
     //---------------------------------------------------------------------------------------------
+    // Methods
+
+    private int portValidator(int newPort, int defaultPort) {
+        if(newPort > 1023 && newPort < 65536) return newPort;
+        return defaultPort;
+    }
+
+    private String serverIpValidator(String ipToValidate) {
+
+        char[] workingIp = ipToValidate.toCharArray();
+        int prevIndex = 0;
+        int counter = 0;
+        int tmp;
+        int workingLenght = 15;
+
+        if(workingIp.length < workingLenght)
+            workingLenght = workingIp.length;
+
+        for(int i = 0; i < workingLenght; i++) {
+
+            if(workingIp[i] == '.') {
+                counter++;
+
+                if(counter > 3)
+                    return serverIp;
+
+                try {
+                    tmp = Integer.parseInt(ipToValidate, prevIndex, i, 10);
+                }catch (Exception e){
+                    return serverIp;
+                }
+
+                if(tmp < 0 || tmp > 255)
+                    return serverIp;
+
+                prevIndex = i+1;
+            }
+        }
+
+        if(counter < 3)
+            return serverIp;
+
+        try {
+            tmp = Integer.parseInt(ipToValidate, prevIndex, workingIp.length, 10);
+        }catch (Exception e){
+            return serverIp;
+        }
+
+        if(tmp < 0 || tmp > 255)
+            return serverIp;
+
+        return ipToValidate;
+    }
+
+
+    //---------------------------------------------------------------------------------------------
     // Getters
 
     public static Configuration getInstance() {
