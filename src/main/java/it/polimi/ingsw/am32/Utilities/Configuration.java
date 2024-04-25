@@ -38,6 +38,18 @@ public class Configuration {
     //---------------------------------------------------------------------------------------------
     // Constructor
 
+    /**
+     * This is a private constructor according to <i><b>singleton pattern</b></i> characteristics.
+     * <br>
+     * The server configurations are by default hardcoded but can be overwritten by a config file or through the
+     * parameters given.
+     * <br>
+     * Overwrite rules are as follows:
+     * <li>The overwrite priority is, in order: startup parameters (most important), config file, hardcoded (least important)</li><br>
+     * <li>Socket port number is prioritized over RMI port number</li>
+     *
+     * @param args is an array of strings used as configuration parameters
+     */
     private Configuration(String[] args) {
 
         // standard config values
