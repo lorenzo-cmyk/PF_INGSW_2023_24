@@ -22,7 +22,7 @@ public class Configuration {
     private int pingTimeInterval;
     private int maxPingCount;
     private String serverIp;
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
 
 
     //---------------------------------------------------------------------------------------------
@@ -117,13 +117,6 @@ public class Configuration {
         }
 
         // port incompatibility resolution
-
-        int[] tmpSocket = new int[]{socketPort, socketPortFile, socketPortArgs};
-        int[] tmpRmi = new int[]{rmiPort, rmiPortFile, rmiPortArgs};
-
-        for(int j = 1; j < 3; j++){
-            if(tmpSocket[j] == tmpRmi[j]){}
-        }
 
         if(socketPortArgs > 0) {
             socketPort = socketPortArgs;
