@@ -1,0 +1,7 @@
+{
+  "socketPort": 30000,
+  "rmiPort": 30001,
+  "pingTimePeriod": 5000,
+  "maxPingCount": 3,
+  "serverIp": "127.0.0.1"
+}
