@@ -175,7 +175,7 @@ public class Configuration {
      * @param defaultPort is the default port number. It has to be a valid port number
      * @return the new port number if valid, the default one otherwise
      */
-    private int portValidator(int newPort, int defaultPort) {
+    protected int portValidator(int newPort, int defaultPort) {
         if(newPort > 1023 && newPort < 65536) return newPort;
         return defaultPort;
     }
@@ -186,7 +186,7 @@ public class Configuration {
      * @param ipToValidate is the new ip that has to be evaluated
      * @return the given ip if valid, the previous valid ip otherwise
      */
-    private String serverIpValidator(String ipToValidate) {
+    protected String serverIpValidator(String ipToValidate) {
 
         // TODO rivalutare algoritmo
 
@@ -246,7 +246,7 @@ public class Configuration {
      *
      * @return the instance
      */
-    protected static Configuration getInstance() {
+    public static Configuration getInstance() {
         if (instance == null) instance = new Configuration(new String[0]);
         return instance;
     }
@@ -258,7 +258,7 @@ public class Configuration {
      * @return the instance
      * @Note: please invoke this method only in {@link Server} class
      */
-    protected static Configuration createInstance(String[] args) {
+    public static Configuration createInstance(String[] args) {
         if (instance == null) instance = new Configuration(args);
         return instance;
     }
