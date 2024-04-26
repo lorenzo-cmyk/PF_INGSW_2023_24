@@ -246,7 +246,7 @@ public class Configuration {
      *
      * @return the instance
      */
-    public static Configuration getInstance() {
+    public synchronized static Configuration getInstance() {
         if (instance == null) instance = new Configuration(new String[0]);
         return instance;
     }
@@ -258,7 +258,7 @@ public class Configuration {
      * @return the instance
      * @Note: please invoke this method only in {@link Server} class
      */
-    public static Configuration createInstance(String[] args) {
+    public synchronized static Configuration createInstance(String[] args) {
         if (instance == null) instance = new Configuration(args);
         return instance;
     }
