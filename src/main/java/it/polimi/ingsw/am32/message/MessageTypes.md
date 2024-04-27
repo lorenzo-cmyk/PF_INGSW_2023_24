@@ -149,6 +149,8 @@
 }
 ```
 
+Some "reasons" could be: CodeNotFoundMessage (the inserted code does not correspond to a match), NonExistAvailableGameMessage (there are no active games on the server, the player is obliged to create a new match), or RoomFullMessage (the match lobby is full, so the player cannot connect).
+
 - LobbyPlayerListMessage: sent by the Server to notify players of who is currently in the lobby
 ```json
 {
