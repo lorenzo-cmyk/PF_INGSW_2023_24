@@ -4,6 +4,8 @@ import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.NodeInterface;
 
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class VirtualView implements VirtualViewInterface, Runnable {
     private final NodeInterface connectionNode;
