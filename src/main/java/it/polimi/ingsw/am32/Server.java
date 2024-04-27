@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32;
 
 import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.network.RMIClientAcceptor;
+import it.polimi.ingsw.am32.network.SKClientAcceptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,7 +31,7 @@ public class Server {
     }
 
     private void startSocketServer() {
-
+        Configuration.getInstance().getExecutorService().submit(new SKClientAcceptor());
     }
 
     private void startRMIServer() {
