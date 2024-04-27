@@ -78,6 +78,24 @@
 }
 ```
 
+- SelectedStarterCardSideMessage: sent by the Client to notify the server of the initial card placement side
+```json
+{
+  "type": "SelectedStarterCardSideMessage",
+  "senderNickname": "playerName",
+  "isUp": true 
+}
+```
+
+- SelectedSecretObjectiveCardMessage: sent by the Client to notify the server of the chosen secret objective card 
+```json
+{
+  "type": "SelectedSecretObjectiveCardMessage",
+  "senderNickname": "playerName",
+  "cardId": 12 
+}
+```
+
 ### Chat Messages
 
 - InboundChatMessage: sent by a Client to send a message in chat.
@@ -300,6 +318,24 @@
   "type": "MatchWinnersMessage",
   "recipientNickname": "playerName",
   "winners": ["player1", "player2"]
+}
+```
+
+- AssignedStarterCardMessage: sent by the Server to notify the Client of his assigned starting card
+```json
+{
+  "type": "AssignedStarterCardMessage",
+  "recipientNickname": "playerName",
+  "cardId": 34 
+}
+```
+
+- AssignedSecretObjectiveCardMessage: sent by the Server to notify the Client of his assigned assortment of secret objective cards
+```json
+{
+  "type": "SelectedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName",
+  "assignedCards": [23, 26] 
 }
 ```
 
