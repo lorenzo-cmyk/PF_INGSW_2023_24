@@ -60,10 +60,9 @@ public class GameController implements GameControllerInterface {
         this.id = id;
         //TODO timer
 
-        // Setup the model
+        // Enter lobby phase immediately
         model.enterLobbyPhase();
         addPlayer(creatorName);
-
     }
 
     public void submitChatMessage(ChatMessage message){
@@ -104,6 +103,12 @@ public class GameController implements GameControllerInterface {
         return null;
     }
 
+    /**
+     * Adds a player to the game.
+     * Methods used when a new player joins, or when a new game is created.
+     *
+     * @param nickname The nickname of the player to add
+     */
     public void addPlayer(String nickname) {
         try {
             model.addPlayer(nickname);
@@ -112,17 +117,36 @@ public class GameController implements GameControllerInterface {
         }
     }
 
+    /**
+     * Deletes a player from the game.
+     * Methods used when a player leaves the game.
+     *
+     * @param nickname The nickname of the player to delete
+     */
     public void deletePlayer(String nickname) {
         try {
             model.deletePlayer(nickname);
         } catch (PlayerNotFoundException e) {
             // TODO
         }
-        // TODO
     }
 
+    /**
+     * Starts the game.
+     * Method used when the game is ready to start.
+     *
+     * @param nickname The nickname of the player that started the game
+     */
     public void startGame(String nickname) {
-        // TODO
+        if (!nickname.equals(creatorName)) { // Someone other than the host tried to start the game
+            // TODO
+        }
+
+        model.enterPreparationPhase();
+        model.assignRandomColoursToPlayers();
+        model.assignRandomStartingInitialCardsToPlayers();
+
+         
     }
 
     public int getId() {
