@@ -718,4 +718,20 @@ public class Match implements ModelInterface {
         return goldCardsDeck.getCards();
     }
 
+    /**
+     * Getter. Get the points of a Player.
+     *
+     * @param nickname The nickname of the player whose points we want to get.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     * @return The points of the player with the given nickname.
+     */
+    public int getPlayerPoints(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.getPoints();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
+    }
+
 }
