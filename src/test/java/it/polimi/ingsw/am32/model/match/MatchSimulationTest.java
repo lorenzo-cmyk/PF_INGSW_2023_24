@@ -1,10 +1,11 @@
 package it.polimi.ingsw.am32.model.match;
+
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -13,14 +14,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.TestTemplate;
 
 class MatchSimulationTest {
     Match myMatch = new Match(); // Create a new match
     private static final Logger LOGGER = LogManager.getLogger("MatchSimulationLogger");
 
     @DisplayName("Run a, partial, game simulation in order to test the game mechanics")
-    @Test
+    @TestTemplate
+    @RepeatedTest(value = 16, name = "{displayName} {currentRepetition}/{totalRepetitions}")
     public void runGameSimulation() {
+        LOGGER.info("-------------------- Starting game simulation --------------------");
+
         Random rand = new Random(); // Crate new random number generator
 
         double flippedCardWeight = 0.15; // Probability that a card is placed on its back (excluding starting card)
@@ -130,9 +135,9 @@ class MatchSimulationTest {
                     } catch (PlayerNotFoundException | RollbackException e) {
                         fail();
                     }
-                    LOGGER.info("Reverted placement");
+                    logGameState("Reverted placement");
                 } else {
-                    LOGGER.info("Confirmed placement");
+                    logGameState("Confirmed placement");
                 }
 
                 // Drawing phase
@@ -156,10 +161,36 @@ class MatchSimulationTest {
                         switch (randomType) {
                             case 2:
                                 // If the random type is 2, draw a resource card from the current resource cards.
-                                // If the current resource cards are empty check that resource deck is also empty otherwise we have a problem with drawCard.
+
+                                // If the current resource cards are empty the corresponding deck must also be empty.
+                                if(myMatch.getCurrentResourcesCards().isEmpty()){
+                                    // If the current gold cards are also empty we don't have any card to draw
+                                    if(myMatch.getCurrentGoldCards().isEmpty()){
+                                        LOGGER.fatal("All decks are empty");
+                                        fail();
+                                    }
+                                    randomType = 3;
+                                    randomCurrentCard = myMatch.getCurrentGoldCards().get(rand.nextInt(myMatch.getCurrentGoldCards().size())); // Randomly select a gold card
+                                    break;
+                                }
+
                                 randomCurrentCard = myMatch.getCurrentResourcesCards().get(rand.nextInt(myMatch.getCurrentResourcesCards().size())); // Randomly select a resource card
                                 break;
-                            case 3: // If the random type is 3, draw a gold card from the current gold card
+                            case 3:
+                                // If the random type is 3, draw a gold card from the current gold card
+
+                                // If the current gold cards are empty the corresponding deck must also be empty.
+                                if(myMatch.getCurrentGoldCards().isEmpty()){
+                                    // If the current resource card are also empty we don't have any card to draw
+                                    if(myMatch.getCurrentResourcesCards().isEmpty()){
+                                        LOGGER.fatal("All decks are empty");
+                                        fail();
+                                    }
+                                    randomType = 2;
+                                    randomCurrentCard = myMatch.getCurrentResourcesCards().get(rand.nextInt(myMatch.getCurrentResourcesCards().size())); // Randomly select a resource card
+                                    break;
+                                }
+
                                 randomCurrentCard = myMatch.getCurrentGoldCards().get(rand.nextInt(myMatch.getCurrentGoldCards().size())); // Randomly select a gold card
                                 break;
                             default:
@@ -236,7 +267,8 @@ class MatchSimulationTest {
                 LOGGER.info("Player's initial cards: " + myMatch.getInitialCardPlayer(player.getNickname()));
                 LOGGER.info("Player's secret objectives: " + myMatch.getSecretObjectiveCardsPlayer(player.getNickname()));
                 LOGGER.info("Player's resources: " + Arrays.toString(myMatch.getPlayerResources(player.getNickname())));
-                LOGGER.info("Player's hand:" + myMatch.getPlayerHand(player.getNickname()));
+                LOGGER.info("Player's hand: " + myMatch.getPlayerHand(player.getNickname()));
+                LOGGER.info("Player's points: " + myMatch.getPlayerPoints(player.getNickname()));
                 LOGGER.info("Player's field: ");
                 for (int[] subarray : myMatch.getPlayerField(player.getNickname())) {
                     LOGGER.info("\t" + Arrays.toString(subarray));

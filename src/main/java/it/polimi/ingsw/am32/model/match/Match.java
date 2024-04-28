@@ -66,6 +66,10 @@ public class Match implements ModelInterface {
      */
     private MatchStatus matchStatus;
     /**
+     * Backup of matchStatus used for the rollback functionality.
+     */
+    private MatchStatus backupMatchStatus;
+    /**
      * Nickname that identifies the current player.
      */
     private String currentPlayerNickname;
@@ -318,6 +322,7 @@ public class Match implements ModelInterface {
      */
     public void placeCard(int id, int x, int y, boolean side) throws InvalidSelectionException,
             MissingRequirementsException, InvalidPositionException, PlayerNotFoundException {
+        backupMatchStatus = matchStatus;
         for (int i=0; i<=players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerNickname)) { // Found current player
                 players.get(i).performMove(id, x, y, side); // Place card
@@ -339,6 +344,7 @@ public class Match implements ModelInterface {
         for (Player player : players) {
             if (player.getNickname().equals(currentPlayerNickname)) {
                 player.rollbackMove();
+                matchStatus = backupMatchStatus;
                 return;
             }
         }
@@ -710,6 +716,22 @@ public class Match implements ModelInterface {
      */
     protected ArrayList<NonObjectiveCard> getGoldCardsDeck() {
         return goldCardsDeck.getCards();
+    }
+
+    /**
+     * Getter. Get the points of a Player.
+     *
+     * @param nickname The nickname of the player whose points we want to get.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     * @return The points of the player with the given nickname.
+     */
+    public int getPlayerPoints(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.getPoints();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
 }
