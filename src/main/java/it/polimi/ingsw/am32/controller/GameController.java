@@ -147,9 +147,27 @@ public class GameController implements GameControllerInterface {
 
     public void pickStarterCardSide(String nickname, boolean isUp) {
         try {
-            model.createFieldPlayer(nickname, isUp);
+            model.createFieldPlayer(nickname, isUp); // Initialize the player's field
+            // TODO Notify the player that his field has been initialized?
 
+            boolean playersReady = true;
+            for (String playerNickname : model.getPlayersNicknames()) {
+                if (model.getPlayerField(playerNickname) == null) {
+                    playersReady = false;
+                    break;
+                }
+            }
 
+            if (playersReady) { // All players have selected their starting card's side
+                // TODO Notify all listeners
+
+                 model.assignRandomStartingResourceCardsToPlayers();
+                 model.assignRandomStartingGoldCardsToPlayers();
+                 model.pickRandomCommonObjectives();
+                 model.assignRandomStartingSecretObjectivesToPlayers();
+
+                 // TODO Notify all listeners
+            }
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         }
