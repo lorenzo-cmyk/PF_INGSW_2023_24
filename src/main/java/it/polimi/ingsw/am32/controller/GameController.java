@@ -201,7 +201,11 @@ public class GameController implements GameControllerInterface {
             }
 
             if (playersReady) { // All players have selected a secret objective card
-               // TODO Notify all listeners
+                // TODO Notify all listeners
+
+                model.randomizePlayersOrder();
+                model.enterPlayingPhase();
+                model.startTurns();
             }
         } catch (InvalidSelectionException e) {
             // TODO
