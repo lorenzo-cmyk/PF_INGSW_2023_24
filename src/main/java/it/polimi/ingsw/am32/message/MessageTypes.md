@@ -18,9 +18,11 @@
 {
     "type": "AccessGameMessage",
     "matchID": 10,
-    "senderNickname": "playerName"
+    "senderNickname": "playerName",
+    "hasData": false
 }
 ```
+The parameter "hasData" is used to discriminate between a player who is joining a game for the first time and a player who is reconnecting to a game.
 
 ### Game Messages
 
