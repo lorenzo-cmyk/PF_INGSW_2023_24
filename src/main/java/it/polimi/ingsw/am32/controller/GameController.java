@@ -46,9 +46,9 @@ public class GameController implements GameControllerInterface {
      */
     private final int id;
     /**
-     * playerCount: The number of players in the game
+     * gamePlayerCount: The number of players in the game
      */
-    private final int playerCount;
+    private final int gamePlayerCount;
 
     public GameController(String creatorName, int id, int playerCount) {
         this.listeners = new ArrayList<>();
@@ -57,7 +57,7 @@ public class GameController implements GameControllerInterface {
         this.chat = new Chat();
         this.timer = null;
         this.id = id;
-        this.playerCount = playerCount;
+        this.gamePlayerCount = playerCount;
         //TODO timer
 
         // Enter lobby phase immediately
@@ -136,19 +136,25 @@ public class GameController implements GameControllerInterface {
     /**
      * Starts the game.
      * Method used when the game is ready to start.
-     *
-     * @param nickname The nickname of the player that started the game
      */
-    public void startGame(String nickname) {
+    public void startGame() {
         model.enterPreparationPhase();
         model.assignRandomColoursToPlayers();
         model.assignRandomStartingInitialCardsToPlayers();
 
-         
+        // TODO Notify all listeners
     }
 
     public int getId() {
         return id;
+    }
+
+    public int getGamePlayerCount() {
+        return gamePlayerCount;
+    }
+
+    public int getLobbyPlayerCount() {
+        return model.getPlayersNicknames().size();
     }
 }
 

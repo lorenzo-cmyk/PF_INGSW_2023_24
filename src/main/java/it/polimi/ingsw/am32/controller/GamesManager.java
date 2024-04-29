@@ -74,8 +74,13 @@ public class GamesManager {
      */
     public GameController accessGame(int gameCode, String nickname) throws NoGameFoundException {
         for (GameController game : games) {
-            if (game.getId() == gameCode) {
+            if (game.getId() == gameCode) { // Found correct GameController instance
                 game.addPlayer(nickname);
+
+                if (game.getGamePlayerCount() == game.getLobbyPlayerCount()) { // Lobby is full
+                    game.startGame();
+                }
+
                 return game;
             }
         }
