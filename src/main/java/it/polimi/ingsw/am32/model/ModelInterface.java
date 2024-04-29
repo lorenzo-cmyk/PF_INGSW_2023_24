@@ -44,11 +44,7 @@ public interface ModelInterface {
     ArrayList<Integer> getPlayerHand(String nickname) throws PlayerNotFoundException;
     ArrayList<int[]> getPlayerField(String nickname) throws PlayerNotFoundException;
     int getCurrentTurnNumber();
-    int getMatchStatus();
     int getPlayerColour(String nickname) throws PlayerNotFoundException, NullColourException;
     String getCurrentPlayerNickname();
-    ArrayList<Player> getPlayers();
-    ArrayList<NonObjectiveCard> getResourceCardsDeck();
-    ArrayList<NonObjectiveCard> getGoldCardsDeck();
     int getPlayerPoints(String nickname) throws PlayerNotFoundException;
 }
