@@ -106,7 +106,7 @@ class MatchSimulationTest {
 
                 // Placing card phase
                 while (!successful) { // Keep looping until a valid move is found
-                    ArrayList<int[]> availablePos = availableSpacesPlayer(player); // Get all the available positions in the player's field
+                    ArrayList<int[]> availablePos = player.availableSpacesPlayer(); // Get all the available positions in the player's field
                     int[] randomCoordinate = availablePos.get(rand.nextInt(availablePos.size())); // Get a random available space
 
                     if (availablePos.isEmpty()) { // If the player cannot make any move
@@ -278,44 +278,5 @@ class MatchSimulationTest {
         } catch (Exception e) {
             LOGGER.fatal(e.getMessage());
         }
-    }
-
-    /**
-     * Returns the available spaces where a card can be played in the given player's field
-     * @param player The player whose field we want to check
-     * @return An ArrayList of int arrays containing the available spaces
-     */
-    public ArrayList<int[]> availableSpacesPlayer (@NotNull Player player){
-        ArrayList<int[]> availableCoordinate = new ArrayList<>(); // Create a new ArrayList of int arrays to store the available coordinates
-        for (int j = 0; j < player.getField().getFieldCards().size(); j++) { // Loop through all the cards in the player's field
-            int Ax, Ay;
-            Ax = player.getField().getFieldCards().get(j).getX();
-            Ay = player.getField().getFieldCards().get(j).getY();
-            if (player.getField().availableSpace(Ax+1,Ay+1)) { // Check if the space to the right and below the card is available
-                int[] temp = new int[2];
-                temp[0] = Ax + 1;
-                temp[1] = Ay + 1;
-                availableCoordinate.add(temp);
-            }
-            if (player.getField().availableSpace(Ax - 1, Ay - 1)) { // Check if the space to the left and above the card is available
-                int[] temp = new int[2];
-                temp[0] = Ax - 1;
-                temp[1] = Ay - 1;
-                availableCoordinate.add(temp);
-            }
-            if (player.getField().availableSpace(Ax + 1, Ay - 1)) { // Check if the space to the right and above the card is available
-                int[] temp = new int[2];
-                temp[0] = Ax + 1;
-                temp[1] = Ay - 1;
-                availableCoordinate.add(temp);
-            }
-            if (player.getField().availableSpace(Ax - 1, Ay + 1)) { // Check if the space to the left and below the card is available
-                int[] temp = new int[2];
-                temp[0] = Ax - 1;
-                temp[1] = Ay + 1;
-                availableCoordinate.add(temp);
-            }
-        }
-        return availableCoordinate;
     }
 }
