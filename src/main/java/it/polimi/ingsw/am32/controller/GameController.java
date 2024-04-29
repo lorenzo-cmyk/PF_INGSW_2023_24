@@ -8,6 +8,7 @@ import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.controller.exceptions.ListenerNotFoundException;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.InvalidSelectionException;
 import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.network.NodeInterface;
@@ -145,15 +146,22 @@ public class GameController implements GameControllerInterface {
         // TODO Notify all listeners
     }
 
-    public void pickStarterCardSide(String nickname, boolean isUp) {
+    /**
+     * Method called when a message of type start card side selection is received.
+     * The method initializes the player's field and checks if all players have chosen their starting card's side.
+     *
+     * @param nickname The nickname of the player that sent the message
+     * @param isUp The side of the starting card that the player has chosen
+     */
+    public void chooseStarterCardSide(String nickname, boolean isUp) {
         try {
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
             // TODO Notify the player that his field has been initialized?
 
-            boolean playersReady = true;
-            for (String playerNickname : model.getPlayersNicknames()) {
-                if (model.getPlayerField(playerNickname) == null) {
-                    playersReady = false;
+            boolean playersReady = true; // Assume all players are ready
+            for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
+                if (model.getPlayerField(playerNickname) == null) { // If a player doesn't have an assigned secret objective, he has not yet chosen his secret objective
+                    playersReady = false; // We have to wait for all other players to make their choice
                     break;
                 }
             }
@@ -170,6 +178,35 @@ public class GameController implements GameControllerInterface {
             }
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
+        }
+    }
+
+    /**
+     * Method called when a message of type secret objective card choice is received.
+     * The method assigns the player's secret objective and checks if all players have chosen their secret objective.
+     *
+     * @param nickname The nickname of the player that sent the message
+     * @param id The id of the secret objective card that the player has chosen
+     */
+    public void chooseSecretObjectiveCard(String nickname, int id) {
+        try {
+            model.receiveSecretObjectiveChoiceFromPlayer(nickname, id); // Set the player's secret objective
+
+            boolean playersReady = true; // Assume all players are ready
+            for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
+                if (model.getPlayerSecretObjective(nickname) == -1) { // If a player doesn't have an assigned secret objective, he has not yet chosen his secret objective
+                    playersReady = false; // We have to wait for all other players to make their choice
+                    break;
+                }
+            }
+
+            if (playersReady) { // All players have selected a secret objective card
+               // TODO Notify all listeners
+            }
+        } catch (InvalidSelectionException e) {
+            // TODO
+        } catch (PlayerNotFoundException e) {
+            // TODO
         }
     }
 
