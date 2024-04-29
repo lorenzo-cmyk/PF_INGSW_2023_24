@@ -39,10 +39,11 @@ public class GamesManager {
     /**
      * Creates a new game and adds it to the list of games. Game ids will be assigned randomly
      *
-     * @param creatorName A string indicating the name of the player that created the game
+     * @param creatorName The name of the player that created the game
+     * @param playerCount The number of players in the game
      * @return The game that was created
      */
-    public GameController createGame(String creatorName) {
+    public GameController createGame(String creatorName, int playerCount) {
         Random random = new Random();
         int rand = 0;
 
@@ -59,7 +60,7 @@ public class GamesManager {
             }
         }
 
-        GameController game = new GameController(creatorName, rand);
+        GameController game = new GameController(creatorName, rand, playerCount);
         games.add(game);
         return game;
     }

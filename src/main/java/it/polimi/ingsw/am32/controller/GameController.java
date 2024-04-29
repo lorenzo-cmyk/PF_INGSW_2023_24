@@ -42,22 +42,22 @@ public class GameController implements GameControllerInterface {
      */
     private final Timer timer;
     /**
-     * creatorName: The name of the player that created the game
-     */
-    private final String creatorName;
-    /**
      * id: The id of the game
      */
     private final int id;
+    /**
+     * playerCount: The number of players in the game
+     */
+    private final int playerCount;
 
-    public GameController(String creatorName, int id) {
+    public GameController(String creatorName, int id, int playerCount) {
         this.listeners = new ArrayList<>();
         this.nodeList = new ArrayList<>();
         this.model = new Match();
         this.chat = new Chat();
         this.timer = null;
-        this.creatorName = creatorName;
         this.id = id;
+        this.playerCount = playerCount;
         //TODO timer
 
         // Enter lobby phase immediately
@@ -88,6 +88,7 @@ public class GameController implements GameControllerInterface {
         if (!present) {
             throw new ListenerNotFoundException("Listener does not exist");
         }
+        // TODO
     }
 
     public void disconnect(NodeInterface node) {
@@ -115,6 +116,7 @@ public class GameController implements GameControllerInterface {
         } catch (DuplicateNicknameException e){
            throw new CriticalFailureException("Player " + nickname + " already in game");
         }
+        // TODO
     }
 
     /**
@@ -138,10 +140,6 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player that started the game
      */
     public void startGame(String nickname) {
-        if (!nickname.equals(creatorName)) { // Someone other than the host tried to start the game
-            // TODO
-        }
-
         model.enterPreparationPhase();
         model.assignRandomColoursToPlayers();
         model.assignRandomStartingInitialCardsToPlayers();
