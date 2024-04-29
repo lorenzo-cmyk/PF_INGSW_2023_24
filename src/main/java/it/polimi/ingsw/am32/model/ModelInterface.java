@@ -43,6 +43,7 @@ public interface ModelInterface {
     int getPlayerSecretObjective(String nickname) throws PlayerNotFoundException;
     ArrayList<Integer> getPlayerHand(String nickname) throws PlayerNotFoundException;
     ArrayList<int[]> getPlayerField(String nickname) throws PlayerNotFoundException;
+    public int getMatchStatus();
     int getCurrentTurnNumber();
     int getPlayerColour(String nickname) throws PlayerNotFoundException, NullColourException;
     String getCurrentPlayerNickname();

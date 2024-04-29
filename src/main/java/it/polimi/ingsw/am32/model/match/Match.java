@@ -646,7 +646,7 @@ public class Match implements ModelInterface {
      *
      * @return Status of match
      */
-    protected int getMatchStatus() {
+    public int getMatchStatus() {
         // Return the integer value associated with the current match status. If the matchStatus is null, return -1.
         return isNull(matchStatus) ? -1 : matchStatus.getValue();
     }

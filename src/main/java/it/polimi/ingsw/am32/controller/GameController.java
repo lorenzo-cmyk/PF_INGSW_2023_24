@@ -7,9 +7,7 @@ import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.controller.exceptions.ListenerNotFoundException;
-import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
-import it.polimi.ingsw.am32.model.exceptions.InvalidSelectionException;
-import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
+import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.network.NodeInterface;
 import it.polimi.ingsw.am32.network.RMIServerNode;
@@ -50,6 +48,11 @@ public class GameController implements GameControllerInterface {
      * gamePlayerCount: The number of players in the game
      */
     private final int gamePlayerCount;
+    /**
+     * placedCardFlag: Flag indicating whether a card has been placed by the current player
+     * Used to prevent the same player from placing 2 cards in a row without drawing
+     */
+    private boolean placedCardFlag;
 
     public GameController(String creatorName, int id, int playerCount) {
         this.listeners = new ArrayList<>();
@@ -59,6 +62,7 @@ public class GameController implements GameControllerInterface {
         this.timer = null;
         this.id = id;
         this.gamePlayerCount = playerCount;
+        this.placedCardFlag = false;
         //TODO timer
 
         // Enter lobby phase immediately
@@ -211,6 +215,39 @@ public class GameController implements GameControllerInterface {
             // TODO
         } catch (PlayerNotFoundException e) {
             // TODO
+        }
+    }
+
+    public void placeCard(String nickname, int id, int x, int y, boolean side) {
+        if (!nickname.equals(model.getCurrentPlayerNickname())) {
+            // TODO Notify the player that it isn't his turn to play
+            return;
+        }
+        // Player has the playing rights
+        try {
+            model.placeCard(id, x, y, side); // Try to place card
+            placedCardFlag = true; // Card has been placed successfully
+            // TODO Notify player of valid placement
+        } catch (InvalidSelectionException e) {
+            // TODO
+        } catch (MissingRequirementsException e) {
+            // TODO
+        } catch (InvalidPositionException e) {
+            // TODO
+        } catch (PlayerNotFoundException e) {
+            // TODO
+        }
+    }
+
+    public void drawCard(String nickname, int deckType, int id) {
+        if (!nickname.equals(model.getCurrentPlayerNickname())) {
+            // TODO Notify the player that it isn't his turn to play
+            return;
+        }
+        // Player has the playing rights
+        if (!placedCardFlag) { // The current player hasn't yet placed a card
+           // TODO Notify the player that he hasn't yet placed a card
+            return;
         }
     }
 
