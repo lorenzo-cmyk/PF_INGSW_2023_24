@@ -66,6 +66,10 @@ public class Match implements ModelInterface {
      */
     private MatchStatus matchStatus;
     /**
+     * Backup of matchStatus used for the rollback functionality.
+     */
+    private MatchStatus backupMatchStatus;
+    /**
      * Nickname that identifies the current player.
      */
     private String currentPlayerNickname;
@@ -318,6 +322,7 @@ public class Match implements ModelInterface {
      */
     public void placeCard(int id, int x, int y, boolean side) throws InvalidSelectionException,
             MissingRequirementsException, InvalidPositionException, PlayerNotFoundException {
+        backupMatchStatus = matchStatus;
         for (int i=0; i<=players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerNickname)) { // Found current player
                 players.get(i).performMove(id, x, y, side); // Place card
@@ -339,6 +344,7 @@ public class Match implements ModelInterface {
         for (Player player : players) {
             if (player.getNickname().equals(currentPlayerNickname)) {
                 player.rollbackMove();
+                matchStatus = backupMatchStatus;
                 return;
             }
         }
@@ -614,7 +620,7 @@ public class Match implements ModelInterface {
      * @return An ArrayList of integer arrays representing the player's field. Each array represents a card placed on
      * the field. The elements of the array are the x-coordinate, y-coordinate, id of the card, and a boolean
      * value (1 for true, 0 for false) indicating whether the card is face up. If no player with the provided
-     * nickname is found, an empty ArrayList is returned.
+     * nickname is found, an empty ArrayList is returned. Returns null if the player's field has not yet been initialized.
      * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
     public ArrayList<int[]> getPlayerField(String nickname) throws PlayerNotFoundException {
@@ -624,6 +630,9 @@ public class Match implements ModelInterface {
 
         if (playerOptional.isEmpty()) {
             throw new PlayerNotFoundException("Player not found in the list of players");
+        }
+        if (playerOptional.get().getField() == null) { // Player field has not yet been initialized
+            return null;
         }
 
         return playerOptional.get().getField().getFieldCards().stream()
@@ -637,7 +646,7 @@ public class Match implements ModelInterface {
      *
      * @return Status of match
      */
-    protected int getMatchStatus() {
+    public int getMatchStatus() {
         // Return the integer value associated with the current match status. If the matchStatus is null, return -1.
         return isNull(matchStatus) ? -1 : matchStatus.getValue();
     }
@@ -710,6 +719,22 @@ public class Match implements ModelInterface {
      */
     protected ArrayList<NonObjectiveCard> getGoldCardsDeck() {
         return goldCardsDeck.getCards();
+    }
+
+    /**
+     * Getter. Get the points of a Player.
+     *
+     * @param nickname The nickname of the player whose points we want to get.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     * @return The points of the player with the given nickname.
+     */
+    public int getPlayerPoints(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.getPoints();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
 }

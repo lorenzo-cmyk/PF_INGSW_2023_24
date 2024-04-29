@@ -26,9 +26,9 @@ public class Chat {
      * Adds a new message to the chat history.
      *
      * @param msg The message to be added
-     * @throws NullMessageException If the message is null
+     * @exception NullMessageException If the message is null
      */
-    public void addMessage(ChatMessage msg) throws NullMessageException {
+    public void addMessage(ChatMessage msg) {
         if (msg == null) throw new NullMessageException("Chat message cannot be null");
         chatHistory.add(msg);
     }
@@ -40,11 +40,15 @@ public class Chat {
      * @param playerNickname The nickname of the player
      * @return An ArrayList of ChatMessage objects
      */
-    public ArrayList<ChatMessage> getPlayerChatHistory (String playerNickname) {
+    public ArrayList<ChatMessage> getPlayerChatHistory(String playerNickname) {
         // This method returns an ArrayList of ChatMessage objects representing only the message directed to that player
         // or multicast messages.
         return chatHistory.stream()
                 .filter(msg -> msg.getRecipientNickname().equals(playerNickname) || msg.isMulticastFlag())
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public ArrayList<ChatMessage> getHistory() {
+        return chatHistory;
     }
 }

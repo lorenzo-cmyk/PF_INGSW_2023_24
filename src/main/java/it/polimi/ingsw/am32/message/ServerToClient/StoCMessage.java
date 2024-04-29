@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am32.message;
+package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.controller.VirtualView;
 
@@ -13,5 +13,5 @@ public interface StoCMessage {
      *
      * @param virtualView The virtual view to which the message should be delivered
      */
-    void deliverMessage(VirtualView virtualView);
+    void processMessage(VirtualView virtualView);
 }

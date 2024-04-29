@@ -1,5 +1,8 @@
 # Message Types
 
+We have chosen to represent the messages exchanged between the Client and the Server using JSON thanks to its simplicity and readability. Each message is represented as a JSON object with a "type" field that specifies the type of message. The other fields depend on the type of message. 
+The messages are divided into three categories: Lobby Messages, Game Messages, and Chat Messages.
+
 ## Client to Server
 
 ### Lobby Messages
@@ -8,7 +11,8 @@
 ```json
 {
     "type": "NewGameMessage",
-    "senderNickname": "playerName"
+    "senderNickname": "playerName",
+    "playerNum": 3
 }
 ```
 
@@ -17,25 +21,11 @@
 {
     "type": "AccessGameMessage",
     "matchID": 10,
-    "senderNickname": "playerName"
+    "senderNickname": "playerName",
+    "hasData": false
 }
 ```
-
-- DestroyGameMessage : sent by Client to terminate a game and kick everyone out of the lobby
-```json
-{
-  "type": "DestroyGameMessage",
-  "senderNickname": "playerName"
-}
-```
-
-- StartGameMessage: sent by a Client to start the game.
-```json
-{
-  "type": "StartGameMessage",
-  "senderNickname": "playerName"
-}
-```
+The parameter "hasData" is used to discriminate between a player who is joining a game for the first time and a player who is reconnecting to a game.
 
 ### Game Messages
 
@@ -78,6 +68,24 @@
 }
 ```
 
+- SelectedStarterCardSideMessage: sent by the Client to notify the server of the initial card placement side
+```json
+{
+  "type": "SelectedStarterCardSideMessage",
+  "senderNickname": "playerName",
+  "isUp": true 
+}
+```
+
+- SelectedSecretObjectiveCardMessage: sent by the Client to notify the server of the chosen secret objective card 
+```json
+{
+  "type": "SelectedSecretObjectiveCardMessage",
+  "senderNickname": "playerName",
+  "cardId": 12 
+}
+```
+
 ### Chat Messages
 
 - InboundChatMessage: sent by a Client to send a message in chat.
@@ -105,10 +113,10 @@
 
 ### Lobby Messages
 
-- NewGameConfirmation: sent by the Server to confirm the creation of a new game.
+- NewGameConfirmationMessage: sent by the Server to confirm the creation of a new game.
 ```json
 {
-    "type": "NewGameConfirmation",
+    "type": "NewGameConfirmationMessage",
     "recipientNickname": "playerName",
     "matchID": 10
 }
@@ -131,6 +139,8 @@
 }
 ```
 
+Some "reasons" could be: CodeNotFoundMessage (the inserted code does not correspond to a match), NonExistAvailableGameMessage (there are no active games on the server, the player is obliged to create a new match), or RoomFullMessage (the match lobby is full, so the player cannot connect).
+
 - LobbyPlayerListMessage: sent by the Server to notify players of who is currently in the lobby
 ```json
 {
@@ -140,19 +150,10 @@
 }
 ```
 
-- DestroyGameConfirmationMessage: sent by the Server to confirm the destruction of a game.
+- GameStartedMessage: sent by the Server to announce the start of the game.
 ```json
 {
-  "type": "DestroyGameConfirmationMessage",
-  "recipientNickname": "playerName"
-}
-```
-
-- StartGameConfirmationMessage: sent by the Server to confirm the start of the game.
-```json
-{
-  "type": "StartGameConfirmation",
-  "recipientNickname": "playerName"
+  "type": "StartGameConfirmation"
 }
 ```
 
@@ -300,6 +301,40 @@
   "type": "MatchWinnersMessage",
   "recipientNickname": "playerName",
   "winners": ["player1", "player2"]
+}
+```
+
+- AssignedStarterCardMessage: sent by the Server to notify the Client of his assigned starting card
+```json
+{
+  "type": "AssignedStarterCardMessage",
+  "recipientNickname": "playerName",
+  "cardId": 34 
+}
+```
+
+- ConfirmStartedCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side
+```json
+{
+  "type": "ConfirmStartedCardSideSelectionMessage",
+  "recipientNickname": "playerName",
+}
+```
+
+- AssignedSecretObjectiveCardMessage: sent by the Server to notify the Client of his assigned assortment of secret objective cards
+```json
+{
+  "type": "SelectedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName",
+  "assignedCards": [23, 26] 
+}
+```
+
+- ConfirmSelectedSecretObjectiveCardMessage: sent by the Server to confirm the reception of the selected secret objective card
+```json
+{
+  "type": "ConfirmSelectedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName",
 }
 ```
 
