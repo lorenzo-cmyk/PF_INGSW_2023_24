@@ -9,6 +9,7 @@ import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.controller.exceptions.ListenerNotFoundException;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
+import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.NodeInterface;
 import it.polimi.ingsw.am32.network.RMIServerNode;
 import it.polimi.ingsw.am32.model.ModelInterface;
@@ -248,6 +249,21 @@ public class GameController implements GameControllerInterface {
         if (!placedCardFlag) { // The current player hasn't yet placed a card
            // TODO Notify the player that he hasn't yet placed a card
             return;
+        }
+        if (model.getMatchStatus()!= MatchStatus.LAST_TURN.getValue()) {
+            // TODO Notify the player that he cannot draw on the last turn
+        }
+
+        try {
+            model.drawCard(deckType, id);
+            placedCardFlag = false; // Card has been drawn successfully
+            model.nextTurn();
+
+            // TODO Notify the player of the drawn card
+        } catch (PlayerNotFoundException e) {
+            // TODO
+        } catch (DrawException e) {
+            // TODO
         }
     }
 
