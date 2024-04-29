@@ -1,5 +1,8 @@
 # Message Types
 
+We have chosen to represent the messages exchanged between the Client and the Server using JSON thanks to its simplicity and readability. Each message is represented as a JSON object with a "type" field that specifies the type of message. The other fields depend on the type of message. 
+The messages are divided into three categories: Lobby Messages, Game Messages, and Chat Messages.
+
 ## Client to Server
 
 ### Lobby Messages
@@ -116,15 +119,6 @@ The parameter "hasData" is used to discriminate between a player who is joining 
     "type": "NewGameConfirmationMessage",
     "recipientNickname": "playerName",
     "matchID": 10
-}
-```
-
-- NewGameFailureMessage: sent by the Server to notify the client of the unsuccessful creation of a new game.
-```json
-{
-    "type": "NewGameFailureMessage",
-    "recipientNickname": "playerName",
-    "reason": "Reason"
 }
 ```
 
@@ -319,12 +313,28 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
+- ConfirmStartedCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side
+```json
+{
+  "type": "ConfirmStartedCardSideSelectionMessage",
+  "recipientNickname": "playerName",
+}
+```
+
 - AssignedSecretObjectiveCardMessage: sent by the Server to notify the Client of his assigned assortment of secret objective cards
 ```json
 {
   "type": "SelectedSecretObjectiveCardMessage",
   "recipientNickname": "playerName",
   "assignedCards": [23, 26] 
+}
+```
+
+- ConfirmSelectedSecretObjectiveCardMessage: sent by the Server to confirm the reception of the selected secret objective card
+```json
+{
+  "type": "ConfirmSelectedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName",
 }
 ```
 
