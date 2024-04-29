@@ -22,14 +22,6 @@
 }
 ```
 
-- DestroyGameMessage : sent by Client to terminate a game and kick everyone out of the lobby
-```json
-{
-  "type": "DestroyGameMessage",
-  "senderNickname": "playerName"
-}
-```
-
 ### Game Messages
 
 - RequestGameStatusMessage: sent by a Client to request the current game status.
@@ -159,14 +151,6 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "LobbyPlayerListMessage",
   "recipientNickname": "playerName",
   "playerList": ["playerName1", "playerName2", "playerName3"]
-}
-```
-
-- DestroyGameConfirmationMessage: sent by the Server to confirm the destruction of a game.
-```json
-{
-  "type": "DestroyGameConfirmationMessage",
-  "recipientNickname": "playerName"
 }
 ```
 
