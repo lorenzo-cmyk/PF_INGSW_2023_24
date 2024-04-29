@@ -8,7 +8,8 @@
 ```json
 {
     "type": "NewGameMessage",
-    "senderNickname": "playerName"
+    "senderNickname": "playerName",
+    "playerNum": 3
 }
 ```
 
@@ -25,14 +26,6 @@
 ```json
 {
   "type": "DestroyGameMessage",
-  "senderNickname": "playerName"
-}
-```
-
-- StartGameMessage: sent by a Client to start the game.
-```json
-{
-  "type": "StartGameMessage",
   "senderNickname": "playerName"
 }
 ```
@@ -123,12 +116,21 @@
 
 ### Lobby Messages
 
-- NewGameConfirmation: sent by the Server to confirm the creation of a new game.
+- NewGameConfirmationMessage: sent by the Server to confirm the creation of a new game.
 ```json
 {
-    "type": "NewGameConfirmation",
+    "type": "NewGameConfirmationMessage",
     "recipientNickname": "playerName",
     "matchID": 10
+}
+```
+
+- NewGameFailureMessage: sent by the Server to notify the client of the unsuccessful creation of a new game.
+```json
+{
+    "type": "NewGameFailureMessage",
+    "recipientNickname": "playerName",
+    "reason": "Reason"
 }
 ```
 
@@ -168,11 +170,10 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
-- StartGameConfirmationMessage: sent by the Server to confirm the start of the game.
+- GameStartedMessage: sent by the Server to announce the start of the game.
 ```json
 {
-  "type": "StartGameConfirmation",
-  "recipientNickname": "playerName"
+  "type": "StartGameConfirmation"
 }
 ```
 

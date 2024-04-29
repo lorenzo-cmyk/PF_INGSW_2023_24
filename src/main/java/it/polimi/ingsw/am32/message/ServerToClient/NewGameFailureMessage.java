@@ -1,13 +1,14 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.controller.VirtualView;
-import it.polimi.ingsw.am32.message.ClientToServer.StartGameMessage;
 
-public class StartGameConfirmationMessage implements StoCMessage {
+public class NewGameFailureMessage implements StoCMessage {
     private final String recipientNickname;
+    private final String reason;
 
-    public StartGameConfirmationMessage(String recipientNickname) {
+    public NewGameFailureMessage(String recipientNickname, String reason) {
         this.recipientNickname = recipientNickname;
+        this.reason = reason;
     }
 
     @Override

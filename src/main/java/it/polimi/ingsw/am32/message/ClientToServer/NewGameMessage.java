@@ -4,9 +4,11 @@ import it.polimi.ingsw.am32.controller.GameController;
 
 public class NewGameMessage implements CtoSMessage {
     private final String senderNickname;
+    private final int playerNum;
 
-    public NewGameMessage(String senderNickname) {
+    public NewGameMessage(String senderNickname, int playerNum) {
         this.senderNickname = senderNickname;
+        this.playerNum = playerNum;
     }
 
     @Override
