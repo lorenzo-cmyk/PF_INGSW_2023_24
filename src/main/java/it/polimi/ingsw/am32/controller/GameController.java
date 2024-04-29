@@ -257,9 +257,21 @@ public class GameController implements GameControllerInterface {
         try {
             model.drawCard(deckType, id);
             placedCardFlag = false; // Card has been drawn successfully
-            model.nextTurn();
-
             // TODO Notify the player of the drawn card
+            model.nextTurn(); // Update turn number and current player
+            // TODO Notify the players of the new current player
+
+            // After updating the current player, we need to update the game state
+            if (model.isFirstPlayer()) { // The first player is now playing
+               if (model.areWeTerminating()) { // We are in the terminating phase
+                   model.setLastTurn();
+                   // TODO Notify the players that we have entered the last turn phase
+               } else if (model.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) {
+                   model.enterTerminatedPhase();
+                   // TODO Notify the players that the game has ended
+                   // TODO Destroy game?
+               }
+            }
         } catch (PlayerNotFoundException e) {
             // TODO
         } catch (DrawException e) {
