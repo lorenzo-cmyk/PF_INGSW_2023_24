@@ -68,11 +68,12 @@ public class GamesManager {
     /**
      * Returns the GameController of the game with the given code
      *
+     * @param nickname The nickname of the player that wants to access the game
      * @param gameCode The code of the game
      * @return The GameController of the game with the given code
      * @throws NoGameFoundException If no game with the given code is found
      */
-    public GameController accessGame(int gameCode, String nickname) throws NoGameFoundException {
+    public GameController accessGame(String nickname, int gameCode) throws NoGameFoundException {
         for (GameController game : games) {
             if (game.getId() == gameCode) { // Found correct GameController instance
                 game.addPlayer(nickname);
