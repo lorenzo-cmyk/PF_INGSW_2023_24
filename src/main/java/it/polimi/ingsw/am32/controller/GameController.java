@@ -145,6 +145,16 @@ public class GameController implements GameControllerInterface {
         // TODO Notify all listeners
     }
 
+    public void pickStarterCardSide(String nickname, boolean isUp) {
+        try {
+            model.createFieldPlayer(nickname, isUp);
+
+
+        } catch (PlayerNotFoundException e) {
+            throw new CriticalFailureException("Player " + nickname + " not found");
+        }
+    }
+
     public int getId() {
         return id;
     }

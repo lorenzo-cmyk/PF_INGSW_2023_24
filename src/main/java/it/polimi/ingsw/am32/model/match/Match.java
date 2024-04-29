@@ -620,7 +620,7 @@ public class Match implements ModelInterface {
      * @return An ArrayList of integer arrays representing the player's field. Each array represents a card placed on
      * the field. The elements of the array are the x-coordinate, y-coordinate, id of the card, and a boolean
      * value (1 for true, 0 for false) indicating whether the card is face up. If no player with the provided
-     * nickname is found, an empty ArrayList is returned.
+     * nickname is found, an empty ArrayList is returned. Returns null if the player's field has not yet been initialized.
      * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
     public ArrayList<int[]> getPlayerField(String nickname) throws PlayerNotFoundException {
@@ -630,6 +630,9 @@ public class Match implements ModelInterface {
 
         if (playerOptional.isEmpty()) {
             throw new PlayerNotFoundException("Player not found in the list of players");
+        }
+        if (playerOptional.get().getField() == null) { // Player field has not yet been initialized
+            return null;
         }
 
         return playerOptional.get().getField().getFieldCards().stream()
