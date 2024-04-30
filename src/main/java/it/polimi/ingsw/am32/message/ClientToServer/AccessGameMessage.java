@@ -1,8 +1,10 @@
 package it.polimi.ingsw.am32.message.ClientToServer;
 
 import it.polimi.ingsw.am32.controller.GameController;
+import it.polimi.ingsw.am32.controller.GamesManager;
+import it.polimi.ingsw.am32.network.NodeInterface;
 
-public class AccessGameMessage implements CtoSMessage {
+public class AccessGameMessage implements CtoSLobbyMessage {
     private final int matchId;
     private final String senderNickname;
 
@@ -12,7 +14,7 @@ public class AccessGameMessage implements CtoSMessage {
     }
 
     @Override
-    public void elaborateMessage(GameController gameController) {
+    public void elaborateMessage(NodeInterface nodeInterface) {
         // TODO
     }
 }
