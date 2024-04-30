@@ -48,4 +48,8 @@ public class VirtualView implements VirtualViewInterface, Runnable {
     public void processMessage(StoCMessage message) {
         // TODO: Process the message
     }
+
+    public void flushMessage() {
+        // TODO
+    }
 }
