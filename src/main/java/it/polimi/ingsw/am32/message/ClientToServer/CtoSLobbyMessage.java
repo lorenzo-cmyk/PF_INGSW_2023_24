@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.message.ClientToServer;
 
 import it.polimi.ingsw.am32.controller.GamesManager;
+import it.polimi.ingsw.am32.network.NodeInterface;
 
 /**
  * This interface represents a message from the client to the server in the lobby phase.
@@ -10,7 +11,7 @@ public interface CtoSLobbyMessage {
     /**
      * Elaborates the message with the specified game manager.
      *
-     * @param gamesManager The game manager with which the message should be elaborated
+     * @param nodeInterface The node interface that received the message.
      */
-    void elaborateMessage(GamesManager gamesManager);
+    void elaborateMessage(NodeInterface nodeInterface);
 }
