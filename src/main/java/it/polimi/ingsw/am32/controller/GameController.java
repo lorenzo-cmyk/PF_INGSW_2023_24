@@ -2,12 +2,14 @@ package it.polimi.ingsw.am32.controller;
 
 import java.util.ArrayList;
 import java.util.Timer;
+import java.util.stream.Collectors;
 
 import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
+import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
@@ -109,9 +111,22 @@ public class GameController implements GameControllerInterface {
             model.addPlayer(nickname);
 
             VirtualView virtualView = new VirtualView(node); // Create new virtual view and link it to the client server node
-            PlayerQuadruple playerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
-            nodeList.add(playerQuadruple);
+            PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
+            nodeList.add(newPlayerQuadruple);
             Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
+
+            // Notify all players that a new player has joined the lobby
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
+
+                try {
+                    ArrayList<String> allPlayerNicknames = (ArrayList<String>)getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all connected players
+                    submitVirtualViewMessage(playerQuadruple.getNickname(), new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
+                } catch (VirtualViewNotFoundException e) {
+                    // TODO
+                }
+
+            }
         } catch (DuplicateNicknameException e){
            throw new CriticalFailureException("Player " + nickname + " already in game");
         }
@@ -269,6 +284,10 @@ public class GameController implements GameControllerInterface {
         } catch (DrawException e) {
             // TODO
         }
+    }
+
+    public ArrayList<PlayerQuadruple> getNodeList() {
+        return nodeList;
     }
 
     public int getId() {

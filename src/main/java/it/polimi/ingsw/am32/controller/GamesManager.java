@@ -1,6 +1,10 @@
 package it.polimi.ingsw.am32.controller;
 
-import it.polimi.ingsw.am32.controller.exceptions.NoGameFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
+import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.GameStartedMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
 import it.polimi.ingsw.am32.network.NodeInterface;
 
 import java.util.ArrayList;
@@ -63,9 +67,16 @@ public class GamesManager {
             }
         }
 
-        GameController game = new GameController(rand, playerCount);
-        games.add(game);
-        game.addPlayer(creatorName, node);
+        GameController game = new GameController(rand, playerCount); // Create new game instance
+        try { // Notify the creator that a new game has been created
+            game.submitVirtualViewMessage(creatorName, new NewGameConfirmationMessage(creatorName, rand));
+        } catch (VirtualViewNotFoundException e) {
+            // TODO
+        }
+
+        games.add(game); // Add game to the list of all games
+        game.addPlayer(creatorName, node); // Add the creator to the newly created game
+
         return game;
     }
 
@@ -76,31 +87,46 @@ public class GamesManager {
      * @param gameCode The code of the game to be accessed
      * @param node The server node associated with the given player
      * @return The GameController of the game with the given code
-     * @throws NoGameFoundException If no game with the given code is found
+     * @throws GameNotFoundException If no game with the given code is found
      */
-    public GameController accessGame(String nickname, int gameCode, NodeInterface node) throws NoGameFoundException {
+    public GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException {
         for (GameController game : games) {
             if (game.getId() == gameCode) { // Found correct GameController instance
+                try { // Notify the player that he has successfully joined the game
+                    game.submitVirtualViewMessage(nickname, new AccessGameConfirmMessage(nickname));
+                } catch (VirtualViewNotFoundException e) {
+                    // TODO
+                }
+
                 game.addPlayer(nickname, node);
 
                 if (game.getGamePlayerCount() == game.getLobbyPlayerCount()) { // Lobby is full
-                    game.startGame();
-                    // TODO Notify all players that the game has started
+                    game.startGame(); // Start the game
+
+                    for (PlayerQuadruple playerQuadruple : game.getNodeList()) { // Notify all players that the game has started
+                        if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
+
+                        try {
+                            game.submitVirtualViewMessage(playerQuadruple.getNickname(), new GameStartedMessage());
+                        } catch (VirtualViewNotFoundException e) {
+                            // TODO
+                        }
+                    }
                 }
 
                 return game;
             }
         }
-        throw new NoGameFoundException("No game found with code " + gameCode);
+        throw new GameNotFoundException("No game found with code " + gameCode);
     }
 
     /**
      * Deletes the game with the given code
      *
      * @param gameCode The code of the game to be deleted
-     * @throws NoGameFoundException If no game with the given code is found
+     * @throws GameNotFoundException If no game with the given code is found
      */
-    public void deleteGame(int gameCode) throws NoGameFoundException {
+    public void deleteGame(int gameCode) throws GameNotFoundException {
         // TODO
         for (GameController game : games) {
             if (game.getId() == gameCode) {
@@ -108,6 +134,6 @@ public class GamesManager {
                 break;
             }
         }
-        throw new NoGameFoundException("No game found with code " + gameCode);
+        throw new GameNotFoundException("No game found with code " + gameCode);
     }
 }
