@@ -14,4 +14,20 @@ public class PlayerQuadruple {
         this.connected = connected;
         this.virtualView = virtualView;
     }
+
+    public NodeInterface getNode() {
+        return node;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public VirtualView getVirtualView() {
+        return virtualView;
+    }
 }

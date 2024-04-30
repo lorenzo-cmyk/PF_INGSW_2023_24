@@ -43,6 +43,7 @@ public class GamesManager {
      *
      * @param creatorName The name of the player that created the game
      * @param playerCount The number of players that the game will have
+     * @param node The server node associated with the given player
      * @return The GameController of the newly created game
      */
     public GameController createGame(String creatorName, int playerCount, NodeInterface node) {
@@ -71,7 +72,9 @@ public class GamesManager {
     /**
      * Adds the player with the given nickname to the game with the given code
      *
+     * @param nickname The nickname of the player to be added
      * @param gameCode The code of the game to be accessed
+     * @param node The server node associated with the given player
      * @return The GameController of the game with the given code
      * @throws NoGameFoundException If no game with the given code is found
      */

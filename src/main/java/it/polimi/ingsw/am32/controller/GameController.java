@@ -3,15 +3,16 @@ package it.polimi.ingsw.am32.controller;
 import java.util.ArrayList;
 import java.util.Timer;
 
+import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
-import it.polimi.ingsw.am32.controller.exceptions.ListenerNotFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
+import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.NodeInterface;
-import it.polimi.ingsw.am32.network.RMIServerNode;
 import it.polimi.ingsw.am32.model.ModelInterface;
 
 /**
@@ -21,10 +22,6 @@ import it.polimi.ingsw.am32.model.ModelInterface;
  * @author Anto
  */
 public class GameController implements GameControllerInterface {
-    /**
-     * listeners: A list of all the VirtualViews that are currently connected to the game and are listening for outgoing messages
-     */
-    private final ArrayList<VirtualView> listeners;
     /**
      * nodeList: A list of all the nodes that are currently connected to the game (rmi or socket)
      */
@@ -56,7 +53,6 @@ public class GameController implements GameControllerInterface {
     private boolean placedCardFlag;
 
     public GameController(int id, int playerCount) {
-        this.listeners = new ArrayList<>();
         this.nodeList = new ArrayList<>();
         this.model = new Match();
         this.chat = new Chat();
@@ -67,6 +63,22 @@ public class GameController implements GameControllerInterface {
 
         // Enter lobby phase immediately
         model.enterLobbyPhase();
+    }
+
+    /**
+     * Assigns a new message to be delivered to the VirtualView of a given client
+     *
+     * @param nickname The nickname of the recipient of the message
+     * @param message The message object to be delivered
+     * @throws VirtualViewNotFoundException If the recipient's VirtualView could not be found among the listeners
+     */
+    public void submitVirtualViewMessage(String nickname, StoCMessage message) throws VirtualViewNotFoundException {
+        for (PlayerQuadruple playerQuadruple : nodeList) {
+            if (playerQuadruple.getNickname().equals((nickname))) {
+                playerQuadruple.getVirtualView().addMessage(message);
+            }
+        }
+        throw new VirtualViewNotFoundException("VirtualView for player " + nickname + " not found");
     }
 
     public void submitChatMessage(ChatMessage message){
@@ -96,9 +108,10 @@ public class GameController implements GameControllerInterface {
         try {
             model.addPlayer(nickname);
 
-            VirtualView virtualView = new VirtualView(node);
+            VirtualView virtualView = new VirtualView(node); // Create new virtual view and link it to the client server node
             PlayerQuadruple playerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
             nodeList.add(playerQuadruple);
+            Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
         } catch (DuplicateNicknameException e){
            throw new CriticalFailureException("Player " + nickname + " already in game");
         }
