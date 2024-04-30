@@ -9,5 +9,4 @@ public interface GameControllerInterface {
     void submitChatMessage(ChatMessage chatMessage);
     void disconnect(NodeInterface node);
     void reconnect(NodeInterface node);
-    RMIServerNode reconFromDeath(String nickname);
 }

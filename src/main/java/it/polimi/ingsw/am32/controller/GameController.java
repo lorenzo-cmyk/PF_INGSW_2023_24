@@ -85,11 +85,6 @@ public class GameController implements GameControllerInterface {
         //TODO
     }
 
-    public RMIServerNode reconFromDeath(String nickname){
-        //TODO
-        return null;
-    }
-
     /**
      * Adds a player to the game.
      * Method used when a player joins the game.
