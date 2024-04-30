@@ -73,23 +73,8 @@ public class GameController implements GameControllerInterface {
         chat.addMessage(message);
     }
 
-    protected void addNode(NodeInterface node, String nickname, boolean connected){
-        // Used for testing
-        // TODO: Should we check for duplicate nodes in nodeList?
-    }
-
     public ArrayList<ChatMessage> getAllChatHistory(){
         return chat.getHistory();
-    }
-
-    protected void addListener(VirtualView listener) {
-        // Used for testing
-        // TODO: Check for duplicate listeners?
-    }
-
-    protected void removeListener(VirtualView listener) throws ListenerNotFoundException {
-        // Used for testing
-        // TODO
     }
 
     public void disconnect(NodeInterface node) {

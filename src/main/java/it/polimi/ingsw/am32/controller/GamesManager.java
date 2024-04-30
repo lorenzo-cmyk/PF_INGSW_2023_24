@@ -82,6 +82,7 @@ public class GamesManager {
 
                 if (game.getGamePlayerCount() == game.getLobbyPlayerCount()) { // Lobby is full
                     game.startGame();
+                    // TODO Notify all players that the game has started
                 }
 
                 return game;
@@ -97,6 +98,7 @@ public class GamesManager {
      * @throws NoGameFoundException If no game with the given code is found
      */
     public void deleteGame(int gameCode) throws NoGameFoundException {
+        // TODO
         for (GameController game : games) {
             if (game.getId() == gameCode) {
                 games.remove(game);
@@ -105,5 +107,4 @@ public class GamesManager {
         }
         throw new NoGameFoundException("No game found with code " + gameCode);
     }
-    // TODO
 }
