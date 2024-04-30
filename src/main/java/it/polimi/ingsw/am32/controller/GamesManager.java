@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.NoGameFoundException;
+import it.polimi.ingsw.am32.network.NodeInterface;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -36,14 +38,7 @@ public class GamesManager {
         return instance;
     }
 
-    /**
-     * Creates a new game and adds it to the list of games. Game ids will be assigned randomly
-     *
-     * @param creatorName The name of the player that created the game
-     * @param playerCount The number of players in the game
-     * @return The game that was created
-     */
-    public GameController createGame(String creatorName, int playerCount) {
+    public GameController createGame(String creatorName, int playerCount, NodeInterface node) {
         Random random = new Random();
         int rand = 0;
 
@@ -60,8 +55,9 @@ public class GamesManager {
             }
         }
 
-        GameController game = new GameController(creatorName, rand, playerCount);
+        GameController game = new GameController(rand, playerCount);
         games.add(game);
+        game.addPlayer(creatorName, node);
         return game;
     }
 
@@ -73,10 +69,10 @@ public class GamesManager {
      * @return The GameController of the game with the given code
      * @throws NoGameFoundException If no game with the given code is found
      */
-    public GameController accessGame(String nickname, int gameCode) throws NoGameFoundException {
+    public GameController accessGame(String nickname, int gameCode, NodeInterface node) throws NoGameFoundException {
         for (GameController game : games) {
             if (game.getId() == gameCode) { // Found correct GameController instance
-                game.addPlayer(nickname);
+                game.addPlayer(nickname, node);
 
                 if (game.getGamePlayerCount() == game.getLobbyPlayerCount()) { // Lobby is full
                     game.startGame();

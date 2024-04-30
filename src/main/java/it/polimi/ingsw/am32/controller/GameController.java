@@ -28,7 +28,7 @@ public class GameController implements GameControllerInterface {
     /**
      * nodeList: A list of all the nodes that are currently connected to the game (rmi or socket)
      */
-    private final ArrayList<NodeTriple> nodeList;
+    private final ArrayList<PlayerQuadruple> nodeList;
     /**
      * model: The model of the game
      */
@@ -55,7 +55,7 @@ public class GameController implements GameControllerInterface {
      */
     private boolean placedCardFlag;
 
-    public GameController(String creatorName, int id, int playerCount) {
+    public GameController(int id, int playerCount) {
         this.listeners = new ArrayList<>();
         this.nodeList = new ArrayList<>();
         this.model = new Match();
@@ -64,11 +64,9 @@ public class GameController implements GameControllerInterface {
         this.id = id;
         this.gamePlayerCount = playerCount;
         this.placedCardFlag = false;
-        //TODO timer
 
         // Enter lobby phase immediately
         model.enterLobbyPhase();
-        addPlayer(creatorName);
     }
 
     public void submitChatMessage(ChatMessage message){
@@ -76,7 +74,6 @@ public class GameController implements GameControllerInterface {
     }
 
     public void addNode(NodeInterface node, String nickname, boolean connected){
-        nodeList.add(new NodeTriple(node, nickname, connected));
         // TODO: Should we check for duplicate nodes in nodeList?
     }
 
@@ -116,7 +113,7 @@ public class GameController implements GameControllerInterface {
      *
      * @param nickname The nickname of the player to add
      */
-    public void addPlayer(String nickname) {
+    public void addPlayer(String nickname, NodeInterface node) {
         try {
             model.addPlayer(nickname);
         } catch (DuplicateNicknameException e){
