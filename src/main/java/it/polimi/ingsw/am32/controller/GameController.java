@@ -73,7 +73,8 @@ public class GameController implements GameControllerInterface {
         chat.addMessage(message);
     }
 
-    public void addNode(NodeInterface node, String nickname, boolean connected){
+    protected void addNode(NodeInterface node, String nickname, boolean connected){
+        // Used for testing
         // TODO: Should we check for duplicate nodes in nodeList?
     }
 
@@ -81,16 +82,13 @@ public class GameController implements GameControllerInterface {
         return chat.getHistory();
     }
 
-    public void addListener(VirtualView listener) {
-        listeners.add(listener);
+    protected void addListener(VirtualView listener) {
+        // Used for testing
         // TODO: Check for duplicate listeners?
     }
 
-    public void removeListener(VirtualView listener) throws ListenerNotFoundException {
-        boolean present = listeners.remove(listener); // Flag indicating if listener was present in the list of listeners
-        if (!present) {
-            throw new ListenerNotFoundException("Listener does not exist");
-        }
+    protected void removeListener(VirtualView listener) throws ListenerNotFoundException {
+        // Used for testing
         // TODO
     }
 
@@ -109,17 +107,21 @@ public class GameController implements GameControllerInterface {
 
     /**
      * Adds a player to the game.
-     * Methods used when a new player joins, or when a new game is created.
+     * Method used when a player joins the game.
      *
      * @param nickname The nickname of the player to add
+     * @param node The node of the player to add
      */
     public void addPlayer(String nickname, NodeInterface node) {
         try {
             model.addPlayer(nickname);
+
+            VirtualView virtualView = new VirtualView(node);
+            PlayerQuadruple playerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
+            nodeList.add(playerQuadruple);
         } catch (DuplicateNicknameException e){
            throw new CriticalFailureException("Player " + nickname + " already in game");
         }
-        // TODO
     }
 
     /**
