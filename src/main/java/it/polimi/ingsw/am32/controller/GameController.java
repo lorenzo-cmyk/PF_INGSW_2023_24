@@ -8,6 +8,7 @@ import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
+import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
 import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
@@ -45,22 +46,22 @@ public class GameController implements GameControllerInterface {
      */
     private final int id;
     /**
-     * gamePlayerCount: The number of players in the game
+     * gameSize: The number of players in the game at fully capacity
      */
-    private final int gamePlayerCount;
+    private final int gameSize;
     /**
      * placedCardFlag: Flag indicating whether a card has been placed by the current player
      * Used to prevent the same player from placing 2 cards in a row without drawing
      */
     private boolean placedCardFlag;
 
-    public GameController(int id, int playerCount) {
+    public GameController(int id, int gameSize) {
         this.nodeList = new ArrayList<>();
         this.model = new Match();
         this.chat = new Chat();
         this.timer = null;
         this.id = id;
-        this.gamePlayerCount = playerCount;
+        this.gameSize = gameSize;
         this.placedCardFlag = false;
 
         // Enter lobby phase immediately
@@ -68,7 +69,9 @@ public class GameController implements GameControllerInterface {
     }
 
     /**
-     * Assigns a new message to be delivered to the VirtualView of a given client
+     * Assigns a new message to be delivered to the VirtualView of a given client.
+     * This method is the primary way through which clients are notified of events. In exceptional cases, such as when joining a non-existent game,
+     * this method is not used.
      *
      * @param nickname The nickname of the recipient of the message
      * @param message The message object to be delivered
@@ -105,8 +108,11 @@ public class GameController implements GameControllerInterface {
      *
      * @param nickname The nickname of the player to add
      * @param node The node of the player to add
+     * @throws FullLobbyException If the lobby is already full
      */
-    public void addPlayer(String nickname, NodeInterface node) {
+    public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException {
+        if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
+
         try {
             model.addPlayer(nickname);
 
@@ -295,7 +301,7 @@ public class GameController implements GameControllerInterface {
     }
 
     public int getGamePlayerCount() {
-        return gamePlayerCount;
+        return gameSize;
     }
 
     public int getLobbyPlayerCount() {

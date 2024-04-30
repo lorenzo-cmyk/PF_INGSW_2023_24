@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.controller;
 
+import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
 import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
@@ -75,7 +76,12 @@ public class GamesManager {
         }
 
         games.add(game); // Add game to the list of all games
-        game.addPlayer(creatorName, node); // Add the creator to the newly created game
+
+        try {
+            game.addPlayer(creatorName, node); // Add the creator to the newly created game
+        } catch (FullLobbyException e) { // It should never happen that the lobby is full when the creator joins
+            // TODO
+        }
 
         return game;
     }
@@ -92,13 +98,14 @@ public class GamesManager {
     public GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException {
         for (GameController game : games) {
             if (game.getId() == gameCode) { // Found correct GameController instance
-                try { // Notify the player that he has successfully joined the game
-                    game.submitVirtualViewMessage(nickname, new AccessGameConfirmMessage(nickname));
+                try {
+                    game.addPlayer(nickname, node);
+                    game.submitVirtualViewMessage(nickname, new AccessGameConfirmMessage(nickname)); // Notify the player that he has joined the game
                 } catch (VirtualViewNotFoundException e) {
                     // TODO
+                } catch (FullLobbyException e) { // Lobby was full when tried to join
+                    // TODO
                 }
-
-                game.addPlayer(nickname, node);
 
                 if (game.getGamePlayerCount() == game.getLobbyPlayerCount()) { // Lobby is full
                     game.startGame(); // Start the game
