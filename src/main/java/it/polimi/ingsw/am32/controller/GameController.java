@@ -2,7 +2,6 @@ package it.polimi.ingsw.am32.controller;
 
 import java.util.ArrayList;
 import java.util.Timer;
-import java.util.stream.Collectors;
 
 import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
@@ -10,7 +9,9 @@ import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
+import it.polimi.ingsw.am32.message.ServerToClient.GameStartedMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
@@ -104,7 +105,8 @@ public class GameController implements GameControllerInterface {
 
     /**
      * Adds a player to the game.
-     * Method used when a player joins the game.
+     * If the player being added is the creator of the game, a game creation confirmation message is sent to him.
+     * All players are notified that a new player has joined the lobby.
      *
      * @param nickname The nickname of the player to add
      * @param node The node of the player to add
@@ -112,9 +114,16 @@ public class GameController implements GameControllerInterface {
      */
     public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
+        if (model.getPlayersNicknames().isEmpty()) { // Lobby is empty, and the player that is joining is the creator
+            try {
+                submitVirtualViewMessage(nickname, new NewGameConfirmationMessage(nickname, id));
+            } catch (VirtualViewNotFoundException e) {
+                // TODO
+            }
+        }
 
         try {
-            model.addPlayer(nickname);
+            model.addPlayer(nickname); // Add the player to the actual match instance
 
             VirtualView virtualView = new VirtualView(node); // Create new virtual view and link it to the client server node
             PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
@@ -128,6 +137,7 @@ public class GameController implements GameControllerInterface {
                 try {
                     ArrayList<String> allPlayerNicknames = (ArrayList<String>)getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all connected players
                     submitVirtualViewMessage(playerQuadruple.getNickname(), new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
+                    // TODO Should players be notified of the status of a given player in the lobby (connected or disconnected)?
                 } catch (VirtualViewNotFoundException e) {
                     // TODO
                 }
@@ -153,14 +163,22 @@ public class GameController implements GameControllerInterface {
     }
 
     /**
-     * Starts the game.
-     * Method used when the game is ready to start.
+     * Starts the game. Gets called when the lobby is full
      */
     public void startGame() {
+        for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players that the game has started
+            if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
+
+            try {
+                submitVirtualViewMessage(playerQuadruple.getNickname(), new GameStartedMessage(playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                // TODO
+            }
+        }
+
         model.enterPreparationPhase();
         model.assignRandomColoursToPlayers();
         model.assignRandomStartingInitialCardsToPlayers();
-
         // TODO Notify all listeners
     }
 
@@ -300,7 +318,7 @@ public class GameController implements GameControllerInterface {
         return id;
     }
 
-    public int getGamePlayerCount() {
+    public int getGameSize() {
         return gameSize;
     }
 

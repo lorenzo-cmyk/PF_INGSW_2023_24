@@ -4,8 +4,6 @@ import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
 import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.GameStartedMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
 import it.polimi.ingsw.am32.network.NodeInterface;
 
 import java.util.ArrayList;
@@ -57,24 +55,19 @@ public class GamesManager {
 
         boolean foundUnique = false; // Flag indicating whether a valid game id has been found
         while (!foundUnique) { // Loop until a valid game id is found
-            rand = random.nextInt();
-            foundUnique = true; // id available, exit loop
+            rand = random.nextInt(); // Generate random id for the game
+            foundUnique = true;
 
-            for (GameController game : games) { // Scan games to see if id is available
-                if (game.getId() == rand) { // id not valid as it is already taken
+            for (GameController game : games) { // Scan all games to check that no other game has the same id
+                if (game.getId() == rand) { // Id is not unique
                    foundUnique = false;
                    break;
                 }
             }
+            // If we reach this point, the id is unique
         }
 
-        GameController game = new GameController(rand, playerCount); // Create new game instance
-        try { // Notify the creator that a new game has been created
-            game.submitVirtualViewMessage(creatorName, new NewGameConfirmationMessage(creatorName, rand));
-        } catch (VirtualViewNotFoundException e) {
-            // TODO
-        }
-
+        GameController game = new GameController(rand, playerCount); // Create a new game instance
         games.add(game); // Add game to the list of all games
 
         try {
@@ -107,18 +100,8 @@ public class GamesManager {
                     // TODO
                 }
 
-                if (game.getGamePlayerCount() == game.getLobbyPlayerCount()) { // Lobby is full
+                if (game.getGameSize() == game.getLobbyPlayerCount()) { // Lobby is now full
                     game.startGame(); // Start the game
-
-                    for (PlayerQuadruple playerQuadruple : game.getNodeList()) { // Notify all players that the game has started
-                        if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
-
-                        try {
-                            game.submitVirtualViewMessage(playerQuadruple.getNickname(), new GameStartedMessage());
-                        } catch (VirtualViewNotFoundException e) {
-                            // TODO
-                        }
-                    }
                 }
 
                 return game;

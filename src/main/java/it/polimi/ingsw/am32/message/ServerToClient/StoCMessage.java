@@ -9,7 +9,6 @@ import java.io.Serializable;
  * It contains a single method to deliver the message to a virtual view.
  */
 public interface StoCMessage extends Serializable {
-
     /**
      * Delivers the message to the specified virtual view.
      *
