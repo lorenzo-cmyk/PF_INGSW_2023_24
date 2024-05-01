@@ -14,8 +14,8 @@ public class NewGameMessage implements CtoSLobbyMessage {
     }
 
     @Override
-    public GameController elaborateMessage(NodeInterface nodeInterface) {
-        return null;
-        // TODO
+    public void elaborateMessage(NodeInterface nodeInterface) {
+        GameController gameController = GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
+        nodeInterface.setGameController(gameController);
     }
 }

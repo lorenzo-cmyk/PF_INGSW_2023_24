@@ -14,8 +14,7 @@ public class AccessGameMessage implements CtoSLobbyMessage {
     }
 
     @Override
-    public GameController elaborateMessage(NodeInterface nodeInterface) {
-        return null;
+    public void elaborateMessage(NodeInterface nodeInterface) {
         // TODO
     }
 }

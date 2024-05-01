@@ -24,4 +24,7 @@ public class RMIServerNode implements RMIServerNodeInt, NodeInterface {
         //TODO
     }
 
+    public void setGameController(GameController gameController) {
+        this.gameController = gameController;
+    }
 }
