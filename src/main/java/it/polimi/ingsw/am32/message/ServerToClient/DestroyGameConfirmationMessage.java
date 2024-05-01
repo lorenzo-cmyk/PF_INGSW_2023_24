@@ -2,10 +2,10 @@ package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.controller.VirtualView;
 
-public class AccessGameFailedMessage implements StoCMessage {
+public class DestroyGameConfirmationMessage implements StoCMessage {
     private final String recipientNickname;
 
-    public AccessGameFailedMessage(String recipientNickname) {
+    public DestroyGameConfirmationMessage(String recipientNickname) {
         this.recipientNickname = recipientNickname;
     }
 

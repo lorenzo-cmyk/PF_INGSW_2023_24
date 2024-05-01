@@ -1,8 +1,14 @@
 package it.polimi.ingsw.am32.network;
 
-import it.polimi.ingsw.am32.network.GameTuple;
+import it.polimi.ingsw.am32.controller.GamesManager;
 
-public class RMIClientAcceptor implements RMIClientAccextorInt {
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientAcceptorInterface {
+
+    public RMIClientAcceptor() throws RemoteException {}
+
     public GameTuple createGame(RMIClientNodeInt node, int id, String creatorName) {
         //TODO
         return null;
