@@ -165,7 +165,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "ResponseGameStatusMessage",
   "recipientNickname": "playerName",
   "playerNicknames": ["player1", "player2"],
-  "playerColours": ["Red", "Blue"],
+  "playerColours": [1, 4],
   "playerHand": [10, 11, 12],
   "playerSecretObjective": 9,
   "playerPoints": 5,

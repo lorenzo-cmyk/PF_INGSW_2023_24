@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class ResponseGameStatusMessage implements StoCMessage {
     private final String recipientNickname;
     private final ArrayList<String> playerNicknames;
-    private final ArrayList<String> playerColours;
+    private final ArrayList<Integer> playerColours;
     private final ArrayList<Integer> playerHand;
     private final int playerSecretObjective;
     private final int playerPoints;
@@ -23,7 +23,7 @@ public class ResponseGameStatusMessage implements StoCMessage {
     // private final ArrayList<ArrayList<String>> playerChatHistory;
     // TODO
 
-    public ResponseGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<String> playerColours,
+    public ResponseGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<Integer> playerColours,
                                      ArrayList<Integer> playerHand, int playerSecretObjective, int playerPoints, int playerColour,
                                      ArrayList<int[]> playerField, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
                                      ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
