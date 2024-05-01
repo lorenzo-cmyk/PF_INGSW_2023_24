@@ -2,15 +2,17 @@ package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.network.NodeInterface;
 
-public class NodeTriple {
-    private NodeInterface node;
-    private String nickname;
+public class PlayerQuadruple {
+    private final NodeInterface node;
+    private final String nickname;
     private boolean connected;
+    private final VirtualView virtualView;
 
-    public NodeTriple(NodeInterface node, String nickname, boolean connected) {
+    public PlayerQuadruple(NodeInterface node, String nickname, boolean connected, VirtualView virtualView) {
         this.node = node;
         this.nickname = nickname;
         this.connected = connected;
+        this.virtualView = virtualView;
     }
 
     public NodeInterface getNode() {
@@ -23,5 +25,9 @@ public class NodeTriple {
 
     public boolean isConnected() {
         return connected;
+    }
+
+    public VirtualView getVirtualView() {
+        return virtualView;
     }
 }

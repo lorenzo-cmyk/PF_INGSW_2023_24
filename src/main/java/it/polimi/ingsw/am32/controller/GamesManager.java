@@ -1,6 +1,11 @@
 package it.polimi.ingsw.am32.controller;
 
-import it.polimi.ingsw.am32.controller.exceptions.NoGameFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
+import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
+import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
+import it.polimi.ingsw.am32.network.NodeInterface;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -37,70 +42,88 @@ public class GamesManager {
     }
 
     /**
-     * Creates a new game and adds it to the list of games. Game ids will be assigned randomly
+     * Creates a new game with the given creator name and player count
      *
      * @param creatorName The name of the player that created the game
-     * @param playerCount The number of players in the game
-     * @return The game that was created
+     * @param playerCount The number of players that the game will have
+     * @param node The server node associated with the given player
+     * @return The GameController of the newly created game
      */
-    public GameController createGame(String creatorName, int playerCount) {
+    public GameController createGame(String creatorName, int playerCount, NodeInterface node) {
         Random random = new Random();
         int rand = 0;
 
         boolean foundUnique = false; // Flag indicating whether a valid game id has been found
         while (!foundUnique) { // Loop until a valid game id is found
-            rand = random.nextInt();
-            foundUnique = true; // id available, exit loop
+            rand = random.nextInt(); // Generate random id for the game
+            foundUnique = true;
 
-            for (GameController game : games) { // Scan games to see if id is available
-                if (game.getId() == rand) { // id not valid as it is already taken
+            for (GameController game : games) { // Scan all games to check that no other game has the same id
+                if (game.getId() == rand) { // Id is not unique
                    foundUnique = false;
                    break;
                 }
             }
+            // If we reach this point, the id is unique
         }
 
-        GameController game = new GameController(creatorName, rand, playerCount);
-        games.add(game);
+        GameController game = new GameController(rand, playerCount); // Create a new game instance
+        games.add(game); // Add game to the list of all games
+
+        try {
+            game.addPlayer(creatorName, node); // Add the creator to the newly created game
+        } catch (FullLobbyException e) { // It should never happen that the lobby is full when the creator joins
+            // TODO
+        }
+
         return game;
     }
 
     /**
-     * Returns the GameController of the game with the given code
+     * Adds the player with the given nickname to the game with the given code
      *
-     * @param nickname The nickname of the player that wants to access the game
-     * @param gameCode The code of the game
+     * @param nickname The nickname of the player to be added
+     * @param gameCode The code of the game to be accessed
+     * @param node The server node associated with the given player
      * @return The GameController of the game with the given code
-     * @throws NoGameFoundException If no game with the given code is found
+     * @throws GameNotFoundException If no game with the given code is found
      */
-    public GameController accessGame(String nickname, int gameCode) throws NoGameFoundException {
+    public GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException {
         for (GameController game : games) {
             if (game.getId() == gameCode) { // Found correct GameController instance
-                game.addPlayer(nickname);
+                try {
+                    game.addPlayer(nickname, node);
+                    game.submitVirtualViewMessage(nickname, new AccessGameConfirmMessage(nickname)); // Notify the player that he has joined the game
+                } catch (VirtualViewNotFoundException e) {
+                    // TODO
+                } catch (FullLobbyException e) { // Lobby was full when tried to join
+                    // TODO
+                }
 
-                if (game.getGamePlayerCount() == game.getLobbyPlayerCount()) { // Lobby is full
-                    game.startGame();
+                if (game.getGameSize() == game.getLobbyPlayerCount()) { // Lobby is now full
+                    game.startGame(); // Start the game
                 }
 
                 return game;
             }
         }
-        throw new NoGameFoundException("No game found with code " + gameCode);
+        throw new GameNotFoundException("No game found with code " + gameCode);
     }
 
     /**
      * Deletes the game with the given code
      *
      * @param gameCode The code of the game to be deleted
-     * @throws NoGameFoundException If no game with the given code is found
+     * @throws GameNotFoundException If no game with the given code is found
      */
-    public void deleteGame(int gameCode) throws NoGameFoundException {
+    public void deleteGame(int gameCode) throws GameNotFoundException {
+        // TODO
         for (GameController game : games) {
             if (game.getId() == gameCode) {
                 games.remove(game);
                 break;
             }
         }
-        throw new NoGameFoundException("No game found with code " + gameCode);
+        throw new GameNotFoundException("No game found with code " + gameCode);
     }
 }

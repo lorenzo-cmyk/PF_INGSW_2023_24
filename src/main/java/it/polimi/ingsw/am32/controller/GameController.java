@@ -3,15 +3,20 @@ package it.polimi.ingsw.am32.controller;
 import java.util.ArrayList;
 import java.util.Timer;
 
+import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
-import it.polimi.ingsw.am32.controller.exceptions.ListenerNotFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
+import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
+import it.polimi.ingsw.am32.message.ServerToClient.GameStartedMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.NodeInterface;
-import it.polimi.ingsw.am32.network.RMIServerNode;
 import it.polimi.ingsw.am32.model.ModelInterface;
 
 /**
@@ -22,13 +27,9 @@ import it.polimi.ingsw.am32.model.ModelInterface;
  */
 public class GameController implements GameControllerInterface {
     /**
-     * listeners: A list of all the VirtualViews that are currently connected to the game and are listening for outgoing messages
-     */
-    private final ArrayList<VirtualView> listeners;
-    /**
      * nodeList: A list of all the nodes that are currently connected to the game (rmi or socket)
      */
-    private final ArrayList<NodeTriple> nodeList;
+    private final ArrayList<PlayerQuadruple> nodeList;
     /**
      * model: The model of the game
      */
@@ -46,55 +47,52 @@ public class GameController implements GameControllerInterface {
      */
     private final int id;
     /**
-     * gamePlayerCount: The number of players in the game
+     * gameSize: The number of players in the game at fully capacity
      */
-    private final int gamePlayerCount;
+    private final int gameSize;
     /**
      * placedCardFlag: Flag indicating whether a card has been placed by the current player
      * Used to prevent the same player from placing 2 cards in a row without drawing
      */
     private boolean placedCardFlag;
 
-    public GameController(String creatorName, int id, int playerCount) {
-        this.listeners = new ArrayList<>();
+    public GameController(int id, int gameSize) {
         this.nodeList = new ArrayList<>();
         this.model = new Match();
         this.chat = new Chat();
         this.timer = null;
         this.id = id;
-        this.gamePlayerCount = playerCount;
+        this.gameSize = gameSize;
         this.placedCardFlag = false;
-        //TODO timer
 
         // Enter lobby phase immediately
         model.enterLobbyPhase();
-        addPlayer(creatorName);
+    }
+
+    /**
+     * Assigns a new message to be delivered to the VirtualView of a given client.
+     * This method is the primary way through which clients are notified of events. In exceptional cases, such as when joining a non-existent game,
+     * this method is not used.
+     *
+     * @param nickname The nickname of the recipient of the message
+     * @param message The message object to be delivered
+     * @throws VirtualViewNotFoundException If the recipient's VirtualView could not be found among the listeners
+     */
+    public void submitVirtualViewMessage(String nickname, StoCMessage message) throws VirtualViewNotFoundException {
+        for (PlayerQuadruple playerQuadruple : nodeList) {
+            if (playerQuadruple.getNickname().equals((nickname))) {
+                playerQuadruple.getVirtualView().addMessage(message);
+            }
+        }
+        throw new VirtualViewNotFoundException("VirtualView for player " + nickname + " not found");
     }
 
     public void submitChatMessage(ChatMessage message){
         chat.addMessage(message);
     }
 
-    public void addNode(NodeInterface node, String nickname, boolean connected){
-        nodeList.add(new NodeTriple(node, nickname, connected));
-        // TODO: Should we check for duplicate nodes in nodeList?
-    }
-
     public ArrayList<ChatMessage> getAllChatHistory(){
         return chat.getHistory();
-    }
-
-    public void addListener(VirtualView listener) {
-        listeners.add(listener);
-        // TODO: Check for duplicate listeners?
-    }
-
-    public void removeListener(VirtualView listener) throws ListenerNotFoundException {
-        boolean present = listeners.remove(listener); // Flag indicating if listener was present in the list of listeners
-        if (!present) {
-            throw new ListenerNotFoundException("Listener does not exist");
-        }
-        // TODO
     }
 
     public void disconnect(NodeInterface node) {
@@ -105,24 +103,49 @@ public class GameController implements GameControllerInterface {
         //TODO
     }
 
-    public RMIServerNode reconFromDeath(String nickname){
-        //TODO
-        return null;
-    }
-
     /**
      * Adds a player to the game.
-     * Methods used when a new player joins, or when a new game is created.
+     * If the player being added is the creator of the game, a game creation confirmation message is sent to him.
+     * All players are notified that a new player has joined the lobby.
      *
      * @param nickname The nickname of the player to add
+     * @param node The node of the player to add
+     * @throws FullLobbyException If the lobby is already full
      */
-    public void addPlayer(String nickname) {
+    public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException {
+        if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
+        if (model.getPlayersNicknames().isEmpty()) { // Lobby is empty, and the player that is joining is the creator
+            try {
+                submitVirtualViewMessage(nickname, new NewGameConfirmationMessage(nickname, id));
+            } catch (VirtualViewNotFoundException e) {
+                // TODO
+            }
+        }
+
         try {
-            model.addPlayer(nickname);
+            model.addPlayer(nickname); // Add the player to the actual match instance
+
+            VirtualView virtualView = new VirtualView(node); // Create new virtual view and link it to the client server node
+            PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
+            nodeList.add(newPlayerQuadruple);
+            Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
+
+            // Notify all players that a new player has joined the lobby
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
+
+                try {
+                    ArrayList<String> allPlayerNicknames = (ArrayList<String>)getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all connected players
+                    submitVirtualViewMessage(playerQuadruple.getNickname(), new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
+                    // TODO Should players be notified of the status of a given player in the lobby (connected or disconnected)?
+                } catch (VirtualViewNotFoundException e) {
+                    // TODO
+                }
+
+            }
         } catch (DuplicateNicknameException e){
            throw new CriticalFailureException("Player " + nickname + " already in game");
         }
-        // TODO
     }
 
     /**
@@ -140,14 +163,22 @@ public class GameController implements GameControllerInterface {
     }
 
     /**
-     * Starts the game.
-     * Method used when the game is ready to start.
+     * Starts the game. Gets called when the lobby is full
      */
     public void startGame() {
+        for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players that the game has started
+            if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
+
+            try {
+                submitVirtualViewMessage(playerQuadruple.getNickname(), new GameStartedMessage(playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                // TODO
+            }
+        }
+
         model.enterPreparationPhase();
         model.assignRandomColoursToPlayers();
         model.assignRandomStartingInitialCardsToPlayers();
-
         // TODO Notify all listeners
     }
 
@@ -279,12 +310,16 @@ public class GameController implements GameControllerInterface {
         }
     }
 
+    public ArrayList<PlayerQuadruple> getNodeList() {
+        return nodeList;
+    }
+
     public int getId() {
         return id;
     }
 
-    public int getGamePlayerCount() {
-        return gamePlayerCount;
+    public int getGameSize() {
+        return gameSize;
     }
 
     public int getLobbyPlayerCount() {

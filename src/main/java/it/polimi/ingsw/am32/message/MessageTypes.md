@@ -153,7 +153,8 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 - GameStartedMessage: sent by the Server to announce the start of the game.
 ```json
 {
-  "type": "StartGameConfirmation"
+  "type": "StartGameConfirmation",
+  "recipientNickname": "playerName"
 }
 ```
 
