@@ -111,13 +111,6 @@ public class GameController implements GameControllerInterface {
      */
     public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
-        if (model.getPlayersNicknames().isEmpty()) { // Lobby is empty, and the player that is joining is the creator
-            try {
-                submitVirtualViewMessage(nickname, new NewGameConfirmationMessage(nickname, id));
-            } catch (VirtualViewNotFoundException e) {
-                // TODO
-            }
-        }
 
         try {
             model.addPlayer(nickname); // Add the player to the actual match instance
@@ -126,6 +119,14 @@ public class GameController implements GameControllerInterface {
             PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
             nodeList.add(newPlayerQuadruple);
             Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
+
+            if (model.getPlayersNicknames().size() == 1) { // The player that has just joined is the creator of the game
+                try {
+                    submitVirtualViewMessage(nickname, new NewGameConfirmationMessage(nickname, id));
+                } catch (VirtualViewNotFoundException e) {
+                    // TODO
+                }
+            }
 
             // Notify all players that a new player has joined the lobby
             for (PlayerQuadruple playerQuadruple : nodeList) {
