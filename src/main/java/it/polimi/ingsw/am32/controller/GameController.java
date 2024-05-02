@@ -9,10 +9,7 @@ import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
-import it.polimi.ingsw.am32.message.ServerToClient.GameStartedMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
@@ -307,6 +304,43 @@ public class GameController implements GameControllerInterface {
             // TODO
         } catch (DrawException e) {
             // TODO
+        }
+    }
+
+    /**
+     * Generates a response game status message for a given player.
+     * @param nickname The nickname of the player to generate the message for
+     * @return The generated response game status message
+     */
+    protected ResponseGameStatusMessage generateResponseGameStatusMessage(String nickname) {
+        try {
+            String recipientNickname = nickname;
+            ArrayList<String> playerNicknames = model.getPlayersNicknames();
+            ArrayList<Integer> playerColours = (ArrayList<Integer>)model.getPlayersNicknames().stream().map(playerNickname -> {
+                try {
+                    return model.getPlayerColour(playerNickname);
+                } catch (PlayerNotFoundException | NullColourException e) {
+                    // TODO
+                    return -1;
+                }
+            }).toList();
+            ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
+            int playerSecretObjective = model.getPlayerSecretObjective(nickname);
+            int playerPoints = model.getPlayerPoints(nickname);
+            int playerColour = model.getPlayerColour(nickname);
+            ArrayList<int[]> playerField = model.getPlayerField(nickname);
+            int[] playerResources = model.getPlayerResources(nickname);
+            ArrayList<Integer> gameCommonObjectives = model.getCommonObjectives();
+            ArrayList<Integer> gameCurrentResourceCards = model.getCurrentResourcesCards();
+            ArrayList<Integer> gameCurrentGoldCards = model.getCurrentGoldCards();
+            int gameResourcesDeckSize = model.getCurrentResourcesCards().size();
+            int gameGoldDeckSize = model.getCurrentGoldCards().size();
+            int matchStatus = model.getMatchStatus();
+
+            return new ResponseGameStatusMessage(recipientNickname, playerNicknames, playerColours, playerHand, playerSecretObjective, playerPoints, playerColour, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus);
+        } catch (PlayerNotFoundException e) {
+            // TODO
+            return null;
         }
     }
 

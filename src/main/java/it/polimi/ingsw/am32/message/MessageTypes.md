@@ -24,7 +24,6 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
     "senderNickname": "playerName"
 }
 ```
-The parameter "hasData" is used to discriminate between a player who is joining a game for the first time and a player who is reconnecting to a game.
 
 ### Game Messages
 
