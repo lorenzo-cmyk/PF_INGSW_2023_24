@@ -4,6 +4,8 @@ import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
 import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
 import it.polimi.ingsw.am32.network.NodeInterface;
 
 import java.util.ArrayList;
@@ -72,7 +74,10 @@ public class GamesManager {
 
         try {
             game.addPlayer(creatorName, node); // Add the creator to the newly created game
+            game.submitVirtualViewMessage(new NewGameConfirmationMessage(creatorName, rand));
         } catch (FullLobbyException e) { // It should never happen that the lobby is full when the creator joins
+            // TODO
+        } catch (VirtualViewNotFoundException e) {
             // TODO
         }
 
@@ -93,7 +98,16 @@ public class GamesManager {
             if (game.getId() == gameCode) { // Found correct GameController instance
                 try {
                     game.addPlayer(nickname, node);
-                    game.submitVirtualViewMessage(nickname, new AccessGameConfirmMessage(nickname)); // Notify the player that he has joined the game
+                    game.submitVirtualViewMessage(new AccessGameConfirmMessage(nickname)); // Notify the player that he has joined the game
+
+                    // Notify all players in the lobby of the new player
+                    ArrayList<String> allPlayerNicknames = (ArrayList<String>)game.getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all players in the game (connected and not)
+                    for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
+                        if (!playerQuadruple.isConnected()) continue; // Skip disconnected players
+
+                        game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
+                        // TODO Should players be notified of the status of a given player in the lobby (connected or disconnected)?
+                    }
                 } catch (VirtualViewNotFoundException e) {
                     // TODO
                 } catch (FullLobbyException e) { // Lobby was full when tried to join

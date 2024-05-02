@@ -71,17 +71,16 @@ public class GameController implements GameControllerInterface {
      * This method is the primary way through which clients are notified of events. In exceptional cases, such as when joining a non-existent game,
      * this method is not used.
      *
-     * @param nickname The nickname of the recipient of the message
      * @param message The message object to be delivered
      * @throws VirtualViewNotFoundException If the recipient's VirtualView could not be found among the listeners
      */
-    public void submitVirtualViewMessage(String nickname, StoCMessage message) throws VirtualViewNotFoundException {
-        for (PlayerQuadruple playerQuadruple : nodeList) {
-            if (playerQuadruple.getNickname().equals((nickname))) {
-                playerQuadruple.getVirtualView().addMessage(message);
+    public void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
+        for (PlayerQuadruple playerQuadruple : nodeList) { // Look through list of all connected players
+            if (playerQuadruple.getNickname().equals((message.getRecipientNickname()))) { // If the correct recipient is found
+                playerQuadruple.getVirtualView().addMessage(message); // Add the message to the recipient's VirtualView
             }
         }
-        throw new VirtualViewNotFoundException("VirtualView for player " + nickname + " not found");
+        throw new VirtualViewNotFoundException("VirtualView for player " + message.getRecipientNickname() + " not found");
     }
 
     public void submitChatMessage(ChatMessage message){
@@ -102,8 +101,7 @@ public class GameController implements GameControllerInterface {
 
     /**
      * Adds a player to the game.
-     * If the player being added is the creator of the game, a game creation confirmation message is sent to him.
-     * All players are notified that a new player has joined the lobby.
+     * Adds the player to the list of players in the model, and creates a new VirtualView for the player
      *
      * @param nickname The nickname of the player to add
      * @param node The node of the player to add
@@ -119,30 +117,8 @@ public class GameController implements GameControllerInterface {
             PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
             nodeList.add(newPlayerQuadruple);
             Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
-
-            if (model.getPlayersNicknames().size() == 1) { // The player that has just joined is the creator of the game
-                try {
-                    submitVirtualViewMessage(nickname, new NewGameConfirmationMessage(nickname, id));
-                } catch (VirtualViewNotFoundException e) {
-                    // TODO
-                }
-            }
-
-            // Notify all players that a new player has joined the lobby
-            for (PlayerQuadruple playerQuadruple : nodeList) {
-                if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
-
-                try {
-                    ArrayList<String> allPlayerNicknames = (ArrayList<String>)getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all connected players
-                    submitVirtualViewMessage(playerQuadruple.getNickname(), new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
-                    // TODO Should players be notified of the status of a given player in the lobby (connected or disconnected)?
-                } catch (VirtualViewNotFoundException e) {
-                    // TODO
-                }
-
-            }
         } catch (DuplicateNicknameException e){
-           throw new CriticalFailureException("Player " + nickname + " already in game");
+            // TODO
         }
     }
 
@@ -168,7 +144,7 @@ public class GameController implements GameControllerInterface {
             if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
 
             try {
-                submitVirtualViewMessage(playerQuadruple.getNickname(), new GameStartedMessage(playerQuadruple.getNickname()));
+                submitVirtualViewMessage(new GameStartedMessage(playerQuadruple.getNickname()));
             } catch (VirtualViewNotFoundException e) {
                 // TODO
             }
