@@ -137,9 +137,10 @@ public class GameController implements GameControllerInterface {
     }
 
     /**
-     * Starts the game. Gets called when the lobby is full
+     * Method called when a message of type start game is received.
+     * Enters the preparation phase of the game, assigns colours and starting cards to players, and notifies all players of the game start.
      */
-    public void startGame() {
+    public void enterPreparationPhase() {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players that the game has started
             try {
                 submitVirtualViewMessage(new GameStartedMessage(playerQuadruple.getNickname()));
@@ -176,7 +177,7 @@ public class GameController implements GameControllerInterface {
     public void chooseStarterCardSide(String nickname, boolean isUp) {
         try {
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
-            // TODO Notify the player that his field has been initialized?
+            // Notify the player that he has successfully chosen his starting card's side
             submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(nickname));
 
             boolean playersReady = true; // Assume all players are ready
@@ -188,14 +189,14 @@ public class GameController implements GameControllerInterface {
             }
 
             if (playersReady) { // All players have selected their starting card's side
-                // TODO Notify all listeners
-
                  model.assignRandomStartingResourceCardsToPlayers();
                  model.assignRandomStartingGoldCardsToPlayers();
                  model.pickRandomCommonObjectives();
                  model.assignRandomStartingSecretObjectivesToPlayers();
 
-                 // TODO Notify all listeners
+                 for (PlayerQuadruple playerQuadruple : nodeList) {
+                     submitVirtualViewMessage(new AssignedSecretObjectiveCardMessage(playerQuadruple.getNickname(), model.getSecretObjectiveCardsPlayer(playerQuadruple.getNickname())));
+                 }
             }
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
@@ -214,6 +215,8 @@ public class GameController implements GameControllerInterface {
     public void chooseSecretObjectiveCard(String nickname, int id) {
         try {
             model.receiveSecretObjectiveChoiceFromPlayer(nickname, id); // Set the player's secret objective
+            // Notify the player that he has successfully chosen his secret objective
+            submitVirtualViewMessage(new ConfirmSelectedSecretObjectiveCardMessage(nickname));
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -224,29 +227,43 @@ public class GameController implements GameControllerInterface {
             }
 
             if (playersReady) { // All players have selected a secret objective card
-                // TODO Notify all listeners
-
                 model.randomizePlayersOrder();
                 model.enterPlayingPhase();
                 model.startTurns();
+
+                for (PlayerQuadruple playerQuadruple : nodeList) {
+                    // Notify the player of the status of the match
+                    submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                    // Notify the player of his current game status
+                    submitVirtualViewMessage(generateResponseGameStatusMessage(playerQuadruple.getNickname()));
+                    // Notify the players of the current player
+                    submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+                }
             }
         } catch (InvalidSelectionException e) {
             // TODO
         } catch (PlayerNotFoundException e) {
+            // TODO
+        } catch (VirtualViewNotFoundException e) {
             // TODO
         }
     }
 
     public void placeCard(String nickname, int id, int x, int y, boolean side) {
         if (!nickname.equals(model.getCurrentPlayerNickname())) {
-            // TODO Notify the player that it isn't his turn to play
+            try {
+                submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, "It's not your turn to play. The current player is: " + model.getCurrentPlayerNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                // TODO
+            }
             return;
         }
         // Player has the playing rights
         try {
             model.placeCard(id, x, y, side); // Try to place card
             placedCardFlag = true; // Card has been placed successfully
-            // TODO Notify player of valid placement
+            // Notify the player that he has successfully placed the card
+            submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname)));
         } catch (InvalidSelectionException e) {
             // TODO
         } catch (MissingRequirementsException e) {
@@ -255,6 +272,8 @@ public class GameController implements GameControllerInterface {
             // TODO
         } catch (PlayerNotFoundException e) {
             // TODO
+        } catch (VirtualViewNotFoundException e) {
+           // TODO
         }
     }
 
@@ -302,7 +321,7 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player to generate the message for
      * @return The generated response game status message
      */
-    protected ResponseGameStatusMessage generateResponseGameStatusMessage(String nickname) {
+    protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             String recipientNickname = nickname;
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
@@ -327,7 +346,7 @@ public class GameController implements GameControllerInterface {
             int gameGoldDeckSize = model.getCurrentGoldCards().size();
             int matchStatus = model.getMatchStatus();
 
-            return new ResponseGameStatusMessage(recipientNickname, playerNicknames, playerColours, playerHand, playerSecretObjective, playerPoints, playerColour, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus);
+            return new PlayerGameStatusMessage(recipientNickname, playerNicknames, playerColours, playerHand, playerSecretObjective, playerPoints, playerColour, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus);
         } catch (PlayerNotFoundException e) {
             // TODO
             return null;

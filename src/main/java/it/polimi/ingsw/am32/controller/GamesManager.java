@@ -113,7 +113,7 @@ public class GamesManager {
                 }
 
                 if (game.getGameSize() == game.getLobbyPlayerCount()) { // Lobby is now full
-                    game.startGame(); // Start the game
+                    game.enterPreparationPhase(); // Start the game
                 }
 
                 return game;

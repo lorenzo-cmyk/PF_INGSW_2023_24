@@ -4,7 +4,7 @@ import it.polimi.ingsw.am32.controller.VirtualView;
 
 import java.util.ArrayList;
 
-public class ResponseGameStatusMessage implements StoCMessage {
+public class PlayerGameStatusMessage implements StoCMessage {
     private final String recipientNickname;
     private final ArrayList<String> playerNicknames;
     private final ArrayList<Integer> playerColours;
@@ -23,11 +23,11 @@ public class ResponseGameStatusMessage implements StoCMessage {
     // private final ArrayList<ArrayList<String>> playerChatHistory;
     // TODO
 
-    public ResponseGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<Integer> playerColours,
-                                     ArrayList<Integer> playerHand, int playerSecretObjective, int playerPoints, int playerColour,
-                                     ArrayList<int[]> playerField, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
-                                     ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
-                                     int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus) {
+    public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<Integer> playerColours,
+                                   ArrayList<Integer> playerHand, int playerSecretObjective, int playerPoints, int playerColour,
+                                   ArrayList<int[]> playerField, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
+                                   ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
+                                   int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus) {
         this.recipientNickname = recipientNickname;
         this.playerNicknames = playerNicknames;
         this.playerColours = playerColours;

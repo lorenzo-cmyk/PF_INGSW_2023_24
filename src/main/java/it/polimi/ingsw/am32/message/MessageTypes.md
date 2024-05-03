@@ -158,10 +158,10 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 
 ### Game Messages
 
-- ResponseGameStatusMessage: sent by the Server to notify the current game status.
+- PlayerGameStatusMessage : sent by the Server to notify the current game status.
 ```json
 {
-  "type": "ResponseGameStatusMessage",
+  "type": "PlayerGameStatusMessage",
   "recipientNickname": "playerName",
   "playerNicknames": ["player1", "player2"],
   "playerColours": [1, 4],
@@ -323,7 +323,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 - AssignedSecretObjectiveCardMessage: sent by the Server to notify the Client of his assigned assortment of secret objective cards
 ```json
 {
-  "type": "SelectedSecretObjectiveCardMessage",
+  "type": "AssignedSecretObjectiveCardMessage",
   "recipientNickname": "playerName",
   "assignedCards": [23, 26] 
 }
