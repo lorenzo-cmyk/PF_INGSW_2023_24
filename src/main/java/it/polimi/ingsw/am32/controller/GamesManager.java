@@ -103,8 +103,6 @@ public class GamesManager {
                     // Notify all players in the lobby of the new player
                     ArrayList<String> allPlayerNicknames = (ArrayList<String>)game.getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all players in the game (connected and not)
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
-                        if (!playerQuadruple.isConnected()) continue; // Skip disconnected players
-
                         game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                         // TODO Should players be notified of the status of a given player in the lobby (connected or disconnected)?
                     }

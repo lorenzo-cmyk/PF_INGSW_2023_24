@@ -141,8 +141,6 @@ public class GameController implements GameControllerInterface {
      */
     public void startGame() {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players that the game has started
-            if (!playerQuadruple.isConnected()) continue; // Skip any players that are not currently connected
-
             try {
                 submitVirtualViewMessage(new GameStartedMessage(playerQuadruple.getNickname()));
             } catch (VirtualViewNotFoundException e) {
@@ -153,7 +151,19 @@ public class GameController implements GameControllerInterface {
         model.enterPreparationPhase();
         model.assignRandomColoursToPlayers();
         model.assignRandomStartingInitialCardsToPlayers();
-        // TODO Notify all listeners
+
+        for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players of their assigned colour
+            try {
+                // Notify the player of the status of the match
+                submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                // Notify the player of the assigned starting card
+                submitVirtualViewMessage(new AssignedStarterCardMessage(playerQuadruple.getNickname(), model.getPlayerHand(playerQuadruple.getNickname()).getFirst()));
+            } catch (VirtualViewNotFoundException e) {
+                // TODO
+            } catch (PlayerNotFoundException e) {
+                // TODO
+            }
+        }
     }
 
     /**

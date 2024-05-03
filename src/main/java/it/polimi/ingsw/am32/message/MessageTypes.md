@@ -290,7 +290,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "MatchStatusMessage",
   "recipientNickname": "playerName",
-  "matchStatus": "Status"
+  "matchStatus": 1
 }
 ```
 
