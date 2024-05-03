@@ -312,11 +312,11 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
-- ConfirmStartedCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side
+- ConfirmStarterCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side
 ```json
 {
-  "type": "ConfirmStartedCardSideSelectionMessage",
-  "recipientNickname": "playerName",
+  "type": "ConfirmStarterCardSideSelectionMessage",
+  "recipientNickname": "playerName"
 }
 ```
 
@@ -333,7 +333,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 ```json
 {
   "type": "ConfirmSelectedSecretObjectiveCardMessage",
-  "recipientNickname": "playerName",
+  "recipientNickname": "playerName"
 }
 ```
 

@@ -177,6 +177,7 @@ public class GameController implements GameControllerInterface {
         try {
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
             // TODO Notify the player that his field has been initialized?
+            submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(nickname));
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -198,6 +199,8 @@ public class GameController implements GameControllerInterface {
             }
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
+        } catch (VirtualViewNotFoundException e) {
+            // TODO
         }
     }
 
