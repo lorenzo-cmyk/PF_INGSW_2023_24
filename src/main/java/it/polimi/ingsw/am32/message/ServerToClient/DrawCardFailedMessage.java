@@ -11,9 +11,10 @@ public class DrawCardFailedMessage implements StoCMessage {
         this.reason = reason;
     }
 
+
     @Override
-    public void processMessage(VirtualView virtualView) {
-        // TODO
+    public void processMessage() {
+
     }
 
     @Override

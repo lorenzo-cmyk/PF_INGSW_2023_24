@@ -20,7 +20,7 @@ public class InvalidSelectedSecretObjectiveCardMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage(VirtualView virtualView) {
+    public void processMessage() {
 
     }
 }

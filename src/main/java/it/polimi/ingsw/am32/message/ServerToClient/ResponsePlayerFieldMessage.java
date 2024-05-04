@@ -19,7 +19,7 @@ public class ResponsePlayerFieldMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage(VirtualView virtualView) {
+    public void processMessage() {
         // TODO
     }
 

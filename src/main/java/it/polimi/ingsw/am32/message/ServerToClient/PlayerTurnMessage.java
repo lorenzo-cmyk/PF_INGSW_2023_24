@@ -12,7 +12,7 @@ public class PlayerTurnMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage(VirtualView virtualView) {
+    public void processMessage() {
         // TODO
     }
 
