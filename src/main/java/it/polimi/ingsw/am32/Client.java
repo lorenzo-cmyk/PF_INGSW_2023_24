@@ -14,10 +14,6 @@ import java.util.Scanner;
 public class Client {
     private static final Scanner in = new Scanner(System.in);
     private static final PrintStream out= new PrintStream(System.out);
-    private static View view;
-    private static String ServerIP;
-    private static int port ;
-    private static String ServerURL;
     private static final Logger logger = LogManager.getLogger("ClientLogger");
 
     public static void main(String[] args){

@@ -10,7 +10,12 @@ public class ErrorMessage implements StoCMessage{
     }
 
     @Override
-    public void processMessage(VirtualView virtualView) {
+    public void processMessage() {
 
+    }
+
+    @Override
+    public String getRecipientNickname() {
+        return null;
     }
 }

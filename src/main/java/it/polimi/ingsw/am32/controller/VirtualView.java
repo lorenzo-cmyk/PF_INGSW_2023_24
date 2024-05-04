@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 
 import java.util.ArrayList;
 
@@ -73,7 +74,11 @@ public class VirtualView implements VirtualViewInterface, Runnable {
             }
             StoCMessage message = messageQueue.getLast(); // Pop message from queue
             messageQueue.removeLast();
-            connectionNode.uploadToClient(message);
+            try {
+                connectionNode.uploadToClient(message);
+            }catch (UploadFailureException e) {
+                // TODO
+            }
         }
     }
 

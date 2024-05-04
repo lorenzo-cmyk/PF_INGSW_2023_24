@@ -1,17 +1,11 @@
 package it.polimi.ingsw.am32.client;
 
-
-import it.polimi.ingsw.am32.Client;
-import it.polimi.ingsw.am32.Server;
-import it.polimi.ingsw.am32.client.listener.AskListener;
-import it.polimi.ingsw.am32.client.listener.ResponseListener;
 import it.polimi.ingsw.am32.network.ClientNodeInterface;
 import it.polimi.ingsw.am32.network.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.RMIClientNode;
 import it.polimi.ingsw.am32.network.SKClientNode;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;

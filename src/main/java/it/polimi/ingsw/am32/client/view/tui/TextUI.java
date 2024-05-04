@@ -1,9 +1,8 @@
 package it.polimi.ingsw.am32.client.view.tui;
 
-import it.polimi.ingsw.am32.Utilities.isValid;
+import it.polimi.ingsw.am32.Utilities.IsValid;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.UI;
-import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
 
 import java.io.IOException;
@@ -41,7 +40,7 @@ public class TextUI extends UI implements Runnable {
     private Card[] commonObjCards;
     private ArrayList<Player> players;
     private ArrayList<NonObjectiveCard> hand;
-    private final isValid isValid = new isValid();
+    private final IsValid isValid = new IsValid();
     private static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_GREEN = "\u001B[32m";

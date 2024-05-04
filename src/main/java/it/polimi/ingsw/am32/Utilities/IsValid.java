@@ -2,7 +2,7 @@ package it.polimi.ingsw.am32.Utilities;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class isValid {
+public class IsValid {
     public boolean isIpValid(String ip){
         String[] parts = ip.split("\\.");
         int i;
