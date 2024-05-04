@@ -197,12 +197,21 @@ public class GameController implements GameControllerInterface {
      */
     public void chooseStarterCardSide(String nickname, boolean isUp) {
         if (status != GameControllerStatus.WAITING_STARTER_CARD_CHOICE) { // Received a starter card side choice message, but the controller is not waiting for it
-            // TODO
+            try {
+                submitVirtualViewMessage(new InvalidStarterCardSideSelectionMessage(nickname, "You cannot choose a starter card side at this time"));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+            }
         }
         // The controller is waiting for a starter card side choice
         try {
             if (model.getPlayerField(nickname) != null) { // The player has already chosen his starting card's side
-                // TODO
+                try {
+                    submitVirtualViewMessage(new InvalidStarterCardSideSelectionMessage(nickname, "You have already chosen your starting card's side"));
+                    return;
+                } catch (VirtualViewNotFoundException e) {
+                    throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+                }
             }
 
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
@@ -245,12 +254,21 @@ public class GameController implements GameControllerInterface {
      */
     public void chooseSecretObjectiveCard(String nickname, int id) {
         if (status != GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE) { // Received a secret objective card choice message, but the controller is not waiting for it
-            // TODO
+            try {
+                submitVirtualViewMessage(new InvalidSelectedSecretObjectiveCardMessage(nickname, "You cannot choose a secret objective card at this time"));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+            }
         }
         // The controller is waiting for a secret objective card choice
         try {
             if (model.getPlayerSecretObjective(nickname) != -1) { // The player has already chosen his secret objective
-                // TODO
+                try {
+                    submitVirtualViewMessage(new InvalidSelectedSecretObjectiveCardMessage(nickname, "You have already chosen your secret objective card"));
+                    return;
+                } catch (VirtualViewNotFoundException e) {
+                    throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+                }
             }
 
             model.receiveSecretObjectiveChoiceFromPlayer(nickname, id); // Set the player's secret objective
@@ -296,14 +314,18 @@ public class GameController implements GameControllerInterface {
 
     public void placeCard(String nickname, int id, int x, int y, boolean side) {
         if (status != GameControllerStatus.WAITING_CARD_PLACEMENT) { // The controller is not waiting for a card placement
-            // TODO Notify the player that he cannot place a card
-            return;
+            try {
+                submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, "You cannot place a card at this time"));
+                return;
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+            }
         }
         if (!nickname.equals(model.getCurrentPlayerNickname())) { // The player doesn't have the playing rights
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, "It's not your turn to play. The current player is: " + model.getCurrentPlayerNickname()));
             } catch (VirtualViewNotFoundException e) {
-                // TODO
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
             }
             return;
         }
@@ -323,48 +345,70 @@ public class GameController implements GameControllerInterface {
             else {
                 status = GameControllerStatus.WAITING_CARD_DRAW; // Update game status
             }
-        } catch (InvalidSelectionException e) {
-            // TODO
-        } catch (MissingRequirementsException e) {
-            // TODO
-        } catch (InvalidPositionException e) {
-            // TODO
-        } catch (PlayerNotFoundException e) {
-            // TODO
-        } catch (VirtualViewNotFoundException e) {
-           // TODO
+        } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
+            try {
+                submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, e.getMessage()));
+            } catch (VirtualViewNotFoundException ex) {
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+            }
+        } catch (PlayerNotFoundException | VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("Player " + nickname + " not found");
         }
     }
 
     public void drawCard(String nickname, int deckType, int id) {
-        if (!nickname.equals(model.getCurrentPlayerNickname())) {
-            // TODO Notify the player that it isn't his turn to play
-            return;
+        // FIXME If someone tries to draw a card when getCurrentPlayerNickname is null, server will crash
+        if (!nickname.equals(model.getCurrentPlayerNickname())) { // The player doesn't have the playing rights
+            try {
+                submitVirtualViewMessage(new DrawCardFailedMessage(nickname, "It's not your turn to play. The current player is: " + model.getCurrentPlayerNickname()));
+                return;
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+            }
         }
         // Player has the playing rights
         if (status != GameControllerStatus.WAITING_CARD_DRAW) { // The current player hasn't yet placed a card
-           // TODO Notify the player that he hasn't yet placed a card
-            return;
+            try {
+                submitVirtualViewMessage(new DrawCardFailedMessage(nickname, "You have not placed a card yet."));
+                return;
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+            }
         }
 
         try {
             model.drawCard(deckType, id);
             status = GameControllerStatus.WAITING_CARD_PLACEMENT; // Update game status
-            // TODO Notify the player of the drawn card
+
+            // Notify the player that he has successfully drawn the card
+            submitVirtualViewMessage(new DrawCardConfirmationMessage(nickname, id));
+
             model.nextTurn(); // Update turn number and current player
-            // TODO Notify the players of the new current player
+
+            // Notify the players of the current player
+            submitVirtualViewMessage(new PlayerTurnMessage(nickname, model.getCurrentPlayerNickname()));
 
             // After updating the current player, we need to update the game state
             if (model.isFirstPlayer()) { // The first player is now playing
                if (model.areWeTerminating()) { // We are in the terminating phase
                    model.setLastTurn();
-                   // TODO Notify the players that we have entered the last turn phase
+
+                   // Notify all players of the new match status
+                   for (PlayerQuadruple playerQuadruple : nodeList) {
+                       submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                   }
                }
             }
         } catch (PlayerNotFoundException e) {
-            // TODO
-        } catch (DrawException e) {
-            // TODO
+            throw new CriticalFailureException("Player " + nickname + " not found");
+        } catch (DrawException e) { // Player tried to draw a card, but the draw failed
+            try {
+                submitVirtualViewMessage(new DrawCardFailedMessage(nickname, e.getMessage()));
+            } catch (VirtualViewNotFoundException ex) {
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found after failed draw");
+            }
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
         }
     }
 
@@ -380,8 +424,7 @@ public class GameController implements GameControllerInterface {
                 try {
                     return model.getPlayerColour(playerNickname);
                 } catch (PlayerNotFoundException | NullColourException e) {
-                    // TODO
-                    return -1;
+                    throw new CriticalFailureException("Could not generate game status for Player " + playerNickname);
                 }
             }).toList();
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);

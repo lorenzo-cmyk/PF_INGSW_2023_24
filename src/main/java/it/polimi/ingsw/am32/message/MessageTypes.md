@@ -320,6 +320,15 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
+- InvalidStarterCardSideSelectionMessage : sent by the Server to notify the Client that the selected side of the starting card is invalid
+```json
+{
+  "type": "InvalidStarterCardSideSelectionMessage",
+  "recipientNickname": "playerName",
+  "reason": "Reason"
+}
+```
+
 - AssignedSecretObjectiveCardMessage: sent by the Server to notify the Client of his assigned assortment of secret objective cards
 ```json
 {
