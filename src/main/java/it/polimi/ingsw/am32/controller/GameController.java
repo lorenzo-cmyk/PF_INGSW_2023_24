@@ -114,7 +114,7 @@ public class GameController implements GameControllerInterface {
             PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
             nodeList.add(newPlayerQuadruple);
             Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
-        } catch (DuplicateNicknameException e) {
+        } catch (DuplicateNicknameException e) { // A player tried to join, but that nickname was already in use
             throw e;
         }
     }
@@ -375,7 +375,6 @@ public class GameController implements GameControllerInterface {
      */
     protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
-            String recipientNickname = nickname;
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
             ArrayList<Integer> playerColours = (ArrayList<Integer>)model.getPlayersNicknames().stream().map(playerNickname -> {
                 try {
@@ -398,10 +397,9 @@ public class GameController implements GameControllerInterface {
             int gameGoldDeckSize = model.getCurrentGoldCards().size();
             int matchStatus = model.getMatchStatus();
 
-            return new PlayerGameStatusMessage(recipientNickname, playerNicknames, playerColours, playerHand, playerSecretObjective, playerPoints, playerColour, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus);
+            return new PlayerGameStatusMessage(nickname, playerNicknames, playerColours, playerHand, playerSecretObjective, playerPoints, playerColour, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus);
         } catch (PlayerNotFoundException e) {
-            // TODO
-            return null;
+            throw new CriticalFailureException("Player " + nickname + " not found");
         }
     }
 

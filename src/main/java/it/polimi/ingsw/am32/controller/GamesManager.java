@@ -111,7 +111,6 @@ public class GamesManager {
                     ArrayList<String> allPlayerNicknames = (ArrayList<String>)game.getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all players in the game (connected and not)
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
                         game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
-                        // TODO Should players be notified of the status of a given player in the lobby (connected or disconnected)?
                     }
                 } catch (VirtualViewNotFoundException e) { // Player was added, but his virtual view could not be found
                     throw new CriticalFailureException("VirtualViewNotFoundException when player joined the game");
