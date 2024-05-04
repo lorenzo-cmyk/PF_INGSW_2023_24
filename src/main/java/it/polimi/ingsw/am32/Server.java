@@ -93,7 +93,7 @@ public class Server {
      * Create an instance of {@link SKClientAcceptor} and submit it to the server {@link java.util.concurrent.ExecutorService}
      */
     private void startSocketServer() {
-        Configuration.getInstance().getExecutorService().submit(new SKClientAcceptor());
+        Configuration.getInstance().getExecutorService().submit(new SKClientAcceptor(Configuration.getInstance().getSocketPort()));
     }
 
     /**

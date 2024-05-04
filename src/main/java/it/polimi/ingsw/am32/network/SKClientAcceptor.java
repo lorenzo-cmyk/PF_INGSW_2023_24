@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am32.network;
 
+import it.polimi.ingsw.am32.Server;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,7 +18,6 @@ public class SKClientAcceptor implements Runnable {
     public void run() {
         ExecutorService executor = Executors.newCachedThreadPool();
         ServerSocket serverSocket;
-
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
