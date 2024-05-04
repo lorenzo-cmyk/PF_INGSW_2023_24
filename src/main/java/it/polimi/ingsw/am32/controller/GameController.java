@@ -6,9 +6,7 @@ import java.util.Timer;
 import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
-import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
-import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
-import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
@@ -99,14 +97,14 @@ public class GameController implements GameControllerInterface {
     }
 
     /**
-     * Adds a player to the game.
+     * Adds a player to the game. Gets called both when a player joins a game, and when a player creates a new game.
      * Adds the player to the list of players in the model, and creates a new VirtualView for the player
      *
      * @param nickname The nickname of the player to add
      * @param node The node of the player to add
      * @throws FullLobbyException If the lobby is already full
      */
-    public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException {
+    public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
 
         try {
@@ -116,8 +114,8 @@ public class GameController implements GameControllerInterface {
             PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
             nodeList.add(newPlayerQuadruple);
             Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
-        } catch (DuplicateNicknameException e){
-            // TODO
+        } catch (DuplicateNicknameException e) {
+            throw e;
         }
     }
 
@@ -128,11 +126,7 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player to delete
      */
     public void deletePlayer(String nickname) {
-        try {
-            model.deletePlayer(nickname);
-        } catch (PlayerNotFoundException e) {
-            // TODO
-        }
+        // TODO
     }
 
     /**
@@ -144,15 +138,13 @@ public class GameController implements GameControllerInterface {
             try {
                 submitVirtualViewMessage(new GameStartedMessage(playerQuadruple.getNickname()));
             } catch (VirtualViewNotFoundException e) {
-                // TODO
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the game has started");
             }
         }
 
         model.enterPreparationPhase();
         model.assignRandomColoursToPlayers();
         model.assignRandomStartingInitialCardsToPlayers();
-
-        status = GameControllerStatus.WAITING_STARTER_CARD_CHOICE;
 
         for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players of the new match status and of their assigned starting card
             try {
@@ -161,11 +153,13 @@ public class GameController implements GameControllerInterface {
                 // Notify the player of the assigned starting card
                 submitVirtualViewMessage(new AssignedStarterCardMessage(playerQuadruple.getNickname(), model.getPlayerHand(playerQuadruple.getNickname()).getFirst()));
             } catch (VirtualViewNotFoundException e) {
-                // TODO
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players of the new match status and of their assigned starting card");
             } catch (PlayerNotFoundException e) {
-                // TODO
+                throw new CriticalFailureException("PlayerNotFoundException when notifying players of the new match status and of their assigned starting card");
             }
         }
+
+        status = GameControllerStatus.WAITING_STARTER_CARD_CHOICE;
     }
 
     /**
@@ -174,7 +168,23 @@ public class GameController implements GameControllerInterface {
     public void enterEndPhase() {
         status = GameControllerStatus.GAME_ENDED;
         model.enterTerminatedPhase();
-        // TODO Notify the players that the game has ended
+
+        try {
+            model.addObjectivePoints();
+            ArrayList<String> winners = model.getWinners();
+
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                // Notify the player of the status of the match
+                submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                // Notify the player of the winners
+                submitVirtualViewMessage(new MatchWinnersMessage(playerQuadruple.getNickname(), winners));
+            }
+        } catch (AlreadyComputedPointsException e) {
+            throw new CriticalFailureException("Points have already been computed");
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the game has ended");
+        }
+
         // TODO Destroy game?
     }
 
@@ -186,7 +196,15 @@ public class GameController implements GameControllerInterface {
      * @param isUp The side of the starting card that the player has chosen
      */
     public void chooseStarterCardSide(String nickname, boolean isUp) {
+        if (status != GameControllerStatus.WAITING_STARTER_CARD_CHOICE) { // Received a starter card side choice message, but the controller is not waiting for it
+            // TODO
+        }
+        // The controller is waiting for a starter card side choice
         try {
+            if (model.getPlayerField(nickname) != null) { // The player has already chosen his starting card's side
+                // TODO
+            }
+
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
             // Notify the player that he has successfully chosen his starting card's side
             submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(nickname));
@@ -214,7 +232,7 @@ public class GameController implements GameControllerInterface {
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         } catch (VirtualViewNotFoundException e) {
-            // TODO
+            throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
         }
     }
 
@@ -226,7 +244,15 @@ public class GameController implements GameControllerInterface {
      * @param id The id of the secret objective card that the player has chosen
      */
     public void chooseSecretObjectiveCard(String nickname, int id) {
+        if (status != GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE) { // Received a secret objective card choice message, but the controller is not waiting for it
+            // TODO
+        }
+        // The controller is waiting for a secret objective card choice
         try {
+            if (model.getPlayerSecretObjective(nickname) != -1) { // The player has already chosen his secret objective
+                // TODO
+            }
+
             model.receiveSecretObjectiveChoiceFromPlayer(nickname, id); // Set the player's secret objective
             // Notify the player that he has successfully chosen his secret objective
             submitVirtualViewMessage(new ConfirmSelectedSecretObjectiveCardMessage(nickname));
@@ -255,12 +281,16 @@ public class GameController implements GameControllerInterface {
                     submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
                 }
             }
-        } catch (InvalidSelectionException e) {
-            // TODO
+        } catch (InvalidSelectionException e) { // The player has chosen an invalid secret objective card
+            try {
+                submitVirtualViewMessage(new InvalidSelectedSecretObjectiveCardMessage(nickname, "Invalid secret objective card selection"));
+            } catch (VirtualViewNotFoundException ex) {
+                throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+            }
         } catch (PlayerNotFoundException e) {
-            // TODO
+            throw new CriticalFailureException("Player " + nickname + " not found");
         } catch (VirtualViewNotFoundException e) {
-            // TODO
+            throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
         }
     }
 

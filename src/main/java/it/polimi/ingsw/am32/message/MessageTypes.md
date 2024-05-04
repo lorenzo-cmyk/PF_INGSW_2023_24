@@ -337,6 +337,15 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
+- InvalidSelectedSecretObjectiveCardMessage: sent by the Server to notify the Client that the selected secret objective card is invalid
+```json
+{
+  "type": "InvalidSelectedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName",
+  "reason": "Reason"
+}
+```
+
 ### Chat Messages
 
 - OutboundChatMessage: sent by the Server to all relevant clients to propagate a chat message.

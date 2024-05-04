@@ -1,11 +1,10 @@
 package it.polimi.ingsw.am32.controller;
 
-import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
-import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
-import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
+import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.network.NodeInterface;
 
 import java.util.ArrayList;
@@ -76,9 +75,11 @@ public class GamesManager {
             game.addPlayer(creatorName, node); // Add the creator to the newly created game
             game.submitVirtualViewMessage(new NewGameConfirmationMessage(creatorName, rand));
         } catch (FullLobbyException e) { // It should never happen that the lobby is full when the creator joins
-            // TODO
+            throw new CriticalFailureException("Lobby was full when the creator joined the game");
         } catch (VirtualViewNotFoundException e) {
-            // TODO
+            throw new CriticalFailureException("VirtualViewNotFoundException when creator joined the game");
+        } catch (DuplicateNicknameException e) {
+            throw new CriticalFailureException("DuplicateNicknameException when creator joined the game");
         }
 
         return game;
@@ -92,10 +93,16 @@ public class GamesManager {
      * @param node The server node associated with the given player
      * @return The GameController of the game with the given code
      * @throws GameNotFoundException If no game with the given code is found
+     * @throws FullLobbyException If the lobby of the game is full
      */
-    public GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException {
+    public GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException, FullLobbyException, GameAlreadyStartedException, DuplicateNicknameException {
         for (GameController game : games) {
             if (game.getId() == gameCode) { // Found correct GameController instance
+                if (game.getStatus() != GameControllerStatus.LOBBY) { // Game is not in the lobby phase as it has already started
+                    throw new GameAlreadyStartedException("Game has already started, cannot join now");
+                }
+
+                // Game is in the lobby phase
                 try {
                     game.addPlayer(nickname, node);
                     game.submitVirtualViewMessage(new AccessGameConfirmMessage(nickname)); // Notify the player that he has joined the game
@@ -106,14 +113,16 @@ public class GamesManager {
                         game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                         // TODO Should players be notified of the status of a given player in the lobby (connected or disconnected)?
                     }
-                } catch (VirtualViewNotFoundException e) {
-                    // TODO
-                } catch (FullLobbyException e) { // Lobby was full when tried to join
-                    // TODO
+                } catch (VirtualViewNotFoundException e) { // Player was added, but his virtual view could not be found
+                    throw new CriticalFailureException("VirtualViewNotFoundException when player joined the game");
+                } catch (FullLobbyException e) { // Lobby was full when tried to join (for example when player tried to join after lobby phase)
+                    throw e;
+                } catch (DuplicateNicknameException e) {
+                    throw e;
                 }
 
                 if (game.getGameSize() == game.getLobbyPlayerCount()) { // Lobby is now full
-                    game.enterPreparationPhase(); // Start the game
+                    game.enterPreparationPhase();
                 }
 
                 return game;
@@ -130,12 +139,5 @@ public class GamesManager {
      */
     public void deleteGame(int gameCode) throws GameNotFoundException {
         // TODO
-        for (GameController game : games) {
-            if (game.getId() == gameCode) {
-                games.remove(game);
-                break;
-            }
-        }
-        throw new GameNotFoundException("No game found with code " + gameCode);
     }
 }
