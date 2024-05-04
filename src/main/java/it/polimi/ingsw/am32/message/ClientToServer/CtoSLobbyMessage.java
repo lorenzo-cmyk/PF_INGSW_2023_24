@@ -16,5 +16,5 @@ public interface CtoSLobbyMessage extends Serializable {
      *
      * @param nodeInterface The node interface that received the message.
      */
-    GameController elaborateMessage(NodeInterface nodeInterface);
+    void elaborateMessage(NodeInterface nodeInterface);
 }

@@ -13,4 +13,9 @@ public class PongMessage implements StoCMessage {
     public void processMessage(VirtualView virtualView) {
         // TODO
     }
+
+    @Override
+    public String getRecipientNickname() {
+        return recipientNickname;
+    }
 }

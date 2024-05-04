@@ -21,11 +21,9 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 {
     "type": "AccessGameMessage",
     "matchID": 10,
-    "senderNickname": "playerName",
-    "hasData": false
+    "senderNickname": "playerName"
 }
 ```
-The parameter "hasData" is used to discriminate between a player who is joining a game for the first time and a player who is reconnecting to a game.
 
 ### Game Messages
 
@@ -160,13 +158,13 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 
 ### Game Messages
 
-- ResponseGameStatusMessage: sent by the Server to notify the current game status.
+- PlayerGameStatusMessage : sent by the Server to notify the current game status.
 ```json
 {
-  "type": "ResponseGameStatusMessage",
+  "type": "PlayerGameStatusMessage",
   "recipientNickname": "playerName",
   "playerNicknames": ["player1", "player2"],
-  "playerColours": ["Red", "Blue"],
+  "playerColours": [1, 4],
   "playerHand": [10, 11, 12],
   "playerSecretObjective": 9,
   "playerPoints": 5,
@@ -292,7 +290,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "MatchStatusMessage",
   "recipientNickname": "playerName",
-  "matchStatus": "Status"
+  "matchStatus": 1
 }
 ```
 
@@ -314,18 +312,18 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
-- ConfirmStartedCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side
+- ConfirmStarterCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side
 ```json
 {
-  "type": "ConfirmStartedCardSideSelectionMessage",
-  "recipientNickname": "playerName",
+  "type": "ConfirmStarterCardSideSelectionMessage",
+  "recipientNickname": "playerName"
 }
 ```
 
 - AssignedSecretObjectiveCardMessage: sent by the Server to notify the Client of his assigned assortment of secret objective cards
 ```json
 {
-  "type": "SelectedSecretObjectiveCardMessage",
+  "type": "AssignedSecretObjectiveCardMessage",
   "recipientNickname": "playerName",
   "assignedCards": [23, 26] 
 }
@@ -335,7 +333,16 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 ```json
 {
   "type": "ConfirmSelectedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName"
+}
+```
+
+- InvalidSelectedSecretObjectiveCardMessage: sent by the Server to notify the Client that the selected secret objective card is invalid
+```json
+{
+  "type": "InvalidSelectedSecretObjectiveCardMessage",
   "recipientNickname": "playerName",
+  "reason": "Reason"
 }
 ```
 

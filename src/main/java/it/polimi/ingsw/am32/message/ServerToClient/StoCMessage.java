@@ -16,4 +16,5 @@ public interface StoCMessage extends Serializable {
      * @param virtualView The virtual view to which the message should be delivered
      */
     void processMessage(VirtualView virtualView);
+    String getRecipientNickname();
 }

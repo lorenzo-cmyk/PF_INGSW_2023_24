@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.network;
 
+import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 
 public interface NodeInterface {
@@ -8,4 +9,6 @@ public interface NodeInterface {
     void pingTimeOverdue();
 
     void resetTimeCounter();
+
+    void setGameController(GameController gameController);
 }
