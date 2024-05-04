@@ -15,7 +15,9 @@ public enum GameControllerStatus {
     // The game controller is waiting for the current player to place a card on the board.
     WAITING_CARD_PLACEMENT(3),
     // The game controller is waiting for the current player to draw a card from the deck.
-    WAITING_CARD_DRAW(4);
+    WAITING_CARD_DRAW(4),
+    // The game controller is in the ended state, meaning that the game has ended.
+    GAME_ENDED(5);
 
     // The integer value associated with each state.
     private final int value;

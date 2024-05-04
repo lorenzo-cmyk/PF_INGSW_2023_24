@@ -48,10 +48,9 @@ public class GameController implements GameControllerInterface {
      */
     private final int gameSize;
     /**
-     * placedCardFlag: Flag indicating whether a card has been placed by the current player
-     * Used to prevent the same player from placing 2 cards in a row without drawing
+     * status: The status of the game controller
      */
-    private boolean placedCardFlag;
+    private GameControllerStatus status;
 
     public GameController(int id, int gameSize) {
         this.nodeList = new ArrayList<>();
@@ -60,10 +59,10 @@ public class GameController implements GameControllerInterface {
         this.timer = null;
         this.id = id;
         this.gameSize = gameSize;
-        this.placedCardFlag = false;
 
         // Enter lobby phase immediately
         model.enterLobbyPhase();
+        status = GameControllerStatus.LOBBY;
     }
 
     /**
@@ -137,7 +136,7 @@ public class GameController implements GameControllerInterface {
     }
 
     /**
-     * Method called when a message of type start game is received.
+     * Method called when the lobby is full.
      * Enters the preparation phase of the game, assigns colours and starting cards to players, and notifies all players of the game start.
      */
     public void enterPreparationPhase() {
@@ -153,7 +152,9 @@ public class GameController implements GameControllerInterface {
         model.assignRandomColoursToPlayers();
         model.assignRandomStartingInitialCardsToPlayers();
 
-        for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players of their assigned colour
+        status = GameControllerStatus.WAITING_STARTER_CARD_CHOICE;
+
+        for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players of the new match status and of their assigned starting card
             try {
                 // Notify the player of the status of the match
                 submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
@@ -165,6 +166,16 @@ public class GameController implements GameControllerInterface {
                 // TODO
             }
         }
+    }
+
+    /**
+     * Sets the model to the terminated phase, and notifies all players that the game has ended.
+     */
+    public void enterEndPhase() {
+        status = GameControllerStatus.GAME_ENDED;
+        model.enterTerminatedPhase();
+        // TODO Notify the players that the game has ended
+        // TODO Destroy game?
     }
 
     /**
@@ -193,6 +204,8 @@ public class GameController implements GameControllerInterface {
                  model.assignRandomStartingGoldCardsToPlayers();
                  model.pickRandomCommonObjectives();
                  model.assignRandomStartingSecretObjectivesToPlayers();
+
+                 status = GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE;
 
                  for (PlayerQuadruple playerQuadruple : nodeList) {
                      submitVirtualViewMessage(new AssignedSecretObjectiveCardMessage(playerQuadruple.getNickname(), model.getSecretObjectiveCardsPlayer(playerQuadruple.getNickname())));
@@ -231,6 +244,8 @@ public class GameController implements GameControllerInterface {
                 model.enterPlayingPhase();
                 model.startTurns();
 
+                status = GameControllerStatus.WAITING_CARD_PLACEMENT;
+
                 for (PlayerQuadruple playerQuadruple : nodeList) {
                     // Notify the player of the status of the match
                     submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
@@ -250,7 +265,11 @@ public class GameController implements GameControllerInterface {
     }
 
     public void placeCard(String nickname, int id, int x, int y, boolean side) {
-        if (!nickname.equals(model.getCurrentPlayerNickname())) {
+        if (status != GameControllerStatus.WAITING_CARD_PLACEMENT) { // The controller is not waiting for a card placement
+            // TODO Notify the player that he cannot place a card
+            return;
+        }
+        if (!nickname.equals(model.getCurrentPlayerNickname())) { // The player doesn't have the playing rights
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, "It's not your turn to play. The current player is: " + model.getCurrentPlayerNickname()));
             } catch (VirtualViewNotFoundException e) {
@@ -261,9 +280,19 @@ public class GameController implements GameControllerInterface {
         // Player has the playing rights
         try {
             model.placeCard(id, x, y, side); // Try to place card
-            placedCardFlag = true; // Card has been placed successfully
+
             // Notify the player that he has successfully placed the card
             submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname)));
+
+            if (model.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) {
+                model.nextTurn();
+                if (model.isFirstPlayer()) {
+                    enterEndPhase();
+                }
+            }
+            else {
+                status = GameControllerStatus.WAITING_CARD_DRAW; // Update game status
+            }
         } catch (InvalidSelectionException e) {
             // TODO
         } catch (MissingRequirementsException e) {
@@ -283,17 +312,14 @@ public class GameController implements GameControllerInterface {
             return;
         }
         // Player has the playing rights
-        if (!placedCardFlag) { // The current player hasn't yet placed a card
+        if (status != GameControllerStatus.WAITING_CARD_DRAW) { // The current player hasn't yet placed a card
            // TODO Notify the player that he hasn't yet placed a card
             return;
-        }
-        if (model.getMatchStatus()!= MatchStatus.LAST_TURN.getValue()) {
-            // TODO Notify the player that he cannot draw on the last turn
         }
 
         try {
             model.drawCard(deckType, id);
-            placedCardFlag = false; // Card has been drawn successfully
+            status = GameControllerStatus.WAITING_CARD_PLACEMENT; // Update game status
             // TODO Notify the player of the drawn card
             model.nextTurn(); // Update turn number and current player
             // TODO Notify the players of the new current player
@@ -303,10 +329,6 @@ public class GameController implements GameControllerInterface {
                if (model.areWeTerminating()) { // We are in the terminating phase
                    model.setLastTurn();
                    // TODO Notify the players that we have entered the last turn phase
-               } else if (model.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) {
-                   model.enterTerminatedPhase();
-                   // TODO Notify the players that the game has ended
-                   // TODO Destroy game?
                }
             }
         } catch (PlayerNotFoundException e) {
@@ -367,6 +389,10 @@ public class GameController implements GameControllerInterface {
 
     public int getLobbyPlayerCount() {
         return model.getPlayersNicknames().size();
+    }
+
+    public GameControllerStatus getStatus() {
+        return status;
     }
 }
 
