@@ -45,4 +45,11 @@ public class CountResource implements PointStrategy {
         this.type = type;
         this.count = count;
     }
+    public ObjectType getType() {
+        return type;
+    }
+    public int getCount() {
+        return count;
+    }
+
 }
