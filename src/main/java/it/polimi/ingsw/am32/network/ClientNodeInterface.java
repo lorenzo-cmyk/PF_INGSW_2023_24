@@ -9,8 +9,6 @@ import java.net.Socket;
 public interface ClientNodeInterface {
     void uploadToServer(CtoSMessage message);
 
-    void uploadLobbyToServer(CtoSLobbyMessage message);
-
     void receiveFromServer();
 
     void uploadToServer(CtoSLobbyMessage message);

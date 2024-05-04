@@ -17,10 +17,6 @@ public class RMIClientNode implements ClientNodeInterface, RMIClientNodeInt{
         //TODO
     }
 
-    @Override
-    public void uploadLobbyToServer(CtoSLobbyMessage message) {
-        //TODO
-    }
 
     @Override
     public void receiveFromServer() {
