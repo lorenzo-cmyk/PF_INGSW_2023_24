@@ -1,37 +1,42 @@
 package it.polimi.ingsw.am32.network;
 
+import it.polimi.ingsw.am32.Utilities.Configuration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SKClientAcceptor implements Runnable {
-    private final int port;
 
-    public SKClientAcceptor(int port) {
-        this.port = port;
+    private final Logger logger;
+
+    public SKClientAcceptor() {
+        this.logger = LogManager.getLogger("SKClientAcceptor");
     }
 
     public void run() {
-        ExecutorService executor = Executors.newCachedThreadPool();
-        ServerSocket serverSocket;
 
+        ExecutorService executorService = Configuration.getInstance().getExecutorService();
+        ServerSocket serverSocket;
         try {
-            serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(Configuration.getInstance().getSocketPort());
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            logger.error("Socket communications not available. ServerSocket initialization failed.");
             return;
         }
 
-        System.out.println("Server ready");
+        logger.info("Server Socket initialized.");
 
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                executor.submit(new SKServerNode(socket));
+                executorService.submit(new SKServerNode(socket));
+                logger.info("Accepted connection from: {}", socket.getRemoteSocketAddress());
             } catch (IOException e) {
-                break;
+                logger.error("Connection accept failed: {}", e.getMessage());
             }
         }
     }
