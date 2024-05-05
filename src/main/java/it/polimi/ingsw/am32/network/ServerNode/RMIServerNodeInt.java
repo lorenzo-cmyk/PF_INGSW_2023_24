@@ -2,6 +2,9 @@ package it.polimi.ingsw.am32.network.ServerNode;
 
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 
-public interface RMIServerNodeInt {
-    void uploadCtoS(CtoSMessage message);
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface RMIServerNodeInt extends Remote {
+    void uploadCtoS(CtoSMessage message) throws RemoteException;
 }

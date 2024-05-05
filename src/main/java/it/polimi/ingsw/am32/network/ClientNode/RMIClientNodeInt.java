@@ -1,4 +1,6 @@
 package it.polimi.ingsw.am32.network.ClientNode;
 
-public interface RMIClientNodeInt {
+import java.rmi.Remote;
+
+public interface RMIClientNodeInt extends Remote {
 }

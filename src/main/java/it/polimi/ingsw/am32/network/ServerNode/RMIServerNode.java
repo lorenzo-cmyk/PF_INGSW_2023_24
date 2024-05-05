@@ -5,18 +5,20 @@ import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNodeInt;
 
-public class RMIServerNode implements RMIServerNodeInt, NodeInterface {
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeInt, NodeInterface {
 
     private GameController gameController;
     private int pingCount;
-    public RMIServerNode(GameController gameController) {
-        this.gameController = gameController;
     private RMIClientNodeInt clientNode;
 
     public RMIServerNode(RMIClientNodeInt clientNode) {
+    public RMIServerNode(RMIClientNodeInt clientNode) throws RemoteException {
     }
 
-    public void uploadCtoS(CtoSMessage message) {
+    public void uploadCtoS(CtoSMessage message) throws RemoteException {
         //TODO
     }
 
