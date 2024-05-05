@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am32.network;
+package it.polimi.ingsw.am32.network.ServerNode;
 
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 

@@ -7,8 +7,8 @@ import java.util.Timer;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.model.match.Match;
-import it.polimi.ingsw.am32.network.NodeInterface;
-import it.polimi.ingsw.am32.network.RMIServerNode;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.RMIServerNode;
 import it.polimi.ingsw.am32.model.ModelInterface;
 
 public class GameController implements GameControllerInterface{

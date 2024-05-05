@@ -1,6 +1,7 @@
-package it.polimi.ingsw.am32.network;
+package it.polimi.ingsw.am32.network.ClientAcceptor;
 
 import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.network.ServerNode.SKServerNode;
 import it.polimi.ingsw.am32.network.exceptions.UninitializedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
