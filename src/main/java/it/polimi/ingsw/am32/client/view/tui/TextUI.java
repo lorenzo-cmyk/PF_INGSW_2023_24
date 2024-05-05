@@ -12,6 +12,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage.*;
 import it.polimi.ingsw.am32.model.card.Card;
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
@@ -25,7 +26,29 @@ import it.polimi.ingsw.am32.network.ClientNodeInterface;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
+/**
+ * Class TextUI is a one of the two User Interface of the game that allows the player to interact with the game, which
+ * is a text-based interface. It extends the abstract {@link UI} class and implements the{@link Runnable}interface.
+ * <p>
+ *     The class includes the following methods, which could be divided into three categories: connection, flow of the
+ *     game, and design of printed elements. The connection methods are used to establish the connection between the
+ *     client and the server. The flow of the game methods are used to manage the game's flow, such as creating a new game,
+ *     joining a game, and reconnecting to a game etc. The design methods are used to print the game's elements, such as cards.
+ *     To simplify the code, the class includes a method to check the input of the player, a method to clear the command
+ *     line, and a method to handle the events. Finally, the class includes a method to update the view and a method to
+ *     notify the listener.
+ * <p>
+ *     For the connection, the class includes a method to choose the connection type, a method to set the socket client
+ *     and a method to set the RMI client. Also, the class uses the {@link IsValid} class to check the validity of the
+ *     IP address and the port number entered by the player.
+ *     For the design of the cards, the class includes a method to print the card, a method to convert the corner type
+ *     of the card to an icon and a method to convert the object type of the card to an icon as well. The class uses
+ *     Unicode characters to represent the icons of the cards and the objects. In addition, the class
+ *     includes ASCI escape codes to set the color of the printed cards and the printed text.
+ *
+ * @author Jie
+ *
+ */
 public class TextUI extends UI implements Runnable {
     private static final Logger logger = LogManager.getLogger("TUILogger");
     ClientNodeInterface clientNode;
@@ -40,6 +63,7 @@ public class TextUI extends UI implements Runnable {
     private Card[] commonObjCards;
     private ArrayList<Player> players;
     private ArrayList<NonObjectiveCard> hand;
+    private NonObjectiveCard starterCard;
     private final IsValid isValid = new IsValid();
     private static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_RED = "\u001B[31m";
@@ -50,14 +74,14 @@ public class TextUI extends UI implements Runnable {
     private static final int PLANT = 0x1F33F;
     private static final int FUNGI = 0x1F344;
     private static final int ANIMAL = 0x1F43A;
-    private static final int EMPTY = 0x2B1C;
+    private static final int EMPTY = 0x2800;
     private static final int QUILL = 0x1FAB6;
     private static final int INKWELL = 0X1F36F;
     private static final int MANUSCRIPT = 0x1F4DC;
-    private static final int BLANK = 0x2800;
+    private static final int NON_COVERABLE = 0x1F4D6;
 
     /**
-     * Constructor TUI
+     * Constructor of the class TextUI
      */
     public TextUI() {
         super();
@@ -65,12 +89,17 @@ public class TextUI extends UI implements Runnable {
         out = new PrintStream(System.out);
         InitializeViewElement();
     }
+    /**
+     * Method that launches the TextUI
+     */
     @Override
     public void launch(){
         run();
     }
 
-
+    /**
+     * //TODO
+     */
     @Override
     public void run() {
         showWelcome();
@@ -78,6 +107,9 @@ public class TextUI extends UI implements Runnable {
         //TODO
     }
 
+    /**
+     * Method that initializes the view elements with default values to avoid null pointer exceptions and other errors.
+     */
     @Override
     public void InitializeViewElement() {
         this.playerNum=0;
@@ -92,64 +124,94 @@ public class TextUI extends UI implements Runnable {
 
     }
     //-------------------Connection-------------------
+    /**
+     * Method that allows the player to choose the connection type, either socket or RMI. The method asks the player to
+     * insert the server IP and the server port if the player chooses the socket connection. If the player chooses the
+     * RMI connection, the method asks the player to insert the server URL.
+     * The method uses the {@link IsValid} class to check the validity of the IP address and the port number entered by the player.
+     * @throws InputMismatchException if the input is mismatched
+     * @throws IOException if an I/O error occurs
+     * @see IsValid
+     * @see #setSocketClient(String, int)
+     * @see #setRMIClient(String)
+     * @see #inputCheckInt()
+     * @see #inputCheckString()
+     * @see #showWelcome()
+     */
+    @Override
     public void chooseConnection() {
         out.println("""
                 Choose the connection type:
                 1. Socket
-                2. RMI """);
-        int connectionChoice= inputCheckInt();
-        if(connectionChoice!=1 && connectionChoice!=2) {
-            out.println("! Invalid input, please try again");
-            chooseConnection();
-        }
-        switch (connectionChoice) {
+                2. RMI""");
+        int connectionChoice= inputCheckInt(); // read the input from the player and check if the input is mismatched or not
+        switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
             case 1: {
                 out.println("Insert the server IP");
-                in.nextLine();
-                String ServerIP =inputCheckString();
-                while (!isValid.isIpValid(ServerIP)) {
+                String ServerIP =inputCheckString(); // read the input from the player and check if the input is mismatched or not
+                while (!isValid.isIpValid(ServerIP)) { // if the IP address is invalid, print the error message and ask the player to re-enter the IP address
                     out.println("Invalid IP, please try again");
                     ServerIP=inputCheckString();
                 }
                 out.println("Insert the server port");
                 int port = inputCheckInt();
-                while (!isValid.isPortValid(port)) {
+                while (!isValid.isPortValid(port)) { // if the port number is invalid, print the error message and ask the player to re-enter the port number
                     out.println("Invalid port, please try again");
                     port = inputCheckInt();
                 }
                 try {
-                    setSocketClient(ServerIP, port);
+                    setSocketClient(ServerIP, port); // set the socket client
                 } catch (IOException e) {
                     Thread.currentThread().interrupt();
                 }
                 break;
             }
             case 2: {
-                out.println("Insert the server URL");
-                String ServerURL = in.nextLine();
+                out.println("Insert the server URL"); //TODO show the format of the URL to the player
+                String ServerURL = in.nextLine(); //
                 while (!isValid.isURLValid(ServerURL)) {
                     out.println("Invalid URL, please try again");
                     ServerURL = in.nextLine();
                 }
-                setRMIClient(ServerURL);
+                setRMIClient(ServerURL);// set the RMI client
                 break;
             }
             default: {
-                break;
+                logger.error("Invalid input, please select 1 or 2");
+                out.println("Invalid input, please select 1 or 2"); // if the input is neither 1 nor 2, print the error message and ask the player to re-enter the input
+                chooseConnection();
             }
         }
     }
+    /**
+     * Method that sets the socket client with the server IP and the server port entered by the player and attempts to
+     * establish the connection between the client and the server.
+     * @param ServerIP the server IP entered by the player
+     * @param port the server port entered by the player
+     * @throws IOException if an I/O error occurs
+     * @see UI#setSocketClient(String, int)
+     */
     @Override
     public void setSocketClient(String ServerIP, int port) throws IOException {
-        super.setSocketClient(ServerIP, port);
+        super.setSocketClient(ServerIP, port); // see the method in the superclass
     }
+    /**
+     * Method that sets the RMI client with the server URL entered by the player and attempts to establish the connection
+     * between the client and the server.
+     * @param ServerURL the server URL entered by the player
+     * @see UI#setSocketClient(String, int)
+     */
+    @Override
     public void setRMIClient(String ServerURL){
-        super.setRMIClient(ServerURL);
+        super.setRMIClient(ServerURL); // see the method in the superclass
     }
-    //-------------------Design-------------------
+    //-------------------Title-------------------
+    /**
+     * Method that prints the welcome message and link to the game rules.
+     */
     @Override
     public void showWelcome() {
-        System.out.println(
+        out.println(
                 """
                          ██████╗ ██████╗ ██████╗ ███████╗██╗  ██╗    ███╗   ██╗ █████╗ ████████╗██╗   ██╗██████╗  █████╗ ██╗     ██╗███████╗
                         ██╔════╝██╔═══██╗██╔══██╗██╔════╝╚██╗██╔╝    ████╗  ██║██╔══██╗╚══██╔══╝██║   ██║██╔══██╗██╔══██╗██║     ██║██╔════╝
@@ -157,9 +219,14 @@ public class TextUI extends UI implements Runnable {
                         ██║     ██║   ██║██║  ██║██╔══╝   ██╔██╗     ██║╚██╗██║██╔══██║   ██║   ██║   ██║██╔══██╗██╔══██║██║     ██║╚════██║
                         ╚██████╗╚██████╔╝██████╔╝███████╗██╔╝ ██╗    ██║ ╚████║██║  ██║   ██║   ╚██████╔╝██║  ██║██║  ██║███████╗██║███████║
                           ═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝""");
-        System.out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");//TODO change the URL of the rules with the real URL
+        out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");//TODO change the URL of the rules with the real URL
     }
-    
+    //-------------------Game mode-------------------
+    /**
+     * The method uses the {@link Event} enum to set the current event to select the game mode. The method prints the
+     * menu of the game mode and asks the player to select the action to perform using the {@link #handleChoiceEvent} method.
+     * @see #inputCheckInt()
+     */
     @Override
     public void askSelectGameMode(){
         currentEvent= Event.SELECT_GAME_MODE;
@@ -171,13 +238,26 @@ public class TextUI extends UI implements Runnable {
                 """);
         out.println("Which action do you want to perform?");
         int choice =inputCheckInt();
-        handleEvent(currentEvent, choice);
+        handleChoiceEvent(currentEvent, choice);
     }
+    /**
+     * Method that asks the player to insert the nickname they want to use in the game.
+     * @see #inputCheckString()
+     */
     @Override
     public void askNickname(){
         out.println("Insert the nickname you want to use in the game");
         playerNickname=inputCheckString();
     }
+
+    /**
+     * Method that asks the player to insert the number of players and the nickname desired to create a new game.
+     * @see #inputCheckInt()
+     * @see #askNickname()
+     * @see #notifyAskListenerLobby(CtoSLobbyMessage)
+     * @see NewGameMessage
+     *
+     */
     @Override
     public void askCreateGame() {
         currentEvent= Event.CREATE_GAME;
@@ -186,20 +266,21 @@ public class TextUI extends UI implements Runnable {
         while (true) {
         playerNum=inputCheckInt();
         if (playerNum < 2 || playerNum > 4) {
-            out.println("! Invalid number of players, please try again");
+            out.println("Invalid number of players, please insert a number between 2 and 4");
             in.nextInt();
             continue;
         }
         break;
         }
-        notifyAskListenerLobby(new NewGameMessage(playerNickname, playerNum));
+        notifyAskListenerLobby(new NewGameMessage(playerNickname, playerNum));// notify the listener with the new game message
+        //TODO wait for the response from the server
     }
-
-    @Override
-    public void handleEvent(Event event, int Choice) {
-
-    }
-
+    /**
+     * Method that asks the player to insert the nickname they want to use in the game and the Access ID of the game they
+     * want to join.
+     * @see #inputCheckString()
+     * @see #inputCheckInt()
+     */
     @Override
     public void askJoinGame() {
         currentEvent= Event.JOIN_GAME;
@@ -207,19 +288,60 @@ public class TextUI extends UI implements Runnable {
         playerNickname=inputCheckString();
         out.println("Insert the Access ID of the game you want to join");
         gameID=inputCheckInt();
-        notifyAskListenerLobby(new AccessGameMessage(gameID, playerNickname));
+        notifyAskListenerLobby(new AccessGameMessage(gameID, playerNickname)); // notify the listener with the access game message
+        //TODO wait for the response from the server
     }
+    /**
+     * Use this method to ask the player if they want to reconnect to the game.
+     * @see #inputCheckString()
+     */
     @Override
     public void askReconnectGame() {
         currentEvent= Event.RECONNECT_GAME;
         notifyAskListener(new RequestGameStatusMessage(playerNickname));// don't need to ask the player nickname because it is already stored
+        //TODO wait for the response from the server
     }
-    //-------------------Game-------------------
-    public void showCardSelected(Card card){
-        out.println("The card selected is: " + card.getId());
+    //-------------------Game start-----------------------
+    @Override
+    public void showInitialView() {
+        //TODO show players colour, show the empty field view, show the list of the players
     }
     @Override
-    public void askPlaceCard() {
+    public void showHelpInfo(){
+        //TODO show the help information: exit command, start chat command, view the player list command, view the
+        // game status command, view the game rule command,view the card command, view other players' field command,
+        // view the secret objective command, view the game order command, view the game ID command ecc.
+        //TODO NEED TO DICUSS WITH THE TEAM
+    }
+    /**
+     * Method that asks the player to select the side of the starter card received from the server.
+     */
+    @Override
+    public void requestSelectStarterCardSide(){
+        currentEvent= Event.SELECT_STARTER_CARD_SIDE;
+        //after receiving the starter card from the server and store it in the starterCard
+        out.println("The starter card received has:");
+        out.println("Front side");
+        printNonObjCard(starterCard, true);
+        out.println("Back side");
+        printNonObjCard(starterCard, false);
+        out.println("""
+                Select the side of the starter card
+                1. Front
+                2. Back
+                """);
+        int side =inputCheckInt();
+        handleChoiceEvent(currentEvent, side);
+        boolean isUP = side == 1;
+        notifyAskListener(new SelectedStarterCardSideMessage(playerNickname,isUP));
+        //TODO wait for the response from the server
+    }
+    @Override
+    public void requestSelectSecretObjCard() {
+
+    }
+    @Override
+    public void requestPlaceCard() {
         currentEvent= Event.PLACE_CARD;
         out.println("""
                 Insert the card you want to place" 
@@ -238,33 +360,74 @@ public class TextUI extends UI implements Runnable {
         //TODO
     }
 
+
+
+
+
+
+
+    //-------------------View of the game-------------------
+    public void showCardSelected(Card card){
+        out.println("The card selected is: " + card.getId());
+        //TODO show the card selected by the player
+    }
+
+
     //-------------------Card Factory-------------------
-    private void printCard(NonObjectiveCard card) {
-        String kingdom = card.getKingdom().toString();
-        int[] cardConditionCount = card.getConditionCount();
-        String strategy = iconStrategy(card.getPointStrategy());
-        String condition= icon(card.getConditionCount());
-        int padding1 = (16 - strategy.length()) / 2;
+    /**
+     * Method used to print the card given with the side selected by the player, using the Unicode characters to represent
+     * the elements and using the ASCI to set the color of the printed card.
+     * @param card the card to be printed
+     * @param isUp the side of the card selected by the player
+     *             true: front side, false: back side
+     * @see #icon(CornerType)
+     * @see #icon(ObjectType)
+     * @see #iconStrategy(PointStrategy)
+     * @see #icon (int[])
+     */
+    private void printNonObjCard(NonObjectiveCard card,boolean isUp) {
+        String kingdom = card.getKingdom().toString(); // get the kingdom of the card and convert it to a string
+        String strategy = iconStrategy(card.getPointStrategy()); // stabilize the way to present different strategies
+        String condition = icon(card.getConditionCount()); // stored the requirements of the card in one string
+        int padding1 = (16 - strategy.length()) / 2; // calculate the padding
         int padding2 = (18 - kingdom.length()) / 2;
         int padding3 = (17 - condition.length()) / 2;
         String colour = null;
-        switch (card.getKingdom()) {
-            case PLANT -> colour = ANSI_GREEN;
-            case FUNGI -> colour = ANSI_RED;
-            case ANIMAL -> colour = ANSI_BLUE;
-            case INSECT -> colour = ANSI_PURPLE;
+        switch (kingdom) { // set the color of the card based on the kingdom of the card
+            case "PLANT"-> colour = ANSI_GREEN;
+            case "FUNGI" -> colour = ANSI_RED;
+            case "ANIMAL" -> colour = ANSI_BLUE;
+            case "INSECT" -> colour = ANSI_PURPLE;
         }
-
-        out.printf(colour + "+----+-----------------------+\n" + ANSI_RESET);
-        out.printf(colour + "| %s | %" + padding1 + "s%s%" + padding1 + "s | %s |\n" + ANSI_RESET, icon(card.getTopRight()), "", strategy, "", icon(card.getTopLeft()));
-        out.printf(colour + "+----+%18s+----+\n", "");
-        out.printf(colour + "| %4s %" + padding2 + "s%s%" + padding2 + "s%4s |\n" + ANSI_RESET, "", "", kingdom, "", "");
-        out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
-        out.printf(colour + "| %s |%"+padding3+"s%s%"+padding3 +"s | %s |\n" + ANSI_RESET,icon(card.getBottomRight()),"", icon(card.getConditionCount()), "",icon(card.getBottomLeft()));
-        out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+        if (isUp) { //TODO NEED CHECK WITH ALL TYPES OF CARDS to see if the view is correct
+            out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+            out.printf(colour + "| %s | %" + padding1 + "s%s%" + padding1 + "s | %s |\n" + ANSI_RESET, icon(card.getTopRight()), "", strategy, "", icon(card.getTopLeft()));
+            out.printf(colour + "+----+%18s+----+\n", "");
+            out.printf(colour + "| %4s %" + padding2 + "s%s%" + padding2 + "s%4s |\n" + ANSI_RESET, "", "", kingdom, "", "");
+            out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
+            out.printf(colour + "| %s |%" + padding3 + "s%s%" + padding3 + "s | %s |\n" + ANSI_RESET, icon(card.getBottomRight()), "", icon(card.getConditionCount()), "", icon(card.getBottomLeft()));
+            out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+        } else { //TODO check view of the back side of the card
+            out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+            out.printf(colour + "| %s | %" + padding1 + "s%s%" + padding1 + "s | %s |\n" + ANSI_RESET, icon(card.getTopRightBack()), ""," ", "", icon(card.getTopLeftBack()));
+            out.printf(colour + "+----+%18s+----+\n", "");
+            out.printf(colour + "| %4s %" + padding3 + "s%s%" + padding3 + "s%4s |\n" + ANSI_RESET, "", "", icon(card.getPermRes()), "", "");
+            out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
+            out.printf(colour + "| %s |%" + padding2 + "s%s%" + padding2 + "s | %s |\n" + ANSI_RESET, icon(card.getBottomRightBack()), "", "", "", icon(card.getBottomLeftBack()));
+            out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+        }
+    }
+    private void printObjCard(Card card){
+        //TODO
     }
 
-    public String icon(int[] conditionCount) {
+    /**
+     * Method used to convert the integer array of the condition count of the card to a string of icons, using the Unicode
+     * characters and added it in one string.
+     * @param conditionCount the integer array of the requirement count of the card.
+     * @return the string of icons which contains the icons of the requirements of the card.
+     */
+    private String icon(int[] conditionCount) {
         String conditionIcon[] = new String[5];
         String condition = "";
         int count = 0;
@@ -278,15 +441,18 @@ public class TextUI extends UI implements Runnable {
         }
         for (int j = 0; j < 5; j++) {
             if (conditionIcon[j] == null) {
-                conditionIcon[j] = new String(Character.toChars(BLANK));
+                conditionIcon[j] = new String(Character.toChars(EMPTY));
             }
         }
         return condition;
     }
-
-
-
-    protected static String icon(CornerType type) {
+    /**
+     * Method used to convert the corner type of the card to an icon, using the Unicode characters.
+     * @param type the corner type of the card
+     * @return the icon of the corner type of the card
+     * @see CornerType
+     */
+    private static String icon(CornerType type) {
         String icon = "";
         switch (type) {
             case INSECT -> icon= new String(Character.toChars(INSECT));
@@ -296,11 +462,19 @@ public class TextUI extends UI implements Runnable {
             case QUILL -> icon= new String(Character.toChars(QUILL));
             case INKWELL ->  icon= new String(Character.toChars(INKWELL));
             case MANUSCRIPT -> icon= new String(Character.toChars(MANUSCRIPT));
-            default -> icon= new String(Character.toChars(EMPTY));
+            case NON_COVERABLE -> icon= new String(Character.toChars(NON_COVERABLE));
+            case EMPTY -> icon= new String(Character.toChars(EMPTY));
         }
         return icon;
     }
-    protected static String icon(ObjectType type) {
+
+    /**
+     * Method used to convert the object type of the card to an icon, using the Unicode characters.
+     * @param type the object type of the card
+     * @return the icon of the object type of the card
+     * @see ObjectType
+     */
+    private static String icon(ObjectType type) {
         String icon = "";
         switch (type) {
             case INSECT -> icon= new String(Character.toChars(INSECT));
@@ -310,11 +484,16 @@ public class TextUI extends UI implements Runnable {
             case QUILL -> icon= new String(Character.toChars(QUILL));
             case INKWELL ->  icon= new String(Character.toChars(INKWELL));
             case MANUSCRIPT -> icon= new String(Character.toChars(MANUSCRIPT));
-            default -> icon= new String(Character.toChars(EMPTY));
         }
         return icon;
     }
-    public String iconStrategy(PointStrategy strategy){
+    /**
+     * Method used to set how to present the different strategies of the card.
+     * @param strategy the point strategy of the card.
+     * @return the way to present the strategy of the card.
+     * @see PointStrategy
+     */
+    private String iconStrategy(PointStrategy strategy){
         String icon = "";
         if (strategy instanceof CountResource){
             icon= ((CountResource) strategy).getCount()+"|"+icon(((CountResource) strategy).getType());
@@ -322,6 +501,7 @@ public class TextUI extends UI implements Runnable {
         if (strategy instanceof AnglesCovered){
             icon= "2"+"|"+"AngCover";
         }
+        //TODO
         return icon;
     }
 
@@ -330,7 +510,6 @@ public class TextUI extends UI implements Runnable {
     public void handleEvent(Event event) {
         //TODO
     }
-
     @Override
     public void handleChoiceEvent(Event event, int choice){
         switch (event) {
@@ -339,7 +518,11 @@ public class TextUI extends UI implements Runnable {
                     case 1 -> askCreateGame();
                     case 2 -> askJoinGame();
                     case 3 -> askReconnectGame();
-                    default -> out.println("! Invalid input, please try again ");
+                    default -> {
+                        logger.error("Invalid input, please select 1, 2 or 3");
+                        out.println("Invalid input, please select 1, 2 or 3");
+                        askSelectGameMode();
+                    }
                 }
             }
             case CREATE_GAME -> System.out.println("Creating game...");

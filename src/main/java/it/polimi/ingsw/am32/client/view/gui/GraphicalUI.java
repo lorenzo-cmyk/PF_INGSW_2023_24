@@ -64,10 +64,6 @@ public class GraphicalUI extends UI implements View {
         //TODO
     }
 
-    @Override
-    public void handleEvent(Event event, int Choice) {
-        //TODO
-    }
 
     @Override
     public void askJoinGame() {
@@ -79,9 +75,35 @@ public class GraphicalUI extends UI implements View {
         //TODO
     }
 
+
     @Override
-    public void askPlaceCard() {
-        //TODO
+    public void chooseConnection() {
+
+    }
+
+    @Override
+    public void showInitialView() {
+
+    }
+
+    @Override
+    public void showHelpInfo() {
+
+    }
+
+    @Override
+    public void requestSelectStarterCardSide() {
+
+    }
+
+    @Override
+    public void requestSelectSecretObjCard() {
+
+    }
+
+    @Override
+    public void requestPlaceCard() {
+
     }
 
     @Override

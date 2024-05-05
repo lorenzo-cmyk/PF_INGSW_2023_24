@@ -27,13 +27,13 @@ public abstract class UI implements View, EventHandler{
 
     public abstract void askCreateGame();
 
-    public abstract void handleEvent(Event event, int Choice);
-
     public abstract void askJoinGame();
 
     public abstract void askReconnectGame();
 
-    public abstract void askPlaceCard();
+
+    public abstract void chooseConnection();
+
     public void setSocketClient(String ServerIP, int port) throws IOException {
         SKClientNode clientNode = new SKClientNode(this);
         this.clientNode = clientNode;
@@ -53,6 +53,19 @@ public abstract class UI implements View, EventHandler{
             //TODO
         }
     }
+
+    //-------------------Game start-----------------------
+    public abstract void showInitialView();
+
+    public abstract void showHelpInfo();
+
+    //-------------------Game start-----------------------
+    public abstract void requestSelectStarterCardSide();
+
+
+    public abstract void requestSelectSecretObjCard();
+
+    public abstract void requestPlaceCard();
 }
 
 
