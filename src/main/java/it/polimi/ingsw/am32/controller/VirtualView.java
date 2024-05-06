@@ -56,51 +56,43 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      * Adds a message to the queue of messages to be sent to the client.
      * @param message The message to be added to the queue.
      */
-    public void addMessage(StoCMessage message) {
-        synchronized(messageQueue) {
-            // Message cannot be null
-            if (message == null) {
-                throw new CriticalFailureException("Message cannot be null");
-            }
-            messageQueue.add(message);
-            messageQueue.notifyAll();
+    public synchronized void addMessage(StoCMessage message) {
+        // Message cannot be null
+        if (message == null) {
+            throw new CriticalFailureException("Message cannot be null");
         }
+        messageQueue.add(message);
+        notifyAll();
     }
 
     /**
      * Processes the message queue.
      */
-    public void processMessage() {
-        synchronized(messageQueue) {
-            if (messageQueue.isEmpty()) { // There is no message to be delivered to the client
-                try {
-                    messageQueue.wait(); // Enter sleep state, and what for a message to be added to the queue
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
+    public synchronized void processMessage() {
+        if (messageQueue.isEmpty()) { // There is no message to be delivered to the client
+            try {
+                wait(); // Enter sleep state, and what for a message to be added to the queue
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
             }
-            StoCMessage message = messageQueue.removeLast();
-            connectionNode.uploadToClient(message);
         }
+        StoCMessage message = messageQueue.removeFirst();
+        connectionNode.uploadToClient(message);
     }
 
     /**
      * Flushes the message queue.
      */
-    public void flushMessages() {
-        synchronized(messageQueue) {
-            messageQueue.clear();
-        }
+    public synchronized void flushMessages() {
+        messageQueue.clear();
     }
 
     /*
      * Method used to retrieve the message queue. Used for testing purposes only.
      */
-    protected ArrayList<StoCMessage> getMessageQueue() {
-        synchronized (messageQueue){
-            return messageQueue;
-        }
+    protected synchronized ArrayList<StoCMessage> getMessageQueue() {
+        return messageQueue;
     }
 
     /*
