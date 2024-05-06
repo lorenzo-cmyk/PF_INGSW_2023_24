@@ -9,6 +9,7 @@ import it.polimi.ingsw.am32.network.NodeInterface;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a manager for all the games that are currently being played.
@@ -125,7 +126,9 @@ public class GamesManager {
                     game.submitVirtualViewMessage(new AccessGameConfirmMessage(nickname)); // Notify the player that he has joined the game
 
                     // Notify all players in the lobby of the new player
-                    ArrayList<String> allPlayerNicknames = (ArrayList<String>)game.getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all players in the game (connected and not)
+                    ArrayList<String> allPlayerNicknames = game.getNodeList().stream()
+                            .map(PlayerQuadruple::getNickname)
+                            .collect(Collectors.toCollection(ArrayList::new));
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
                         game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                     }

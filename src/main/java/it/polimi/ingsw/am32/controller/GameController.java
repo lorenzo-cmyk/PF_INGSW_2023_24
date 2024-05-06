@@ -75,6 +75,7 @@ public class GameController implements GameControllerInterface {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Look through list of all connected players
             if (playerQuadruple.getNickname().equals((message.getRecipientNickname()))) { // If the correct recipient is found
                 playerQuadruple.getVirtualView().addMessage(message); // Add the message to the recipient's VirtualView
+                return;
             }
         }
         throw new VirtualViewNotFoundException("VirtualView for player " + message.getRecipientNickname() + " not found");
