@@ -21,7 +21,6 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private RMIClientNodeInt clientNode;
     private PingTask pingTask;
 
-    public RMIServerNode(RMIClientNodeInt clientNode) {
     public RMIServerNode(RMIClientNodeInt clientNode) throws RemoteException {
     }
 
