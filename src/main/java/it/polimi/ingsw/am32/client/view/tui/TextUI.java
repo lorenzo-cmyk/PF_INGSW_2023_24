@@ -16,10 +16,7 @@ import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage.*;
 import it.polimi.ingsw.am32.model.card.Card;
 import it.polimi.ingsw.am32.model.card.CornerType;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
-import it.polimi.ingsw.am32.model.card.pointstrategy.AnglesCovered;
-import it.polimi.ingsw.am32.model.card.pointstrategy.CountResource;
-import it.polimi.ingsw.am32.model.card.pointstrategy.ObjectType;
-import it.polimi.ingsw.am32.model.card.pointstrategy.PointStrategy;
+import it.polimi.ingsw.am32.model.card.pointstrategy.*;
 import it.polimi.ingsw.am32.model.player.Colour;
 import it.polimi.ingsw.am32.model.player.Player;
 import it.polimi.ingsw.am32.network.ClientNodeInterface;
@@ -74,11 +71,11 @@ public class TextUI extends UI implements Runnable {
     private static final int PLANT = 0x1F33F;
     private static final int FUNGI = 0x1F344;
     private static final int ANIMAL = 0x1F43A;
-    private static final int EMPTY = 0x2800;
     private static final int QUILL = 0x1FAB6;
     private static final int INKWELL = 0X1F36F;
     private static final int MANUSCRIPT = 0x1F4DC;
-    private static final int NON_COVERABLE = 0x1F4D6;
+    private static final int NON_COVERABLE = 0x274C;
+    private static final String EMPTY = "  ";
 
     /**
      * Constructor of the class TextUI
@@ -386,35 +383,57 @@ public class TextUI extends UI implements Runnable {
      * @see #icon (int[])
      */
     private void printNonObjCard(NonObjectiveCard card,boolean isUp) {
-        String kingdom = card.getKingdom().toString(); // get the kingdom of the card and convert it to a string
+        String kingdom = String.valueOf(card.getKingdom()); // get the kingdom of the card and convert it to a string
         String strategy = iconStrategy(card.getPointStrategy()); // stabilize the way to present different strategies
-        String condition = icon(card.getConditionCount()); // stored the requirements of the card in one string
-        int padding1 = (16 - strategy.length()) / 2; // calculate the padding
-        int padding2 = (18 - kingdom.length()) / 2;
-        int padding3 = (17 - condition.length()) / 2;
+        String requirements = icon(card.getConditionCount()); // stored the requirements of the card in one string
+        String permanent = icon(card.getPermRes()); // stored the permanent resources of the card in one string
+        int padding1 = (18 - strategy.length()) / 2; // calculate the padding
+        int padding2 = (16 - requirements.length()) / 2;
+        int padding3 = (28 - permanent.length()) / 2;
+        if(kingdom.equals("null")) {
+            kingdom = "STARTER";
+        }
+        int padding4= 26-kingdom.length();
         String colour = null;
         switch (kingdom) { // set the color of the card based on the kingdom of the card
             case "PLANT"-> colour = ANSI_GREEN;
             case "FUNGI" -> colour = ANSI_RED;
             case "ANIMAL" -> colour = ANSI_BLUE;
             case "INSECT" -> colour = ANSI_PURPLE;
+            case "STARTER" -> colour = ANSI_RESET;
         }
-        if (isUp) { //TODO NEED CHECK WITH ALL TYPES OF CARDS to see if the view is correct
+        // print the card based on the side
+        if (isUp) { // if the side is the front side
             out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
-            out.printf(colour + "| %s | %" + padding1 + "s%s%" + padding1 + "s | %s |\n" + ANSI_RESET, icon(card.getTopRight()), "", strategy, "", icon(card.getTopLeft()));
+            out.printf(colour + "| %s |%" + padding1 + "s%s%" + padding1 + "s| %s |\n" + ANSI_RESET, icon(card.getTopLeft()), "", strategy, "", icon(card.getTopRight())); // print topRight corner, strategy, and topLeft corner of the card.
             out.printf(colour + "+----+%18s+----+\n", "");
-            out.printf(colour + "| %4s %" + padding2 + "s%s%" + padding2 + "s%4s |\n" + ANSI_RESET, "", "", kingdom, "", "");
+            out.printf(colour + "| %s %"+padding4+"s|\n" + ANSI_RESET, kingdom,"");
             out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
-            out.printf(colour + "| %s |%" + padding3 + "s%s%" + padding3 + "s | %s |\n" + ANSI_RESET, icon(card.getBottomRight()), "", icon(card.getConditionCount()), "", icon(card.getBottomLeft()));
+            if(requirements.length()<3) { // adjust the padding based on the length of the requirements, because the unicode characters have different visual width
+                out.printf(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s | %s |\n" + ANSI_RESET, icon(card.getBottomLeft()), "", requirements, "", icon(card.getBottomRight())); // print bottomRight corner, requirements, and bottomLeft corner of the card.
+            }
+            else {
+                out.printf(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s| %s |\n" + ANSI_RESET, icon(card.getBottomLeft()), "", requirements, "", icon(card.getBottomRight()));
+            }
             out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
-        } else { //TODO check view of the back side of the card
-            out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
-            out.printf(colour + "| %s | %" + padding1 + "s%s%" + padding1 + "s | %s |\n" + ANSI_RESET, icon(card.getTopRightBack()), ""," ", "", icon(card.getTopLeftBack()));
-            out.printf(colour + "+----+%18s+----+\n", "");
-            out.printf(colour + "| %4s %" + padding3 + "s%s%" + padding3 + "s%4s |\n" + ANSI_RESET, "", "", icon(card.getPermRes()), "", "");
-            out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
-            out.printf(colour + "| %s |%" + padding2 + "s%s%" + padding2 + "s | %s |\n" + ANSI_RESET, icon(card.getBottomRightBack()), "", "", "", icon(card.getBottomLeftBack()));
-            out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+        } else { // if the side is the back side
+            if (!kingdom.equals("STARTER")) {
+                out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+                out.printf(colour + "|%4s|%18s|%4s|\n" + ANSI_RESET, "", "", "");
+                out.printf(colour + "+----+%18s+----+\n", "");
+                out.printf(colour + "|%" + padding3 + "s%s%" + padding3 + "s|\n" + ANSI_RESET, "",permanent, ""); // print the permanent resources of the back side of the card
+                out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
+                out.printf(colour + "|%4s|%18s|%4s|\n" + ANSI_RESET, "", "", "");
+                out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+            } else {
+                out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+                out.printf(colour + "| %s |%18s| %s |\n" + ANSI_RESET, icon(card.getTopLeftBack()),"", icon(card.getTopRightBack()));
+                out.printf(colour + "+----+%18s+----+\n", "");
+                out.printf(colour + "|%" + padding3 + "s%s%" + padding3 + "s|\n" + ANSI_RESET, "", permanent, "");
+                out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
+                out.printf(colour + "| %s |%18s| %s |\n" + ANSI_RESET, icon(card.getBottomLeftBack()), "", icon(card.getBottomRightBack()));
+                out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
+            }
         }
     }
     private void printObjCard(Card card){
@@ -428,23 +447,15 @@ public class TextUI extends UI implements Runnable {
      * @return the string of icons which contains the icons of the requirements of the card.
      */
     private String icon(int[] conditionCount) {
-        String conditionIcon[] = new String[5];
-        String condition = "";
-        int count = 0;
+        StringBuilder condition= new StringBuilder();
         for (int i = 0; i < conditionCount.length; i++) {
             if (conditionCount[i] != 0) {
                 for (int j = 0; j < conditionCount[i]; j++) {
-                    conditionIcon[count] = icon(CornerType.values()[i]);
-                    condition=conditionIcon[count]+condition;
+                    condition.insert(0, icon(CornerType.values()[i]));
                 }
             }
         }
-        for (int j = 0; j < 5; j++) {
-            if (conditionIcon[j] == null) {
-                conditionIcon[j] = new String(Character.toChars(EMPTY));
-            }
-        }
-        return condition;
+        return condition.toString();
     }
     /**
      * Method used to convert the corner type of the card to an icon, using the Unicode characters.
@@ -453,7 +464,7 @@ public class TextUI extends UI implements Runnable {
      * @see CornerType
      */
     private static String icon(CornerType type) {
-        String icon = "";
+        String icon;
         switch (type) {
             case INSECT -> icon= new String(Character.toChars(INSECT));
             case PLANT ->  icon= new String(Character.toChars(PLANT));
@@ -463,7 +474,7 @@ public class TextUI extends UI implements Runnable {
             case INKWELL ->  icon= new String(Character.toChars(INKWELL));
             case MANUSCRIPT -> icon= new String(Character.toChars(MANUSCRIPT));
             case NON_COVERABLE -> icon= new String(Character.toChars(NON_COVERABLE));
-            case EMPTY -> icon= new String(Character.toChars(EMPTY));
+            default -> icon= EMPTY;
         }
         return icon;
     }
@@ -501,7 +512,27 @@ public class TextUI extends UI implements Runnable {
         if (strategy instanceof AnglesCovered){
             icon= "2"+"|"+"AngCover";
         }
-        //TODO
+        if (strategy instanceof Empty){
+            icon= "";
+        }
+        if (strategy instanceof Diagonals){
+            //TODO
+        }
+        if (strategy instanceof LConfigurationOne){
+            //TODO
+        }
+        if (strategy instanceof LConfigurationTwo){
+            //TODO
+        }
+        if (strategy instanceof LConfigurationThree){
+            //TODO
+        }
+        if (strategy instanceof LConfigurationFour){
+            //TODO
+        }
+        if (strategy instanceof AllSpecial){
+            //TODO
+        }
         return icon;
     }
 
