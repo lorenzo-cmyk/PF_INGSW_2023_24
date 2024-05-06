@@ -89,4 +89,10 @@ public class Diagonals implements PointStrategy {
         this.type = type;
         this.leftToRight = leftToRight;
     }
+    public ObjectType getType() {
+        return type;
+    }
+    public boolean getLeftToRight() {
+        return leftToRight;
+    }
 }
