@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.message.ClientToServer;
 
 import it.polimi.ingsw.am32.controller.GameController;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 
 import java.io.Serializable;
 
@@ -15,5 +16,5 @@ public interface CtoSMessage extends Serializable {
      *
      * @param gameController The game controller with which the message should be elaborated
      */
-    void elaborateMessage(GameController gameController);
+    void elaborateMessage(GameController gameController) throws PlayerNotFoundException;
 }
