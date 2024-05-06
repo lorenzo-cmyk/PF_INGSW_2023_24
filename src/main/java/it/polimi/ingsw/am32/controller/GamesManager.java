@@ -51,12 +51,12 @@ public class GamesManager {
      * @param node The server node associated with the given player
      * @return The GameController of the newly created game
      */
-    public synchronized GameController createGame(String creatorName, int playerCount, NodeInterface node) {
+    public synchronized GameController createGame(String creatorName, int playerCount, NodeInterface node) throws InvalidPlayerNumberException {
         if(creatorName == null || creatorName.isBlank()) {
             throw new CriticalFailureException("Creator name cannot be null or empty");
         }
-        if (playerCount < 2 || playerCount > 4) {
-            throw new CriticalFailureException("Player count must be between 2 and 4");
+        if(playerCount < 2 || playerCount > 4) {
+            throw new InvalidPlayerNumberException("Player count must be between 2 and 4");
         }
         if(node == null) {
             throw new CriticalFailureException("Node cannot be null");

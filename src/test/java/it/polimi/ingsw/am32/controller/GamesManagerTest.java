@@ -53,7 +53,7 @@ class GamesManagerTest {
     @DisplayName("Create a game with invalid player count - CriticalFailureException expected")
     @Test
     void createGameWithInvalidPlayerCount() {
-        assertThrows(CriticalFailureException.class, () -> gamesManager.createGame("creator", 5, node));
+        assertThrows(InvalidPlayerNumberException.class, () -> gamesManager.createGame("creator", 5, node));
     }
 
     @DisplayName("Create a game with null node - CriticalFailureException expected")
@@ -65,8 +65,12 @@ class GamesManagerTest {
     @DisplayName("Access a game with valid parameters - no exceptions expected")
     @Test
     void accessGameWithValidParameters() {
-        GameController gameController = gamesManager.createGame("creator", 3, node);
-        assertDoesNotThrow(() -> gamesManager.accessGame("player", gameController.getId(), node));
+        try {
+            GameController gameController = gamesManager.createGame("creator", 3, node);
+            gamesManager.accessGame("player", gameController.getId(), node);
+        } catch (Exception e) {
+            fail("Unexpected exception thrown");
+        }
     }
 
     @DisplayName("Access a game with null nickname - CriticalFailureException expected")
