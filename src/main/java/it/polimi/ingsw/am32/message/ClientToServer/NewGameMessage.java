@@ -35,15 +35,15 @@ public class NewGameMessage implements CtoSLobbyMessage {
      * Creates a new game with the given sender nickname and player count
      *
      * @param nodeInterface The server node associated with the given player
+     * @throws InvalidPlayerNumberException If the player count is not between 2 and 4
      */
     @Override
     public void elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException {
-        GameController gameController = null;
         try {
-            gameController = GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
-        } catch (InvalidPlayerNumberException e) {
+            GameController gameController = GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
+            nodeInterface.setGameController(gameController);
+        } catch (InvalidPlayerNumberException e) { // The player count is not between 2 and 4
             throw e;
         }
-        nodeInterface.setGameController(gameController);
     }
 }
