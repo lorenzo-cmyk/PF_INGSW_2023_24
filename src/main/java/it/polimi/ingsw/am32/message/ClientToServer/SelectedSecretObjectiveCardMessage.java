@@ -13,6 +13,6 @@ public class SelectedSecretObjectiveCardMessage implements CtoSMessage {
 
     @Override
     public void elaborateMessage(GameController gameController) {
-        // TODO
+        gameController.chooseSecretObjectiveCard(senderNickname, cardId);
     }
 }

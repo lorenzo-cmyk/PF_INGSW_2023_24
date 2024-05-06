@@ -85,10 +85,6 @@ public class GameController implements GameControllerInterface {
         chat.addMessage(message);
     }
 
-    public ArrayList<ChatMessage> getAllChatHistory(){
-        return chat.getHistory();
-    }
-
     public void disconnect(NodeInterface node) {
         //TODO
     }
@@ -414,6 +410,37 @@ public class GameController implements GameControllerInterface {
     }
 
     /**
+     * Method called when a message of type request game status is received.
+     * The method sends a response game status message to the requester, updating them on the current state of the model.
+     *
+     * @param requesterNickname The nickname of the player that sent the message
+     */
+    public void sendGameStatus(String requesterNickname) {
+        try {
+            submitVirtualViewMessage(generateResponseGameStatusMessage(requesterNickname));
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
+        }
+    }
+
+    /**
+     * Method called when a message of type request player field is received.
+     * The method fetches the field of the player whose field is requested, and sends a response player field message to the requester.
+     *
+     * @param requesterNickname The nickname of the player that sent the request message
+     * @param playerNickname The nickname of the player whose field is requested
+     */
+    public void sendPlayerField(String requesterNickname, String playerNickname) throws PlayerNotFoundException {
+        try {
+            submitVirtualViewMessage(new ResponsePlayerFieldMessage(requesterNickname, playerNickname, model.getPlayerField(playerNickname), model.getPlayerResources(playerNickname)));
+        } catch (PlayerNotFoundException e) { // The player whose field was requested was not found
+            throw e;
+        } catch (VirtualViewNotFoundException e) { // The requester's VirtualView could not be found
+            throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
+        }
+    }
+
+    /**
      * Generates a response game status message for a given player.
      * @param nickname The nickname of the player to generate the message for
      * @return The generated response game status message
@@ -445,6 +472,10 @@ public class GameController implements GameControllerInterface {
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         }
+    }
+
+    public ArrayList<ChatMessage> getAllChatHistory(){
+        return chat.getHistory();
     }
 
     public ArrayList<PlayerQuadruple> getNodeList() {

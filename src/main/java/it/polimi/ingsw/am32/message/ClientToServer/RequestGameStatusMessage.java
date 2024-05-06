@@ -11,6 +11,6 @@ public class RequestGameStatusMessage implements CtoSMessage {
 
     @Override
     public void elaborateMessage(GameController gameController) {
-        // TODO
+        gameController.sendGameStatus(senderNickname);
     }
 }

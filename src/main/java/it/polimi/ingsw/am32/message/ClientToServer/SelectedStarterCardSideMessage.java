@@ -13,6 +13,6 @@ public class SelectedStarterCardSideMessage implements CtoSMessage {
 
     @Override
     public void elaborateMessage(GameController gameController) {
-        // TODO
+        gameController.chooseStarterCardSide(senderNickname, isUp);
     }
 }
