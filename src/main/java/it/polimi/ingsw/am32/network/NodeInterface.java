@@ -1,8 +1,7 @@
 package it.polimi.ingsw.am32.network;
 
-import it.polimi.ingsw.am32.message.Message;
-import it.polimi.ingsw.am32.message.StoCMessage;
-
+import it.polimi.ingsw.am32.controller.GameController;
+import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 
 public interface NodeInterface {
     void uploadToClient(StoCMessage message);
@@ -10,4 +9,6 @@ public interface NodeInterface {
     void pingTimeOverdue();
 
     void resetTimeCounter();
+
+    void setGameController(GameController gameController);
 }

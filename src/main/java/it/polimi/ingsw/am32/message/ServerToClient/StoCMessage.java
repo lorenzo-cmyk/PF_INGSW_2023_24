@@ -1,17 +1,19 @@
-package it.polimi.ingsw.am32.message;
+package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.controller.VirtualView;
+
+import java.io.Serializable;
 
 /**
  * This interface represents a message from the server to the client.
  * It contains a single method to deliver the message to a virtual view.
  */
-public interface StoCMessage {
-
+public interface StoCMessage extends Serializable {
     /**
      * Delivers the message to the specified virtual view.
      *
      * @param virtualView The virtual view to which the message should be delivered
      */
-    void deliverMessage(VirtualView virtualView);
+    void processMessage(VirtualView virtualView); // TODO this method should not take VirtualView as parameter
+    String getRecipientNickname();
 }

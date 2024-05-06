@@ -524,4 +524,16 @@ public class MatchTest {
         assertThrows(NullFieldException.class, () -> myMatch.getPlayerResources("TestPlayerTwo"));
     }
 
+    @DisplayName("getPlayerField should return null if the player's field has not yet been initialized")
+    @Test
+    public void getPlayerFieldShouldReturnNullIfPlayerFieldHasNotBeenInitialized() {
+        Match myMatch = new Match();
+        assertNotNull(myMatch);
+        assertDoesNotThrow(() -> myMatch.addPlayer("TestPlayerOne"));
+        try {
+            assertNull(myMatch.getPlayerField("TestPlayerOne"));
+        } catch (PlayerNotFoundException e) {
+            fail();
+        }
+    }
 }

@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am32.model;
 
+import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.exceptions.*;
+import it.polimi.ingsw.am32.model.player.Player;
 
 import java.util.ArrayList;
 
@@ -41,5 +43,9 @@ public interface ModelInterface {
     int getPlayerSecretObjective(String nickname) throws PlayerNotFoundException;
     ArrayList<Integer> getPlayerHand(String nickname) throws PlayerNotFoundException;
     ArrayList<int[]> getPlayerField(String nickname) throws PlayerNotFoundException;
+    public int getMatchStatus();
     int getCurrentTurnNumber();
+    int getPlayerColour(String nickname) throws PlayerNotFoundException, NullColourException;
+    String getCurrentPlayerNickname();
+    int getPlayerPoints(String nickname) throws PlayerNotFoundException;
 }

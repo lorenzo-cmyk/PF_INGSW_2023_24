@@ -3,7 +3,7 @@ package it.polimi.ingsw.am32.chat.exceptions;
 /**
  * This class represents an exception that is thrown when a null message is encountered.
  */
-public class NullMessageException extends Exception {
+public class NullMessageException extends RuntimeException {
 
     /**
      * Constructs a new NullMessageException with the specified detail message.
