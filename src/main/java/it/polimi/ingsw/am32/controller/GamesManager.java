@@ -80,7 +80,6 @@ public class GamesManager {
         }
 
         GameController game = new GameController(rand, playerCount); // Create a new game instance
-        games.add(game); // Add game to the list of all games
 
         try {
             game.addPlayer(creatorName, node); // Add the creator to the newly created game
@@ -93,6 +92,7 @@ public class GamesManager {
             throw new CriticalFailureException("DuplicateNicknameException when creator joined the game");
         }
 
+        games.add(game); // Add game to the list of all games
         return game;
     }
 
@@ -155,4 +155,10 @@ public class GamesManager {
         return games;
     }
 
+    /**
+     * Clear the instance of the class. Used for testing purposes only.
+     */
+    protected void clearInstance() {
+        instance = null;
+    }
 }
