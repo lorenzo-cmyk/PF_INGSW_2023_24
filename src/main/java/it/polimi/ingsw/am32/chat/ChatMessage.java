@@ -1,5 +1,9 @@
 package it.polimi.ingsw.am32.chat;
 
+import it.polimi.ingsw.am32.chat.exceptions.MalformedMessageException;
+
+import java.util.Objects;
+
 /**
  * This class represents a chat message in the system.
  * It contains the sender's nickname, the recipient's nickname, a flag indicating if the message is multicast,
@@ -24,9 +28,24 @@ public class ChatMessage {
      */
     public ChatMessage(String senderNickname, String recipientNickname, boolean multicastFlag, String messageContent) {
         this.senderNickname = senderNickname;
+        // Sender nickname can be null if the message is sent by the system but cannot be empty
+        if (Objects.equals(senderNickname, "")) {
+            throw new MalformedMessageException("Sender nickname cannot be empty");
+        }
         this.recipientNickname = recipientNickname;
         this.multicastFlag = multicastFlag;
+        // Recipient nickname can be null if the message is multicast but cannot be empty
+        if (Objects.equals(recipientNickname, "")) {
+            throw new MalformedMessageException("Recipient nickname cannot be empty");
+        }
+        if (recipientNickname == null && !multicastFlag) {
+            throw new MalformedMessageException("Recipient nickname cannot be null if the message is not multicast");
+        }
         this.messageContent = messageContent;
+        // Message content cannot be null or empty
+        if (messageContent == null || messageContent.isEmpty()) {
+            throw new MalformedMessageException("Message content cannot be empty or null");
+        }
     }
 
     /**

@@ -9,6 +9,7 @@ import it.polimi.ingsw.am32.network.NodeInterface;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a manager for all the games that are currently being played.
@@ -50,7 +51,17 @@ public class GamesManager {
      * @param node The server node associated with the given player
      * @return The GameController of the newly created game
      */
-    public GameController createGame(String creatorName, int playerCount, NodeInterface node) {
+    public synchronized GameController createGame(String creatorName, int playerCount, NodeInterface node) throws InvalidPlayerNumberException {
+        if(creatorName == null || creatorName.isBlank()) {
+            throw new CriticalFailureException("Creator name cannot be null or empty");
+        }
+        if(playerCount < 2 || playerCount > 4) {
+            throw new InvalidPlayerNumberException("Player count must be between 2 and 4");
+        }
+        if(node == null) {
+            throw new CriticalFailureException("Node cannot be null");
+        }
+
         Random random = new Random();
         int rand = 0;
 
@@ -95,7 +106,14 @@ public class GamesManager {
      * @throws GameNotFoundException If no game with the given code is found
      * @throws FullLobbyException If the lobby of the game is full
      */
-    public GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException, FullLobbyException, GameAlreadyStartedException, DuplicateNicknameException {
+    public synchronized GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException, FullLobbyException, GameAlreadyStartedException, DuplicateNicknameException {
+        if(nickname == null || nickname.isBlank()) {
+            throw new CriticalFailureException("Nickname cannot be null or empty");
+        }
+        if(node == null) {
+            throw new CriticalFailureException("Node cannot be null");
+        }
+
         for (GameController game : games) {
             if (game.getId() == gameCode) { // Found correct GameController instance
                 if (game.getStatus() != GameControllerStatus.LOBBY) { // Game is not in the lobby phase as it has already started
@@ -108,16 +126,14 @@ public class GamesManager {
                     game.submitVirtualViewMessage(new AccessGameConfirmMessage(nickname)); // Notify the player that he has joined the game
 
                     // Notify all players in the lobby of the new player
-                    ArrayList<String> allPlayerNicknames = (ArrayList<String>)game.getNodeList().stream().map(PlayerQuadruple::getNickname).toList(); // Get the nicknames of all players in the game (connected and not)
+                    ArrayList<String> allPlayerNicknames = game.getNodeList().stream()
+                            .map(PlayerQuadruple::getNickname)
+                            .collect(Collectors.toCollection(ArrayList::new));
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
                         game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                     }
                 } catch (VirtualViewNotFoundException e) { // Player was added, but his virtual view could not be found
                     throw new CriticalFailureException("VirtualViewNotFoundException when player joined the game");
-                } catch (FullLobbyException e) { // Lobby was full when tried to join (for example when player tried to join after lobby phase)
-                    throw e;
-                } catch (DuplicateNicknameException e) {
-                    throw e;
                 }
 
                 if (game.getGameSize() == game.getLobbyPlayerCount()) { // Lobby is now full
@@ -131,12 +147,12 @@ public class GamesManager {
     }
 
     /**
-     * Deletes the game with the given code
+     * Return the list of all games that are currently being handled by the server. Used for testing purposes only.
      *
-     * @param gameCode The code of the game to be deleted
-     * @throws GameNotFoundException If no game with the given code is found
+     * @return The list of all games that are currently being handled by the server.
      */
-    public void deleteGame(int gameCode) throws GameNotFoundException {
-        // TODO
+    protected ArrayList<GameController> getGames() {
+        return games;
     }
+
 }
