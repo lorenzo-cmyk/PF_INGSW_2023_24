@@ -86,11 +86,12 @@ public class TextUI extends UI implements Runnable {
         out = new PrintStream(System.out);
         InitializeViewElement();
     }
+
     /**
      * Method that launches the TextUI
      */
     @Override
-    public void launch(){
+    public void launch() {
         run();
     }
 
@@ -109,25 +110,27 @@ public class TextUI extends UI implements Runnable {
      */
     @Override
     public void InitializeViewElement() {
-        this.playerNum=0;
-        this.currentPlayer=null;
-        this.playerNickname=null;
-        this.gameID=0;
-        this.playerColour=null;
-        this.currentEvent=null;
-        this.commonObjCards=null;
-        this.players=new ArrayList<>();
-        this.hand=new ArrayList<>();
+        this.playerNum = 0;
+        this.currentPlayer = null;
+        this.playerNickname = null;
+        this.gameID = 0;
+        this.playerColour = null;
+        this.currentEvent = null;
+        this.commonObjCards = null;
+        this.players = new ArrayList<>();
+        this.hand = new ArrayList<>();
 
     }
     //-------------------Connection-------------------
+
     /**
      * Method that allows the player to choose the connection type, either socket or RMI. The method asks the player to
      * insert the server IP and the server port if the player chooses the socket connection. If the player chooses the
      * RMI connection, the method asks the player to insert the server URL.
      * The method uses the {@link IsValid} class to check the validity of the IP address and the port number entered by the player.
+     *
      * @throws InputMismatchException if the input is mismatched
-     * @throws IOException if an I/O error occurs
+     * @throws IOException            if an I/O error occurs
      * @see IsValid
      * @see #setSocketClient(String, int)
      * @see #setRMIClient(String)
@@ -141,14 +144,14 @@ public class TextUI extends UI implements Runnable {
                 Choose the connection type:
                 1. Socket
                 2. RMI""");
-        int connectionChoice= inputCheckInt(); // read the input from the player and check if the input is mismatched or not
+        int connectionChoice = inputCheckInt(); // read the input from the player and check if the input is mismatched or not
         switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
             case 1: {
                 out.println("Insert the server IP");
-                String ServerIP =inputCheckString(); // read the input from the player and check if the input is mismatched or not
+                String ServerIP = inputCheckString(); // read the input from the player and check if the input is mismatched or not
                 while (!isValid.isIpValid(ServerIP)) { // if the IP address is invalid, print the error message and ask the player to re-enter the IP address
                     out.println("Invalid IP, please try again");
-                    ServerIP=inputCheckString();
+                    ServerIP = inputCheckString();
                 }
                 out.println("Insert the server port");
                 int port = inputCheckInt();
@@ -180,11 +183,13 @@ public class TextUI extends UI implements Runnable {
             }
         }
     }
+
     /**
      * Method that sets the socket client with the server IP and the server port entered by the player and attempts to
      * establish the connection between the client and the server.
+     *
      * @param ServerIP the server IP entered by the player
-     * @param port the server port entered by the player
+     * @param port     the server port entered by the player
      * @throws IOException if an I/O error occurs
      * @see UI#setSocketClient(String, int)
      */
@@ -192,17 +197,20 @@ public class TextUI extends UI implements Runnable {
     public void setSocketClient(String ServerIP, int port) throws IOException {
         super.setSocketClient(ServerIP, port); // see the method in the superclass
     }
+
     /**
      * Method that sets the RMI client with the server URL entered by the player and attempts to establish the connection
      * between the client and the server.
+     *
      * @param ServerURL the server URL entered by the player
      * @see UI#setSocketClient(String, int)
      */
     @Override
-    public void setRMIClient(String ServerURL){
+    public void setRMIClient(String ServerURL) {
         super.setRMIClient(ServerURL); // see the method in the superclass
     }
     //-------------------Title-------------------
+
     /**
      * Method that prints the welcome message and link to the game rules.
      */
@@ -219,14 +227,16 @@ public class TextUI extends UI implements Runnable {
         out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");//TODO change the URL of the rules with the real URL
     }
     //-------------------Game mode-------------------
+
     /**
      * The method uses the {@link Event} enum to set the current event to select the game mode. The method prints the
      * menu of the game mode and asks the player to select the action to perform using the {@link #handleChoiceEvent} method.
+     *
      * @see #inputCheckInt()
      */
     @Override
-    public void askSelectGameMode(){
-        currentEvent= Event.SELECT_GAME_MODE;
+    public void askSelectGameMode() {
+        currentEvent = Event.SELECT_GAME_MODE;
         out.println("""
                 Menu:
                 1. Create new game
@@ -234,88 +244,97 @@ public class TextUI extends UI implements Runnable {
                 3. Reconnect game
                 """);
         out.println("Which action do you want to perform?");
-        int choice =inputCheckInt();
+        int choice = inputCheckInt();
         handleChoiceEvent(currentEvent, choice);
     }
+
     /**
      * Method that asks the player to insert the nickname they want to use in the game.
+     *
      * @see #inputCheckString()
      */
     @Override
-    public void askNickname(){
+    public void askNickname() {
         out.println("Insert the nickname you want to use in the game");
-        playerNickname=inputCheckString();
+        playerNickname = inputCheckString();
     }
 
     /**
      * Method that asks the player to insert the number of players and the nickname desired to create a new game.
+     *
      * @see #inputCheckInt()
      * @see #askNickname()
      * @see #notifyAskListenerLobby(CtoSLobbyMessage)
      * @see NewGameMessage
-     *
      */
     @Override
     public void askCreateGame() {
-        currentEvent= Event.CREATE_GAME;
+        currentEvent = Event.CREATE_GAME;
         askNickname();
         out.println("Insert the number of players you want to play with");
         while (true) {
-        playerNum=inputCheckInt();
-        if (playerNum < 2 || playerNum > 4) {
-            out.println("Invalid number of players, please insert a number between 2 and 4");
-            in.nextInt();
-            continue;
-        }
-        break;
+            playerNum = inputCheckInt();
+            if (playerNum < 2 || playerNum > 4) {
+                out.println("Invalid number of players, please insert a number between 2 and 4");
+                in.nextInt();
+                continue;
+            }
+            break;
         }
         notifyAskListenerLobby(new NewGameMessage(playerNickname, playerNum));// notify the listener with the new game message
         //TODO wait for the response from the server
     }
+
     /**
      * Method that asks the player to insert the nickname they want to use in the game and the Access ID of the game they
      * want to join.
+     *
      * @see #inputCheckString()
      * @see #inputCheckInt()
      */
     @Override
     public void askJoinGame() {
-        currentEvent= Event.JOIN_GAME;
+        currentEvent = Event.JOIN_GAME;
         out.println("Insert the nickname you want to use in the game");
-        playerNickname=inputCheckString();
+        playerNickname = inputCheckString();
         out.println("Insert the Access ID of the game you want to join");
-        gameID=inputCheckInt();
+        gameID = inputCheckInt();
         notifyAskListenerLobby(new AccessGameMessage(gameID, playerNickname)); // notify the listener with the access game message
         //TODO wait for the response from the server
     }
+
     /**
      * Use this method to ask the player if they want to reconnect to the game.
+     *
      * @see #inputCheckString()
      */
     @Override
     public void askReconnectGame() {
-        currentEvent= Event.RECONNECT_GAME;
+        currentEvent = Event.RECONNECT_GAME;
         notifyAskListener(new RequestGameStatusMessage(playerNickname));// don't need to ask the player nickname because it is already stored
         //TODO wait for the response from the server
     }
+
     //-------------------Game start-----------------------
     @Override
     public void showInitialView() {
         //TODO show players colour, show the empty field view, show the list of the players
     }
+
     @Override
-    public void showHelpInfo(){
+    public void showHelpInfo() {
         //TODO show the help information: exit command, start chat command, view the player list command, view the
         // game status command, view the game rule command,view the card command, view other players' field command,
         // view the secret objective command, view the game order command, view the game ID command ecc.
         //TODO NEED TO DICUSS WITH THE TEAM
     }
+
     /**
      * Method that asks the player to select the side of the starter card received from the server.
      */
     @Override
-    public void requestSelectStarterCardSide(){
-        currentEvent= Event.SELECT_STARTER_CARD_SIDE;
+    public void requestSelectStarterCardSide() {
+        currentEvent = Event.SELECT_STARTER_CARD_SIDE;
         //after receiving the starter card from the server and store it in the starterCard
         out.println("The starter card received has:");
         out.println("Front side");
@@ -327,53 +346,56 @@ public class TextUI extends UI implements Runnable {
                 1. Front
                 2. Back
                 """);
-        int side =inputCheckInt();
+        int side = inputCheckInt();
         handleChoiceEvent(currentEvent, side);
         boolean isUP = side == 1;
-        notifyAskListener(new SelectedStarterCardSideMessage(playerNickname,isUP));
+        notifyAskListener(new SelectedStarterCardSideMessage(playerNickname, isUP));
         //TODO wait for the response from the server
     }
+
     @Override
     public void requestSelectSecretObjCard() {
 
     }
+
     @Override
     public void requestPlaceCard() {
-        currentEvent= Event.PLACE_CARD;
+        currentEvent = Event.PLACE_CARD;
         out.println("""
                 Insert the card you want to place" 
                 "1. " + hand.get(1).getId()  
                 "2. " + hand.get(1).getId()
                 "3. " + hand.get(1).getId()""");
         //TODO change the code to show all the cards in the hand
-        int cardID =inputCheckInt();
+        int cardID = inputCheckInt();
         out.println("""
                 Which side do you want to place the card?
                 1. Front
                 2. Back
                 """);
         //TODO show the card selected by the player: front side and back side
-        int cardSide =inputCheckInt();
+        int cardSide = inputCheckInt();
         //TODO
     }
 
 
-
-
-
-
-
     //-------------------View of the game-------------------
-    public void showCardSelected(Card card){
+    public void showCardSelected(Card card) {
         out.println("The card selected is: " + card.getId());
         //TODO show the card selected by the player
     }
-
-
+    public void showPlacedCard(Card card, int x, int y) {
+        //TODO use printNonObjCard to show the card placed by request of the player
+    }
+    public void showPlayersField() {
+        //TODO mine and other players' field
+    }
     //-------------------Card Factory-------------------
+
     /**
-     * Method used to print the card given with the side selected by the player, using the Unicode characters to represent
+     * Use this method to print the card (Starter Card, Resource Card and Gold Card) given with the side selected by the player, using the Unicode characters to represent
      * the elements and using the ASCI to set the color of the printed card.
+     *
      * @param card the card to be printed
      * @param isUp the side of the card selected by the player
      *             true: front side, false: back side
@@ -382,37 +404,31 @@ public class TextUI extends UI implements Runnable {
      * @see #iconStrategy(PointStrategy)
      * @see #icon (int[])
      */
-    private void printNonObjCard(NonObjectiveCard card,boolean isUp) {
-        String kingdom = String.valueOf(card.getKingdom()); // get the kingdom of the card and convert it to a string
+    private void printNonObjCard(NonObjectiveCard card, boolean isUp) {
+        String kingdom =String.valueOf(card.getKingdom()).equals("null") ? "STARTER" : String.valueOf(card.getKingdom()); // get the kingdom of the card and convert it to a string
+        String value = String.valueOf(card.getValue()); // get the value of the card and convert it to a string
         String strategy = iconStrategy(card.getPointStrategy()); // stabilize the way to present different strategies
         String requirements = icon(card.getConditionCount()); // stored the requirements of the card in one string
         String permanent = icon(card.getPermRes()); // stored the permanent resources of the card in one string
-        int padding1 = (18 - strategy.length()) / 2; // calculate the padding
+        String colour=ColourCard(kingdom);
+        int padding1 = 18 - (value + strategy).length(); // calculate the padding
         int padding2 = (16 - requirements.length()) / 2;
         int padding3 = (28 - permanent.length()) / 2;
-        if(kingdom.equals("null")) {
-            kingdom = "STARTER";
-        }
-        int padding4= 26-kingdom.length();
-        String colour = null;
-        switch (kingdom) { // set the color of the card based on the kingdom of the card
-            case "PLANT"-> colour = ANSI_GREEN;
-            case "FUNGI" -> colour = ANSI_RED;
-            case "ANIMAL" -> colour = ANSI_BLUE;
-            case "INSECT" -> colour = ANSI_PURPLE;
-            case "STARTER" -> colour = ANSI_RESET;
-        }
+        int padding4 = 26 - kingdom.length();
         // print the card based on the side
         if (isUp) { // if the side is the front side
             out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
-            out.printf(colour + "| %s |%" + padding1 + "s%s%" + padding1 + "s| %s |\n" + ANSI_RESET, icon(card.getTopLeft()), "", strategy, "", icon(card.getTopRight())); // print topRight corner, strategy, and topLeft corner of the card.
-            out.printf(colour + "+----+%18s+----+\n", "");
-            out.printf(colour + "| %s %"+padding4+"s|\n" + ANSI_RESET, kingdom,"");
-            out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
-            if(requirements.length()<3) { // adjust the padding based on the length of the requirements, because the unicode characters have different visual width
-                out.printf(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s | %s |\n" + ANSI_RESET, icon(card.getBottomLeft()), "", requirements, "", icon(card.getBottomRight())); // print bottomRight corner, requirements, and bottomLeft corner of the card.
+            if (!value.equals("0")) {
+                out.printf(colour + "| %s |%s%" + padding1 + "s| %s |\n" + ANSI_RESET, icon(card.getTopLeft()), value + strategy, "", icon(card.getTopRight())); // print topRight corner, strategy, and topLeft corner of the card.
+            } else {
+                out.printf(colour + "| %s |%18s| %s |\n" + ANSI_RESET, icon(card.getTopLeft()), "", icon(card.getTopRight())); // if the strategy is empty.
             }
-            else {
+            out.printf(colour + "+----+%18s+----+\n", "");
+            out.printf(colour + "| %s %" + padding4 + "s|\n" + ANSI_RESET, kingdom, "");
+            out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
+            if (requirements.length() < 3) { // adjust the padding based on the length of the requirements, because the unicode characters have different visual width
+                out.printf(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s | %s |\n" + ANSI_RESET, icon(card.getBottomLeft()), "", requirements, "", icon(card.getBottomRight())); // print bottomRight corner, requirements, and bottomLeft corner of the card.
+            } else {
                 out.printf(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s| %s |\n" + ANSI_RESET, icon(card.getBottomLeft()), "", requirements, "", icon(card.getBottomRight()));
             }
             out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
@@ -421,13 +437,13 @@ public class TextUI extends UI implements Runnable {
                 out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
                 out.printf(colour + "|%4s|%18s|%4s|\n" + ANSI_RESET, "", "", "");
                 out.printf(colour + "+----+%18s+----+\n", "");
-                out.printf(colour + "|%" + padding3 + "s%s%" + padding3 + "s|\n" + ANSI_RESET, "",permanent, ""); // print the permanent resources of the back side of the card
+                out.printf(colour + "|%" + padding3 + "s%s%" + padding3 + "s|\n" + ANSI_RESET, "", permanent, ""); // print the permanent resources of the back side of the card
                 out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
                 out.printf(colour + "|%4s|%18s|%4s|\n" + ANSI_RESET, "", "", "");
                 out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
             } else {
                 out.printf(colour + "+----+------------------+----+\n" + ANSI_RESET);
-                out.printf(colour + "| %s |%18s| %s |\n" + ANSI_RESET, icon(card.getTopLeftBack()),"", icon(card.getTopRightBack()));
+                out.printf(colour + "| %s |%18s| %s |\n" + ANSI_RESET, icon(card.getTopLeftBack()), "", icon(card.getTopRightBack()));
                 out.printf(colour + "+----+%18s+----+\n", "");
                 out.printf(colour + "|%" + padding3 + "s%s%" + padding3 + "s|\n" + ANSI_RESET, "", permanent, "");
                 out.printf(colour + "+----+%18s+----+\n" + ANSI_RESET, "");
@@ -436,8 +452,151 @@ public class TextUI extends UI implements Runnable {
             }
         }
     }
-    private void printObjCard(Card card){
+
+    /**
+     * Use this method to print the objective card.
+     * @param card the objective card to be printed
+     */
+    private void printObjCard(Card card) {
+        PointStrategy strategy = card.getPointStrategy();
+        String strategyIcon = iconStrategy(strategy);
+        String description; // create a string to store the description of the strategy.
+        ObjectType type;
+        int value = card.getValue();
+        // set padding
+        int paddingPoint = 26 - (value + " POINTS" + strategyIcon).length();
+        int paddingDescription;
+        int paddingIcon = 26 - "-".length() - 4;
+
+        String colour;
+        String colourSecond;
+        if (strategy instanceof CountResource) { // if the strategy is CountResource.
+            int count = ((CountResource) strategy).getCount(); // get the count of the object type.
+            type = ((CountResource) strategy).getType(); // get the object type.
+            String icon = icon(type); // convert the object type to an icon.
+            description = "every " + count + " " + type; // set the description.
+            paddingIcon = 26 - count * icon.length();
+            paddingDescription = 26 - description.length();
+            out.println("+----------------------------+");
+            out.printf("| %s POINT %s%" + paddingPoint + "s |\n", value, strategyIcon, "");
+            out.printf("| %s%" + paddingDescription + "s |\n", description, "");
+            if (count == 2) { // if we need to count 2 objects.
+                out.printf("| %s%s%" + paddingIcon + "s |\n", icon, icon, "");
+            } else if (count == 3) { // if we need to count 3 objects.
+                out.printf("| %s%s%s%" + paddingIcon + "s |\n", icon, icon, icon, "");
+            }
+            out.printf("|%28s|\n", "");
+            out.printf("|%28s|\n", "");
+            out.println("+----------------------------+");
+        }
+        if (strategy instanceof Diagonals) {
+            type = ((Diagonals) strategy).getType();
+            colour = ColourCard(type.toString());
+            description = "3 " + ((Diagonals) strategy).getType() + " cards";
+            paddingDescription = 26 - description.length();
+            out.println(colour + "+----------------------------+" + ANSI_RESET);
+            out.printf(colour + "| %s POINT %s%" + paddingPoint + "s |\n" + ANSI_RESET, value, strategyIcon, "");
+            out.printf(colour + "| %s%" + paddingDescription + "s |\n" + ANSI_RESET, description, "");
+            if (((Diagonals) strategy).getLeftToRight()) { // if the diagonal is from left to right: y=-x
+                out.printf(colour + "|     -%" + paddingIcon + "s |\n" + ANSI_RESET, "");
+                out.printf(colour + "|         -%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+                out.printf(colour + "|             -%" + (paddingIcon - 8) + "s |\n" + ANSI_RESET, "");
+            } else { // if the diagonal is from right to left: y=x
+                out.printf(colour + "|             -%" + (paddingIcon - 8) + "s |\n" + ANSI_RESET, "");
+                out.printf(colour + "|         -%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+                out.printf(colour + "|     -%" + paddingIcon + "s |\n" + ANSI_RESET, "");
+            }
+            out.println(colour + "+----------------------------+" + ANSI_RESET);
+        }
+        if (strategy instanceof LConfigurationOne) {
+            colour = ColourCard("FUNGI");
+            colourSecond = ColourCard("PLANT");
+            description = "2 FUNGI + 1 PLANT cards";
+            paddingDescription = 26 - description.length();
+            out.println("+----------------------------+" );
+            out.printf( "| %s POINT %s%" + paddingPoint + "s |\n", value, strategyIcon, "");
+            out.printf( "| %s%" + paddingDescription + "s |\n" , description, "");
+            out.printf(colour + "|         |%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+            out.printf(colour + "|         |%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+            out.printf(colourSecond + "|          -%" + (paddingIcon - 5) + "s |\n" + ANSI_RESET, "");
+            out.println("+----------------------------+" );
+        }
+        if (strategy instanceof LConfigurationTwo) {
+            colour = ColourCard("PLANT");
+            colourSecond = ColourCard("INSECT");
+            description = "2 FUNGI + 1 PLANT cards";
+            paddingDescription = 26 - description.length();
+            out.println("+----------------------------+" );
+            out.printf( "| %s POINT %s%" + paddingPoint + "s |\n", value, strategyIcon, "");
+            out.printf( "| %s%" + paddingDescription + "s |\n" , description, "");
+            out.printf(colour + "|         |%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+            out.printf(colour + "|         |%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+            out.printf(colourSecond + "|        -%" + (paddingIcon - 3) + "s |\n" + ANSI_RESET, "");
+            out.println("+----------------------------+" );
+        }
+        if (strategy instanceof LConfigurationThree) {
+            colour = ColourCard("ANIMAL");
+            colourSecond = ColourCard("INSECT");
+            description = "2 FUNGI + 1 PLANT cards";
+            paddingDescription = 26 - description.length();
+            out.println("+----------------------------+" );
+            out.printf( "| %s POINT %s%" + paddingPoint + "s |\n", value, strategyIcon, "");
+            out.printf( "| %s%" + paddingDescription + "s |\n" , description, "");
+            out.printf(colourSecond + "|        -%" + (paddingIcon - 3) + "s |\n" + ANSI_RESET, "");
+            out.printf(colour + "|         |%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+            out.printf(colour + "|         |%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+            out.println("+----------------------------+" );
+        }
+        if (strategy instanceof LConfigurationFour) {
+            colour = ColourCard("ANIMAL");
+            colourSecond = ColourCard("FUNGI");
+            description = "2 FUNGI + 1 PLANT cards";
+            paddingDescription = 26 - description.length();
+            out.println("+----------------------------+" );
+            out.printf( "| %s POINT %s%" + paddingPoint + "s |\n", value, strategyIcon, "");
+            out.printf( "| %s%" + paddingDescription + "s |\n" , description, "");
+            out.printf(colourSecond + "|          -%" + (paddingIcon - 5) + "s |\n" + ANSI_RESET, "");
+            out.printf(colour + "|         |%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+            out.printf(colour + "|         |%" + (paddingIcon - 4) + "s |\n" + ANSI_RESET, "");
+            out.println("+----------------------------+" );
+        }
+        if (strategy instanceof AllSpecial) {
+            description = "INSKELL+QUILL+MANUSCRIPT";
+            paddingDescription = 26 - description.length();
+            paddingIcon = paddingIcon-2;
+            out.println("+----------------------------+" );
+            out.printf( "| %s POINT %s%" + paddingPoint + "s |\n", value, strategyIcon, "");
+            out.printf( "| %s%" + paddingDescription + "s |\n" , description, "");
+            out.printf("| %s%s%s%" + paddingIcon + "s |\n", icon(CornerType.INKWELL), icon(CornerType.QUILL),icon(CornerType.MANUSCRIPT), "");
+            out.printf("|%28s|\n", "");
+            out.printf("|%28s|\n", "");
+            out.println("+----------------------------+" );
+        }
+    }
+
+    private void printPlacedCard(Card card, boolean isUp) {
         //TODO
+    }
+
+    private void printField() {
+        //TODO
+    }
+
+    /**
+     * Use this method to set the color of the card based on the kingdom of the card.
+     * @param kingdom the kingdom of the card.
+     * @return the string of the color in ASCI escape code.
+     */
+    private String ColourCard (String kingdom) {
+            String colour = "";
+            switch (kingdom) { // set the color of the card based on the kingdom of the card
+                case "PLANT" -> colour = ANSI_GREEN;
+                case "FUNGI" -> colour = ANSI_RED;
+                case "ANIMAL" -> colour = ANSI_BLUE;
+                case "INSECT" -> colour = ANSI_PURPLE;
+                case "STARTER" -> colour = ANSI_RESET;
+            }
+            return colour;
     }
 
     /**
@@ -448,19 +607,19 @@ public class TextUI extends UI implements Runnable {
      */
     private String icon(int[] conditionCount) {
         StringBuilder condition= new StringBuilder();
-        for (int i = 0; i < conditionCount.length; i++) {
+        for (int i = 0; i < conditionCount.length; i++) {  // iterate through the condition count array
             if (conditionCount[i] != 0) {
                 for (int j = 0; j < conditionCount[i]; j++) {
-                    condition.insert(0, icon(CornerType.values()[i]));
+                    condition.insert(0, icon(CornerType.values()[i])); // if exist element in the condition count array, convert the element to an icon and add it to the string.
                 }
             }
         }
-        return condition.toString();
+        return condition.toString(); // return the string which contains the icons of the requirements of the card.
     }
     /**
      * Method used to convert the corner type of the card to an icon, using the Unicode characters.
-     * @param type the corner type of the card
-     * @return the icon of the corner type of the card
+     * @param type the corner type of the card.
+     * @return the icon of the corner type of the card.
      * @see CornerType
      */
     private static String icon(CornerType type) {
@@ -499,39 +658,30 @@ public class TextUI extends UI implements Runnable {
         return icon;
     }
     /**
-     * Method used to set how to present the different strategies of the card.
+     * Method used to set how to define the different strategies of the card.
      * @param strategy the point strategy of the card.
      * @return the way to present the strategy of the card.
      * @see PointStrategy
      */
-    private String iconStrategy(PointStrategy strategy){
+    private String iconStrategy(PointStrategy strategy){ // Strategy of GoldCard and Resource cards
         String icon = "";
         if (strategy instanceof CountResource){
-            icon= ((CountResource) strategy).getCount()+"|"+icon(((CountResource) strategy).getType());
+            icon="|"+((CountResource) strategy).getType().toString();
         }
         if (strategy instanceof AnglesCovered){
-            icon= "2"+"|"+"AngCover";
+            icon="|ANGLES COVERED";
         }
         if (strategy instanceof Empty){
-            icon= "";
+            icon=" POINT";
         }
         if (strategy instanceof Diagonals){
-            //TODO
+            icon="|in DIAGONALS";
         }
-        if (strategy instanceof LConfigurationOne){
-            //TODO
+        if (strategy instanceof LConfigurationOne||strategy instanceof LConfigurationTwo||strategy instanceof LConfigurationThree||strategy instanceof LConfigurationFour){
+            icon="|in L CONFIG.";
         }
-        if (strategy instanceof LConfigurationTwo){
-            //TODO
-        }
-        if (strategy instanceof LConfigurationThree){
-            //TODO
-        }
-        if (strategy instanceof LConfigurationFour){
-            //TODO
-        }
-        if (strategy instanceof AllSpecial){
-            //TODO
+        if(strategy instanceof AllSpecial) {
+            icon = "|ALL SPECIAL";
         }
         return icon;
     }
