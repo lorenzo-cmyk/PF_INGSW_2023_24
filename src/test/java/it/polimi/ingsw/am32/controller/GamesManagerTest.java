@@ -89,23 +89,27 @@ class GamesManagerTest {
     @Test
     void accessGameWithNullNickname() {
         assertThrows(CriticalFailureException.class, () -> gamesManager.accessGame(null, 1, node));
+        assertEquals(0, gamesManager.getGames().size());
     }
 
     @DisplayName("Access a game with blank nickname - CriticalFailureException expected")
     @Test
     void accessGameWithBlankNickname() {
         assertThrows(CriticalFailureException.class, () -> gamesManager.accessGame("", 1, node));
+        assertEquals(0, gamesManager.getGames().size());
     }
 
     @DisplayName("Access a game with invalid game code - GameNotFoundException expected")
     @Test
     void accessGameWithInvalidGameCode() {
         assertThrows(GameNotFoundException.class, () -> gamesManager.accessGame("player", 9999, node));
+        assertEquals(0, gamesManager.getGames().size());
     }
 
     @DisplayName("Access a game with null node - CriticalFailureException expected")
     @Test
     void accessGameWithNullNode() {
         assertThrows(CriticalFailureException.class, () -> gamesManager.accessGame("player", 1, null));
+        assertEquals(0, gamesManager.getGames().size());
     }
 }
