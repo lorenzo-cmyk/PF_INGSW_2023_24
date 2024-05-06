@@ -2,6 +2,12 @@ package it.polimi.ingsw.am32.message.ClientToServer;
 
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.controller.GamesManager;
+import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
+import it.polimi.ingsw.am32.controller.exceptions.GameAlreadyStartedException;
+import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.InvalidPlayerNumberException;
+import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 
 import java.io.Serializable;
 
@@ -10,10 +16,5 @@ import java.io.Serializable;
  * It contains a single method to elaborate the message with a game manager.
  */
 public interface CtoSLobbyMessage extends Serializable {
-    /**
-     * Elaborates the message with the specified game manager.
-     *
-     * @param nodeInterface The node interface that received the message.
-     */
-    GameController elaborateMessage(NodeInterface nodeInterface);
+    void elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException, GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException;
 }

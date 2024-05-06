@@ -2,6 +2,11 @@ package it.polimi.ingsw.am32.message.ClientToServer;
 
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.controller.GamesManager;
+import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
+import it.polimi.ingsw.am32.controller.exceptions.GameAlreadyStartedException;
+import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
+import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 
 public class AccessGameMessage implements CtoSLobbyMessage {
     private final int matchId;
@@ -13,8 +18,13 @@ public class AccessGameMessage implements CtoSLobbyMessage {
     }
 
     @Override
-    public GameController elaborateMessage(NodeInterface nodeInterface) {
-        return null;
-        // TODO
+    public void elaborateMessage(NodeInterface nodeInterface) throws GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException {
+        try {
+            GameController gameController = GamesManager.getInstance().accessGame(senderNickname, matchId, nodeInterface);
+            nodeInterface.setGameController(gameController);
+            // Game was successfully joined
+        } catch (GameNotFoundException | FullLobbyException | GameAlreadyStartedException | DuplicateNicknameException e) { // The game was not found, the lobby is full, the game has already started, or the nickname is already in use
+            throw e;
+        }
     }
 }
