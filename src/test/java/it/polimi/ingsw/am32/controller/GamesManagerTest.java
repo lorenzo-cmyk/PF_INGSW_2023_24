@@ -8,6 +8,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class GamesManagerTest {
@@ -139,4 +143,34 @@ class GamesManagerTest {
             fail();
         }
     }
+
+    @DisplayName("Test concurrency when creating and accessing games")
+    @Test
+    void testConcurrencyOnCreateAndAccessGame() {
+        // Create 500 games and access them with 500 different players
+        ExecutorService service = Executors.newFixedThreadPool(1000);
+        for (int i = 0; i < 500; i++) {
+            service.submit(() -> {
+                try {
+                    GameController gameController = gamesManager.createGame("creator" + Thread.currentThread().getId(), 3, node);
+                    gamesManager.accessGame("player" + Thread.currentThread().getId(), gameController.getId(), node);
+                } catch (Exception e) {
+                    fail("Unexpected exception: " + e.getMessage());
+                }
+            });
+        }
+        // Shutdown the service
+        service.shutdown();
+        try {
+            if (!service.awaitTermination(60, TimeUnit.SECONDS)) {
+                service.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            service.shutdownNow();
+        }
+        // Check if all games have been created and accessed
+        assertEquals(500, gamesManager.getGames().size());
+        assertEquals(500, gamesManager.getGames().stream().map(GameController::getId).distinct().count());
+    }
+
 }
