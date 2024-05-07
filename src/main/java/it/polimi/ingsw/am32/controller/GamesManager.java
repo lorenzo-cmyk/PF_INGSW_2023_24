@@ -36,7 +36,7 @@ public class GamesManager {
      *
      * @return The only instance of the class
      */
-    public static GamesManager getInstance() {
+    public static synchronized GamesManager getInstance() {
         if (instance == null) {
             instance = new GamesManager();
         }
@@ -67,7 +67,7 @@ public class GamesManager {
 
         boolean foundUnique = false; // Flag indicating whether a valid game id has been found
         while (!foundUnique) { // Loop until a valid game id is found
-            rand = random.nextInt(); // Generate random id for the game
+            rand = random.nextInt(2049); // Generate random id for the game
             foundUnique = true;
 
             for (GameController game : games) { // Scan all games to check that no other game has the same id
@@ -84,11 +84,11 @@ public class GamesManager {
         try {
             game.addPlayer(creatorName, node); // Add the creator to the newly created game
             game.submitVirtualViewMessage(new NewGameConfirmationMessage(creatorName, rand));
-        } catch (FullLobbyException e) { // It should never happen that the lobby is full when the creator joins
+        } catch (FullLobbyException e) { // It should never happen that the lobby is full when the creator joins. The creator is the first player to join the game.
             throw new CriticalFailureException("Lobby was full when the creator joined the game");
-        } catch (VirtualViewNotFoundException e) {
+        } catch (VirtualViewNotFoundException e) { // It should never happen that the virtual view of the creator is not found. The creator is the first player to join the game.
             throw new CriticalFailureException("VirtualViewNotFoundException when creator joined the game");
-        } catch (DuplicateNicknameException e) {
+        } catch (DuplicateNicknameException e) { // It should never happen that the creator has a duplicate nickname. The creator is the first player to join the game.
             throw new CriticalFailureException("DuplicateNicknameException when creator joined the game");
         }
 
@@ -151,14 +151,14 @@ public class GamesManager {
      *
      * @return The list of all games that are currently being handled by the server.
      */
-    protected ArrayList<GameController> getGames() {
+    protected synchronized ArrayList<GameController> getGames() {
         return games;
     }
 
     /**
      * Clear the instance of the class. Used for testing purposes only.
      */
-    protected void clearInstance() {
+    protected synchronized void clearInstance() {
         instance = null;
     }
 }

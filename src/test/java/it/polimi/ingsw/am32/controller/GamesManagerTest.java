@@ -1,4 +1,3 @@
-// TODO: Implement better tests for GamesManager after having tested GameController.
 package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.*;
@@ -45,6 +44,20 @@ class GamesManagerTest {
         assertEquals(1, gamesManager.getGames().size()); // Only one game has been created
     }
 
+    @DisplayName("Create a game and check if game ID is within range and unique")
+    @Test
+    void createGameAndCheckGameId() {
+        try {
+            GameController gameController1 = gamesManager.createGame("creator1", 3, node);
+            GameController gameController2 = gamesManager.createGame("creator2", 3, node);
+            assertTrue(gameController1.getId() >= 0 && gameController1.getId() <= 2048);
+            assertTrue(gameController2.getId() >= 0 && gameController2.getId() <= 2048);
+            assertNotEquals(gameController1.getId(), gameController2.getId());
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
     @DisplayName("Create a game with null creator name - CriticalFailureException expected")
     @Test
     void createGameWithNullCreatorName() {
@@ -63,6 +76,7 @@ class GamesManagerTest {
     @Test
     void createGameWithInvalidPlayerCount() {
         assertThrows(InvalidPlayerNumberException.class, () -> gamesManager.createGame("creator", 5, node));
+        assertThrows(InvalidPlayerNumberException.class, () -> gamesManager.createGame("creator", 1, node));
         assertEquals(0, gamesManager.getGames().size());
     }
 
@@ -111,5 +125,18 @@ class GamesManagerTest {
     void accessGameWithNullNode() {
         assertThrows(CriticalFailureException.class, () -> gamesManager.accessGame("player", 1, null));
         assertEquals(0, gamesManager.getGames().size());
+    }
+
+    @DisplayName("Access an already started game - GameAlreadyStartedException expected")
+    @Test
+    void accessGameAlreadyStarted() {
+        try {
+            GameController gameController = gamesManager.createGame("creator", 3, node);
+            assertDoesNotThrow(() -> gamesManager.accessGame("player1", gameController.getId(), node));
+            assertDoesNotThrow(() -> gamesManager.accessGame("player2", gameController.getId(), node));
+            assertThrows(GameAlreadyStartedException.class, () -> gamesManager.accessGame("player3", gameController.getId(), node));
+        } catch (Exception e) {
+            fail();
+        }
     }
 }
