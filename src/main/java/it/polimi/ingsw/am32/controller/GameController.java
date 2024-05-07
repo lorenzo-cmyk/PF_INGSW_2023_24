@@ -89,7 +89,7 @@ public class GameController implements GameControllerInterface {
      *
      * @param message The message to be submitted
      */
-    public void submitChatMessage(ChatMessage message){
+    public synchronized void submitChatMessage(ChatMessage message){
         chat.addMessage(message); // Adds the message to the chat history
 
         if (message.isMulticastFlag()) { // Broadcast message
@@ -186,7 +186,7 @@ public class GameController implements GameControllerInterface {
     /**
      * Sets the model to the terminated phase, and notifies all players that the game has ended.
      */
-    private void enterEndPhase() {
+    protected void enterEndPhase() {
         status = GameControllerStatus.GAME_ENDED;
         model.enterTerminatedPhase();
 
@@ -214,7 +214,7 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player that sent the message
      * @param isUp The side of the starting card that the player has chosen
      */
-    public void chooseStarterCardSide(String nickname, boolean isUp) {
+    public synchronized void chooseStarterCardSide(String nickname, boolean isUp) {
         if (status != GameControllerStatus.WAITING_STARTER_CARD_CHOICE) { // Received a starter card side choice message, but the controller is not waiting for it
             try {
                 submitVirtualViewMessage(new InvalidStarterCardSideSelectionMessage(nickname, "You cannot choose a starter card side at this time"));
@@ -272,7 +272,7 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player that sent the message
      * @param id The id of the secret objective card that the player has chosen
      */
-    public void chooseSecretObjectiveCard(String nickname, int id) {
+    public synchronized void chooseSecretObjectiveCard(String nickname, int id) {
         if (status != GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE) { // Received a secret objective card choice message, but the controller is not waiting for it
             try {
                 submitVirtualViewMessage(new InvalidSelectedSecretObjectiveCardMessage(nickname, "You cannot choose a secret objective card at this time"));
@@ -333,7 +333,19 @@ public class GameController implements GameControllerInterface {
         }
     }
 
-    public void placeCard(String nickname, int id, int x, int y, boolean side) {
+    /**
+     * Method called when a message of type place card is received.
+     * Attempts to place the selected card on the player's field at the specified coordinates.
+     * If the card placement is successful, the player is notified of the successful placement, and the game status is updated.
+     * If the card placement fails, the player is notified of the failure.
+     *
+     * @param nickname The nickname of the player that sent the message
+     * @param id The id of the card to place
+     * @param x X coordinate of the card
+     * @param y Y coordinate of the card
+     * @param side Side of the card to place
+     */
+    public synchronized void placeCard(String nickname, int id, int x, int y, boolean side) {
         if (status != GameControllerStatus.WAITING_CARD_PLACEMENT) { // The controller is not waiting for a card placement
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, "You cannot place a card at this time"));
@@ -377,7 +389,17 @@ public class GameController implements GameControllerInterface {
         }
     }
 
-    public void drawCard(String nickname, int deckType, int id) {
+    /**
+     * Method called when a message of type draw card is received.
+     * Attempts to draw a card from the specified deck.
+     * If the draw is successful, the player is notified of the successful draw, and the game status is updated.
+     * If the draw fails, the player is notified of the failure.
+     *
+     * @param nickname The nickname of the player that sent the message
+     * @param deckType The type of deck to draw from
+     * @param id The id of the card to draw
+     */
+    public synchronized void drawCard(String nickname, int deckType, int id) {
         // FIXME If someone tries to draw a card when getCurrentPlayerNickname is null, server will crash
         if (!nickname.equals(model.getCurrentPlayerNickname())) { // The player doesn't have the playing rights
             try {
@@ -439,7 +461,7 @@ public class GameController implements GameControllerInterface {
      *
      * @param requesterNickname The nickname of the player that sent the message
      */
-    public void sendGameStatus(String requesterNickname) {
+    public synchronized void sendGameStatus(String requesterNickname) {
         try {
             submitVirtualViewMessage(generateResponseGameStatusMessage(requesterNickname));
         } catch (VirtualViewNotFoundException e) {
@@ -454,7 +476,7 @@ public class GameController implements GameControllerInterface {
      * @param requesterNickname The nickname of the player that sent the request message
      * @param playerNickname The nickname of the player whose field is requested
      */
-    public void sendPlayerField(String requesterNickname, String playerNickname) throws PlayerNotFoundException {
+    public synchronized void sendPlayerField(String requesterNickname, String playerNickname) throws PlayerNotFoundException {
         try {
             submitVirtualViewMessage(new ResponsePlayerFieldMessage(requesterNickname, playerNickname, model.getPlayerField(playerNickname), model.getPlayerResources(playerNickname)));
         } catch (VirtualViewNotFoundException e) { // The requester's VirtualView could not be found
@@ -496,7 +518,7 @@ public class GameController implements GameControllerInterface {
         }
     }
 
-    public ArrayList<ChatMessage> getAllChatHistory(){
+    protected ArrayList<ChatMessage> getAllChatHistory(){
         return chat.getHistory();
     }
 
@@ -520,7 +542,7 @@ public class GameController implements GameControllerInterface {
         return status;
     }
 
-    public Timer getTimer() {
+    protected Timer getTimer() {
         return timer;
     }
 
