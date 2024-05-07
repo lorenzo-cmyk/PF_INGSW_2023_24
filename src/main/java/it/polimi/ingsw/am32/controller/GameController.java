@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.controller;
 
 import java.util.ArrayList;
 import java.util.Timer;
+import java.util.stream.Collectors;
 
 import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
@@ -441,13 +442,13 @@ public class GameController implements GameControllerInterface {
     protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
-            ArrayList<Integer> playerColours = (ArrayList<Integer>)model.getPlayersNicknames().stream().map(playerNickname -> {
+            ArrayList<Integer> playerColours = (ArrayList<Integer>) model.getPlayersNicknames().stream().map(playerNickname -> {
                 try {
                     return model.getPlayerColour(playerNickname);
                 } catch (PlayerNotFoundException | NullColourException e) {
                     throw new CriticalFailureException("Could not generate game status for Player " + playerNickname);
                 }
-            }).toList();
+            }).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
             int playerSecretObjective = model.getPlayerSecretObjective(nickname);
             int playerPoints = model.getPlayerPoints(nickname);
