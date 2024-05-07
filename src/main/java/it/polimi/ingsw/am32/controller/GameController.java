@@ -190,6 +190,7 @@ public class GameController implements GameControllerInterface {
         if (status != GameControllerStatus.WAITING_STARTER_CARD_CHOICE) { // Received a starter card side choice message, but the controller is not waiting for it
             try {
                 submitVirtualViewMessage(new InvalidStarterCardSideSelectionMessage(nickname, "You cannot choose a starter card side at this time"));
+                return;
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
             }
