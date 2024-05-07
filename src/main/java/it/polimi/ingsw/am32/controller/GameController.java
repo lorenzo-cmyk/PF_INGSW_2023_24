@@ -71,7 +71,7 @@ public class GameController implements GameControllerInterface {
      * @param message The message object to be delivered
      * @throws VirtualViewNotFoundException If the recipient's VirtualView could not be found among the listeners
      */
-    public void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
+    protected void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Look through list of all connected players
             if (playerQuadruple.getNickname().equals((message.getRecipientNickname()))) { // If the correct recipient is found
                 playerQuadruple.getVirtualView().addMessage(message); // Add the message to the recipient's VirtualView
@@ -101,7 +101,7 @@ public class GameController implements GameControllerInterface {
      * @param node The node of the player to add
      * @throws FullLobbyException If the lobby is already full
      */
-    public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
+    protected void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
 
         model.addPlayer(nickname); // Add the player to the actual match instance
@@ -126,7 +126,7 @@ public class GameController implements GameControllerInterface {
      * Method called when the lobby is full.
      * Enters the preparation phase of the game, assigns colours and starting cards to players, and notifies all players of the game start.
      */
-    public void enterPreparationPhase() {
+    protected void enterPreparationPhase() {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players that the game has started
             try {
                 submitVirtualViewMessage(new GameStartedMessage(playerQuadruple.getNickname()));
@@ -158,7 +158,7 @@ public class GameController implements GameControllerInterface {
     /**
      * Sets the model to the terminated phase, and notifies all players that the game has ended.
      */
-    public void enterEndPhase() {
+    private void enterEndPhase() {
         status = GameControllerStatus.GAME_ENDED;
         model.enterTerminatedPhase();
 
@@ -470,23 +470,23 @@ public class GameController implements GameControllerInterface {
         return chat.getHistory();
     }
 
-    public ArrayList<PlayerQuadruple> getNodeList() {
+    protected ArrayList<PlayerQuadruple> getNodeList() {
         return nodeList;
     }
 
-    public int getId() {
+    protected int getId() {
         return id;
     }
 
-    public int getGameSize() {
+    protected int getGameSize() {
         return gameSize;
     }
 
-    public int getLobbyPlayerCount() {
+    protected int getLobbyPlayerCount() {
         return model.getPlayersNicknames().size();
     }
 
-    public GameControllerStatus getStatus() {
+    protected GameControllerStatus getStatus() {
         return status;
     }
 
