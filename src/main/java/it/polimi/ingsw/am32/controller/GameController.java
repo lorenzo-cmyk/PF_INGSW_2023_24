@@ -249,6 +249,7 @@ public class GameController implements GameControllerInterface {
         if (status != GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE) { // Received a secret objective card choice message, but the controller is not waiting for it
             try {
                 submitVirtualViewMessage(new InvalidSelectedSecretObjectiveCardMessage(nickname, "You cannot choose a secret objective card at this time"));
+                return;
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
             }
