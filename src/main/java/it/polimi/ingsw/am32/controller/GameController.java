@@ -270,7 +270,7 @@ public class GameController implements GameControllerInterface {
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
-                if (model.getPlayerSecretObjective(nickname) == -1) { // If a player doesn't have an assigned secret objective, he has not yet chosen his secret objective
+                if (model.getPlayerSecretObjective(playerNickname) == -1) { // If a player doesn't have an assigned secret objective, he has not yet chosen his secret objective
                     playersReady = false; // We have to wait for all other players to make their choice
                     break;
                 }
