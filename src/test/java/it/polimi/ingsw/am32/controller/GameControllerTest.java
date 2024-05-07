@@ -7,6 +7,7 @@ import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.network.NodeInterface;
 import org.junit.jupiter.api.*;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -188,7 +189,7 @@ public class GameControllerTest {
         assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
     }
 
-    @DisplayName("chooseStarterCardSide should inform the player if run out if scope")
+    @DisplayName("chooseStarterCardSide should inform the player if run out of scope")
     @Test
     void chooseStarterCardSideOutOfScope() {
         // Add 1 player to the game
@@ -281,6 +282,329 @@ public class GameControllerTest {
         assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
         // Check that the game status is now WAITING_SECRET_OBJECTIVE_CARD_CHOICE
         assertEquals(GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE, gameController.getStatus());
+    }
+
+    @DisplayName("chooseSecretObjectiveCard should assign the secret objective card to the player")
+    @Test
+    void chooseSecretObjectiveCardTest() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(5, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+
+        // I need to obtain the secret objective cards ids to test the method. I will do it by checking the message delivered to the player.
+        // Since the message is a private field, I will use reflection to access it.
+        AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
+        int secretObjectiveCardId = -1;
+        try {
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            assignedCards.setAccessible(true);
+            ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
+            secretObjectiveCardId = secretObjectiveCardIds.getFirst();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fail();
+        }
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", secretObjectiveCardId);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(6, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+        assertInstanceOf(ConfirmSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(5));
+    }
+
+    @DisplayName("chooseSecretObjectiveCard should inform the player if the card has already been chosen")
+    @Test
+    void chooseSecretObjectiveCardAlreadySelected() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(5, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+
+        // I need to obtain the secret objective cards ids to test the method. I will do it by checking the message delivered to the player.
+        // Since the message is a private field, I will use reflection to access it.
+        AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
+        int secretObjectiveCardId = -1;
+        try {
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            assignedCards.setAccessible(true);
+            ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
+            secretObjectiveCardId = secretObjectiveCardIds.getFirst();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fail();
+        }
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", secretObjectiveCardId);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(6, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+        assertInstanceOf(ConfirmSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(5));
+
+        // Choose the secret objective card again
+        gameController.chooseSecretObjectiveCard("player1", secretObjectiveCardId);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(7, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+        assertInstanceOf(ConfirmSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(5));
+        assertInstanceOf(InvalidSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(6));
+    }
+
+    @DisplayName("chooseSecretObjectiveCard should inform the player if run out of scope")
+    @Test
+    public void chooseSecretObjectiveCardOutOfScope() {
+        // Add 1 player to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        gameController.chooseSecretObjectiveCard("player1", 0);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(InvalidSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+    }
+
+    @DisplayName("chooseSecretObjectiveCard should inform the player if the card chosen is not valid")
+    @Test
+    void chooseSecretObjectiveCardInvalidCard() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(5, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", 0);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(6, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+        assertInstanceOf(InvalidSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(5));
+    }
+
+    @DisplayName("chooseSecretObjectiveCard should move the game to the next phase if all the players have chosen their secret objective card")
+    @Test
+    void chooseSecretObjectiveCardMoveTheGameOn() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        NodeInterfaceStub nodeInterfaceStub2 = (NodeInterfaceStub) gameController.getNodeList().getLast().getNode();
+        assertEquals(5, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+
+        // I need to obtain the secret objective cards ids to test the method. I will do it by checking the message delivered to the player.
+        // Since the message is a private field, I will use reflection to access it.
+        AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
+        int secretObjectiveCardId = -1;
+        try {
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            assignedCards.setAccessible(true);
+            ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
+            secretObjectiveCardId = secretObjectiveCardIds.getFirst();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fail();
+        }
+
+        AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage2 = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub2.getInternalMessages().get(4);
+        int secretObjectiveCardId2 = -1;
+        try {
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            assignedCards.setAccessible(true);
+            ArrayList<Integer> secretObjectiveCardIds2 = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage2);
+            secretObjectiveCardId2 = secretObjectiveCardIds2.getFirst();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fail();
+        }
+
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", secretObjectiveCardId);
+        gameController.chooseSecretObjectiveCard("player2", secretObjectiveCardId2);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(9, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+        assertInstanceOf(ConfirmSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(5));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(6));
+        assertInstanceOf(PlayerGameStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(7));
+        assertInstanceOf(PlayerTurnMessage.class, nodeInterfaceStub.getInternalMessages().get(8));
     }
 
 
