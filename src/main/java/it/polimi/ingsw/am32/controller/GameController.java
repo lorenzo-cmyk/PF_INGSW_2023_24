@@ -12,6 +12,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
+import it.polimi.ingsw.am32.model.player.Player;
 import it.polimi.ingsw.am32.network.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
 
@@ -89,9 +90,7 @@ public class GameController implements GameControllerInterface {
      *
      * @param message The message to be submitted
      */
-    public synchronized void submitChatMessage(ChatMessage message){
-        chat.addMessage(message); // Adds the message to the chat history
-
+    public synchronized void submitChatMessage(ChatMessage message) {
         if (message.isMulticastFlag()) { // Broadcast message
             for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players
                 try {
@@ -110,7 +109,15 @@ public class GameController implements GameControllerInterface {
                     }
                 }
             }
+            // The recipient could not be found among the players in the game
+            try {
+                submitVirtualViewMessage(new OutboundChatMessage(message.getSenderNickname(), message.getRecipientNickname(), message.getMessageContent()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when alerting the sender that the recipient of a chat message could not be found");
+            }
         }
+
+        chat.addMessage(message); // Adds the message to the chat history
     }
 
     public void disconnect(NodeInterface node) {

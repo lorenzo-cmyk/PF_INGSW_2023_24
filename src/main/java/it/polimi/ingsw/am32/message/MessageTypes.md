@@ -367,6 +367,15 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
+- InvalidInboundChatMessage: sent by the Server to notify the Client that the chat message is invalid.
+```json
+{
+  "type": "InvalidInboundChatMessage",
+  "recipientNickname": "playerName",
+  "reason": "Reason"
+}
+```
+
 ### Service Messages
 
 - PongMessage: sent by the Server to confirm the reception of a PingMessage.
