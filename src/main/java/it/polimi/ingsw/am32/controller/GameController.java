@@ -22,7 +22,7 @@ import it.polimi.ingsw.am32.model.ModelInterface;
  */
 public class GameController implements GameControllerInterface {
     /**
-     * nodeList: A list of all the nodes that are currently connected to the game (rmi or socket)
+     * nodeList: A list of all the nodes that are currently connected to the game (RMI or Socket)
      */
     private final ArrayList<PlayerQuadruple> nodeList;
     /**
@@ -54,7 +54,7 @@ public class GameController implements GameControllerInterface {
         this.nodeList = new ArrayList<>();
         this.model = new Match();
         this.chat = new Chat();
-        this.timer = null;
+        this.timer = new Timer();
         this.id = id;
         this.gameSize = gameSize;
 
@@ -104,16 +104,12 @@ public class GameController implements GameControllerInterface {
     public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
 
-        try {
-            model.addPlayer(nickname); // Add the player to the actual match instance
+        model.addPlayer(nickname); // Add the player to the actual match instance
 
-            VirtualView virtualView = new VirtualView(node); // Create new virtual view and link it to the client server node
-            PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
-            nodeList.add(newPlayerQuadruple);
-            Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
-        } catch (DuplicateNicknameException e) { // A player tried to join, but that nickname was already in use
-            throw e;
-        }
+        VirtualView virtualView = new VirtualView(node); // Create new virtual view and link it to the client server node
+        PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
+        nodeList.add(newPlayerQuadruple);
+        Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
     }
 
     /**
@@ -181,8 +177,6 @@ public class GameController implements GameControllerInterface {
         } catch (VirtualViewNotFoundException e) {
             throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the game has ended");
         }
-
-        // TODO Destroy game?
     }
 
     /**
@@ -433,8 +427,6 @@ public class GameController implements GameControllerInterface {
     public void sendPlayerField(String requesterNickname, String playerNickname) throws PlayerNotFoundException {
         try {
             submitVirtualViewMessage(new ResponsePlayerFieldMessage(requesterNickname, playerNickname, model.getPlayerField(playerNickname), model.getPlayerResources(playerNickname)));
-        } catch (PlayerNotFoundException e) { // The player whose field was requested was not found
-            throw e;
         } catch (VirtualViewNotFoundException e) { // The requester's VirtualView could not be found
             throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
         }
@@ -496,6 +488,10 @@ public class GameController implements GameControllerInterface {
 
     public GameControllerStatus getStatus() {
         return status;
+    }
+
+    public Timer getTimer() {
+        return timer;
     }
 }
 
