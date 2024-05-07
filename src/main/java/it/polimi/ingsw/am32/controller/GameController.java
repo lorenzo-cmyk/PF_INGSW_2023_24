@@ -114,11 +114,11 @@ public class GameController implements GameControllerInterface {
     }
 
     public void disconnect(NodeInterface node) {
-        //TODO
+        //TODO: Implement the disconnection of a player
     }
 
     public void reconnect(NodeInterface node){
-        //TODO
+        //TODO: Implement the reconnection of a player
     }
 
     /**
@@ -147,7 +147,7 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player to delete
      */
     public void deletePlayer(String nickname) {
-        // TODO
+        // TODO: Implement the deletion of a player. Used in case of disconnection or voluntary exit during the lobby phase.
     }
 
     /**
