@@ -160,7 +160,7 @@ public class GameController implements GameControllerInterface {
     /**
      * Sets the model to the terminated phase, and notifies all players that the game has ended.
      */
-    private void enterEndPhase() {
+    protected void enterEndPhase() {
         status = GameControllerStatus.GAME_ENDED;
         model.enterTerminatedPhase();
 

@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
 import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.NodeInterface;
 import org.junit.jupiter.api.*;
 
@@ -37,6 +38,9 @@ public class GameControllerTest {
         }
         public synchronized ArrayList<StoCMessage> getInternalMessages() {
             return internalMessages;
+        }
+        public synchronized void clearInternalMessages() {
+            internalMessages.clear();
         }
     }
 
@@ -684,6 +688,153 @@ public class GameControllerTest {
         assertInstanceOf(PlayerGameStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(7));
         assertInstanceOf(PlayerTurnMessage.class, nodeInterfaceStub.getInternalMessages().get(8));
         assertInstanceOf(PlaceCardFailedMessage.class, nodeInterfaceStub.getInternalMessages().get(9));
+    }
+
+    @DisplayName("enterEndGamePhase should move the game to GAME_ENDED status")
+    @Test
+    void enterEndGamePhaseTest() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", gameController.getModel().getSecretObjectiveCardsPlayer("player1").getFirst());
+        gameController.chooseSecretObjectiveCard("player2", gameController.getModel().getSecretObjectiveCardsPlayer("player2").getFirst());
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        nodeInterfaceStub.clearInternalMessages();
+
+        gameController.enterEndPhase();
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        assertEquals(GameControllerStatus.GAME_ENDED, gameController.getStatus());
+        assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchWinnersMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+    }
+
+    @DisplayName("sendGameStatus should deliver the game status to the player")
+    @Test
+    void sendGameStatusTest() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", gameController.getModel().getSecretObjectiveCardsPlayer("player1").getFirst());
+        gameController.chooseSecretObjectiveCard("player2", gameController.getModel().getSecretObjectiveCardsPlayer("player2").getFirst());
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        nodeInterfaceStub.clearInternalMessages();
+
+        gameController.sendGameStatus("player1");
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(PlayerGameStatusMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+    }
+
+    @DisplayName("sendPlayerField should deliver the field of a player to the requesting entity")
+    @Test
+    void sendPlayerFieldTest(){
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", gameController.getModel().getSecretObjectiveCardsPlayer("player1").getFirst());
+        gameController.chooseSecretObjectiveCard("player2", gameController.getModel().getSecretObjectiveCardsPlayer("player2").getFirst());
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        nodeInterfaceStub.clearInternalMessages();
+
+        try {
+            gameController.sendPlayerField("player1", "player2");
+        } catch (PlayerNotFoundException e) {
+            fail();
+        }
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(ResponsePlayerFieldMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
     }
 
 }
