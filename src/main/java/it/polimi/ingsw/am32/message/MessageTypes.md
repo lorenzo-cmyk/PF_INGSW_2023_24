@@ -363,7 +363,6 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "OutboundChatMessage",
   "senderNickname": "playerName",
   "recipientNickname": "playerName", // Can be null if the message is for everyone
-  "multicastFlag": true, // If true, message is to be sent to all players
   "content": "Message"
 }
 ```

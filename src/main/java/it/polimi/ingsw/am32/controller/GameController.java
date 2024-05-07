@@ -82,8 +82,35 @@ public class GameController implements GameControllerInterface {
         throw new VirtualViewNotFoundException("VirtualView for player " + message.getRecipientNickname() + " not found");
     }
 
+    /**
+     * Submits a chat message to the chat history.
+     * If the message is a broadcast message, it is sent to all players in the game.
+     * If the message is a direct message, it is sent only to the recipient.
+     *
+     * @param message The message to be submitted
+     */
     public void submitChatMessage(ChatMessage message){
-        chat.addMessage(message);
+        chat.addMessage(message); // Adds the message to the chat history
+
+        if (message.isMulticastFlag()) { // Broadcast message
+            for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players
+                try {
+                    submitVirtualViewMessage(new OutboundChatMessage(message.getSenderNickname(), playerQuadruple.getNickname(), message.getMessageContent()));
+                } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify players in the game
+                    throw new CriticalFailureException("VirtualViewNotFoundException when broadcasting chat message");
+                }
+            }
+        } else { // Direct message
+            for (PlayerQuadruple playerQuadruple : nodeList) { // Scan list of all players
+                if (playerQuadruple.getNickname().equals(message.getRecipientNickname())) { // Found recipient of message
+                    try {
+                        submitVirtualViewMessage(new OutboundChatMessage(message.getSenderNickname(), message.getRecipientNickname(), message.getMessageContent()));
+                    } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify a single recipient; message was malformed
+                        throw new CriticalFailureException("VirtualViewNotFoundException when sending direct chat message");
+                    }
+                }
+            }
+        }
     }
 
     public void disconnect(NodeInterface node) {
