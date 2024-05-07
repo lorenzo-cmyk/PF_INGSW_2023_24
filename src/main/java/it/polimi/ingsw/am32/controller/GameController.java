@@ -318,10 +318,10 @@ public class GameController implements GameControllerInterface {
         if (!nickname.equals(model.getCurrentPlayerNickname())) { // The player doesn't have the playing rights
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, "It's not your turn to play. The current player is: " + model.getCurrentPlayerNickname()));
+                return;
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
             }
-            return;
         }
         // Player has the playing rights
         try {
@@ -495,6 +495,10 @@ public class GameController implements GameControllerInterface {
 
     public Timer getTimer() {
         return timer;
+    }
+
+    protected ModelInterface getModel(){
+        return model;
     }
 }
 

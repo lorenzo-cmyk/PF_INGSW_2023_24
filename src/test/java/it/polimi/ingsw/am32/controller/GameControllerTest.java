@@ -607,6 +607,83 @@ public class GameControllerTest {
         assertInstanceOf(PlayerTurnMessage.class, nodeInterfaceStub.getInternalMessages().get(8));
     }
 
+    @DisplayName("placeCard should inform the player if run out of scope")
+    @Test
+    void placeCardOutOfScope() {
+        // Add 1 player to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        gameController.placeCard("player1", 0, 0, 0, true);
 
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(PlaceCardFailedMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+    }
+
+    @DisplayName("placeCard should inform the player if run out of its turn")
+    @Test
+    void placeCardOutOfTurn() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", gameController.getModel().getSecretObjectiveCardsPlayer("player1").getFirst());
+        gameController.chooseSecretObjectiveCard("player2", gameController.getModel().getSecretObjectiveCardsPlayer("player2").getFirst());
+
+        // I'm deliberately trying to place a card out of my turn.
+        gameController.placeCard(
+                // Get the nickname of a player that is not playing
+                gameController.getNodeList().stream()
+                        .map(PlayerQuadruple::getNickname)
+                        .filter(nickname -> !nickname.equals(gameController.getModel().getCurrentPlayerNickname()))
+                        .findAny()
+                        .orElse(null),
+                0, 0, 0, true
+        );
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        assertEquals(10, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(GameStartedMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(AssignedStarterCardMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+        assertInstanceOf(ConfirmStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+        assertInstanceOf(AssignedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+        assertInstanceOf(ConfirmSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().get(5));
+        assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(6));
+        assertInstanceOf(PlayerGameStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(7));
+        assertInstanceOf(PlayerTurnMessage.class, nodeInterfaceStub.getInternalMessages().get(8));
+        assertInstanceOf(PlaceCardFailedMessage.class, nodeInterfaceStub.getInternalMessages().get(9));
+    }
 
 }
