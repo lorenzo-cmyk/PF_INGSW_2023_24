@@ -90,10 +90,16 @@ public class GameController implements GameControllerInterface {
      * @param message The message to be submitted
      */
     public synchronized void submitChatMessage(ChatMessage message) {
+        // Exception should be thrown if message sender does not exist
+        if (nodeList.stream().noneMatch(n -> n.getNickname().equals(message.getSenderNickname()))) {
+            throw new CriticalFailureException("Sender " + message.getSenderNickname() + " not found");
+        }
+
+        // Message sender does exist
         if (message.isMulticastFlag()) { // Broadcast message
             for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players
                 try {
-                    submitVirtualViewMessage(new OutboundChatMessage(message.getSenderNickname(), playerQuadruple.getNickname(), message.getMessageContent()));
+                    submitVirtualViewMessage(new OutboundChatMessage(playerQuadruple.getNickname(), message.getSenderNickname(), message.getMessageContent()));
                 } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify players in the game
                     throw new CriticalFailureException("VirtualViewNotFoundException when broadcasting chat message");
                 }
@@ -103,7 +109,7 @@ public class GameController implements GameControllerInterface {
             for (PlayerQuadruple playerQuadruple : nodeList) { // Scan list of all players
                 if (playerQuadruple.getNickname().equals(message.getRecipientNickname())) { // Found recipient of message
                     try {
-                        submitVirtualViewMessage(new OutboundChatMessage(message.getSenderNickname(), message.getRecipientNickname(), message.getMessageContent()));
+                        submitVirtualViewMessage(new OutboundChatMessage(message.getRecipientNickname(), message.getSenderNickname(), message.getMessageContent()));
                         found = true;
                         break;
                     } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify a single recipient; message was malformed

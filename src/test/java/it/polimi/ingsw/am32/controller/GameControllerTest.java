@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am32.controller;
 
+import it.polimi.ingsw.am32.chat.ChatMessage;
+import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
 import it.polimi.ingsw.am32.message.ServerToClient.*;
@@ -837,4 +839,321 @@ public class GameControllerTest {
         assertInstanceOf(ResponsePlayerFieldMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
     }
 
+    @DisplayName("submitChatMessage should crash when player tries to send a chat message to non-existing player")
+    @Test
+    void submitChatMessageShouldCrashWhenRecipientDoesNotExist() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Try to send message to non-existing player
+        gameController.submitChatMessage(new ChatMessage("player1", "player3", false, "Hello, player3!"));
+
+        // Wait for threads to deliver all messages to players
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that players have received the right amount of messages
+        for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) playerQuadruple.getNode();
+            if (playerQuadruple.getNickname().equals("player1")) {
+                assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+            }
+            else {
+                assertEquals(0, nodeInterfaceStub.getInternalMessages().size());
+            }
+        }
+
+        // Check the messages received by the first player
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)gameController.getNodeList().getFirst().getNode();
+        assertInstanceOf(InvalidInboundChatMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+
+        // There should be no messages in the chat history
+        assertEquals(0, gameController.getChat().getHistory().size());
+    }
+
+    @DisplayName("submitChatMessage should crash when a direct chat message is received from a non-existing player")
+    @Test
+    void submitDirectChatMessageShouldCrashWhenSenderDoesNotExist() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Try to send a message from a non-existing player
+        assertThrows(CriticalFailureException.class, () -> gameController.submitChatMessage(new ChatMessage("player3", "player1", false, "Hello, player1!")));
+
+        // Wait for threads to deliver all messages to players
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that players have received the right amount of messages
+        for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) playerQuadruple.getNode();
+            assertEquals(0, nodeInterfaceStub.getInternalMessages().size());
+        }
+
+        // There should be no messages in the chat history
+        assertEquals(0, gameController.getChat().getHistory().size());
+    }
+
+    @DisplayName("submitChatMessage should crash when a broadcast chat message is received from a non-existing player")
+    @Test
+    void submitBroadCastChatMessageShouldCrashWhenSenderDoesNotExist() {
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Try to send a message from a non-existing player
+        assertThrows(CriticalFailureException.class, () -> gameController.submitChatMessage(new ChatMessage("player3", "player1", true, "Hello, player1!")));
+
+        // Wait for threads to deliver all messages to players
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that players have received the right amount of messages
+        for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) playerQuadruple.getNode();
+            assertEquals(0, nodeInterfaceStub.getInternalMessages().size());
+        }
+
+        // There should be no messages in the chat history
+        assertEquals(0, gameController.getChat().getHistory().size());
+    }
+
+    @DisplayName("submitChatMessage in direct mode should properly deliver message to recipient")
+    @Test
+    void submitDirectChatMessageShouldWork() {
+        // Add 3 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+            gameController.addPlayer("player3", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Try to send message
+        ChatMessage chatMessage = new ChatMessage("player1", "player3", false, "Hello, player3!");
+        assertDoesNotThrow(() -> gameController.submitChatMessage(chatMessage));
+
+        // Wait for threads to deliver all messages to players
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that players have received the right amount of messages
+        for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
+            if (playerQuadruple.getNickname().equals("player3")) {
+                assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+            }
+            else {
+                assertEquals(0, nodeInterfaceStub.getInternalMessages().size());
+            }
+        }
+
+        // Check the messages received by the recipient player
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)gameController.getNodeList().get(2).getNode();
+        assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+
+        // There should be one message in the chat history
+        assertEquals(1, gameController.getChat().getHistory().size());
+        // Message in the chat history should be exactly the same as the one sent
+        assertEquals(chatMessage, gameController.getChat().getHistory().getFirst());
+    }
+
+    @DisplayName("submitChatMessage in broadcast mode should properly deliver message to everyone")
+    @Test
+    void submitBroadcastChatMessageShouldWork() {
+        // Add 3 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+            gameController.addPlayer("player3", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Try to send message
+        ChatMessage chatMessage = new ChatMessage("player1", null, true, "Hello");
+        assertDoesNotThrow(() -> gameController.submitChatMessage(chatMessage));
+
+        // Wait for threads to deliver all messages to players
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that players have received the right amount of messages
+        for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
+            assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+            assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+        }
+
+        // There should be one message in the chat history
+        assertEquals(1, gameController.getChat().getHistory().size());
+        // Message in the chat history should be exactly the same as the one sent
+        assertEquals(chatMessage, gameController.getChat().getHistory().getFirst());
+    }
+
+    @DisplayName("sequential submitChatMessage in direct mode to same recipient should properly deliver message to recipient")
+    @Test
+    void submitSequentialDirectChatMessageShouldWork() {
+        // Add 3 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+            gameController.addPlayer("player3", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Try to send message
+        ChatMessage chatMessage = new ChatMessage("player1", "player3", false, "Hello, player3!");
+        assertDoesNotThrow(() -> gameController.submitChatMessage(chatMessage));
+        // Send message again
+        ChatMessage chatMessage2 = new ChatMessage("player1", "player3", false, "Hello, again player3!");
+        assertDoesNotThrow(() -> gameController.submitChatMessage(chatMessage2));
+
+        // Wait for threads to deliver all messages to players
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that players have received the right amount of messages
+        for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
+            if (playerQuadruple.getNickname().equals("player3")) {
+                assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+            }
+            else {
+                assertEquals(0, nodeInterfaceStub.getInternalMessages().size());
+            }
+        }
+
+        // Check the messages received by the recipient player
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)gameController.getNodeList().get(2).getNode();
+        assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+        assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+
+        // There should be two messages in the chat history
+        assertEquals(2, gameController.getChat().getHistory().size());
+        // Messages in the chat history should be exactly the same as the ones sent
+        assertEquals(chatMessage, gameController.getChat().getHistory().get(0));
+        assertEquals(chatMessage2, gameController.getChat().getHistory().get(1));
+    }
+
+    @DisplayName("sequential submitChatMessage in broadcast mode should properly deliver messages to everyone")
+    @Test
+    void submitSequentialBroadcastChatMessageShouldWork() {
+        // Add 3 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+            gameController.addPlayer("player3", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Try to send message
+        ChatMessage chatMessage = new ChatMessage("player1", null, true, "Hello");
+        assertDoesNotThrow(() -> gameController.submitChatMessage(chatMessage));
+        // Send another message
+        ChatMessage chatMessage2 = new ChatMessage("player1", null, true, "Hello again");
+        assertDoesNotThrow(() -> gameController.submitChatMessage(chatMessage2));
+
+        // Wait for threads to deliver all messages to players
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that players have received the right amount of messages
+        for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
+            assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+            assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+        }
+
+        // There should be two messages in the chat history
+        assertEquals(2, gameController.getChat().getHistory().size());
+        // Messages in the chat history should be exactly the same as the ones sent
+        assertEquals(chatMessage, gameController.getChat().getHistory().get(0));
+        assertEquals(chatMessage2, gameController.getChat().getHistory().get(1));
+    }
+
+    @DisplayName("submitChatMessage should properly deliver different kinds of messages to proper recipients")
+    @Test
+    void submitMixChatMessageShouldWork() {
+        // Add 3 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+            gameController.addPlayer("player3", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Send a direct message
+        ChatMessage chatMessage = new ChatMessage("player1", "player2", false, "Hello, player2!");
+        assertDoesNotThrow(() -> gameController.submitChatMessage(chatMessage));
+        // Send a broadcast message
+        ChatMessage chatMessage2 = new ChatMessage("player3", null, true, "Hello");
+        assertDoesNotThrow(() -> gameController.submitChatMessage(chatMessage2));
+
+        // Wait for threads to deliver all messages to players
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that players have received the right amount of messages
+        for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
+            if (playerQuadruple.getNickname().equals("player2")) {
+                assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+            }
+            else {
+                assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+            }
+        }
+
+        // There should be two messages in the chat history
+        assertEquals(2, gameController.getChat().getHistory().size());
+        // Messages in the chat history should be exactly the same as the ones sent
+        assertEquals(chatMessage, gameController.getChat().getHistory().get(0));
+        assertEquals(chatMessage2, gameController.getChat().getHistory().get(1));
+    }
 }

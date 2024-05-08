@@ -20,6 +20,6 @@ public class OutboundChatMessage implements StoCMessage {
 
     @Override
     public String getRecipientNickname() {
-        return "";
+        return recipientString;
     }
 }

@@ -15,5 +15,5 @@ public interface StoCMessage extends Serializable {
      * @param virtualView The virtual view to which the message should be delivered
      */
     void processMessage(VirtualView virtualView); // FIXME this method should not take VirtualView as parameter
-    String getRecipientNickname();
+    String getRecipientNickname(); // Method needed for submitVirtualViewMessage method in Gamecontroller; GameController needs to know who to send message to
 }
