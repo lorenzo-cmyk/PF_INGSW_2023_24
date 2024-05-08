@@ -99,23 +99,27 @@ public class GameController implements GameControllerInterface {
                 }
             }
         } else { // Direct message
+            boolean found = false; // Flag indicating whether the recipient of the message appears in the list of players
             for (PlayerQuadruple playerQuadruple : nodeList) { // Scan list of all players
                 if (playerQuadruple.getNickname().equals(message.getRecipientNickname())) { // Found recipient of message
                     try {
                         submitVirtualViewMessage(new OutboundChatMessage(message.getSenderNickname(), message.getRecipientNickname(), message.getMessageContent()));
+                        found = true;
+                        break;
                     } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify a single recipient; message was malformed
                         throw new CriticalFailureException("VirtualViewNotFoundException when sending direct chat message");
                     }
                 }
             }
-            // The recipient could not be found among the players in the game
-            try {
-                submitVirtualViewMessage(new OutboundChatMessage(message.getSenderNickname(), message.getRecipientNickname(), message.getMessageContent()));
-            } catch (VirtualViewNotFoundException e) {
-                throw new CriticalFailureException("VirtualViewNotFoundException when alerting the sender that the recipient of a chat message could not be found");
+            if (!found) { // The recipient could not be found among the players in the game
+                try {
+                    submitVirtualViewMessage(new InvalidInboundChatMessage(message.getSenderNickname(), "Recipient " + message.getRecipientNickname() + " not found"));
+                } catch (VirtualViewNotFoundException e) {
+                    throw new CriticalFailureException("VirtualViewNotFoundException when alerting the sender that the recipient of a chat message could not be found");
+                }
             }
         }
-
+        // Add the message to the chat history, regardless of whether it was broadcast or direct
         chat.addMessage(message); // Adds the message to the chat history
     }
 
