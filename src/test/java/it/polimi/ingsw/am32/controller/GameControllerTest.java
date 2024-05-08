@@ -931,7 +931,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(800);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             fail();
         }
@@ -971,7 +971,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(800);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1002,7 +1002,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(800);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1035,7 +1035,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(800);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1079,7 +1079,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(800);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1118,7 +1118,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(800);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1167,7 +1167,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(800);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1207,7 +1207,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(800);
+            Thread.sleep(300);
         } catch (InterruptedException e) {
             fail();
         }
