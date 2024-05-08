@@ -114,6 +114,7 @@ public class GameController implements GameControllerInterface {
             if (!found) { // The recipient could not be found among the players in the game
                 try {
                     submitVirtualViewMessage(new InvalidInboundChatMessage(message.getSenderNickname(), "Recipient " + message.getRecipientNickname() + " not found"));
+                    return;
                 } catch (VirtualViewNotFoundException e) {
                     throw new CriticalFailureException("VirtualViewNotFoundException when alerting the sender that the recipient of a chat message could not be found");
                 }
@@ -528,10 +529,6 @@ public class GameController implements GameControllerInterface {
         }
     }
 
-    protected ArrayList<ChatMessage> getAllChatHistory(){
-        return chat.getHistory();
-    }
-
     protected ArrayList<PlayerQuadruple> getNodeList() {
         return nodeList;
     }
@@ -558,6 +555,10 @@ public class GameController implements GameControllerInterface {
 
     protected ModelInterface getModel(){
         return model;
+    }
+
+    protected Chat getChat(){
+        return chat;
     }
 }
 
