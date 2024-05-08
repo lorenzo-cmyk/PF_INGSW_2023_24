@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.client;
 
+
 import it.polimi.ingsw.am32.network.ClientNodeInterface;
 import it.polimi.ingsw.am32.network.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.RMIClientNode;
@@ -10,14 +11,35 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 
 public abstract class UI implements View, EventHandler{
     ClientNodeInterface clientNode;
+    protected String playerNickname;
+    protected int gameID;
+    protected int playerNum;
+    protected String currentPlayer;
+    protected String playerColour;
+    protected Event currentEvent;
+    protected ObjectiveCardFactory[] commonObjCards;
+    protected ArrayList<String> players;
+    protected ArrayList<NonObjCardFactory> hand;
+    protected ArrayList<ArrayList<String>> FieldView = new ArrayList<>();
+    protected NonObjCardFactory starterCard;
+    protected static final ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
+    protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
     public UI() {
-        //TODO
+        this.playerNum = 0;
+        this.currentPlayer = null;
+        this.playerNickname = null;
+        this.gameID = 0;
+        this.playerColour = null;
+        this.currentEvent = null;
+        this.commonObjCards = null;
+        this.players = new ArrayList<>();
+        this.hand = new ArrayList<>();
+        this.FieldView = new ArrayList<>();
     }
-
-    public abstract void InitializeViewElement();
 
     public abstract void showWelcome();
 

@@ -39,11 +39,6 @@ public class GraphicalUI extends UI implements View {
 
 
     @Override
-    public void InitializeViewElement() {
-        //TODO
-    }
-
-    @Override
     public void showWelcome() {
         //TODO
     }
