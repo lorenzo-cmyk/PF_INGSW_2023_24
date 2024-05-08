@@ -12,7 +12,6 @@ import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
-import it.polimi.ingsw.am32.model.player.Player;
 import it.polimi.ingsw.am32.network.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
 
@@ -499,7 +498,7 @@ public class GameController implements GameControllerInterface {
     protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
-            ArrayList<Integer> playerColours = (ArrayList<Integer>) model.getPlayersNicknames().stream().map(playerNickname -> {
+            ArrayList<Integer> playerColours = model.getPlayersNicknames().stream().map(playerNickname -> {
                 try {
                     return model.getPlayerColour(playerNickname);
                 } catch (PlayerNotFoundException | NullColourException e) {
