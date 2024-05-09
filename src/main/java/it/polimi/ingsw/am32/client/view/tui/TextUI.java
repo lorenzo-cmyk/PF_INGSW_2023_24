@@ -47,6 +47,7 @@ public class TextUI extends UI implements Runnable {
     private static final int PLANTCARD = 0X1F7E9;
     private static final int FUNGICARD = 0X1F7E5;
     private static final int INSECARD = 0X1F7EA;
+    private static final int STARTERCARD = 0x1F7EB;
     private static final String ANSI_RESET = "\u001B[0m"; // ANSI escape code to set the color
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_GREEN = "\u001B[32m";
@@ -56,14 +57,15 @@ public class TextUI extends UI implements Runnable {
     public static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
     public static final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
     public static final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
-    private static final int INSECT = 0x1F98B; // Unicode for the corner type, object and resource of the card
-    private static final int PLANT = 0x1F33F;
-    private static final int FUNGI = 0x1F344;
-    private static final int ANIMAL = 0x1F43A;
-    private static final int QUILL = 0x1FAB6;
-    private static final int INKWELL = 0X1F36F;
-    private static final int MANUSCRIPT = 0x1F4DC;
-    private static final int NON_COVERABLE = 0x274C;
+    // Unicode for the corner type, object and resource of the card
+    private static final String INSECT ="\uD83E\uDD8B";
+    private static final String PLANT = "\uD83C\uDF3F";
+    private static final String FUNGI = "\uD83C\uDF44";
+    private static final String ANIMAL = "\uD83D\uDC3A";
+    private static final String QUILL = "\uD83E\uDEB6";
+    private static final String INKWELL = "\uD83C\uDF6F";
+    private static final String MANUSCRIPT = "\uD83D\uDCDC";
+    private static final String NON_COVERABLE = "\u274C";
     private static final String EMPTY = "  ";
 
     /**
@@ -730,17 +732,6 @@ public class TextUI extends UI implements Runnable {
             }
             return colour;
     }
-    private String ColourBackground (String kingdom) {
-        String colour = "";
-        switch (kingdom) { // set the color of the card based on the kingdom of the card
-            case "PLANT" -> colour = ANSI_GREEN_BACKGROUND;
-            case "FUNGI" -> colour = ANSI_RED_BACKGROUND;
-            case "ANIMAL" -> colour = ANSI_BLUE_BACKGROUND;
-            case "INSECT" -> colour = ANSI_PURPLE_BACKGROUND;
-            case "null" -> colour = ANSI_RESET;
-        }
-        return colour;
-    }
 
     /**
      * Method used to convert the integer array of the condition count of the card to a string of icons, using the
@@ -769,15 +760,15 @@ public class TextUI extends UI implements Runnable {
     private static String icon(String type) {
         String icon;
         switch (type) {
-            case "INSECT" -> icon= new String(Character.toChars(INSECT));
-            case "PLANT" ->  icon= new String(Character.toChars(PLANT));
-            case "FUNGI" -> icon= new String(Character.toChars(FUNGI));
-            case "ANIMAL" ->  icon= new String(Character.toChars(ANIMAL));
-            case "QUILL" -> icon= new String(Character.toChars(QUILL));
-            case "INKWELL" ->  icon= new String(Character.toChars(INKWELL));
-            case "MANUSCRIPT" -> icon= new String(Character.toChars(MANUSCRIPT));
-            case "NON_COVERABLE" -> icon= new String(Character.toChars(NON_COVERABLE));
-            default -> icon= EMPTY;
+            case "INSECT" -> icon= INSECT;
+            case "PLANT" ->  icon= PLANT;
+            case "FUNGI" -> icon= FUNGI;
+            case "ANIMAL" ->  icon= ANIMAL;
+            case "QUILL" -> icon= QUILL;
+            case "INKWELL" ->  icon= INKWELL;
+            case "MANUSCRIPT" -> icon= MANUSCRIPT;
+            case "NON_COVERABLE" -> icon= NON_COVERABLE;
+            default -> icon= "  ";
         }
         return icon;
     }
@@ -788,13 +779,13 @@ public class TextUI extends UI implements Runnable {
     private static String iconArrayElement(int type) {
         String icon;
         switch (type) {
-            case 0 -> icon= new String(Character.toChars(PLANT));
-            case 1 -> icon= new String(Character.toChars(FUNGI));
-            case 2 -> icon= new String(Character.toChars(ANIMAL));
-            case 3 -> icon= new String(Character.toChars(INSECT));
-            case 4 -> icon= new String(Character.toChars(QUILL));
-            case 5 -> icon= new String(Character.toChars(INKWELL));
-            case 6 -> icon= new String(Character.toChars(MANUSCRIPT));
+            case 0 -> icon= PLANT;
+            case 1 -> icon= FUNGI;
+            case 2 -> icon= ANIMAL;
+            case 3 -> icon= INSECT;
+            case 4 -> icon= QUILL;
+            case 5 -> icon= INKWELL;
+            case 6 -> icon=MANUSCRIPT;
             default -> icon= EMPTY;
         }
         return icon;
@@ -809,7 +800,7 @@ public class TextUI extends UI implements Runnable {
             case "FUNGI" -> icon= new String(Character.toChars(FUNGICARD));
             case "ANIMAL" -> icon= new String(Character.toChars(ANIMALCARD));
             case "INSECT" -> icon= new String(Character.toChars(INSECARD));
-            default -> icon= EMPTY;
+            default -> icon= new String(Character.toChars(STARTERCARD));
         }
         return icon;
     }
