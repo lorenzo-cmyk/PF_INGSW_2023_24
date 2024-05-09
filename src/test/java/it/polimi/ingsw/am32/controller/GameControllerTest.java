@@ -35,9 +35,6 @@ public class GameControllerTest {
         public void resetTimeCounter() {
             // STUB
         }
-        public void setGameController(GameController gameController) {
-            // STUB
-        }
         public synchronized ArrayList<StoCMessage> getInternalMessages() {
             return internalMessages;
         }
@@ -833,6 +830,53 @@ public class GameControllerTest {
 
         assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
         assertInstanceOf(ResponsePlayerFieldMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+    }
+
+    @DisplayName("sendPlayerField should inform the player if the requested field's player does not exist")
+    @Test
+    void sendPlayerFieldPlayerDoesNotExist(){
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", gameController.getModel().getSecretObjectiveCardsPlayer("player1").getFirst());
+        gameController.chooseSecretObjectiveCard("player2", gameController.getModel().getSecretObjectiveCardsPlayer("player2").getFirst());
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
+        nodeInterfaceStub.clearInternalMessages();
+
+        gameController.sendPlayerField("player1", "player3");
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(NegativeResponsePlayerFieldMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
     }
 
     @DisplayName("placeCard should place the card on the field of the player if the placement is valid and inform the player or just inform the player if the placement is invalid")
