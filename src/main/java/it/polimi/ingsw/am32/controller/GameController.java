@@ -51,6 +51,13 @@ public class GameController implements GameControllerInterface {
      */
     private GameControllerStatus status;
 
+    /**
+     * Constructor for the GameController class. Initializes the game controller with the given id and game size.
+     * The game controller is initialized in the lobby phase. There is one GameController instance for each game.
+     *
+     * @param id The id of the game
+     * @param gameSize The number of players in the game at fully capacity
+     */
     public GameController(int id, int gameSize) {
         this.nodeList = new ArrayList<>();
         this.model = new Match();
@@ -492,6 +499,7 @@ public class GameController implements GameControllerInterface {
      *
      * @param requesterNickname The nickname of the player that sent the request message
      * @param playerNickname The nickname of the player whose field is requested
+     * @throws PlayerNotFoundException If the player whose field is requested could not be found
      */
     public synchronized void sendPlayerField(String requesterNickname, String playerNickname) throws PlayerNotFoundException {
         try {

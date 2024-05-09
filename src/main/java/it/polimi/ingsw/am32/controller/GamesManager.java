@@ -50,6 +50,7 @@ public class GamesManager {
      * @param playerCount The number of players that the game will have
      * @param node The server node associated with the given player
      * @return The GameController of the newly created game
+     * @throws InvalidPlayerNumberException If the player count is not between 2 and 4
      */
     public synchronized GameController createGame(String creatorName, int playerCount, NodeInterface node) throws InvalidPlayerNumberException {
         if(creatorName == null || creatorName.isBlank()) {
@@ -105,6 +106,8 @@ public class GamesManager {
      * @return The GameController of the game with the given code
      * @throws GameNotFoundException If no game with the given code is found
      * @throws FullLobbyException If the lobby of the game is full
+     * @throws GameAlreadyStartedException If the game has already started
+     * @throws DuplicateNicknameException If the player with the given nickname is already in the game
      */
     public synchronized GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException, FullLobbyException, GameAlreadyStartedException, DuplicateNicknameException {
         if(nickname == null || nickname.isBlank()) {
