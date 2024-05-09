@@ -13,7 +13,7 @@ public class RequestPlayerFieldMessage implements CtoSMessage {
     }
 
     @Override
-    public void elaborateMessage(GameController gameController) throws PlayerNotFoundException {
+    public void elaborateMessage(GameController gameController) {
         gameController.sendPlayerField(senderNickname, playerNickname);
     }
 }

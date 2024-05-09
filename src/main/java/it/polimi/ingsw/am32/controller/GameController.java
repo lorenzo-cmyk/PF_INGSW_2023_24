@@ -501,9 +501,15 @@ public class GameController implements GameControllerInterface {
      * @param playerNickname The nickname of the player whose field is requested
      * @throws PlayerNotFoundException If the player whose field is requested could not be found
      */
-    public synchronized void sendPlayerField(String requesterNickname, String playerNickname) throws PlayerNotFoundException {
+    public synchronized void sendPlayerField(String requesterNickname, String playerNickname) {
         try {
             submitVirtualViewMessage(new ResponsePlayerFieldMessage(requesterNickname, playerNickname, model.getPlayerField(playerNickname), model.getPlayerResources(playerNickname)));
+        } catch (PlayerNotFoundException e) { // The player whose field is requested could not be found
+            try {
+                submitVirtualViewMessage(new NegativeResponsePlayerFieldMessage(requesterNickname, playerNickname));
+            } catch (VirtualViewNotFoundException ex) {
+                throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
+            }
         } catch (VirtualViewNotFoundException e) { // The requester's VirtualView could not be found
             throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
         }
