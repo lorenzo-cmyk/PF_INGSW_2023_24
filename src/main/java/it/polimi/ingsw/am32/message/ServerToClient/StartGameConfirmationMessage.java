@@ -14,4 +14,8 @@ public class StartGameConfirmationMessage implements StoCMessage {
     public void processMessage(VirtualView virtualView) {
         // TODO
     }
+
+    public String getRecipientNickname() {
+        return recipientNickname;
+    }
 }

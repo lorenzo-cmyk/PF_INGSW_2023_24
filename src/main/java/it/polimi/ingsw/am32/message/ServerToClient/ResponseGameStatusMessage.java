@@ -49,4 +49,8 @@ public class ResponseGameStatusMessage implements StoCMessage {
     public void processMessage(VirtualView virtualView) {
         // TODO
     }
+
+    public String getRecipientNickname() {
+        return recipientNickname;
+    }
 }
