@@ -424,7 +424,6 @@ public class GameController implements GameControllerInterface {
      * @param id The id of the card to draw
      */
     public synchronized void drawCard(String nickname, int deckType, int id) {
-        // FIXME If someone tries to draw a card when getCurrentPlayerNickname is null, server will crash
         if (!nickname.equals(model.getCurrentPlayerNickname())) { // The player doesn't have the playing rights
             try {
                 submitVirtualViewMessage(new DrawCardFailedMessage(nickname, "It's not your turn to play. The current player is: " + model.getCurrentPlayerNickname()));
@@ -448,12 +447,28 @@ public class GameController implements GameControllerInterface {
             status = GameControllerStatus.WAITING_CARD_PLACEMENT; // Update game status
 
             // Notify the player that he has successfully drawn the card
-            submitVirtualViewMessage(new DrawCardConfirmationMessage(nickname, id));
+            submitVirtualViewMessage(new DrawCardConfirmationMessage(
+                    nickname,
+                    model.getPlayerHand(nickname).stream().mapToInt(Integer::intValue).toArray()
+            ));
+
+            // Notify to all the players that the deck size has changed
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                submitVirtualViewMessage(new DeckSizeUpdateMessage(
+                        playerQuadruple.getNickname(),
+                        model.getResourceCardDeckSize(),
+                        model.getGoldCardDeckSize(),
+                        model.getCurrentResourcesCards().stream().mapToInt(Integer::intValue).toArray(),
+                        model.getCurrentGoldCards().stream().mapToInt(Integer::intValue).toArray()
+                ));
+            }
 
             model.nextTurn(); // Update turn number and current player
 
             // Notify the players of the current player
-            submitVirtualViewMessage(new PlayerTurnMessage(nickname, model.getCurrentPlayerNickname()));
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+            }
 
             // After updating the current player, we need to update the game state
             if (model.isFirstPlayer()) { // The first player is now playing

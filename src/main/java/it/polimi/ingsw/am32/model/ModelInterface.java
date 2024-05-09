@@ -47,4 +47,6 @@ public interface ModelInterface {
     String getCurrentPlayerNickname();
     int getPlayerPoints(String nickname) throws PlayerNotFoundException;
     void rollbackPlacement() throws RollbackException, PlayerNotFoundException;
+    int getResourceCardDeckSize();
+    int getGoldCardDeckSize();
 }

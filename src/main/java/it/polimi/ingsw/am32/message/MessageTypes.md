@@ -231,7 +231,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "DrawCardConfirmationMessage",
   "recipientNickname": "playerName",
-  "cardID": 14
+  "playerHand": [14, 17, 21]
 }
 ```
 

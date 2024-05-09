@@ -737,4 +737,22 @@ public class Match implements ModelInterface {
         throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
+    /**
+     * Getter. Get the remaining cards in the resource card deck.
+     *
+     * @return The number of cards in the resource card deck.
+     */
+    public int getResourceCardDeckSize() {
+        return resourceCardsDeck.getCards().size();
+    }
+
+    /**
+     * Getter. Get the remaining cards in the gold card deck.
+     *
+     * @return The number of cards in the gold card deck.
+     */
+    public int getGoldCardDeckSize() {
+        return goldCardsDeck.getCards().size();
+    }
+
 }
