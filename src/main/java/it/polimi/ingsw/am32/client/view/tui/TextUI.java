@@ -1,10 +1,7 @@
 package it.polimi.ingsw.am32.client.view.tui;
 
 import it.polimi.ingsw.am32.Utilities.IsValid;
-import it.polimi.ingsw.am32.client.Event;
-import it.polimi.ingsw.am32.client.NonObjCardFactory;
-import it.polimi.ingsw.am32.client.ObjectiveCardFactory;
-import it.polimi.ingsw.am32.client.UI;
+import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
 
 import java.io.IOException;
@@ -14,8 +11,6 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage.*;
-import it.polimi.ingsw.am32.network.ClientNodeInterface;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -235,7 +230,7 @@ public class TextUI extends UI implements Runnable {
     @Override
     public void askNickname() {
         out.println("Insert the nickname you want to use in the game");
-        playerNickname = inputCheckString();
+        thisPlayerNickname = inputCheckString();
     }
 
     /**
@@ -260,7 +255,7 @@ public class TextUI extends UI implements Runnable {
             }
             break;
         } // notify the listener with the new game message
-        notifyAskListenerLobby(new NewGameMessage(playerNickname, playerNum));
+        notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
         //TODO wait for the response from the server
     }
 
@@ -275,11 +270,11 @@ public class TextUI extends UI implements Runnable {
     public void askJoinGame() {
         currentEvent = Event.JOIN_GAME;
         out.println("Insert the nickname you want to use in the game");
-        playerNickname = inputCheckString();
+        thisPlayerNickname = inputCheckString();
         out.println("Insert the Access ID of the game you want to join");
         gameID = inputCheckInt();
         // notify the listener with the access game message
-        notifyAskListenerLobby(new AccessGameMessage(gameID, playerNickname));
+        notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
         //TODO wait for the response from the server
     }
 
@@ -292,7 +287,7 @@ public class TextUI extends UI implements Runnable {
     public void askReconnectGame() {
         currentEvent = Event.RECONNECT_GAME;
         // don't need to ask the player nickname because it is already stored
-        notifyAskListener(new RequestGameStatusMessage(playerNickname));
+        notifyAskListener(new RequestGameStatusMessage(thisPlayerNickname));
         //TODO wait for the response from the server
     }
 
@@ -330,7 +325,7 @@ public class TextUI extends UI implements Runnable {
         int side = inputCheckInt();
         handleChoiceEvent(currentEvent, side);
         boolean isUP = side == 1;
-        notifyAskListener(new SelectedStarterCardSideMessage(playerNickname, isUP));
+        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, isUP));
         //TODO wait for the response from the server
     }
 
@@ -358,19 +353,101 @@ public class TextUI extends UI implements Runnable {
         int cardSide = inputCheckInt();
         //TODO
     }
+    @Override
+    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card,int x, int y, boolean isUp){
+        // once received the PlacedCardConfirmationMessage from the server, the card is searched in the
+        // hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
+        CardPlacedView cardView;
+        int posX=0;
+        int posY=0;
+        if(x*y>0){
+            posX=-2*x+80;
+            posY=2*y+80;
+        }else if(x*y<0){
+            posX =2*x+80;
+            posY =-2*y+80;
+        }else{
+            if(x==0&&y==0) {
+                posX = 80;
+                posY = 80;
+            }else if(x == 0) {
+                posX = -2 * y + 80;
+                posY = 80;
+            }else if(y == 0) {
+                posX = 80;
+                posY = 2 * x + 80;
+            }
+        }
+
+        ArrayList<CardPlacedView> field = publicInfo.get(playerNickname).getField();
+        String [][] board = publicInfo.get(playerNickname).getBoard();
+        String [] cornerType;
+        String EMPTY = iconCard(card.getKingdom());
+        int[] permRes= card.getPermRes(); //
+        String [] permResString= new String[]{EMPTY,EMPTY,EMPTY};
+        if (!card.getType().equals("STARTING")){
+            for(int i=0; i<permRes.length;i++){
+                if(permRes[i]!=0){
+                    permResString[1]=iconArrayElement(i);
+                    break;
+                }
+            }
+        }else {
+            int count=0;
+            for(int i=0; i<permRes.length;i++){
+                if(permRes[i]!=0){
+                    permResString[count]=iconArrayElement(i);
+                    count++;
+                }
+            }
+        }
+        // update the field of the player
+        if(isUp){
+            board[posX][posY] =EMPTY;
+            board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+EMPTY+ANSI_RESET;
+            board[posX][posY + 1] = ColourCard(card.getKingdom())+EMPTY+"|"+ANSI_RESET;
+            cornerType = card.getCorner();
+        }
+        else{
+            board[posX][posY] =permResString[1];
+            board[posX][posY- 1] =ColourCard(card.getKingdom())+"|"+permResString[0]+ANSI_RESET;
+            board[posX][posY + 1] = ColourCard(card.getKingdom())+permResString[2]+"|"+ANSI_RESET;
+            cornerType = card.getCornerBack();
+        }
+        String topLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[0])+ANSI_RESET;// TopLeft 1)
+        String topRight = ColourCard(card.getKingdom())+icon(cornerType[1])+"|"+ANSI_RESET;// TopRight 2)
+        String bottomLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[2])+ANSI_RESET;// BottomLeft 3)
+        String bottomRight = ColourCard(card.getKingdom())+icon(cornerType[3])+"|"+ANSI_RESET;// BottomRight 4)
+        field.add(new CardPlacedView(card.getID(),x,y,isUp));
+        // update the board of the player
+        board[posX - 1][posY] = EMPTY;
+        board[posX + 1][posY] = EMPTY;
+        board[posX - 1][posY+ 1] = topRight;
+        board[posX+ 1][posY+ 1] =bottomRight ;
+        board[posX - 1][posY - 1] = topLeft;
+        board[posX + 1][posY - 1] = bottomLeft;
+        // TODO update resources
+    }
 
 
     //-------------------View of the game-------------------
     public void showCardSelected() {
+        // show the version details of the card selected by the player --> call printNonObjCard or printObjCard
         out.println("The card selected is: " );
         //TODO show the card selected by the player
     }
     public void showPlacedCard() {
+        // when the player wants to see the details of the card placed --> call printNonObjCard
         //TODO use printNonObjCard to show the card placed by request of the player
     }
-    public void showPlayersField() {
+    public void showPlayersField(String playerNickname, String[][] field) {
+        // show the board of the player selected by the player
         //TODO mine and other players' field
     }
+    public void showResources() {
+        //TODO optional(show the array of the resources of the player)
+    }
+
 
     //-------------------Card Factory-------------------
 
@@ -636,10 +713,6 @@ public class TextUI extends UI implements Runnable {
             }
         }
     }
-
-
-
-
 
     /**
      * Use this method to set the color of the card based on the kingdom of the card.

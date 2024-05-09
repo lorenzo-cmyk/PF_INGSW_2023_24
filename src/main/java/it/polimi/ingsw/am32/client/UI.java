@@ -12,33 +12,40 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 
 public abstract class UI implements View, EventHandler{
     ClientNodeInterface clientNode;
-    protected String playerNickname;
-    protected int gameID;
-    protected int playerNum;
-    protected String currentPlayer;
-    protected String playerColour;
-    protected Event currentEvent;
-    protected ObjectiveCardFactory[] commonObjCards;
-    protected ArrayList<String> players;
-    protected ArrayList<NonObjCardFactory> hand;
-    protected ArrayList<ArrayList<String>> FieldView = new ArrayList<>();
-    protected NonObjCardFactory starterCard;
+    protected String thisPlayerNickname;
+    protected int gameID; //save the game ID received from the NewGameConfirmationMessage or AccessGameConfirmMessage.
+    protected int playerNum; //number of players connected to the game, if the player is disconnected, the number will
+                             // decrease.
+    protected ArrayList<String> players; //save and update the players in the game.
+    protected String currentPlayer; //save and update the current player by receiving the message from the server.
+    protected Event currentEvent; //TODO: not sure if this is useful
+    protected int[] commonObjCards;
+    protected int[] secretObjCards;
+    protected int secretObjCardSelected;
+    protected int starterCard;
+    protected ArrayList<Integer> hand;
+    protected int[] currentResourceCards;
+    protected int[] currentGoldCards;
+    protected Event Status;
+    protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
     protected static final ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
+    //TODO: add the attributes used by chat
     public UI() {
         this.playerNum = 0;
         this.currentPlayer = null;
-        this.playerNickname = null;
+        this.thisPlayerNickname = null;
         this.gameID = 0;
-        this.playerColour = null;
         this.currentEvent = null;
         this.commonObjCards = null;
         this.players = new ArrayList<>();
         this.hand = new ArrayList<>();
-        this.FieldView = new ArrayList<>();
+        this.publicInfo = new HashMap<>();
     }
 
     public abstract void showWelcome();
@@ -88,6 +95,8 @@ public abstract class UI implements View, EventHandler{
     public abstract void requestSelectSecretObjCard();
 
     public abstract void requestPlaceCard();
+
+    public abstract void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp);
 }
 
 
