@@ -2,7 +2,7 @@ package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
