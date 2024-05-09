@@ -1,6 +1,8 @@
-package it.polimi.ingsw.am32.network;
+package it.polimi.ingsw.am32.network.ServerNode;
 
-public class PingTask {
+import java.util.TimerTask;
+
+public class PingTask extends TimerTask {
     private final NodeInterface node;
     public PingTask(NodeInterface node) {
         this.node = node;
