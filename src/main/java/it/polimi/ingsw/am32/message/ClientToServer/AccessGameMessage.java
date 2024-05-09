@@ -18,10 +18,10 @@ public class AccessGameMessage implements CtoSLobbyMessage {
     }
 
     @Override
-    public void elaborateMessage(NodeInterface nodeInterface) throws GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException {
+    public GameController elaborateMessage(NodeInterface nodeInterface) throws GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException {
         try {
             GameController gameController = GamesManager.getInstance().accessGame(senderNickname, matchId, nodeInterface);
-            nodeInterface.setGameController(gameController);
+            return gameController;
             // Game was successfully joined
         } catch (GameNotFoundException | FullLobbyException | GameAlreadyStartedException | DuplicateNicknameException e) { // The game was not found, the lobby is full, the game has already started, or the nickname is already in use
             throw e;

@@ -38,10 +38,10 @@ public class NewGameMessage implements CtoSLobbyMessage {
      * @throws InvalidPlayerNumberException If the player count is not between 2 and 4
      */
     @Override
-    public void elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException {
+    public GameController elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException {
         try {
             GameController gameController = GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
-            nodeInterface.setGameController(gameController);
+            return gameController;
         } catch (InvalidPlayerNumberException e) { // The player count is not between 2 and 4
             throw e;
         }
