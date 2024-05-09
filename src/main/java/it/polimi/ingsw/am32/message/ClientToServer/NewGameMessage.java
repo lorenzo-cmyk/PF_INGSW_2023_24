@@ -3,7 +3,7 @@ package it.polimi.ingsw.am32.message.ClientToServer;
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.controller.GamesManager;
 import it.polimi.ingsw.am32.controller.exceptions.InvalidPlayerNumberException;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 
 /**
  * This class represents a message that is sent from the client to the server when a new game is created.

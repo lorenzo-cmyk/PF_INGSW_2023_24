@@ -6,7 +6,7 @@ import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.GameAlreadyStartedException;
 import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 
 public class AccessGameMessage implements CtoSLobbyMessage {
     private final int matchId;
