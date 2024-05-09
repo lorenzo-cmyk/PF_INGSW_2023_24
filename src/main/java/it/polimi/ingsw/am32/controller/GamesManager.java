@@ -5,7 +5,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 
 import java.util.ArrayList;
 import java.util.Random;

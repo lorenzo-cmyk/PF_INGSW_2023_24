@@ -7,7 +7,7 @@ import it.polimi.ingsw.am32.controller.exceptions.GameAlreadyStartedException;
 import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
 import it.polimi.ingsw.am32.controller.exceptions.InvalidPlayerNumberException;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 
 import java.io.InvalidClassException;
 import java.io.Serializable;
@@ -17,5 +17,5 @@ import java.io.Serializable;
  * It contains a single method to elaborate the message with a game manager.
  */
 public interface CtoSLobbyMessage extends Serializable {
-    void elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException, GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException;
+    GameController elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException, GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException;
 }

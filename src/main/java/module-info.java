@@ -6,6 +6,7 @@ module it.polimi.ingsw.am32 {
     requires com.fasterxml.jackson.databind;
     requires net.bytebuddy;
     requires org.apache.logging.log4j;
+    requires java.rmi;
 
     opens it.polimi.ingsw.am32 to javafx.fxml;
     exports it.polimi.ingsw.am32;

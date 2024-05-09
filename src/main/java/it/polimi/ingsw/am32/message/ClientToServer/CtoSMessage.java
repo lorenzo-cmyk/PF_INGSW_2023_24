@@ -16,5 +16,5 @@ public interface CtoSMessage extends Serializable {
      *
      * @param gameController The game controller with which the message should be elaborated
      */
-    void elaborateMessage(GameController gameController) throws PlayerNotFoundException;
+    void elaborateMessage(GameController gameController);
 }

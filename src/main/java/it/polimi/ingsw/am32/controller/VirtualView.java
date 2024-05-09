@@ -2,7 +2,8 @@ package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 
 import java.util.ArrayList;
 
@@ -77,8 +78,18 @@ public class VirtualView implements VirtualViewInterface, Runnable {
                 return;
             }
         }
-        StoCMessage message = messageQueue.removeFirst();
-        connectionNode.uploadToClient(message);
+        StoCMessage message = messageQueue.getFirst();
+        try {
+            connectionNode.uploadToClient(message);
+            messageQueue.removeFirst();
+        } catch (UploadFailureException e) {
+            // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
+            try {
+                wait();
+            } catch (InterruptedException e1) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**

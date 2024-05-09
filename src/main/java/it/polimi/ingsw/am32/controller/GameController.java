@@ -12,7 +12,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
 
 /**
@@ -501,9 +501,15 @@ public class GameController implements GameControllerInterface {
      * @param playerNickname The nickname of the player whose field is requested
      * @throws PlayerNotFoundException If the player whose field is requested could not be found
      */
-    public synchronized void sendPlayerField(String requesterNickname, String playerNickname) throws PlayerNotFoundException {
+    public synchronized void sendPlayerField(String requesterNickname, String playerNickname) {
         try {
             submitVirtualViewMessage(new ResponsePlayerFieldMessage(requesterNickname, playerNickname, model.getPlayerField(playerNickname), model.getPlayerResources(playerNickname)));
+        } catch (PlayerNotFoundException e) { // The player whose field is requested could not be found
+            try {
+                submitVirtualViewMessage(new NegativeResponsePlayerFieldMessage(requesterNickname, playerNickname));
+            } catch (VirtualViewNotFoundException ex) {
+                throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
+            }
         } catch (VirtualViewNotFoundException e) { // The requester's VirtualView could not be found
             throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
         }
@@ -543,12 +549,16 @@ public class GameController implements GameControllerInterface {
         }
     }
 
-    protected ArrayList<PlayerQuadruple> getNodeList() {
-        return nodeList;
+    /**
+     * Getter for the ID of the game controller
+     * @return The ID of the game controller
+     */
+    public int getId() {
+        return id;
     }
 
-    protected int getId() {
-        return id;
+    protected ArrayList<PlayerQuadruple> getNodeList() {
+        return nodeList;
     }
 
     protected int getGameSize() {

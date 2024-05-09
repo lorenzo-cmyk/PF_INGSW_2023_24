@@ -7,7 +7,7 @@ import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
 import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Field;
@@ -820,11 +820,7 @@ public class GameControllerTest {
         NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().getFirst().getNode();
         nodeInterfaceStub.clearInternalMessages();
 
-        try {
-            gameController.sendPlayerField("player1", "player2");
-        } catch (PlayerNotFoundException e) {
-            fail();
-        }
+        gameController.sendPlayerField("player1", "player2");
 
         // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
