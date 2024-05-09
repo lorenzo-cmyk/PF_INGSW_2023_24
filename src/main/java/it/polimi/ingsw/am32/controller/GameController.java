@@ -543,12 +543,16 @@ public class GameController implements GameControllerInterface {
         }
     }
 
-    protected ArrayList<PlayerQuadruple> getNodeList() {
-        return nodeList;
+    /**
+     * Getter for the ID of the game controller
+     * @return The ID of the game controller
+     */
+    public int getId() {
+        return id;
     }
 
-    protected int getId() {
-        return id;
+    protected ArrayList<PlayerQuadruple> getNodeList() {
+        return nodeList;
     }
 
     protected int getGameSize() {
