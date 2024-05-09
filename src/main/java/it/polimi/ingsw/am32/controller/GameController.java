@@ -21,7 +21,7 @@ import it.polimi.ingsw.am32.model.ModelInterface;
  *
  * @author Anto
  */
-public class GameController implements GameControllerInterface {
+public class GameController {
     /**
      * nodeList: A list of all the nodes that are currently connected to the game (RMI or Socket)
      */
