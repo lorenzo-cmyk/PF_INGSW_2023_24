@@ -1457,9 +1457,10 @@ public class GameControllerTest {
 
         assertEquals(GameControllerStatus.WAITING_CARD_PLACEMENT, gameController.getStatus());
         assertNotEquals(gameController.getModel().getCurrentPlayerNickname(), currentPlayer);
-        assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+        assertEquals(3, nodeInterfaceStub.getInternalMessages().size());
         assertInstanceOf(DrawCardConfirmationMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
-        assertInstanceOf(PlayerTurnMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(DeckSizeUpdateMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+        assertInstanceOf(PlayerTurnMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
     }
 
 }
