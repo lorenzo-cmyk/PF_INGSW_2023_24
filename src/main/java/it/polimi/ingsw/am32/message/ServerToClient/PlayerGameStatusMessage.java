@@ -23,12 +23,14 @@ public class PlayerGameStatusMessage implements StoCMessage {
     private final int matchStatus;
     private final ArrayList<ChatMessage> chatHistory;
     private final String currentPlayer;
+    private final ArrayList<int[]> newAvailableFieldSpaces;
 
     public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
                                    ArrayList<Integer> playerHand, int playerSecretObjective, int playerPoints,
                                    ArrayList<int[]> playerField, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
                                    ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
-                                   int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory, String currentPlayer) {
+                                   int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory, String currentPlayer,
+                                   ArrayList<int[]> newAvailableFieldSpaces) {
         this.recipientNickname = recipientNickname;
         this.playerNicknames = playerNicknames;
         this.playerConnected = playerConnected;
@@ -46,6 +48,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
         this.matchStatus = matchStatus;
         this.chatHistory = chatHistory;
         this.currentPlayer = currentPlayer;
+        this.newAvailableFieldSpaces = newAvailableFieldSpaces;
     }
 
     @Override

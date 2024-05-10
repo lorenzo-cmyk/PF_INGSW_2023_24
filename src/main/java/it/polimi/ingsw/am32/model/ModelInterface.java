@@ -49,4 +49,5 @@ public interface ModelInterface {
     void rollbackPlacement() throws RollbackException, PlayerNotFoundException;
     int getResourceCardDeckSize();
     int getGoldCardDeckSize();
+    ArrayList<int[]> getAvailableSpacesPlayer(String nickname) throws PlayerNotFoundException;
 }

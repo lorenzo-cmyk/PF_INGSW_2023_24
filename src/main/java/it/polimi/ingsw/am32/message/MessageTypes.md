@@ -177,7 +177,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "gameResourcesDeckSize": 30,
   "gameGoldDeckSize": 31,
   "matchStatus": "Status",
-  "playerChatHistory": [
+  "chatHistory": [
     {
       "senderNickname": "playerName",
       "recipientNickname": "playerName",
@@ -185,7 +185,8 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
       "content": "Message"
     }
   ],
-  "currentPlayer": "playerName"
+  "currentPlayer": "playerName",
+  "newAvailableFieldSpaces": [[1,2],[3,4], [5,6]]
 }
 ```
 
@@ -204,7 +205,8 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "PlaceCardConfirmationMessage",
   "recipientNickname": "playerName",
   "playerResources": [1, 1, 1, 1, 1, 1, 1],
-  "points": 5
+  "points": 5,
+  "newAvailableFieldSpaces": [[1,2],[3,4],[5,6]]
 }
 ```
 
