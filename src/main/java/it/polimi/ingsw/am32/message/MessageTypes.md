@@ -158,10 +158,10 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 
 ### Game Messages
 
-- ResponseGameStatusMessage : sent by the Server to notify the current game status.
+- PlayerGameStatusMessage : sent by the Server to notify the current game status.
 ```json
 {
-  "type": "ResponseGameStatusMessage",
+  "type": "PlayerGameStatusMessage",
   "recipientNickname": "playerName",
   "playerNicknames": ["player1", "player2"],
   "playerConnected": [true, false],
