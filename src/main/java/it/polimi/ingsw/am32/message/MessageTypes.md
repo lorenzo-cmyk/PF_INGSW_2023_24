@@ -164,11 +164,11 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "PlayerGameStatusMessage",
   "recipientNickname": "playerName",
   "playerNicknames": ["player1", "player2"],
+  "playerConnected": [true, false],
   "playerColours": [1, 4],
   "playerHand": [10, 11, 12],
   "playerSecretObjective": 9,
   "playerPoints": 5,
-  "playerColour": "Red",
   "playerField": [[0, 0, 31, true], [1, 1, 30, true], [-1, -1, 29, false]],
   "playerResources": [1, 1, 1, 1, 1, 1, 1],
   "gameCommonObjectives": [50, 51],
@@ -184,7 +184,8 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
       "multicastFlag": true,
       "content": "Message"
     }
-  ]
+  ],
+  "currentPlayer": "playerName"
 }
 ```
 
