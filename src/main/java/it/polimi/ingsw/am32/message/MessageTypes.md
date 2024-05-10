@@ -20,8 +20,8 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 ```json
 {
     "type": "AccessGameMessage",
-    "matchID": 10,
-    "senderNickname": "playerName"
+    "senderNickname": "playerName",
+    "matchID": 10
 }
 ```
 
@@ -38,7 +38,7 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 - PlaceCardMessage: sent by a Client to place a card on its field.
 ```json
 {
-  "type": "PlayCardMessage",
+  "type": "PlaceCardMessage",
   "senderNickname": "playerName",
   "cardID": 10,
   "row": 1,
@@ -50,7 +50,7 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 - DrawCardMessage: sent by a Client to notify the Server that a card had been chosen to be drawn.
 ```json
 {
-  "type": "PlayCardMessage",
+  "type": "DrawCardMessage",
   "senderNickname": "playerName",
   "deckType": 1,
   "cardID": 23 // Optional parameter used if face-up card is drawn
@@ -151,17 +151,17 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 - GameStartedMessage: sent by the Server to announce the start of the game.
 ```json
 {
-  "type": "StartGameConfirmation",
+  "type": "GameStartedMessage",
   "recipientNickname": "playerName"
 }
 ```
 
 ### Game Messages
 
-- PlayerGameStatusMessage : sent by the Server to notify the current game status.
+- ResponseGameStatusMessage : sent by the Server to notify the current game status.
 ```json
 {
-  "type": "PlayerGameStatusMessage",
+  "type": "ResponseGameStatusMessage",
   "recipientNickname": "playerName",
   "playerNicknames": ["player1", "player2"],
   "playerConnected": [true, false],
@@ -267,6 +267,15 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "playerNickname": "playerName",
   "playerField": [[0, 0, 31, true], [1, 1, 30, true], [-1, -1, 29, false]],
   "playerResources": [1, 1, 1, 1, 1, 1, 1]
+}
+```
+
+- NegativeResponsePlayerFieldMessage: sent by the Server to notify the player that the requested player field does not exist.
+```json
+{
+  "type": "NegativeResponsePlayerFieldMessage",
+  "recipientNickname": "playerName",
+  "playerNickname": "playerName",
 }
 ```
 
@@ -386,5 +395,14 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "PongMessage",
   "recipientNickname": "playerName"
+}
+```
+
+- ErrorMessages: sent by the Server to notify the Client of an error.
+```json
+{
+  "type": "ErrorMessages",
+  "recipientNickname": "playerName",
+  "message": "Error"
 }
 ```
