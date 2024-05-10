@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.controller;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ class VirtualViewTest {
 
     // Stub class for NodeInterface and StoCMessage. Used to test VirtualView.
     private static class NodeInterfaceStub implements NodeInterface {
-        public void uploadToClient(StoCMessage message) {}
+        public void uploadToClient(StoCMessage message) throws UploadFailureException {}
         public void pingTimeOverdue() {}
         public void resetTimeCounter() {}
         public void setGameController(GameController gameController) {}
@@ -252,6 +253,37 @@ class VirtualViewTest {
         } catch (InterruptedException e) {
             fail();
         }
+    }
+
+    @DisplayName("Should wait when UploadFailureException is thrown")
+    @Test
+    void shouldWaitWhenUploadFailureExceptionIsThrown() {
+        // Create a VirtualView with a NodeInterface that throws UploadFailureException
+        NodeInterface node = new NodeInterfaceStub() {
+            @Override
+            public void uploadToClient(StoCMessage message) throws UploadFailureException {
+                throw new UploadFailureException();
+            }
+        };
+        VirtualView virtualView = new VirtualView(node);
+
+        // Create a ThreadPoolExecutor with a single thread: the VirtualView
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+        executor.execute(virtualView);
+
+        // Add a message to the VirtualView
+        StoCMessage message = new StoCMessageStub();
+        virtualView.addMessage(message);
+
+        // Give some time for the VirtualView to process the message
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that the message has not been processed and is still in the queue
+        assertFalse(virtualView.getMessageQueue().isEmpty());
     }
 
 }
