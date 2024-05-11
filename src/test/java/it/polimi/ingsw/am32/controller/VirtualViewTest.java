@@ -26,7 +26,7 @@ class VirtualViewTest {
 
     private static class StoCMessageStub implements StoCMessage {
         public StoCMessageStub() {}
-        public void processMessage(VirtualView virtualView) {}
+        public void processMessage() {}
         public String getRecipientNickname() {
             return "";
         }

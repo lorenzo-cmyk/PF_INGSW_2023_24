@@ -53,7 +53,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
 
     @Override
     public void processMessage() {
-        // TODO
+
     }
 
     @Override

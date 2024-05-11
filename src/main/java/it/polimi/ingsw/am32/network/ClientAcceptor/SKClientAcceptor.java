@@ -40,7 +40,8 @@ public class SKClientAcceptor implements Runnable {
 
             } catch (IOException e) {
                 logger.error("Connection accept failed: {}", e.getMessage());
-
+            } catch (UninitializedException e) {
+                logger.error("SKServerNode initialization failed");
             }
         }
     }

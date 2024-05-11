@@ -2,7 +2,7 @@ package it.polimi.ingsw.am32.client;
 
 
 import it.polimi.ingsw.am32.network.ClientNodeInterface;
-import it.polimi.ingsw.am32.network.RMIClientAcceptor;
+import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.RMIClientNode;
 import it.polimi.ingsw.am32.network.SKClientNode;
 
