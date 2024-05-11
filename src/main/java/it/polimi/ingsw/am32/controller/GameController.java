@@ -217,12 +217,15 @@ public class GameController {
         try {
             model.addObjectivePoints();
             ArrayList<String> winners = model.getWinners();
+            // FIXME Need to notify players of points gained by objective cards?
+            // FIXME Need to notify players of objective cards of other players?
 
             for (PlayerQuadruple playerQuadruple : nodeList) {
                 // Notify the player of the status of the match
                 submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
                 // Notify the player of the winners
                 submitVirtualViewMessage(new MatchWinnersMessage(playerQuadruple.getNickname(), winners));
+                // FIXME Added player points to MatchWinnersMessage
             }
         } catch (AlreadyComputedPointsException e) {
             throw new CriticalFailureException("Points have already been computed");
@@ -260,7 +263,8 @@ public class GameController {
 
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
             // Notify the player that he has successfully chosen his starting card's side
-            submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(nickname));
+            submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(nickname, model.getPlayerColour(nickname)));
+            // FIXME Player resources and available spaces
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -279,6 +283,7 @@ public class GameController {
                  status = GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE;
 
                  for (PlayerQuadruple playerQuadruple : nodeList) {
+                     // FIXME Players should receive their assigned resource, gold cards, and common objectives. Either create new message or add to AssignedSecret...
                      submitVirtualViewMessage(new AssignedSecretObjectiveCardMessage(playerQuadruple.getNickname(), model.getSecretObjectiveCardsPlayer(playerQuadruple.getNickname())));
                  }
             }
@@ -342,6 +347,7 @@ public class GameController {
                     submitVirtualViewMessage(generateResponseGameStatusMessage(playerQuadruple.getNickname()));
                     // Notify the players of the current player
                     submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+                    // FIXME PlayerTurnMessage not needed here as it is already present in the big message
                 }
             }
         } catch (InvalidSelectionException e) { // The player has chosen an invalid secret objective card
@@ -392,6 +398,7 @@ public class GameController {
 
             // Notify the player that he has successfully placed the card
             submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname), model.getAvailableSpacesPlayer(nickname)));
+            // FIXME Need to send everyone player new resources, and points, and information about placed card (x,y,id,side); problem is that if a client disconnects, we need to roll back the information
 
             if (model.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) {
                 model.nextTurn();
@@ -529,6 +536,7 @@ public class GameController {
             throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
         }
     }
+    // FIXME No longer needed? :/
 
     /**
      * Generates a response game status message for a given player.

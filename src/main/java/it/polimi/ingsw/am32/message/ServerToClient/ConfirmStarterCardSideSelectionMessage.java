@@ -4,9 +4,11 @@ import it.polimi.ingsw.am32.controller.VirtualView;
 
 public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
     private final String recipientNickname;
+    private final int playerColour;
 
-    public ConfirmStarterCardSideSelectionMessage(String recipientNickname) {
+    public ConfirmStarterCardSideSelectionMessage(String recipientNickname, int playerColour) {
         this.recipientNickname = recipientNickname;
+        this.playerColour = playerColour;
     }
 
     public String getRecipientNickname() {
