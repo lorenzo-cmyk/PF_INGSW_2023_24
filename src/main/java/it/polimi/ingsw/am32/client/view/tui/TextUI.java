@@ -7,6 +7,7 @@ import it.polimi.ingsw.am32.message.ClientToServer.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -43,6 +44,7 @@ public class TextUI extends UI implements Runnable {
     private final Scanner in;
     private final PrintStream out;
     private final IsValid isValid = new IsValid();
+    private final HashMap<String,BoardView> boards;
     private static final int ANIMALCARD = 0X1F7E6; // Unicode for the card
     private static final int PLANTCARD = 0X1F7E9;
     private static final int FUNGICARD = 0X1F7E5;
@@ -53,12 +55,7 @@ public class TextUI extends UI implements Runnable {
     private static final String ANSI_GREEN = "\u001B[32m";
     private static final String ANSI_BLUE = "\u001B[34m";
     private static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_RED_BACKGROUND = "\u001B[41m";
-    public static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
-    public static final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
-    public static final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
-    // Unicode for the corner type, object and resource of the card
-    private static final String INSECT ="\uD83E\uDD8B";
+    private static final String INSECT ="\uD83E\uDD8B";   // Unicode for the corner type, object and resource of the card
     private static final String PLANT = "\uD83C\uDF3F";
     private static final String FUNGI = "\uD83C\uDF44";
     private static final String ANIMAL = "\uD83D\uDC3A";
@@ -75,6 +72,7 @@ public class TextUI extends UI implements Runnable {
         super();
         in = new Scanner(System.in);
         out = new PrintStream(System.out);
+        boards = new HashMap<>();
     }
 
     /**
@@ -292,11 +290,40 @@ public class TextUI extends UI implements Runnable {
         notifyAskListener(new RequestGameStatusMessage(thisPlayerNickname));
         //TODO wait for the response from the server
     }
+    public void setUpEnterPreparationPhase(ArrayList<String> players,ArrayList<Integer>colors,ArrayList<Integer>Hand,
+                                           int SecretObjCard, int points, int colour, ArrayList<int[]>field,
+                                           int[] resources, ArrayList<Integer> commonObjCards,
+                                           ArrayList<Integer> currentResourceCards, ArrayList<Integer> currentGoldCards,
+                                           int currentResourceDeckSize, int currentGoldDeckSize,
+                                           int matchStatus){
+        // after receiving the message from the server, the method is called to set up/initiate the view of the player
+        currentEvent= Event.GAME_PREPARATION;
+
+        this.players=players;
+        for(int i=0; i<players.size();i++){
+            publicInfo.put(players.get(i),new PlayerPub(convertColorToString(colors.get(i)),0,new
+                    ArrayList<CardPlacedView>(),new int[]{0,0,0,0,0,0,0}));
+            boards.put(players.get(i),new BoardView(new int[4],new String[160][160]));
+        }
+
+        this.currentResourceCards=currentResourceCards;
+        this.currentGoldCards=currentGoldCards;
+        this.commonObjCards=commonObjCards;
+        this.currentPlayer=null;
+        this.hand=Hand;
+        this.secretObjCardSelected=SecretObjCard;
+        this.resourceDeckSize=currentResourceDeckSize;
+        this.goldDeckSize=currentGoldDeckSize;
+        //TODO finish the method
+
+        }
 
     //-------------------Game start-----------------------
     @Override
     public void showInitialView() {
-        //TODO show players colour, show the empty field view, show the list of the players
+        currentEvent= Event.GAME_PREPARATION;
+
+
     }
 
     @Override
@@ -355,80 +382,85 @@ public class TextUI extends UI implements Runnable {
         int cardSide = inputCheckInt();
         //TODO
     }
-    @Override
-    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card,int x, int y, boolean isUp){
-        // once received the PlacedCardConfirmationMessage from the server, the card is searched in the
-        // hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
-        CardPlacedView cardView;
-        int posX=0;
-        int posY=0;
-        if(x*y>0){
-            posX=-2*x+80;
-            posY=2*y+80;
-        }else if(x*y<0){
-            posX =2*x+80;
-            posY =-2*y+80;
-        }else{
-            if(x==0&&y==0) {
-                posX = 80;
-                posY = 80;
-            }else if(x == 0) {
-                posX = -2 * y + 80;
-                posY = 80;
-            }else if(y == 0) {
-                posX = 80;
-                posY = 2 * x + 80;
-            }
-        }
 
-        ArrayList<CardPlacedView> field = publicInfo.get(playerNickname).getField();
-        String [][] board = publicInfo.get(playerNickname).getBoard();
+
+    @Override
+    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card,int x, int y, boolean isUp,
+                                      ArrayList<int[]>availablePos, int[]resources,int points){
+        /*once received the PlacedCardConfirmationMessage from the server, the card is searched in the
+        hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
+        the board of the player.*/
+        // update the field of the player
+        publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(),x,y,isUp));
+        publicInfo.get(playerNickname).updateResources(resources); // update the resources
+        publicInfo.get(playerNickname).updatePoints(points); // update the points
+        // represents the sequence of the card placed in the field.
+        int num =  publicInfo.get(playerNickname).getField().size();
+        BoardView boardView= boards.get(playerNickname);
+        String[][] board= boardView.getBoard();
+        int[] limits = boardView.getLimits();
+        //convert the x and y coordinates to the position in the board.
+        int posX=-2*y+80;
+        int posY=2*x+80;
+        updateBoardViewLimits(posX,posY,limits);
+
         String [] cornerType;
-        String EMPTY = iconCard(card.getKingdom());
-        int[] permRes= card.getPermRes(); //
+        String EMPTY = iconCard(card.getKingdom()); // set the empty space of the card based on the colour of kingdom.
+        int[] permRes= card.getPermRes(); // get the permanent resources of the card.
         String [] permResString= new String[]{EMPTY,EMPTY,EMPTY};
-        if (!card.getType().equals("STARTING")){
-            for(int i=0; i<permRes.length;i++){
+        if (!card.getType().equals("STARTING")){  // if the card is not a starting card.
+            for(int i=0; i<permRes.length;i++){ // search the permanent resources of the card.
                 if(permRes[i]!=0){
-                    permResString[1]=iconArrayElement(i);
-                    break;
+                    permResString[0]=iconArrayElement(i); //convert the permanent resources to the icon.
+                    permResString[1]=String.format("%2s",num);
+                    break; // because the resource/gold card has only one permanent resource.
                 }
             }
-        }else {
+        }else { // if the card is a starting card
             int count=0;
             for(int i=0; i<permRes.length;i++){
                 if(permRes[i]!=0){
-                    permResString[count]=iconArrayElement(i);
+                    permResString[count]=iconArrayElement(i); // convert the permanent resources to the icon.
                     count++;
                 }
             }
         }
-        // update the field of the player
+        // update the board of the player
         if(isUp){
             board[posX][posY] =EMPTY;
             board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+EMPTY+ANSI_RESET;
-            board[posX][posY + 1] = ColourCard(card.getKingdom())+EMPTY+"|"+ANSI_RESET;
+            // stored the number which represents the sequence number of the card placed in the field.
+            board[posX][posY + 1] = ColourCard(card.getKingdom())+String.format("%2s",num)+"|"+ANSI_RESET;
             cornerType = card.getCorner();
         }
         else{
-            board[posX][posY] =permResString[1];
-            board[posX][posY- 1] =ColourCard(card.getKingdom())+"|"+permResString[0]+ANSI_RESET;
+            board[posX][posY] = permResString[1];
+            board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+permResString[0]+ANSI_RESET;
             board[posX][posY + 1] = ColourCard(card.getKingdom())+permResString[2]+"|"+ANSI_RESET;
             cornerType = card.getCornerBack();
         }
-        String topLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[0])+ANSI_RESET;// TopLeft 1)
-        String topRight = ColourCard(card.getKingdom())+icon(cornerType[1])+"|"+ANSI_RESET;// TopRight 2)
-        String bottomLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[2])+ANSI_RESET;// BottomLeft 3)
-        String bottomRight = ColourCard(card.getKingdom())+icon(cornerType[3])+"|"+ANSI_RESET;// BottomRight 4)
-        field.add(new CardPlacedView(card.getID(),x,y,isUp));
-        // update the board of the player
+        String topLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[0])+ANSI_RESET; // TopLeft 1)
+        String topRight = ColourCard(card.getKingdom())+icon(cornerType[1])+"|"+ANSI_RESET; // TopRight 2)
+        String bottomLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[2])+ANSI_RESET; // BottomLeft 3)
+        String bottomRight = ColourCard(card.getKingdom())+icon(cornerType[3])+"|"+ANSI_RESET; // BottomRight 4)
         board[posX - 1][posY] = EMPTY;
         board[posX + 1][posY] = EMPTY;
         board[posX - 1][posY+ 1] = topRight;
-        board[posX+ 1][posY+ 1] =bottomRight ;
+        board[posX+ 1][posY+ 1] = bottomRight ;
         board[posX - 1][posY - 1] = topLeft;
         board[posX + 1][posY - 1] = bottomLeft;
-        // TODO update resources
+        /* if player is the owner of this UI, store the available positions in the board of the player, and update the
+        board limits. In this way, the player can see the available positions for the next turn of the placement.*/
+        if(playerNickname.equals(thisPlayerNickname)) {
+            for (int[] pos : availablePos) {
+                posX = -2 * pos[1] + 80;
+                posY = 2 * pos[0] + 80;
+                updateBoardViewLimits(posX, posY, limits);
+                board[posX][posY] = " , ";
+                board[posX][posY - 1] = String.format("%3d", (pos[0]));
+                board[posX][posY + 1] = String.format("%-3d", (pos[1]));
+            }
+        }
     }
 
 
@@ -805,6 +837,20 @@ public class TextUI extends UI implements Runnable {
         return icon;
     }
     //-------------------utilities-------------------
+
+    /**
+     * Used method to update the dimensions of the board view of the player after placing a card on the board. The
+     * method is called by the {@link #updateAfterPlacedCard} method.
+     * @param posX the x coordinate of the card placed.
+     * @param posY the y coordinate of the card placed.
+     * @param limits the array of the limits contains the maximum x and y and the minimum x and y updated.
+     */
+    private void updateBoardViewLimits(int posX, int posY, int[] limits){
+        limits[0]=Math.max(limits[0],posX+1);
+        limits[1]=Math.min(limits[1],posX-1);
+        limits[2]=Math.max(limits[2],posY+1);
+        limits[3]=Math.min(limits[3],posY-1);
+    }
     @Override
     public void handleEvent(Event event) {
         //TODO
@@ -827,8 +873,10 @@ public class TextUI extends UI implements Runnable {
             case CREATE_GAME -> System.out.println("Creating game...");
             case JOIN_GAME -> System.out.println("Joining game...");
             case RECONNECT_GAME -> System.out.println("Reconnecting game...");
+            case GAME_START -> out.println("OH YEAH! Let's start the game!");
             case PLACE_CARD -> System.out.println("Placing card...");
             case DRAW_CARD -> System.out.println("Drawing card...");
+            //TODO
         }
 
     }
@@ -871,6 +919,28 @@ public class TextUI extends UI implements Runnable {
         }
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+    public String convertColorToString(int colour){
+        switch (colour){
+            case 0 -> {
+                return "RED";
+            }
+            case 1 -> {
+                return "GREEN";
+            }
+            case 2 -> {
+                return "BLUE";
+            }
+            case 3 -> {
+                return "YELLOW";
+            }
+            case 4 -> {
+                return "BLACK";
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 
 

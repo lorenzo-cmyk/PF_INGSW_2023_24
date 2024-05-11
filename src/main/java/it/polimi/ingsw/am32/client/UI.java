@@ -24,14 +24,16 @@ public abstract class UI implements View, EventHandler{
     protected ArrayList<String> players; //save and update the players in the game.
     protected String currentPlayer; //save and update the current player by receiving the message from the server.
     protected Event currentEvent; //TODO: not sure if this is useful
-    protected int[] commonObjCards;
+    protected ArrayList<Integer> commonObjCards;
     protected int[] secretObjCards;
     protected int secretObjCardSelected;
     protected int starterCard;
     protected ArrayList<Integer> hand;
-    protected int[] currentResourceCards;
-    protected int[] currentGoldCards;
-    protected Event Status;
+    protected ArrayList<Integer> currentResourceCards;
+    protected ArrayList<Integer>  currentGoldCards;
+    protected int resourceDeckSize;
+    protected int goldDeckSize;
+    protected String Status;
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
     protected static final ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
@@ -96,7 +98,10 @@ public abstract class UI implements View, EventHandler{
 
     public abstract void requestPlaceCard();
 
-    public abstract void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp);
+
+    public abstract void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y,
+                                               boolean isUp, ArrayList<int[]> availablePos, int[] resources,
+                                               int points);
 }
 
 

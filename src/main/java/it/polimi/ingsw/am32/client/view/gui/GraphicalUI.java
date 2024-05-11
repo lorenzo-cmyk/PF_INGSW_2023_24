@@ -10,6 +10,8 @@ import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientNodeInterface;
 
+import java.util.ArrayList;
+
 public class GraphicalUI extends UI implements View {
 
 
@@ -103,9 +105,10 @@ public class GraphicalUI extends UI implements View {
     }
 
     @Override
-    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp) {
+    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp, ArrayList<int[]> availablePos, int[] resources, int points) {
 
     }
+
 
     @Override
     public void handleEvent(Event event) {
