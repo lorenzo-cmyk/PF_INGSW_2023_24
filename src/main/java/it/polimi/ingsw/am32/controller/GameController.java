@@ -532,6 +532,7 @@ public class GameController {
 
     /**
      * Generates a response game status message for a given player.
+     *
      * @param nickname The nickname of the player to generate the message for
      * @return The generated response game status message
      */
@@ -568,7 +569,8 @@ public class GameController {
     }
 
     /**
-     * Getter for the ID of the game controller
+     * Getter for the ID of the game controller.
+     *
      * @return The ID of the game controller
      */
     public int getId() {
