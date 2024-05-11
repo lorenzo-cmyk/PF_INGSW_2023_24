@@ -15,6 +15,6 @@ public class DrawCardMessage implements CtoSMessage {
 
     @Override
     public void elaborateMessage(GameController gameController) {
-        // TODO
+        gameController.drawCard(senderNickname, deckType, cardId);
     }
 }

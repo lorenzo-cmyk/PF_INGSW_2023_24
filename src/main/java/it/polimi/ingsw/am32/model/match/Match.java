@@ -737,4 +737,37 @@ public class Match implements ModelInterface {
         throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
+    /**
+     * Getter. Get the remaining cards in the resource card deck.
+     *
+     * @return The number of cards in the resource card deck.
+     */
+    public int getResourceCardDeckSize() {
+        return resourceCardsDeck.getCards().size();
+    }
+
+    /**
+     * Getter. Get the remaining cards in the gold card deck.
+     *
+     * @return The number of cards in the gold card deck.
+     */
+    public int getGoldCardDeckSize() {
+        return goldCardsDeck.getCards().size();
+    }
+
+    /**
+     * Getter. Get the list of all available spaces in the player's field upon which a card can be freely played.
+     *
+     * @param nickname The nickname of the player whose available spaces we want to get.
+     * @return ArrayList of integer arrays containing the x and y coordinates of all available spaces in the player's field.
+     */
+    public ArrayList<int[]> getAvailableSpacesPlayer(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.availableSpacesPlayer();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
+    }
+
 }

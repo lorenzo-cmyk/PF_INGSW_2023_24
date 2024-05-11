@@ -48,6 +48,11 @@ public class Chat {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Returns the chat history.
+     *
+     * @return An ArrayList of ChatMessage objects
+     */
     public ArrayList<ChatMessage> getHistory() {
         return chatHistory;
     }

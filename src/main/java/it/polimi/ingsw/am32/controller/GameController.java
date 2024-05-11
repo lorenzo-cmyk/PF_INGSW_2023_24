@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.controller;
 
 import java.util.ArrayList;
 import java.util.Timer;
+import java.util.stream.Collectors;
 
 import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
@@ -11,7 +12,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
-import it.polimi.ingsw.am32.network.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
 
 /**
@@ -20,9 +21,9 @@ import it.polimi.ingsw.am32.model.ModelInterface;
  *
  * @author Anto
  */
-public class GameController implements GameControllerInterface {
+public class GameController {
     /**
-     * nodeList: A list of all the nodes that are currently connected to the game (rmi or socket)
+     * nodeList: A list of all the nodes that are currently connected to the game (RMI or Socket)
      */
     private final ArrayList<PlayerQuadruple> nodeList;
     /**
@@ -50,11 +51,18 @@ public class GameController implements GameControllerInterface {
      */
     private GameControllerStatus status;
 
+    /**
+     * Constructor for the GameController class. Initializes the game controller with the given id and game size.
+     * The game controller is initialized in the lobby phase. There is one GameController instance for each game.
+     *
+     * @param id The id of the game
+     * @param gameSize The number of players in the game at fully capacity
+     */
     public GameController(int id, int gameSize) {
         this.nodeList = new ArrayList<>();
         this.model = new Match();
         this.chat = new Chat();
-        this.timer = null;
+        this.timer = new Timer();
         this.id = id;
         this.gameSize = gameSize;
 
@@ -71,29 +79,70 @@ public class GameController implements GameControllerInterface {
      * @param message The message object to be delivered
      * @throws VirtualViewNotFoundException If the recipient's VirtualView could not be found among the listeners
      */
-    public void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
+    protected void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Look through list of all connected players
             if (playerQuadruple.getNickname().equals((message.getRecipientNickname()))) { // If the correct recipient is found
                 playerQuadruple.getVirtualView().addMessage(message); // Add the message to the recipient's VirtualView
+                return;
             }
         }
         throw new VirtualViewNotFoundException("VirtualView for player " + message.getRecipientNickname() + " not found");
     }
 
-    public void submitChatMessage(ChatMessage message){
-        chat.addMessage(message);
-    }
+    /**
+     * Submits a chat message to the chat history.
+     * If the message is a broadcast message, it is sent to all players in the game.
+     * If the message is a direct message, it is sent only to the recipient.
+     *
+     * @param message The message to be submitted
+     */
+    public synchronized void submitChatMessage(ChatMessage message) {
+        // Exception should be thrown if message sender does not exist
+        if (nodeList.stream().noneMatch(n -> n.getNickname().equals(message.getSenderNickname()))) {
+            throw new CriticalFailureException("Sender " + message.getSenderNickname() + " not found");
+        }
 
-    public ArrayList<ChatMessage> getAllChatHistory(){
-        return chat.getHistory();
+        // Message sender does exist
+        if (message.isMulticastFlag()) { // Broadcast message
+            for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players
+                try {
+                    submitVirtualViewMessage(new OutboundChatMessage(playerQuadruple.getNickname(), message.getSenderNickname(), message.getMessageContent()));
+                } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify players in the game
+                    throw new CriticalFailureException("VirtualViewNotFoundException when broadcasting chat message");
+                }
+            }
+        } else { // Direct message
+            boolean found = false; // Flag indicating whether the recipient of the message appears in the list of players
+            for (PlayerQuadruple playerQuadruple : nodeList) { // Scan list of all players
+                if (playerQuadruple.getNickname().equals(message.getRecipientNickname())) { // Found recipient of message
+                    try {
+                        submitVirtualViewMessage(new OutboundChatMessage(message.getRecipientNickname(), message.getSenderNickname(), message.getMessageContent()));
+                        found = true;
+                        break;
+                    } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify a single recipient; message was malformed
+                        throw new CriticalFailureException("VirtualViewNotFoundException when sending direct chat message");
+                    }
+                }
+            }
+            if (!found) { // The recipient could not be found among the players in the game
+                try {
+                    submitVirtualViewMessage(new InvalidInboundChatMessage(message.getSenderNickname(), "Recipient " + message.getRecipientNickname() + " not found"));
+                    return;
+                } catch (VirtualViewNotFoundException e) {
+                    throw new CriticalFailureException("VirtualViewNotFoundException when alerting the sender that the recipient of a chat message could not be found");
+                }
+            }
+        }
+        // Add the message to the chat history, regardless of whether it was broadcast or direct
+        chat.addMessage(message); // Adds the message to the chat history
     }
 
     public void disconnect(NodeInterface node) {
-        //TODO
+        //TODO: Implement the disconnection of a player
     }
 
     public void reconnect(NodeInterface node){
-        //TODO
+        //TODO: Implement the reconnection of a player
     }
 
     /**
@@ -104,19 +153,15 @@ public class GameController implements GameControllerInterface {
      * @param node The node of the player to add
      * @throws FullLobbyException If the lobby is already full
      */
-    public void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
+    protected void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
 
-        try {
-            model.addPlayer(nickname); // Add the player to the actual match instance
+        model.addPlayer(nickname); // Add the player to the actual match instance
 
-            VirtualView virtualView = new VirtualView(node); // Create new virtual view and link it to the client server node
-            PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
-            nodeList.add(newPlayerQuadruple);
-            Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
-        } catch (DuplicateNicknameException e) { // A player tried to join, but that nickname was already in use
-            throw e;
-        }
+        VirtualView virtualView = new VirtualView(node); // Create new virtual view and link it to the client server node
+        PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
+        nodeList.add(newPlayerQuadruple);
+        Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
     }
 
     /**
@@ -126,14 +171,14 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player to delete
      */
     public void deletePlayer(String nickname) {
-        // TODO
+        // TODO: Implement the deletion of a player. Used in case of disconnection or voluntary exit during the lobby phase.
     }
 
     /**
      * Method called when the lobby is full.
      * Enters the preparation phase of the game, assigns colours and starting cards to players, and notifies all players of the game start.
      */
-    public void enterPreparationPhase() {
+    protected void enterPreparationPhase() {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players that the game has started
             try {
                 submitVirtualViewMessage(new GameStartedMessage(playerQuadruple.getNickname()));
@@ -165,7 +210,7 @@ public class GameController implements GameControllerInterface {
     /**
      * Sets the model to the terminated phase, and notifies all players that the game has ended.
      */
-    public void enterEndPhase() {
+    protected void enterEndPhase() {
         status = GameControllerStatus.GAME_ENDED;
         model.enterTerminatedPhase();
 
@@ -184,8 +229,6 @@ public class GameController implements GameControllerInterface {
         } catch (VirtualViewNotFoundException e) {
             throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the game has ended");
         }
-
-        // TODO Destroy game?
     }
 
     /**
@@ -195,10 +238,11 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player that sent the message
      * @param isUp The side of the starting card that the player has chosen
      */
-    public void chooseStarterCardSide(String nickname, boolean isUp) {
+    public synchronized void chooseStarterCardSide(String nickname, boolean isUp) {
         if (status != GameControllerStatus.WAITING_STARTER_CARD_CHOICE) { // Received a starter card side choice message, but the controller is not waiting for it
             try {
                 submitVirtualViewMessage(new InvalidStarterCardSideSelectionMessage(nickname, "You cannot choose a starter card side at this time"));
+                return;
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
             }
@@ -252,10 +296,11 @@ public class GameController implements GameControllerInterface {
      * @param nickname The nickname of the player that sent the message
      * @param id The id of the secret objective card that the player has chosen
      */
-    public void chooseSecretObjectiveCard(String nickname, int id) {
+    public synchronized void chooseSecretObjectiveCard(String nickname, int id) {
         if (status != GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE) { // Received a secret objective card choice message, but the controller is not waiting for it
             try {
                 submitVirtualViewMessage(new InvalidSelectedSecretObjectiveCardMessage(nickname, "You cannot choose a secret objective card at this time"));
+                return;
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
             }
@@ -277,7 +322,7 @@ public class GameController implements GameControllerInterface {
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
-                if (model.getPlayerSecretObjective(nickname) == -1) { // If a player doesn't have an assigned secret objective, he has not yet chosen his secret objective
+                if (model.getPlayerSecretObjective(playerNickname) == -1) { // If a player doesn't have an assigned secret objective, he has not yet chosen his secret objective
                     playersReady = false; // We have to wait for all other players to make their choice
                     break;
                 }
@@ -312,7 +357,19 @@ public class GameController implements GameControllerInterface {
         }
     }
 
-    public void placeCard(String nickname, int id, int x, int y, boolean side) {
+    /**
+     * Method called when a message of type place card is received.
+     * Attempts to place the selected card on the player's field at the specified coordinates.
+     * If the card placement is successful, the player is notified of the successful placement, and the game status is updated.
+     * If the card placement fails, the player is notified of the failure.
+     *
+     * @param nickname The nickname of the player that sent the message
+     * @param id The id of the card to place
+     * @param x X coordinate of the card
+     * @param y Y coordinate of the card
+     * @param side Side of the card to place
+     */
+    public synchronized void placeCard(String nickname, int id, int x, int y, boolean side) {
         if (status != GameControllerStatus.WAITING_CARD_PLACEMENT) { // The controller is not waiting for a card placement
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, "You cannot place a card at this time"));
@@ -324,17 +381,17 @@ public class GameController implements GameControllerInterface {
         if (!nickname.equals(model.getCurrentPlayerNickname())) { // The player doesn't have the playing rights
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, "It's not your turn to play. The current player is: " + model.getCurrentPlayerNickname()));
+                return;
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
             }
-            return;
         }
         // Player has the playing rights
         try {
             model.placeCard(id, x, y, side); // Try to place card
 
             // Notify the player that he has successfully placed the card
-            submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname)));
+            submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname), model.getAvailableSpacesPlayer(nickname)));
 
             if (model.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) {
                 model.nextTurn();
@@ -356,8 +413,17 @@ public class GameController implements GameControllerInterface {
         }
     }
 
-    public void drawCard(String nickname, int deckType, int id) {
-        // FIXME If someone tries to draw a card when getCurrentPlayerNickname is null, server will crash
+    /**
+     * Method called when a message of type draw card is received.
+     * Attempts to draw a card from the specified deck.
+     * If the draw is successful, the player is notified of the successful draw, and the game status is updated.
+     * If the draw fails, the player is notified of the failure.
+     *
+     * @param nickname The nickname of the player that sent the message
+     * @param deckType The type of deck to draw from
+     * @param id The id of the card to draw
+     */
+    public synchronized void drawCard(String nickname, int deckType, int id) {
         if (!nickname.equals(model.getCurrentPlayerNickname())) { // The player doesn't have the playing rights
             try {
                 submitVirtualViewMessage(new DrawCardFailedMessage(nickname, "It's not your turn to play. The current player is: " + model.getCurrentPlayerNickname()));
@@ -381,12 +447,28 @@ public class GameController implements GameControllerInterface {
             status = GameControllerStatus.WAITING_CARD_PLACEMENT; // Update game status
 
             // Notify the player that he has successfully drawn the card
-            submitVirtualViewMessage(new DrawCardConfirmationMessage(nickname, id));
+            submitVirtualViewMessage(new DrawCardConfirmationMessage(
+                    nickname,
+                    model.getPlayerHand(nickname).stream().mapToInt(Integer::intValue).toArray()
+            ));
+
+            // Notify to all the players that the deck size has changed
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                submitVirtualViewMessage(new DeckSizeUpdateMessage(
+                        playerQuadruple.getNickname(),
+                        model.getResourceCardDeckSize(),
+                        model.getGoldCardDeckSize(),
+                        model.getCurrentResourcesCards().stream().mapToInt(Integer::intValue).toArray(),
+                        model.getCurrentGoldCards().stream().mapToInt(Integer::intValue).toArray()
+                ));
+            }
 
             model.nextTurn(); // Update turn number and current player
 
             // Notify the players of the current player
-            submitVirtualViewMessage(new PlayerTurnMessage(nickname, model.getCurrentPlayerNickname()));
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+            }
 
             // After updating the current player, we need to update the game state
             if (model.isFirstPlayer()) { // The first player is now playing
@@ -413,57 +495,125 @@ public class GameController implements GameControllerInterface {
     }
 
     /**
+     * Method called when a message of type request game status is received.
+     * The method sends a response game status message to the requester, updating them on the current state of the model.
+     *
+     * @param requesterNickname The nickname of the player that sent the message
+     */
+    public synchronized void sendGameStatus(String requesterNickname) {
+        try {
+            submitVirtualViewMessage(generateResponseGameStatusMessage(requesterNickname));
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
+        }
+    }
+
+    /**
+     * Method called when a message of type request player field is received.
+     * The method fetches the field of the player whose field is requested, and sends a response player field message to the requester.
+     *
+     * @param requesterNickname The nickname of the player that sent the request message
+     * @param playerNickname The nickname of the player whose field is requested
+     * @throws PlayerNotFoundException If the player whose field is requested could not be found
+     */
+    public synchronized void sendPlayerField(String requesterNickname, String playerNickname) {
+        try {
+            submitVirtualViewMessage(new ResponsePlayerFieldMessage(requesterNickname, playerNickname, model.getPlayerField(playerNickname), model.getPlayerResources(playerNickname)));
+        } catch (PlayerNotFoundException e) { // The player whose field is requested could not be found
+            try {
+                submitVirtualViewMessage(new NegativeResponsePlayerFieldMessage(requesterNickname, playerNickname));
+            } catch (VirtualViewNotFoundException ex) {
+                throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
+            }
+        } catch (VirtualViewNotFoundException e) { // The requester's VirtualView could not be found
+            throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
+        }
+    }
+
+    /**
      * Generates a response game status message for a given player.
+     *
      * @param nickname The nickname of the player to generate the message for
      * @return The generated response game status message
      */
     protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
-            ArrayList<Integer> playerColours = (ArrayList<Integer>)model.getPlayersNicknames().stream().map(playerNickname -> {
+            ArrayList<Boolean> playerConnected = nodeList.stream().map(PlayerQuadruple::isConnected).collect(Collectors.toCollection(ArrayList::new));
+            ArrayList<Integer> playerColours = model.getPlayersNicknames().stream().map(playerNickname -> {
                 try {
                     return model.getPlayerColour(playerNickname);
                 } catch (PlayerNotFoundException | NullColourException e) {
                     throw new CriticalFailureException("Could not generate game status for Player " + playerNickname);
                 }
-            }).toList();
+            }).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
             int playerSecretObjective = model.getPlayerSecretObjective(nickname);
             int playerPoints = model.getPlayerPoints(nickname);
-            int playerColour = model.getPlayerColour(nickname);
             ArrayList<int[]> playerField = model.getPlayerField(nickname);
             int[] playerResources = model.getPlayerResources(nickname);
             ArrayList<Integer> gameCommonObjectives = model.getCommonObjectives();
             ArrayList<Integer> gameCurrentResourceCards = model.getCurrentResourcesCards();
             ArrayList<Integer> gameCurrentGoldCards = model.getCurrentGoldCards();
-            int gameResourcesDeckSize = model.getCurrentResourcesCards().size();
-            int gameGoldDeckSize = model.getCurrentGoldCards().size();
+            int gameResourcesDeckSize = model.getResourceCardDeckSize();
+            int gameGoldDeckSize = model.getGoldCardDeckSize();
             int matchStatus = model.getMatchStatus();
+            ArrayList<ChatMessage> playerChatHistory = chat.getPlayerChatHistory(nickname);
+            String currentPlayer = model.getCurrentPlayerNickname();
+            ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 
-            return new PlayerGameStatusMessage(nickname, playerNicknames, playerColours, playerHand, playerSecretObjective, playerPoints, playerColour, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus);
+            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces);
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         }
     }
 
-    public ArrayList<PlayerQuadruple> getNodeList() {
-        return nodeList;
+    /**
+     * Used to reply to a PingMessage. The method sends a PongMessage to the requester.
+     */
+    public synchronized void pongPlayer(String nickname) {
+        try {
+            submitVirtualViewMessage(new PongMessage(nickname));
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+        }
     }
 
+    /**
+     * Getter for the ID of the game controller.
+     *
+     * @return The ID of the game controller
+     */
     public int getId() {
         return id;
     }
 
-    public int getGameSize() {
+    protected ArrayList<PlayerQuadruple> getNodeList() {
+        return nodeList;
+    }
+
+    protected int getGameSize() {
         return gameSize;
     }
 
-    public int getLobbyPlayerCount() {
+    protected int getLobbyPlayerCount() {
         return model.getPlayersNicknames().size();
     }
 
-    public GameControllerStatus getStatus() {
+    protected GameControllerStatus getStatus() {
         return status;
+    }
+
+    protected Timer getTimer() {
+        return timer;
+    }
+
+    protected ModelInterface getModel(){
+        return model;
+    }
+
+    protected Chat getChat(){
+        return chat;
     }
 }
 

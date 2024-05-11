@@ -19,6 +19,6 @@ public class PlaceCardMessage implements CtoSMessage {
 
     @Override
     public void elaborateMessage(GameController gameController) {
-        // TODO
+        gameController.placeCard(senderNickname, cardId, row, column, isUp);
     }
 }

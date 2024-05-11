@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.message.ClientToServer;
 
 import it.polimi.ingsw.am32.controller.GameController;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 
 import java.io.Serializable;
 

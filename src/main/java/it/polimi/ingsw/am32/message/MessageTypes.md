@@ -20,8 +20,8 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 ```json
 {
     "type": "AccessGameMessage",
-    "matchID": 10,
-    "senderNickname": "playerName"
+    "senderNickname": "playerName",
+    "matchID": 10
 }
 ```
 
@@ -38,7 +38,7 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 - PlaceCardMessage: sent by a Client to place a card on its field.
 ```json
 {
-  "type": "PlayCardMessage",
+  "type": "PlaceCardMessage",
   "senderNickname": "playerName",
   "cardID": 10,
   "row": 1,
@@ -50,7 +50,7 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 - DrawCardMessage: sent by a Client to notify the Server that a card had been chosen to be drawn.
 ```json
 {
-  "type": "PlayCardMessage",
+  "type": "DrawCardMessage",
   "senderNickname": "playerName",
   "deckType": 1,
   "cardID": 23 // Optional parameter used if face-up card is drawn
@@ -128,15 +128,6 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 }
 ```
 
-- AccessGameFailedMessage: sent by the Server to refuse the join of a Player.
-```json
-{
-  "type": "AccessGameFailedMessage",
-  "recipientNickname": "playerName",
-  "reason": "Reason"
-}
-```
-
 Some "reasons" could be: CodeNotFoundMessage (the inserted code does not correspond to a match), NonExistAvailableGameMessage (there are no active games on the server, the player is obliged to create a new match), or RoomFullMessage (the match lobby is full, so the player cannot connect).
 
 - LobbyPlayerListMessage: sent by the Server to notify players of who is currently in the lobby
@@ -151,7 +142,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 - GameStartedMessage: sent by the Server to announce the start of the game.
 ```json
 {
-  "type": "StartGameConfirmation",
+  "type": "GameStartedMessage",
   "recipientNickname": "playerName"
 }
 ```
@@ -164,11 +155,11 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "PlayerGameStatusMessage",
   "recipientNickname": "playerName",
   "playerNicknames": ["player1", "player2"],
+  "playerConnected": [true, false],
   "playerColours": [1, 4],
   "playerHand": [10, 11, 12],
   "playerSecretObjective": 9,
   "playerPoints": 5,
-  "playerColour": "Red",
   "playerField": [[0, 0, 31, true], [1, 1, 30, true], [-1, -1, 29, false]],
   "playerResources": [1, 1, 1, 1, 1, 1, 1],
   "gameCommonObjectives": [50, 51],
@@ -177,14 +168,16 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "gameResourcesDeckSize": 30,
   "gameGoldDeckSize": 31,
   "matchStatus": "Status",
-  "playerChatHistory": [
+  "chatHistory": [
     {
       "senderNickname": "playerName",
       "recipientNickname": "playerName",
       "multicastFlag": true,
       "content": "Message"
     }
-  ]
+  ],
+  "currentPlayer": "playerName",
+  "newAvailableFieldSpaces": [[1,2],[3,4], [5,6]]
 }
 ```
 
@@ -203,7 +196,8 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "PlaceCardConfirmationMessage",
   "recipientNickname": "playerName",
   "playerResources": [1, 1, 1, 1, 1, 1, 1],
-  "points": 5
+  "points": 5,
+  "newAvailableFieldSpaces": [[1,2],[3,4],[5,6]]
 }
 ```
 
@@ -231,7 +225,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "DrawCardConfirmationMessage",
   "recipientNickname": "playerName",
-  "cardID": 14
+  "playerHand": [14, 17, 21]
 }
 ```
 
@@ -264,6 +258,15 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "playerNickname": "playerName",
   "playerField": [[0, 0, 31, true], [1, 1, 30, true], [-1, -1, 29, false]],
   "playerResources": [1, 1, 1, 1, 1, 1, 1]
+}
+```
+
+- NegativeResponsePlayerFieldMessage: sent by the Server to notify the player that the requested player field does not exist.
+```json
+{
+  "type": "NegativeResponsePlayerFieldMessage",
+  "recipientNickname": "playerName",
+  "playerNickname": "playerName",
 }
 ```
 
@@ -363,8 +366,16 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "OutboundChatMessage",
   "senderNickname": "playerName",
   "recipientNickname": "playerName", // Can be null if the message is for everyone
-  "multicastFlag": true, // If true, message is to be sent to all players
   "content": "Message"
+}
+```
+
+- InvalidInboundChatMessage: sent by the Server to notify the Client that the chat message is invalid.
+```json
+{
+  "type": "InvalidInboundChatMessage",
+  "recipientNickname": "playerName",
+  "reason": "Reason"
 }
 ```
 
@@ -375,5 +386,14 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "PongMessage",
   "recipientNickname": "playerName"
+}
+```
+
+- ErrorMessages: sent by the Server to notify the Client of an error that can't be handled or checked by the GameController.
+```json
+{
+  "type": "ErrorMessages",
+  "recipientNickname": "playerName",
+  "message": "Error"
 }
 ```

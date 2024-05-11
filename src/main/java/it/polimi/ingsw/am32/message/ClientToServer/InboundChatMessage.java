@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.message.ClientToServer;
 
+import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.GameController;
 
 public class InboundChatMessage implements CtoSMessage {
@@ -17,6 +18,6 @@ public class InboundChatMessage implements CtoSMessage {
 
     @Override
     public void elaborateMessage(GameController gameController) {
-        // TODO
+        gameController.submitChatMessage(new ChatMessage(senderNickname, recipientNickname, multicastFlag, content));
     }
 }

@@ -19,18 +19,24 @@ public enum GameControllerStatus {
     // The game controller is in the ended state, meaning that the game has ended.
     GAME_ENDED(5);
 
-    // The integer value associated with each state.
+    /**
+     * The integer value associated with the state.
+     */
     private final int value;
 
     /**
      * Constructor for the GameControllerStatus enum.
      * @param value The integer value associated with the state.
      */
-    GameControllerStatus(int value) { this.value = value; }
+    GameControllerStatus(int value) {
+        this.value = value;
+    }
 
     /**
      * Gets the integer value associated with the state.
      * @return The integer value of the state.
      */
-    public int getValue() { return value; }
+    public int getValue() {
+        return value;
+    }
 }
