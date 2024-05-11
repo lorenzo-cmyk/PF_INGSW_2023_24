@@ -128,15 +128,6 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 }
 ```
 
-- AccessGameFailedMessage: sent by the Server to refuse the join of a Player.
-```json
-{
-  "type": "AccessGameFailedMessage",
-  "recipientNickname": "playerName",
-  "reason": "Reason"
-}
-```
-
 Some "reasons" could be: CodeNotFoundMessage (the inserted code does not correspond to a match), NonExistAvailableGameMessage (there are no active games on the server, the player is obliged to create a new match), or RoomFullMessage (the match lobby is full, so the player cannot connect).
 
 - LobbyPlayerListMessage: sent by the Server to notify players of who is currently in the lobby
@@ -398,7 +389,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
-- ErrorMessages: sent by the Server to notify the Client of an error.
+- ErrorMessages: sent by the Server to notify the Client of an error that can't be handled or checked by the GameController.
 ```json
 {
   "type": "ErrorMessages",
