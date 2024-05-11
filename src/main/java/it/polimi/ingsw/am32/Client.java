@@ -18,7 +18,7 @@ public class Client {
 
     public static void main(String[] args){
         logger.info("---Client ---");
-        out.println("Welcome to Codex Natularis");
+        out.println("Welcome to Codex Naturalis");
         chooseUI();
     }
 

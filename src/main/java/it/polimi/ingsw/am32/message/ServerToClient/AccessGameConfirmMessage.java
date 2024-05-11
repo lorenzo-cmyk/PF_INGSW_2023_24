@@ -10,7 +10,7 @@ public class AccessGameConfirmMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage() {
+    public void processMessage(View view) {
         // TODO
     }
 

@@ -90,6 +90,7 @@ public class TextUI extends UI implements Runnable {
     public void run() {
         showWelcome();
         chooseConnection();
+        
         //TODO flow of the game
     }
     //-------------------Connection-------------------

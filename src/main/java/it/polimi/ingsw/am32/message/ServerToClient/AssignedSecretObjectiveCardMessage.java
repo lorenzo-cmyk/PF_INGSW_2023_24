@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
-import it.polimi.ingsw.am32.controller.VirtualView;
+import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ public class AssignedSecretObjectiveCardMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage() {
+    public void processMessage(View view) {
         // TODO
     }
 

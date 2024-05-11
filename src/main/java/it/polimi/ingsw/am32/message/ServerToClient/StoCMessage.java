@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
+import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.controller.VirtualView;
 
 import java.io.Serializable;
@@ -14,6 +15,6 @@ public interface StoCMessage extends Serializable {
      *
      *
      */
-    void processMessage(); // FIXME this method should not take VirtualView as parameter
+    void processMessage(View view);
     String getRecipientNickname(); // Method needed for submitVirtualViewMessage method in Gamecontroller; GameController needs to know who to send message to
 }
