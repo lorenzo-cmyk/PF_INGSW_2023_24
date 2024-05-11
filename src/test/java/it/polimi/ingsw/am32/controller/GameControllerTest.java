@@ -106,7 +106,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -143,7 +143,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
            fail();
         }
@@ -178,7 +178,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -207,7 +207,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -237,7 +237,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -271,7 +271,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -307,7 +307,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -340,7 +340,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -375,7 +375,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -408,7 +408,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -429,7 +429,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -460,7 +460,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -490,7 +490,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -510,7 +510,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -545,7 +545,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -592,7 +592,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -625,7 +625,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -670,7 +670,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -713,7 +713,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -727,7 +727,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -762,7 +762,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -776,7 +776,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -809,7 +809,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -823,7 +823,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -856,7 +856,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -870,7 +870,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -903,7 +903,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -937,7 +937,7 @@ public class GameControllerTest {
                 gameController.placeCard(currentPlayer, card, position[0], position[1], true);
                 // Get the outcome
                 try {
-                    Thread.sleep(300);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     fail();
                 }
@@ -971,7 +971,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1011,7 +1011,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1042,7 +1042,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1075,7 +1075,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1119,7 +1119,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1158,7 +1158,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1207,7 +1207,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1247,7 +1247,7 @@ public class GameControllerTest {
 
         // Wait for threads to deliver all messages to players
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1308,7 +1308,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1353,7 +1353,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1390,7 +1390,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1425,7 +1425,7 @@ public class GameControllerTest {
                 gameController.placeCard(currentPlayer, card, position[0], position[1], true);
                 // Get the outcome
                 try {
-                    Thread.sleep(300);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     fail();
                 }
@@ -1450,7 +1450,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1477,7 +1477,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
@@ -1498,7 +1498,7 @@ public class GameControllerTest {
         // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
         // Mockito is broken on IntelliJ IDEA.
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             fail();
         }
