@@ -1,10 +1,10 @@
 package it.polimi.ingsw.am32.client;
 
 
-import it.polimi.ingsw.am32.network.ClientNodeInterface;
+import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor;
-import it.polimi.ingsw.am32.network.RMIClientNode;
-import it.polimi.ingsw.am32.network.SKClientNode;
+import it.polimi.ingsw.am32.network.ClientNode.RMIClientNode;
+import it.polimi.ingsw.am32.network.ClientNode.SKClientNode;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;

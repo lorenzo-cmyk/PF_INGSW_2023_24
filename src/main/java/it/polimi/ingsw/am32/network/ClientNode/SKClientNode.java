@@ -1,15 +1,16 @@
-package it.polimi.ingsw.am32.network;
+package it.polimi.ingsw.am32.network.ClientNode;
 
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
+import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class SKClientNode implements ClientNodeInterface{
+public class SKClientNode implements ClientNodeInterface {
     private final View view;
     private Socket socket;
     private ObjectOutputStream socketOut;
@@ -22,7 +23,7 @@ public class SKClientNode implements ClientNodeInterface{
     }
 
     @Override
-    public void uploadToServer(CtoSMessage message) {
+    public void uploadToServer(CtoSMessage message) throws UploadFailureException {
         try {
             socketOut.writeObject(message);
         } catch (IOException e) {
@@ -40,7 +41,7 @@ public class SKClientNode implements ClientNodeInterface{
     }
 
     @Override
-    public void uploadToServer(CtoSLobbyMessage message) {
+    public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
         //TODO
 
     }
