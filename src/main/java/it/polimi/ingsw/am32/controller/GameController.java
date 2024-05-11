@@ -569,6 +569,17 @@ public class GameController {
     }
 
     /**
+     * Used to reply to a PingMessage. The method sends a PongMessage to the requester.
+     */
+    public synchronized void pongPlayer(String nickname) {
+        try {
+            submitVirtualViewMessage(new PongMessage(nickname));
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
+        }
+    }
+
+    /**
      * Getter for the ID of the game controller.
      *
      * @return The ID of the game controller

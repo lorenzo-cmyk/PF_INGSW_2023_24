@@ -11,6 +11,6 @@ public class PingMessage implements CtoSMessage {
 
     @Override
     public void elaborateMessage(GameController gameController) {
-        // TODO: Implement ping response in gameController
+        gameController.pongPlayer(senderNickname);
     }
 }

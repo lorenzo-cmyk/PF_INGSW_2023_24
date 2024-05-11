@@ -1463,4 +1463,48 @@ public class GameControllerTest {
         assertInstanceOf(PlayerTurnMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
     }
 
+    @DisplayName("pongPlayer should send a PongMessage to the player requesting it")
+    @Test
+    void pongPlayerTest() {
+        // Add a player to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Clear the internal messages that were sent during the player addition
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub) gameController.getNodeList().stream()
+                .filter(playerQuadruple -> playerQuadruple.getNickname().equals("player1"))
+                .findFirst()
+                .map(PlayerQuadruple::getNode)
+                .orElse(null);
+        assertNotNull(nodeInterfaceStub);
+        nodeInterfaceStub.clearInternalMessages();
+
+        // Send a PongMessage to the player
+        gameController.pongPlayer("player1");
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(PongMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+    }
+
 }
