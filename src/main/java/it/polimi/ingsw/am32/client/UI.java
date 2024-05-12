@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 
 public abstract class UI implements View, EventHandler{
-    ClientNodeInterface clientNode;
+    protected ClientNodeInterface clientNode;
     protected String thisPlayerNickname;
     protected int gameID; //save the game ID received from the NewGameConfirmationMessage or AccessGameConfirmMessage.
     protected int playerNum; //number of players connected to the game, if the player is disconnected, the number will

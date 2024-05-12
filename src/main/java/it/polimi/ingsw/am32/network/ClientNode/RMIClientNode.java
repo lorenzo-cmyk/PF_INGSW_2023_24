@@ -30,4 +30,8 @@ public class RMIClientNode implements ClientNodeInterface, RMIClientNodeInt {
     public void uploadStoC(StoCMessage message) {
         //TODO
     }
+
+    public void run() {
+        // TODO
+    }
 }

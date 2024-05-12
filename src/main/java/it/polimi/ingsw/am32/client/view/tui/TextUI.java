@@ -178,6 +178,9 @@ public class TextUI extends UI implements Runnable {
     @Override
     public void setSocketClient(String ServerIP, int port) throws IOException {
         super.setSocketClient(ServerIP, port); // see the method in the superclass
+
+        Thread thread = new Thread(clientNode);
+        thread.start();
     }
 
     /**
