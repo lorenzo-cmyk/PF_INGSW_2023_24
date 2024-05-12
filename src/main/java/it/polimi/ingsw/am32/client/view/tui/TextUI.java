@@ -251,7 +251,7 @@ public class TextUI extends UI implements Runnable {
         out.println("Insert the nickname you want to use in the game");
 
         thisPlayerNickname = in.nextLine();
-        inputCheckString(thisPlayerNickname);
+
     }
 
     /**
@@ -289,7 +289,6 @@ public class TextUI extends UI implements Runnable {
         currentEvent = Event.JOIN_GAME;
         out.println("Insert the nickname you want to use in the game");
         thisPlayerNickname = in.nextLine();
-        inputCheckString(thisPlayerNickname);
         out.println("Insert the Access ID of the game you want to join");
         gameID = getInputInt();
         // notify the listener with the access game message
@@ -897,25 +896,6 @@ public class TextUI extends UI implements Runnable {
             //TODO
         }
 
-    }
-    private void inputCheckString(String input){
-        while (true) {
-            try {
-                input = in.nextLine();
-                if(input.equalsIgnoreCase("help")){
-                    showHelpInfo();
-                    continue;
-                }
-                else if(input.equalsIgnoreCase("exit")){
-                    System.exit(0);
-                }
-            } catch (InputMismatchException e) {
-                out.println("! Invalid input, please try again");
-                in.nextLine();
-                continue;
-            }
-            break;
-        }
     }
     private int getInputInt() {
         try {
