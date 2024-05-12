@@ -187,7 +187,7 @@ public class GameController {
                 .collect(Collectors.toCollection(ArrayList::new));
         for (PlayerQuadruple playerQuadruple1 : nodeList) {
             try {
-                submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
+                submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple1.getNickname(), allPlayerNicknames));
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the lobby");
             }
@@ -199,7 +199,10 @@ public class GameController {
     }
 
     private void disconnectStandard(NodeInterface node) {
+        // If we are not yet playing, just disconnect normally
+        // If the leaving player is not the one currently playing we just need to inform the other player
 
+        // If the leaving player is the one currently playing and he has not yet placed a card we need to skip the turn and then inform the other players
     }
 
     public void reconnect(NodeInterface node) {
