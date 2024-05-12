@@ -43,7 +43,7 @@ public class TextUI extends View implements Runnable {
     private final Scanner in;
     private final PrintStream out;
     private final IsValid isValid = new IsValid();
-    private final HashMap<String,BoardView> boards;
+    private HashMap<String,BoardView> boards;
     private static final int ANIMALCARD = 0X1F7E6; // Unicode for the card
     private static final int PLANTCARD = 0X1F7E9;
     private static final int FUNGICARD = 0X1F7E5;
@@ -54,6 +54,8 @@ public class TextUI extends View implements Runnable {
     private static final String ANSI_GREEN = "\u001B[32m";
     private static final String ANSI_BLUE = "\u001B[34m";
     private static final String ANSI_PURPLE = "\u001B[35m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_BLACK = "\u001B[30m";
     private static final String INSECT ="\uD83E\uDD8B";   // Unicode for the corner type, object and resource of the card
     private static final String PLANT = "\uD83C\uDF3F";
     private static final String FUNGI = "\uD83C\uDF44";
@@ -326,6 +328,15 @@ public class TextUI extends View implements Runnable {
         showPlayerInGame();
     }
     @Override
+    public void setUpPlayersData(){
+        // after receiving the message from the server, the method is called to set up/initiate the view of the player
+        handleEvent(Event.GAME_START);
+        for (String player : players) {
+            publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0}));
+            boards.put(player, new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
+        }
+    }
+    @Override
     public void updateMatchStatus(int matchStatus){
         // once received the MatchStatusMessage from the server
         this.Status=convertToMatchStatus(matchStatus);
@@ -348,6 +359,16 @@ public class TextUI extends View implements Runnable {
             side = getInputInt();
         }
         notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side == 1));
+    }
+    @Override
+    public void updateConfirmStarterCard(int colour,int cardID, boolean isUp,ArrayList<int[]> availablePos, int[] resources){
+        // once received the StarterCardConfirmationMessage from the server
+        publicInfo.get(thisPlayerNickname).updateColour(convertToColour(colour));
+        out.println("Your colour of this game is: "+convertToColour(colour));
+        updateAfterPlacedCard(thisPlayerNickname,searchNonObjCardById(cardID),0,0,isUp,availablePos,
+                resources, 0);
+        out.println("Your field after placing the starter card is following:");
+        showPlayersField(thisPlayerNickname);
     }
     public void setUpEnterPreparationPhase(ArrayList<String> players,ArrayList<Integer>colors,ArrayList<Integer>Hand,
                                            int SecretObjCard, int points, int colour, ArrayList<int[]>field,
@@ -391,30 +412,6 @@ public class TextUI extends View implements Runnable {
         // game status command, view the game rule command,view the card command, view other players' field command,
         // view the secret objective command, view the game order command, view the game ID command ecc.
         //TODO NEED TO DICUSS WITH THE TEAM
-    }
-
-    /**
-     * Method that asks the player to select the side of the starter card received from the server.
-     */
-    @Override
-    public void requestSelectStarterCardSide() {
-        currentEvent = Event.SELECT_STARTER_CARD_SIDE;
-        //after receiving the starter card from the server and store it in the starterCard
-        out.println("The starter card received has:");
-        out.println("Front side");
-        //printNonObjCard(starterCard, true);
-        out.println("Back side");
-        //printNonObjCard(starterCard, false);
-        out.println("""
-                Select the side of the starter card
-                1. Front
-                2. Back
-                """);
-        int side = getInputInt();
-        handleChoiceEvent(currentEvent, side);
-        boolean isUP = side == 1;
-        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, isUP));
-        //TODO wait for the response from the server
     }
 
     @Override
@@ -536,12 +533,18 @@ public class TextUI extends View implements Runnable {
         // when the player wants to see the details of the card placed --> call printNonObjCard
         //TODO use printNonObjCard to show the card placed by request of the player
     }
-    public void showPlayersField(String playerNickname, String[][] field) {
-        // show the board of the player selected by the player
-        //TODO mine and other players' field
+    public void showPlayersField(String playerNickname) {
+        showBoard(playerNickname);
+        showPoints(playerNickname);
     }
-    public void showResources() {
-        //TODO optional(show the array of the resources of the player)
+    @Override
+    public void showPoints(String playerNickname) {
+        int [] resources = publicInfo.get(playerNickname).getResources();
+        out.println("Player"+playerNickname+" has: "+publicInfo.get(playerNickname).getPoints()+" points"+
+                "\nwith "+resources[0] + iconArrayElement(0)+resources[1]+iconArrayElement(1)+resources[2] +
+                iconArrayElement(2)+resources[3] + iconArrayElement(3)+resources[4] +
+                iconArrayElement(4)+resources[5] + iconArrayElement(5)+resources[6]+
+                iconArrayElement(6)+" in field");
     }
 
     /**
@@ -549,7 +552,7 @@ public class TextUI extends View implements Runnable {
      * placement.
      * @param nickname the nickname of the player, the owner of the board that should be printed.
      */
-    private void printBoard(String nickname){
+    private void showBoard(String nickname){
         BoardView boardView= this.boards.get(nickname); // get the boardView of the player by nickname
         String[][] board= boardView.getBoard(); // get the matrix of the board of the player
         int[] limits = boardView.getLimits(); // get the limits of the view of the board
@@ -997,22 +1000,22 @@ public class TextUI extends View implements Runnable {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
-    public String convertToColour(int colour){ //FIXME should I create a enum for the colours?
-        switch (colour){
+    public String convertToColour(int colour){
+        switch (colour) {
             case 0 -> {
-                return "RED";
+                return ANSI_RED + "RED" + ANSI_RESET;
             }
             case 1 -> {
-                return "GREEN";
+                return ANSI_GREEN + "GREEN" + ANSI_RESET;
             }
             case 2 -> {
-                return "BLUE";
+                return ANSI_BLUE + "BLUE" + ANSI_RESET;
             }
             case 3 -> {
-                return "YELLOW";
+                return ANSI_YELLOW + "YELLOW" + ANSI_RESET;
             }
             case 4 -> {
-                return "BLACK";
+                return ANSI_BLACK + "BLACK" + ANSI_RESET;
             }
             default -> {
                 return null;

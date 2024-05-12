@@ -12,7 +12,7 @@ public class GameStartedMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        view.handleEvent(Event.GAME_START);
+        view.setUpPlayersData();
     }
 
     @Override

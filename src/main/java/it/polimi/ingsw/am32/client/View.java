@@ -96,9 +96,14 @@ public abstract class View implements EventHandler{
         }
     }
 
+    public abstract void setUpPlayersData();
+
     public abstract void updateMatchStatus(int matchStatus);
 
     public abstract void requestSelectStarterCardSide(int ID);
+
+
+    public abstract void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources);
 
     //-------------------Game start-----------------------
     public abstract void showInitialView();
@@ -106,7 +111,6 @@ public abstract class View implements EventHandler{
     public abstract void showHelpInfo();
 
     //-------------------Game start-----------------------
-    public abstract void requestSelectStarterCardSide();
 
 
     public abstract void requestSelectSecretObjCard();
@@ -134,6 +138,10 @@ public abstract class View implements EventHandler{
     public Event getEvent(){
         return this.currentEvent;
     }
+
+    public abstract void showPlayersField(String playerNickname);
+
+    public abstract void showPoints(String playerNickname);
 }
 
 

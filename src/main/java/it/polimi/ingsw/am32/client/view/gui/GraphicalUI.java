@@ -37,6 +37,16 @@ public class GraphicalUI extends View {
         //TODO
     }
 
+    @Override
+    public void showPlayersField(String playerNickname) {
+
+    }
+
+    @Override
+    public void showPoints(String playerNickname) {
+
+    }
+
 
     @Override
     public void showWelcome() {
@@ -87,12 +97,22 @@ public class GraphicalUI extends View {
     }
 
     @Override
+    public void setUpPlayersData() {
+
+    }
+
+    @Override
     public void updateMatchStatus(int matchStatus) {
 
     }
 
     @Override
     public void requestSelectStarterCardSide(int ID) {
+
+    }
+
+    @Override
+    public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
 
     }
 
@@ -106,10 +126,6 @@ public class GraphicalUI extends View {
 
     }
 
-    @Override
-    public void requestSelectStarterCardSide() {
-
-    }
 
     @Override
     public void requestSelectSecretObjCard() {

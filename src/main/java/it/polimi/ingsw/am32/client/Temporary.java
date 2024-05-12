@@ -26,6 +26,8 @@ public class Temporary implements Runnable{
     private static final String ANSI_GREEN = "\u001B[32m";
     private static final String ANSI_BLUE = "\u001B[34m";
     private static final String ANSI_PURPLE = "\u001B[35m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_BLACK = "\u001B[30m";
     private static final String INSECT ="\uD83E\uDD8B";   // Unicode for the corner type, object and resource of the card
     private static final String PLANT = "\uD83C\uDF3F";
     private static final String FUNGI = "\uD83C\uDF44";
@@ -102,6 +104,18 @@ public class Temporary implements Runnable{
         updateAfterPlacedCard("player1",nonObjCards.get(75),-2,-2,true,availablePos,new int[]{0,0,0},0);
         printBoard("player1");
         out.println("The players in the game are: "+players);
+        int res[] = new int[]{0,0,2,0,1,0,0};
+        publicInfo.get("player1").updateResources(res);
+        showPoints("player1");
+        out.println("Your colour of this game is: "+convertToColour(2));
+    }
+    public void showPoints(String playerNickname) {
+        int [] resources = publicInfo.get(playerNickname).getResources();
+        out.println("Player"+playerNickname+" has: "+publicInfo.get(playerNickname).getPoints()+" points"+
+                "\nwith "+resources[0] + iconArrayElement(0)+resources[1]+iconArrayElement(1)+resources[2] +
+                iconArrayElement(2)+resources[3] + iconArrayElement(3)+resources[4] +
+                iconArrayElement(4)+resources[5] + iconArrayElement(5)+resources[6]+
+                iconArrayElement(6)+" in field");
     }
     private void printBoard(String nickname){
         BoardView boardView= this.boards.get(nickname);
@@ -561,5 +575,27 @@ public class Temporary implements Runnable{
         limits[1]=Math.min(limits[1],posX-1);
         limits[2]=Math.max(limits[2],posY+1);
         limits[3]=Math.min(limits[3],posY-1);
+    }
+    public String convertToColour(int colour){ //FIXME should I create a enum for the colours?
+        switch (colour){
+            case 0 -> {
+                return ANSI_RED+"RED"+ANSI_RESET;
+            }
+            case 1 -> {
+                return ANSI_GREEN+"GREEN"+ANSI_RESET;
+            }
+            case 2 -> {
+                return ANSI_BLUE+"BLUE"+ANSI_RESET;
+            }
+            case 3 -> {
+                return ANSI_YELLOW+"YELLOW"+ANSI_RESET;
+            }
+            case 4 -> {
+                return ANSI_BLACK+"BLACK"+ANSI_RESET;
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 }

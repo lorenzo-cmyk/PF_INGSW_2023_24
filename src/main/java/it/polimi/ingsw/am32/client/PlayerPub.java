@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * class contains all the information that the player can request to know about the other players.
  */
 public class PlayerPub {
-    private final String colour;
+    private String colour;
     private int points;
     private final ArrayList<CardPlacedView> field;
     private int[]resources;
@@ -53,5 +53,8 @@ public class PlayerPub {
      */
     public void addToField(CardPlacedView card){
         this.field.add(card);
+    }
+    public void updateColour(String colour){
+        this.colour = colour;
     }
 }
