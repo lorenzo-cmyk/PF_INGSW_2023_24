@@ -315,11 +315,12 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
-- ConfirmStarterCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side
+- ConfirmStarterCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side. Contains the colour assigned to the player
 ```json
 {
   "type": "ConfirmStarterCardSideSelectionMessage",
-  "recipientNickname": "playerName"
+  "recipientNickname": "playerName",
+  "playerColour": 1
 }
 ```
 
