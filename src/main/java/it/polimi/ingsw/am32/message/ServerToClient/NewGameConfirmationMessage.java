@@ -13,7 +13,6 @@ public class NewGameConfirmationMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
     }
 
     @Override
