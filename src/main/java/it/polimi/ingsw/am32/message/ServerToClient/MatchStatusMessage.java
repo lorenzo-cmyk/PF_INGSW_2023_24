@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.View;
-import it.polimi.ingsw.am32.controller.VirtualView;
 
 public class MatchStatusMessage implements StoCMessage {
     private final String recipientNickname;

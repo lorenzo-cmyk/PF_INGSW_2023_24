@@ -12,7 +12,8 @@ public class NewGameConfirmationMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage(View view) {
+    public void processMessage(View view){
+
     }
 
     @Override
