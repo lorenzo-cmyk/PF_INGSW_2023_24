@@ -16,7 +16,6 @@ public class MatchWinnersMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
     }
 
     @Override

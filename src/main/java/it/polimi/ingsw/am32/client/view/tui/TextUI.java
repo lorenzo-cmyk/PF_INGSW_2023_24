@@ -83,6 +83,7 @@ public class TextUI extends UI implements Runnable {
         showWelcome();
         // new Thread(this){}.start()
         chooseConnection();
+        askSelectGameMode();
     }
 
     /**
@@ -92,13 +93,13 @@ public class TextUI extends UI implements Runnable {
     public void run() {
         while (true) { // Listen for player forever
             // TODO
-            int connectionChoice = inputCheckInt(); // read the input from the player and check it
-            switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
-                case 1: {
+           // int connectionChoice = inputCheckInt(); // read the input from the player and check it
+           // switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
+              /*  case 1: {
                     // TODO Thing
                     break;
                 }
-            }
+            }*/
         }
     }
     //-------------------Connection-------------------
@@ -114,8 +115,6 @@ public class TextUI extends UI implements Runnable {
      * @see IsValid
      * @see #setSocketClient(String, int)
      * @see #setRMIClient(String)
-     * @see #inputCheckInt()
-     * @see #inputCheckString()
      * @see #showWelcome()
      */
     @Override
@@ -124,24 +123,29 @@ public class TextUI extends UI implements Runnable {
                 Choose the connection type:
                 1. Socket
                 2. RMI""");
-        int connectionChoice = inputCheckInt(); // read the input from the player and check it
+        int connectionChoice = getInputInt();
+        boolean isConnected=false;
         switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
             case 1: {
+                String ServerIP;
                 out.println("Insert the server IP");
-                String ServerIP = inputCheckString(); // read the input from the player and check it
+                in.nextLine();// read the input from the player
+                ServerIP = in.nextLine();
                 while (!isValid.isIpValid(ServerIP)) {
                     out.println("Invalid IP, please try again");
-                    ServerIP = inputCheckString();
-                } // if the IP address is invalid, print the error message and ask the player to re-enter the IP address
+                    ServerIP = in.nextLine();
+                }// if the IP address is invalid, print the error message and ask the player to re-enter the IP address
                 out.println("Insert the server port");
-                int port = inputCheckInt();
+                int port = getInputInt();
                 // if the port number is invalid, print the error message and ask the player to re-enter the port number
                 while (!isValid.isPortValid(port)) {
                     out.println("Invalid port, please try again");
-                    port = inputCheckInt();
+                    in.nextLine();
+                    port= getInputInt();
                 }
                 try {
                     setSocketClient(ServerIP, port); // set the socket client
+                    isConnected=true;
                 } catch (IOException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -155,14 +159,20 @@ public class TextUI extends UI implements Runnable {
                     ServerURL = in.nextLine();
                 }
                 setRMIClient(ServerURL);// set the RMI client
+                isConnected=true;
                 break;
             }
             default: {
                 // if the input is neither 1 nor 2, print the error message and ask the player to re-enter the input
-                logger.error("Invalid input, please select 1 or 2");
+                logger.info("Invalid input, please select 1 or 2");
                 out.println("Invalid input, please select 1 or 2");
                 chooseConnection();
+                break;
             }
+        }
+        if(!isConnected){
+           out.println("Connection failed, please try again");
+              chooseConnection();
         }
     }
 
@@ -178,7 +188,6 @@ public class TextUI extends UI implements Runnable {
     @Override
     public void setSocketClient(String ServerIP, int port) throws IOException {
         super.setSocketClient(ServerIP, port); // see the method in the superclass
-
         Thread thread = new Thread(clientNode);
         thread.start();
     }
@@ -218,7 +227,6 @@ public class TextUI extends UI implements Runnable {
      * menu of the game mode and asks the player to select the action to perform using the {@link #handleChoiceEvent}
      * method.
      *
-     * @see #inputCheckInt()
      */
     @Override
     public void askSelectGameMode() {
@@ -230,25 +238,25 @@ public class TextUI extends UI implements Runnable {
                 3. Reconnect game
                 """);
         out.println("Which action do you want to perform?");
-        int choice = inputCheckInt();
+        int choice = getInputInt();
         handleChoiceEvent(currentEvent, choice);
     }
 
     /**
      * Method that asks the player to insert the nickname they want to use in the game.
      *
-     * @see #inputCheckString()
      */
     @Override
     public void askNickname() {
         out.println("Insert the nickname you want to use in the game");
-        thisPlayerNickname = inputCheckString();
+
+        thisPlayerNickname = in.nextLine();
+        inputCheckString(thisPlayerNickname);
     }
 
     /**
      * Method that asks the player to insert the number of players and the nickname desired to create a new game.
      *
-     * @see #inputCheckInt()
      * @see #askNickname()
      * @see #notifyAskListenerLobby(CtoSLobbyMessage)
      * @see NewGameMessage
@@ -259,7 +267,7 @@ public class TextUI extends UI implements Runnable {
         askNickname();
         out.println("Insert the number of players you want to play with");
         while (true) {
-            playerNum = inputCheckInt();
+            playerNum = getInputInt();
             if (playerNum < 2 || playerNum > 4) {
                 out.println("Invalid number of players, please insert a number between 2 and 4");
                 in.nextInt();
@@ -275,16 +283,15 @@ public class TextUI extends UI implements Runnable {
      * Method that asks the player to insert the nickname they want to use in the game and the Access ID of the game
      * they want to join.
      *
-     * @see #inputCheckString()
-     * @see #inputCheckInt()
      */
     @Override
     public void askJoinGame() {
         currentEvent = Event.JOIN_GAME;
         out.println("Insert the nickname you want to use in the game");
-        thisPlayerNickname = inputCheckString();
+        thisPlayerNickname = in.nextLine();
+        inputCheckString(thisPlayerNickname);
         out.println("Insert the Access ID of the game you want to join");
-        gameID = inputCheckInt();
+        gameID = getInputInt();
         // notify the listener with the access game message
         notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
         //TODO wait for the response from the server
@@ -293,7 +300,6 @@ public class TextUI extends UI implements Runnable {
     /**
      * Use this method to ask the player if they want to reconnect to the game.
      *
-     * @see #inputCheckString()
      */
     @Override
     public void askReconnectGame() {
@@ -363,7 +369,7 @@ public class TextUI extends UI implements Runnable {
                 1. Front
                 2. Back
                 """);
-        int side = inputCheckInt();
+        int side = getInputInt();
         handleChoiceEvent(currentEvent, side);
         boolean isUP = side == 1;
         notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, isUP));
@@ -384,14 +390,14 @@ public class TextUI extends UI implements Runnable {
                 "2. " + hand.get(1).getId()
                 "3. " + hand.get(1).getId()""");
         //TODO change the code to show all the cards in the hand
-        int cardID = inputCheckInt();
+        int cardID = getInputInt();
         out.println("""
                 Which side do you want to place the card?
                 1. Front
                 2. Back
                 """);
         //TODO show the card selected by the player: front side and back side
-        int cardSide = inputCheckInt();
+        int cardSide = getInputInt();
         //TODO
     }
 
@@ -892,24 +898,17 @@ public class TextUI extends UI implements Runnable {
         }
 
     }
-    private String inputCheckString() {
-        String input;
+    private void inputCheckString(String input){
         while (true) {
             try {
                 input = in.nextLine();
-            } catch (InputMismatchException e) {
-                out.println("! Invalid input, please try again");
-                continue;
-            }
-            break;
-        }
-        return input;
-    }
-    private int inputCheckInt() {
-        int input;
-        while (true) {
-            try {
-                input = in.nextInt();
+                if(input.equalsIgnoreCase("help")){
+                    showHelpInfo();
+                    continue;
+                }
+                else if(input.equalsIgnoreCase("exit")){
+                    System.exit(0);
+                }
             } catch (InputMismatchException e) {
                 out.println("! Invalid input, please try again");
                 in.nextLine();
@@ -917,7 +916,15 @@ public class TextUI extends UI implements Runnable {
             }
             break;
         }
-        return input;
+    }
+    private int getInputInt() {
+        try {
+                return in.nextInt();
+            } catch (InputMismatchException e) {
+                out.println("Invalid input, please type a number");
+                in.nextLine();
+                return getInputInt();
+            }
     }
 
     private void clearCMD() {
