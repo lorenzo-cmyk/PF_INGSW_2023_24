@@ -245,8 +245,9 @@ public class SKServerNode implements Runnable, NodeInterface {
         }
     }
 
-    public synchronized void uploadToClient(StoCMessage msg) throws UploadFailureException {
+    public void uploadToClient(StoCMessage msg) throws UploadFailureException {
 
+        // TODO manca sincronizzazione qui
         if(socket.isClosed()) {
             logger.error("Failed to send StoCMessage to client: Socket is closed");
             throw new UploadFailureException();

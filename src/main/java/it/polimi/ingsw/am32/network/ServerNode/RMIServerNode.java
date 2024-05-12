@@ -21,22 +21,34 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private int pingCount;
     private RMIClientNodeInt clientNode;
     private final PingTask pingTask;
-    private boolean pingTaskAvailable;
+    private boolean statusIsAlive;
+    private final Object aliveLock;
+    private final Object processingLock;
 
     public RMIServerNode(RMIClientNodeInt clientNode) throws RemoteException {
         this.clientNode = clientNode;
         pingTask = new PingTask(this);
         config = Configuration.getInstance();
         pingCount = config.getMaxPingCount();
-        pingTaskAvailable = true;
+        aliveLock = new Object();
+        processingLock = new Object();
 
         logger = LogManager.getLogger("RMIServerNode");
+
+        statusIsAlive = true;
     }
 
     public void uploadCtoS(CtoSMessage message) throws RemoteException {
 
-        resetTimeCounter();
-        message.elaborateMessage(gameController);
+        synchronized (aliveLock) {
+            if (!statusIsAlive)
+                // TODO aggiungere nuova exception
+            resetTimeCounter();
+        }
+
+        synchronized (processingLock) {
+            message.elaborateMessage(gameController);
+        }
     }
 
     public void uploadToClient(StoCMessage message) throws UploadFailureException {
@@ -52,23 +64,29 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     }
 
     public void pingTimeOverdue() {
-        synchronized (pingTask) {
-            if(!pingTaskAvailable)
+
+        boolean tmpDestroy = false;
+
+        synchronized (aliveLock) {
+
+            if(!statusIsAlive)
                 return;
 
             pingCount--;
 
-            if(pingCount == 0){
-                //TODO il metodo seguente è ancora questo??
+            if(pingCount == 0)
+                tmpDestroy = true;
 
+            if(tmpDestroy)
                 destroy();
-            }
+
+            return;
         }
     }
 
     public void resetTimeCounter() {
-        synchronized (pingTask){
-            if(!pingTaskAvailable)
+        synchronized (aliveLock){
+            if(!statusIsAlive)
                 return;
 
             pingCount = config.getMaxPingCount();
@@ -77,23 +95,25 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     public void destroy() {
 
-        synchronized (pingTask){
-            if(!pingTaskAvailable)
-                return;
-
-            pingTask.cancel();
-            pingTaskAvailable = false;
+        synchronized (aliveLock) {
+            statusIsAlive = false;
         }
+
+        pingTask.cancel();
 
         // TODO eliminare pingTask da timer in controller
 
+        synchronized (processingLock) {
+            gameController.disconnect(this);
+            // TODO eliminare pingTask da timer in controller
 
-        //UnicastRemoteObject.unexportObject(this, false);
+            // TODO UnicastRemoteObject.unexportObject(this, false);
+        }
     }
 
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
-        // Aggiungi PingTask al controller
+        // TODO Aggiungi PingTask al controller
     }
 
 }
