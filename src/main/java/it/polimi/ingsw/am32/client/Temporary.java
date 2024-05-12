@@ -75,6 +75,9 @@ public class Temporary implements Runnable{
             printObjCard(card);
         }*/
         thisPlayerNickname = "player1";
+        players=new ArrayList<>();
+        players.add("player1");
+        players.add("player2");
         publicInfo.put("player1",new PlayerPub("null",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0}));
         boards.put("player1",new BoardView(new int[]{80,80,80,80},new String[160][160]));
         ArrayList<int[]>availablePos = new ArrayList<>();
@@ -98,6 +101,7 @@ public class Temporary implements Runnable{
         updateAfterPlacedCard("player1",nonObjCards.get(65),4,4,true,availablePos,new int[]{0,0,0},0);
         updateAfterPlacedCard("player1",nonObjCards.get(75),-2,-2,true,availablePos,new int[]{0,0,0},0);
         printBoard("player1");
+        out.println("The players in the game are: "+players);
     }
     private void printBoard(String nickname){
         BoardView boardView= this.boards.get(nickname);

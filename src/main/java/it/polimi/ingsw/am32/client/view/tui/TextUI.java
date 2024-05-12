@@ -278,12 +278,12 @@ public class TextUI extends View implements Runnable {
     @Override
     public void updateNewGameConfirm(int gameID, String recipientNickname){
         // once received the NewGameConfirmationMessage from the server
-        handleEvent(Event.GAME_CREATED);
         this.gameID = gameID;
         this.thisPlayerNickname = recipientNickname;
         this.players.add(recipientNickname);
+        handleEvent(Event.GAME_CREATED);
+        currentEvent = Event.WAITING_FOR_START;
     }
-
     /**
      * Method that asks the player to insert the nickname they want to use in the game and the Access ID of the game
      * they want to join.
@@ -298,9 +298,22 @@ public class TextUI extends View implements Runnable {
         gameID = getInputInt();
         // notify the listener with the access game message
         notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
-        //TODO wait for the response from the server
     }
-
+    @Override
+    public void updateNewPlayerJoin(ArrayList<String> players){
+        // once received the LobbyPlayerListMessage from the server
+        for(String player:players){
+            if(!this.players.contains(player)){
+                this.players.add(player);
+            }
+        }// FIXME is LOBBYPLAYERLISTMESSAGE also used to update the player list when a player leaves the game?
+        if(currentEvent.equals(Event.WAITING_FOR_START)){ // if the player is waiting for the game to start.
+            handleEvent(Event.NEW_PLAYER_JOIN);
+        }else {
+            setCurrentEvent(Event.WAITING_FOR_START); // if the player is the player who just joined the game.
+        }
+        showPlayerInGame();
+    }
     /**
      * Use this method to ask the player if they want to reconnect to the game.
      *
@@ -487,6 +500,9 @@ public class TextUI extends View implements Runnable {
 
 
     //-------------------View of the game-------------------
+    public void showPlayerInGame(){
+        out.println("The players in the game are: "+players);
+    }
     public void showCardSelected() {
         // show the version details of the card selected by the player --> call printNonObjCard or printObjCard
         out.println("The card selected is: " );
@@ -898,6 +914,13 @@ public class TextUI extends View implements Runnable {
         switch (event){
             case GAME_CREATED -> {
                 out.println("Game created successfully, waiting for other players to join...");
+                showPlayerInGame();
+            }
+            case NEW_PLAYER_JOIN -> {
+                out.println("New player join the game :)");
+            }
+            case JOINED_GAME -> {
+                out.println("Joined the game successfully,waiting for the game to start...");
             }
         }
     }

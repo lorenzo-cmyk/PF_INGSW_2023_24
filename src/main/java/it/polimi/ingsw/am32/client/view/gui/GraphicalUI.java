@@ -59,10 +59,20 @@ public class GraphicalUI extends View {
         //TODO
     }
 
+    @Override
+    public void updateNewGameConfirm(int gameID, String recipientNickname) {
+
+    }
+
 
     @Override
     public void askJoinGame() {
         //TODO
+    }
+
+    @Override
+    public void updateNewPlayerJoin(ArrayList<String> players) {
+
     }
 
     @Override
