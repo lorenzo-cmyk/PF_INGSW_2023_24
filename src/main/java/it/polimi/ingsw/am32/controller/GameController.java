@@ -195,7 +195,7 @@ public class GameController {
     }
 
     private void disconnectAfterPlacementBeforeDraw(NodeInterface node) {
-
+        // TODO
     }
 
     private void disconnectStandard(NodeInterface node) {
@@ -203,6 +203,7 @@ public class GameController {
         // If the leaving player is not the one currently playing we just need to inform the other player
 
         // If the leaving player is the one currently playing and he has not yet placed a card we need to skip the turn and then inform the other players
+        // TODO
     }
 
     public void reconnect(NodeInterface node) {
@@ -226,16 +227,6 @@ public class GameController {
         PlayerQuadruple newPlayerQuadruple = new PlayerQuadruple(node, nickname, true, virtualView);
         nodeList.add(newPlayerQuadruple);
         Configuration.getInstance().getExecutorService().submit(virtualView); // Start virtualView thread so that it can start listening for messages to send to the client
-    }
-
-    /**
-     * Deletes a player from the game.
-     * Methods used when a player leaves the game.
-     *
-     * @param nickname The nickname of the player to delete
-     */
-    public void deletePlayer(String nickname) {
-        // TODO: Implement the deletion of a player. Used in case of disconnection or voluntary exit during the lobby phase.
     }
 
     /**
@@ -464,15 +455,12 @@ public class GameController {
             submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname), model.getAvailableSpacesPlayer(nickname)));
             // FIXME Need to send everyone player new resources, and points, and information about placed card (x,y,id,side); problem is that if a client disconnects, we need to roll back the information
 
-            if (model.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) {
-                model.nextTurn();
-                if (model.isFirstPlayer()) {
-                    enterEndPhase();
-                }
-            }
-            else {
+            if (model.getMatchStatus() != MatchStatus.LAST_TURN.getValue()) { // We are not in the last turn; the player should draw a card
                 status = GameControllerStatus.WAITING_CARD_DRAW; // Update game status
+                return;
             }
+
+            setNextPlayer();
         } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, e.getMessage()));
@@ -534,24 +522,8 @@ public class GameController {
                 ));
             }
 
-            model.nextTurn(); // Update turn number and current player
+            setNextPlayer();
 
-            // Notify the players of the current player
-            for (PlayerQuadruple playerQuadruple : nodeList) {
-                submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
-            }
-
-            // After updating the current player, we need to update the game state
-            if (model.isFirstPlayer()) { // The first player is now playing
-               if (model.areWeTerminating()) { // We are in the terminating phase
-                   model.setLastTurn();
-
-                   // Notify all players of the new match status
-                   for (PlayerQuadruple playerQuadruple : nodeList) {
-                       submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
-                   }
-               }
-            }
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         } catch (DrawException e) { // Player tried to draw a card, but the draw failed
@@ -563,6 +535,60 @@ public class GameController {
         } catch (VirtualViewNotFoundException e) {
             throw new CriticalFailureException("VirtualView for player " + nickname + " not found");
         }
+    }
+
+    /**
+     * Sets the current player, skipping over any disconnected players.
+     * Updates the current game status.
+     * Notifies all players of any changes in the model status, notifies all players of the newly elected current player.
+     */
+    private void setNextPlayer() {
+        do {
+            model.nextTurn(); // Update turn number and current player
+
+            // After updating the current player, we need to update the game state
+            if (model.isFirstPlayer()) { // The first player is now playing
+                if (model.areWeTerminating()) { // We are in the terminating phase
+                    model.setLastTurn();
+
+                    // Notify all players of the new match status
+                    for (PlayerQuadruple playerQuadruple : nodeList) {
+                        try {
+                            submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                        } catch (VirtualViewNotFoundException e) {
+                            throw new CriticalFailureException("VirtualView for player " + playerQuadruple.getNickname() + " not found");
+                        }
+                    }
+                }
+                else if (model.getMatchStatus() == MatchStatus.LAST_TURN.getValue()) {
+                    enterEndPhase();
+                    return;
+                }
+            }
+        } while (!isCurrentPlayerConnected());
+
+        // Found the next player that is currently connected
+        // Notify the players of the current player
+        for (PlayerQuadruple playerQuadruple : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualView for player " + playerQuadruple.getNickname() + " not found");
+            }
+        }
+    }
+
+    /**
+     * Checks to see if the current player is connected.
+     *
+     * @return True if the current player is connected, false otherwise
+     */
+    private boolean isCurrentPlayerConnected() {
+        return nodeList.stream()
+                .filter(pq -> pq.getNickname().equals(model.getCurrentPlayerNickname()))
+                .map(PlayerQuadruple::isConnected)
+                .findFirst()
+                .orElse(false);
     }
 
     /**
