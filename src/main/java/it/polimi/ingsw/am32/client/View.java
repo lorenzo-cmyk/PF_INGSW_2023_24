@@ -142,6 +142,9 @@ public abstract class View implements EventHandler{
     public abstract void showPlayersField(String playerNickname);
 
     public abstract void showPoints(String playerNickname);
+
+    public void updateConfirmSelectedSecretCard() {
+    }
 }
 
 

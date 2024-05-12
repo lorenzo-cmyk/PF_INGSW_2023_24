@@ -370,6 +370,12 @@ public class TextUI extends View implements Runnable {
         out.println("Your field after placing the starter card is following:");
         showPlayersField(thisPlayerNickname);
     }
+    @Override
+    public void updateConfirmSelectedSecretCard(){
+        // once received the SecretObjCardConfirmationMessage from the server
+        out.println("The secret objective card is selected successfully");
+        //TODO
+    }
     public void setUpEnterPreparationPhase(ArrayList<String> players,ArrayList<Integer>colors,ArrayList<Integer>Hand,
                                            int SecretObjCard, int points, int colour, ArrayList<int[]>field,
                                            int[] resources, ArrayList<Integer> commonObjCards,
