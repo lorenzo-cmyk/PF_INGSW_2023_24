@@ -92,6 +92,11 @@ public class GraphicalUI extends View {
     }
 
     @Override
+    public void requestSelectStarterCardSide(int ID) {
+
+    }
+
+    @Override
     public void showInitialView() {
 
     }

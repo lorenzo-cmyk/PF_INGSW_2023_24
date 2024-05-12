@@ -98,6 +98,8 @@ public abstract class View implements EventHandler{
 
     public abstract void updateMatchStatus(int matchStatus);
 
+    public abstract void requestSelectStarterCardSide(int ID);
+
     //-------------------Game start-----------------------
     public abstract void showInitialView();
 

@@ -330,6 +330,25 @@ public class TextUI extends View implements Runnable {
         // once received the MatchStatusMessage from the server
         this.Status=convertToMatchStatus(matchStatus);
     }
+    @Override
+    public void requestSelectStarterCardSide(int ID){
+        // once received the AssignStarterCardMessage from the server
+        starterCard=ID;
+        currentEvent = Event.SELECT_STARTER_CARD_SIDE;
+        out.println("The starter card received is following");
+        out.println("1.Front side");
+        printNonObjCard(searchNonObjCardById(ID),true);
+        out.println("2.Back side");
+        printNonObjCard(searchNonObjCardById(ID),false);
+        out.println("Please select the side of the card you want to use:");
+        int side = getInputInt();
+        while(side!=1 && side!=2){
+            logger.info("Invalid input, please select 1 or 2");
+            out.println("Invalid input, please select 1 or 2");
+            side = getInputInt();
+        }
+        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side == 1));
+    }
     public void setUpEnterPreparationPhase(ArrayList<String> players,ArrayList<Integer>colors,ArrayList<Integer>Hand,
                                            int SecretObjCard, int points, int colour, ArrayList<int[]>field,
                                            int[] resources, ArrayList<Integer> commonObjCards,
@@ -947,7 +966,6 @@ public class TextUI extends View implements Runnable {
                     }
                 }
             }
-            case CREATE_GAME -> System.out.println("Creating game...");
             case JOIN_GAME -> System.out.println("Joining game...");
             case RECONNECT_GAME -> System.out.println("Reconnecting game...");
             case GAME_START -> out.println("OH YEAH! Let's start the game!");
