@@ -2,7 +2,6 @@ package it.polimi.ingsw.am32.client.view.gui;
 
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
-import it.polimi.ingsw.am32.client.UI;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
@@ -10,7 +9,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 
 import java.util.ArrayList;
 
-public class GraphicalUI extends UI implements View {
+public class GraphicalUI extends View {
 
 
     public GraphicalUI() {

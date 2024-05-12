@@ -12,12 +12,13 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
+import net.bytebuddy.jar.asm.Handle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Class TextUI is a one of the two User Interface of the game that allows the player to interact with the game, which
- * is a text-based interface. It extends the abstract {@link UI} class and implements the{@link Runnable}interface.
+ * is a text-based interface. It extends the abstract {@link View} class and implements the{@link Runnable}interface.
  * <p>
  *     The class includes the following methods, which could be divided into three categories: connection, flow of the
  *     game, and design of printed elements. The connection methods are used to establish the connection between the
@@ -39,7 +40,7 @@ import org.apache.logging.log4j.Logger;
  * @author Jie
  *
  */
-public class TextUI extends UI implements Runnable {
+public class TextUI extends View implements Runnable {
     private static final Logger logger = LogManager.getLogger("TUILogger");
     private final Scanner in;
     private final PrintStream out;
@@ -183,7 +184,7 @@ public class TextUI extends UI implements Runnable {
      * @param ServerIP the server IP entered by the player
      * @param port     the server port entered by the player
      * @throws IOException if an I/O error occurs
-     * @see UI#setSocketClient(String, int)
+     * @see View#setSocketClient(String, int)
      */
     @Override
     public void setSocketClient(String ServerIP, int port) throws IOException {
@@ -197,7 +198,7 @@ public class TextUI extends UI implements Runnable {
      * connection between the client and the server.
      *
      * @param ServerURL the server URL entered by the player
-     * @see UI#setSocketClient(String, int)
+     * @see View#setSocketClient(String, int)
      */
     @Override
     public void setRMIClient(String ServerURL) {
@@ -249,9 +250,8 @@ public class TextUI extends UI implements Runnable {
     @Override
     public void askNickname() {
         out.println("Insert the nickname you want to use in the game");
-
+        in.nextLine();
         thisPlayerNickname = in.nextLine();
-
     }
 
     /**
@@ -276,7 +276,11 @@ public class TextUI extends UI implements Runnable {
             break;
         } // notify the listener with the new game message
         notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
-        //TODO wait for the response from the server
+    }
+    public void createdGame(int gameID){
+        // once received the NewGameConfirmationMessage from the server
+        this.gameID = gameID;
+
     }
 
     /**
@@ -890,7 +894,11 @@ public class TextUI extends UI implements Runnable {
     }
     @Override
     public void handleEvent(Event event) {
-        //TODO
+        switch (event){
+            case LOBBY_CREATED_GAME -> {
+                out.println("Game created successfully, waiting for other players to join...");
+            }
+        }
     }
     @Override
     public void handleChoiceEvent(Event event, int choice){
@@ -901,7 +909,7 @@ public class TextUI extends UI implements Runnable {
                     case 2 -> askJoinGame();
                     case 3 -> askReconnectGame();
                     default -> {
-                        logger.error("Invalid input, please select 1, 2 or 3");
+                        logger.info("Invalid input, please select 1, 2 or 3");
                         out.println("Invalid input, please select 1, 2 or 3");
                         askSelectGameMode();
                     }
@@ -963,19 +971,7 @@ public class TextUI extends UI implements Runnable {
     }
 
 
-    @Override
-    public void updateView(StoCMessage message) {
 
-    }
-
-    @Override
-    public void notifyAskListener(CtoSMessage message) {
-        //TODO
-    }
-    @Override
-    public void notifyAskListenerLobby(CtoSLobbyMessage message) {
-        //TODO
-    }
 
 
 }
