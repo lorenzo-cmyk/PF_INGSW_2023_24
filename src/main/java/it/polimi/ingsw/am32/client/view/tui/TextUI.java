@@ -499,6 +499,26 @@ public class TextUI extends UI implements Runnable {
         //TODO optional(show the array of the resources of the player)
     }
 
+    /**
+     * Print the zone of the board where the player placed his cards and the available positions for the next
+     * placement.
+     * @param nickname the nickname of the player, the owner of the board that should be printed.
+     */
+    private void printBoard(String nickname){
+        BoardView boardView= this.boards.get(nickname); // get the boardView of the player by nickname
+        String[][] board= boardView.getBoard(); // get the matrix of the board of the player
+        int[] limits = boardView.getLimits(); // get the limits of the view of the board
+        for(int i=limits[1];i<=limits[0];i++){ // print the zone of the board enclosed by the limits
+            for(int j=limits[3];j<=limits[2];j++){
+                if(board[i][j]==null){
+                    board[i][j]="   "; // if the position is empty will be printed three spaces to remain the layout
+                }
+                out.print(board[i][j]);
+            }
+            out.println();
+        }
+    }
+
 
     //-------------------Card Factory-------------------
 
