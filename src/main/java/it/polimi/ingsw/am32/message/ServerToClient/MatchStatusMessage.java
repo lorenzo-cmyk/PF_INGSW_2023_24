@@ -13,7 +13,7 @@ public class MatchStatusMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateMatchStatus(matchStatus);
     }
 
     @Override

@@ -87,6 +87,11 @@ public class GraphicalUI extends View {
     }
 
     @Override
+    public void updateMatchStatus(int matchStatus) {
+
+    }
+
+    @Override
     public void showInitialView() {
 
     }

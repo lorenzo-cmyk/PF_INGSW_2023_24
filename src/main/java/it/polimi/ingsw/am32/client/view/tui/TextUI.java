@@ -275,15 +275,6 @@ public class TextUI extends View implements Runnable {
         } // notify the listener with the new game message
         notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
     }
-    @Override
-    public void updateNewGameConfirm(int gameID, String recipientNickname){
-        // once received the NewGameConfirmationMessage from the server
-        this.gameID = gameID;
-        this.thisPlayerNickname = recipientNickname;
-        this.players.add(recipientNickname);
-        handleEvent(Event.GAME_CREATED);
-        currentEvent = Event.WAITING_FOR_START;
-    }
     /**
      * Method that asks the player to insert the nickname they want to use in the game and the Access ID of the game
      * they want to join.
@@ -298,6 +289,26 @@ public class TextUI extends View implements Runnable {
         gameID = getInputInt();
         // notify the listener with the access game message
         notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
+    }
+    /**
+     * Use this method to ask the player if they want to reconnect to the game.
+     *
+     */
+    @Override
+    public void askReconnectGame() {
+        currentEvent = Event.RECONNECT_GAME;
+        // don't need to ask the player nickname because it is already stored
+        notifyAskListener(new RequestGameStatusMessage(thisPlayerNickname));
+        //TODO wait for the response from the server
+    }
+    @Override
+    public void updateNewGameConfirm(int gameID, String recipientNickname){
+        // once received the NewGameConfirmationMessage from the server
+        this.gameID = gameID;
+        this.thisPlayerNickname = recipientNickname;
+        this.players.add(recipientNickname);
+        handleEvent(Event.GAME_CREATED);
+        currentEvent = Event.WAITING_FOR_START;
     }
     @Override
     public void updateNewPlayerJoin(ArrayList<String> players){
@@ -314,16 +325,10 @@ public class TextUI extends View implements Runnable {
         }
         showPlayerInGame();
     }
-    /**
-     * Use this method to ask the player if they want to reconnect to the game.
-     *
-     */
     @Override
-    public void askReconnectGame() {
-        currentEvent = Event.RECONNECT_GAME;
-        // don't need to ask the player nickname because it is already stored
-        notifyAskListener(new RequestGameStatusMessage(thisPlayerNickname));
-        //TODO wait for the response from the server
+    public void updateMatchStatus(int matchStatus){
+        // once received the MatchStatusMessage from the server
+        this.Status=convertToMatchStatus(matchStatus);
     }
     public void setUpEnterPreparationPhase(ArrayList<String> players,ArrayList<Integer>colors,ArrayList<Integer>Hand,
                                            int SecretObjCard, int points, int colour, ArrayList<int[]>field,
@@ -336,7 +341,7 @@ public class TextUI extends View implements Runnable {
 
         this.players=players;
         for(int i=0; i<players.size();i++){
-            publicInfo.put(players.get(i),new PlayerPub(convertColorToString(colors.get(i)),0,new
+            publicInfo.put(players.get(i),new PlayerPub(convertToColour(colors.get(i)),0,new
                     ArrayList<CardPlacedView>(),new int[]{0,0,0,0,0,0,0}));
             boards.put(players.get(i),new BoardView(new int[4],new String[160][160]));
         }
@@ -922,6 +927,9 @@ public class TextUI extends View implements Runnable {
             case JOINED_GAME -> {
                 out.println("Joined the game successfully,waiting for the game to start...");
             }
+            case GAME_START-> {
+                out.println("YEAH!!! Let's start the game!");
+            }
         }
     }
     @Override
@@ -971,7 +979,7 @@ public class TextUI extends View implements Runnable {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
-    public String convertColorToString(int colour){
+    public String convertToColour(int colour){ //FIXME should I create a enum for the colours?
         switch (colour){
             case 0 -> {
                 return "RED";
@@ -987,6 +995,31 @@ public class TextUI extends View implements Runnable {
             }
             case 4 -> {
                 return "BLACK";
+            }
+            default -> {
+                return null;
+            }
+        }
+    }
+    public String convertToMatchStatus(int status){ //FIXME should I create a enum for the status?
+        switch (status){
+            case 0 -> {
+                return "LOBBY";
+            }
+            case 1 -> {
+                return "PREPARATION";
+            }
+            case 2 -> {
+                return "PLAYING";
+            }
+            case 3 -> {
+                return "TERMINATING";
+            }
+            case 4 -> {
+                return "LAST_TURN";
+            }
+            case 5 -> {
+                return "TERMINATED";
             }
             default -> {
                 return null;

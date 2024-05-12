@@ -96,6 +96,8 @@ public abstract class View implements EventHandler{
         }
     }
 
+    public abstract void updateMatchStatus(int matchStatus);
+
     //-------------------Game start-----------------------
     public abstract void showInitialView();
 
