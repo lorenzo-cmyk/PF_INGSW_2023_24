@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * Used to manage the messages that are sent to the client.
  * Stays in a loop and waits for messages to be added to the queue. When a new message is added, it sends it to the client through the connection node.
  *
- * @author Anto
+ * @author Anto, Lorenzo
  */
 public class VirtualView implements VirtualViewInterface, Runnable {
     /**
@@ -22,9 +22,14 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      * The queue of messages that are to be sent to the client.
      */
     private final ArrayList<StoCMessage> messageQueue;
+    /**
+     * A boolean that indicates if the virtual view is terminating.
+     */
+    private boolean terminating = false;
 
     /**
      * Constructor for the VirtualView class.
+     *
      * @param connectionNode The connection node associated with the virtual view.
      */
     public VirtualView(NodeInterface connectionNode) {
@@ -33,14 +38,15 @@ public class VirtualView implements VirtualViewInterface, Runnable {
         if (connectionNode == null) {
             throw new CriticalFailureException("Connection node cannot be null");
         }
-        messageQueue = new ArrayList<>();
+        this.messageQueue = new ArrayList<>();
+        this.terminating = false;
     }
 
     /**
      * The run method of the VirtualView class.
      */
     public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted() && !terminating) {
             processMessage();
         }
     }
@@ -73,6 +79,9 @@ public class VirtualView implements VirtualViewInterface, Runnable {
         if (messageQueue.isEmpty()) { // There is no message to be delivered to the client
             try {
                 wait(); // Enter sleep state, and what for a message to be added to the queue
+                if (terminating) { // If the virtual view is being shutdown, return early
+                    return;
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
@@ -86,6 +95,9 @@ public class VirtualView implements VirtualViewInterface, Runnable {
             // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
             try {
                 wait();
+                if (terminating) { // If the virtual view is being shutdown, return early
+                    return;
+                }
             } catch (InterruptedException e1) {
                 Thread.currentThread().interrupt();
             }
@@ -95,7 +107,6 @@ public class VirtualView implements VirtualViewInterface, Runnable {
     /**
      * Flushes the message queue.
      */
-
     public synchronized void flushMessages() {
         messageQueue.clear();
     }
@@ -112,5 +123,13 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      */
     protected synchronized NodeInterface getConnectionNode() {
         return connectionNode;
+    }
+
+    /*
+     * Method used to terminate the thread running the virtual view.
+     */
+    protected synchronized void setTerminating() {
+        terminating = true;
+        notifyAll(); // If the thread is waiting, wake it up
     }
 }
