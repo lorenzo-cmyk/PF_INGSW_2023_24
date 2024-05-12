@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.controller;
 
+import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
