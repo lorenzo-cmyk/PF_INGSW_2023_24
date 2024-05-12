@@ -95,6 +95,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
     /**
      * Flushes the message queue.
      */
+
     public synchronized void flushMessages() {
         messageQueue.clear();
     }

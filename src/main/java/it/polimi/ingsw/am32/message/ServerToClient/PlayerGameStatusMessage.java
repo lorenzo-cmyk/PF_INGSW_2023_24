@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.chat.ChatMessage;
-import it.polimi.ingsw.am32.controller.VirtualView;
+import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
 
@@ -52,8 +52,8 @@ public class PlayerGameStatusMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage(VirtualView virtualView) {
-        // TODO
+    public void processMessage(View view) {
+
     }
 
     @Override

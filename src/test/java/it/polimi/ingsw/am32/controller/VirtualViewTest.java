@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
+import it.polimi.ingsw.am32.client.View;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +27,7 @@ class VirtualViewTest {
 
     private static class StoCMessageStub implements StoCMessage {
         public StoCMessageStub() {}
-        public void processMessage(VirtualView virtualView) {}
+        public void processMessage(View view) {}
         public String getRecipientNickname() {
             return "";
         }
