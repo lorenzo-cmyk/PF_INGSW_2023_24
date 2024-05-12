@@ -1,5 +1,8 @@
 # Message Types
 
+We have chosen to represent the messages exchanged between the Client and the Server using JSON thanks to its simplicity and readability. Each message is represented as a JSON object with a "type" field that specifies the type of message. The other fields depend on the type of message. 
+The messages are divided into three categories: Lobby Messages, Game Messages, and Chat Messages.
+
 ## Client to Server
 
 ### Lobby Messages
@@ -8,7 +11,8 @@
 ```json
 {
     "type": "NewGameMessage",
-    "senderNickname": "playerName"
+    "senderNickname": "playerName",
+    "playerNum": 3
 }
 ```
 
@@ -16,24 +20,8 @@
 ```json
 {
     "type": "AccessGameMessage",
-    "matchID": 10,
-    "senderNickname": "playerName"
-}
-```
-
-- DestroyGameMessage : sent by Client to terminate a game and kick everyone out of the lobby
-```json
-{
-  "type": "DestroyGameMessage",
-  "senderNickname": "playerName"
-}
-```
-
-- StartGameMessage: sent by a Client to start the game.
-```json
-{
-  "type": "StartGameMessage",
-  "senderNickname": "playerName"
+    "senderNickname": "playerName",
+    "matchID": 10
 }
 ```
 
@@ -50,7 +38,7 @@
 - PlaceCardMessage: sent by a Client to place a card on its field.
 ```json
 {
-  "type": "PlayCardMessage",
+  "type": "PlaceCardMessage",
   "senderNickname": "playerName",
   "cardID": 10,
   "row": 1,
@@ -62,7 +50,7 @@
 - DrawCardMessage: sent by a Client to notify the Server that a card had been chosen to be drawn.
 ```json
 {
-  "type": "PlayCardMessage",
+  "type": "DrawCardMessage",
   "senderNickname": "playerName",
   "deckType": 1,
   "cardID": 23 // Optional parameter used if face-up card is drawn
@@ -75,6 +63,24 @@
   "type": "RequestPlayerFieldMessage",
   "senderNickname": "playerName",
   "playerNickname": "playerName"
+}
+```
+
+- SelectedStarterCardSideMessage: sent by the Client to notify the server of the initial card placement side
+```json
+{
+  "type": "SelectedStarterCardSideMessage",
+  "senderNickname": "playerName",
+  "isUp": true 
+}
+```
+
+- SelectedSecretObjectiveCardMessage: sent by the Client to notify the server of the chosen secret objective card 
+```json
+{
+  "type": "SelectedSecretObjectiveCardMessage",
+  "senderNickname": "playerName",
+  "cardId": 12 
 }
 ```
 
@@ -105,10 +111,10 @@
 
 ### Lobby Messages
 
-- NewGameConfirmation: sent by the Server to confirm the creation of a new game.
+- NewGameConfirmationMessage: sent by the Server to confirm the creation of a new game.
 ```json
 {
-    "type": "NewGameConfirmation",
+    "type": "NewGameConfirmationMessage",
     "recipientNickname": "playerName",
     "matchID": 10
 }
@@ -122,14 +128,7 @@
 }
 ```
 
-- AccessGameFailedMessage: sent by the Server to refuse the join of a Player.
-```json
-{
-  "type": "AccessGameFailedMessage",
-  "recipientNickname": "playerName",
-  "reason": "Reason"
-}
-```
+Some "reasons" could be: CodeNotFoundMessage (the inserted code does not correspond to a match), NonExistAvailableGameMessage (there are no active games on the server, the player is obliged to create a new match), or RoomFullMessage (the match lobby is full, so the player cannot connect).
 
 - LobbyPlayerListMessage: sent by the Server to notify players of who is currently in the lobby
 ```json
@@ -140,35 +139,27 @@
 }
 ```
 
-- DestroyGameConfirmationMessage: sent by the Server to confirm the destruction of a game.
+- GameStartedMessage: sent by the Server to announce the start of the game.
 ```json
 {
-  "type": "DestroyGameConfirmationMessage",
-  "recipientNickname": "playerName"
-}
-```
-
-- StartGameConfirmationMessage: sent by the Server to confirm the start of the game.
-```json
-{
-  "type": "StartGameConfirmation",
+  "type": "GameStartedMessage",
   "recipientNickname": "playerName"
 }
 ```
 
 ### Game Messages
 
-- ResponseGameStatusMessage: sent by the Server to notify the current game status.
+- PlayerGameStatusMessage : sent by the Server to notify the current game status.
 ```json
 {
-  "type": "ResponseGameStatusMessage",
+  "type": "PlayerGameStatusMessage",
   "recipientNickname": "playerName",
   "playerNicknames": ["player1", "player2"],
-  "playerColours": ["Red", "Blue"],
+  "playerConnected": [true, false],
+  "playerColours": [1, 4],
   "playerHand": [10, 11, 12],
   "playerSecretObjective": 9,
   "playerPoints": 5,
-  "playerColour": "Red",
   "playerField": [[0, 0, 31, true], [1, 1, 30, true], [-1, -1, 29, false]],
   "playerResources": [1, 1, 1, 1, 1, 1, 1],
   "gameCommonObjectives": [50, 51],
@@ -177,14 +168,16 @@
   "gameResourcesDeckSize": 30,
   "gameGoldDeckSize": 31,
   "matchStatus": "Status",
-  "playerChatHistory": [
+  "chatHistory": [
     {
       "senderNickname": "playerName",
       "recipientNickname": "playerName",
       "multicastFlag": true,
       "content": "Message"
     }
-  ]
+  ],
+  "currentPlayer": "playerName",
+  "newAvailableFieldSpaces": [[1,2],[3,4], [5,6]]
 }
 ```
 
@@ -203,7 +196,8 @@
   "type": "PlaceCardConfirmationMessage",
   "recipientNickname": "playerName",
   "playerResources": [1, 1, 1, 1, 1, 1, 1],
-  "points": 5
+  "points": 5,
+  "newAvailableFieldSpaces": [[1,2],[3,4],[5,6]]
 }
 ```
 
@@ -231,7 +225,7 @@
 {
   "type": "DrawCardConfirmationMessage",
   "recipientNickname": "playerName",
-  "cardID": 14
+  "playerHand": [14, 17, 21]
 }
 ```
 
@@ -267,6 +261,15 @@
 }
 ```
 
+- NegativeResponsePlayerFieldMessage: sent by the Server to notify the player that the requested player field does not exist.
+```json
+{
+  "type": "NegativeResponsePlayerFieldMessage",
+  "recipientNickname": "playerName",
+  "playerNickname": "playerName",
+}
+```
+
 - PlayerDisconnectedMessage: sent by the Server to notify the other players that a player has disconnected.
 ```json
 {
@@ -290,7 +293,7 @@
 {
   "type": "MatchStatusMessage",
   "recipientNickname": "playerName",
-  "matchStatus": "Status"
+  "matchStatus": 1
 }
 ```
 
@@ -303,6 +306,59 @@
 }
 ```
 
+- AssignedStarterCardMessage: sent by the Server to notify the Client of his assigned starting card
+```json
+{
+  "type": "AssignedStarterCardMessage",
+  "recipientNickname": "playerName",
+  "cardId": 34 
+}
+```
+
+- ConfirmStarterCardSideSelectionMessage: sent by the Server to confirm the reception of the selected starting card side. Contains the colour assigned to the player
+```json
+{
+  "type": "ConfirmStarterCardSideSelectionMessage",
+  "recipientNickname": "playerName",
+  "playerColour": 1
+}
+```
+
+- InvalidStarterCardSideSelectionMessage : sent by the Server to notify the Client that the selected side of the starting card is invalid
+```json
+{
+  "type": "InvalidStarterCardSideSelectionMessage",
+  "recipientNickname": "playerName",
+  "reason": "Reason"
+}
+```
+
+- AssignedSecretObjectiveCardMessage: sent by the Server to notify the Client of his assigned assortment of secret objective cards
+```json
+{
+  "type": "AssignedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName",
+  "assignedCards": [23, 26] 
+}
+```
+
+- ConfirmSelectedSecretObjectiveCardMessage: sent by the Server to confirm the reception of the selected secret objective card
+```json
+{
+  "type": "ConfirmSelectedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName"
+}
+```
+
+- InvalidSelectedSecretObjectiveCardMessage: sent by the Server to notify the Client that the selected secret objective card is invalid
+```json
+{
+  "type": "InvalidSelectedSecretObjectiveCardMessage",
+  "recipientNickname": "playerName",
+  "reason": "Reason"
+}
+```
+
 ### Chat Messages
 
 - OutboundChatMessage: sent by the Server to all relevant clients to propagate a chat message.
@@ -311,8 +367,16 @@
   "type": "OutboundChatMessage",
   "senderNickname": "playerName",
   "recipientNickname": "playerName", // Can be null if the message is for everyone
-  "multicastFlag": true, // If true, message is to be sent to all players
   "content": "Message"
+}
+```
+
+- InvalidInboundChatMessage: sent by the Server to notify the Client that the chat message is invalid.
+```json
+{
+  "type": "InvalidInboundChatMessage",
+  "recipientNickname": "playerName",
+  "reason": "Reason"
 }
 ```
 
@@ -323,5 +387,14 @@
 {
   "type": "PongMessage",
   "recipientNickname": "playerName"
+}
+```
+
+- ErrorMessages: sent by the Server to notify the Client of an error that can't be handled or checked by the GameController.
+```json
+{
+  "type": "ErrorMessages",
+  "recipientNickname": "playerName",
+  "message": "Error"
 }
 ```

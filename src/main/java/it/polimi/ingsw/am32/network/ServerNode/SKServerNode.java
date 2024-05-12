@@ -104,7 +104,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             if (gameController == null) {
                 try {
-                    uploadToClient(new ErrorMessage("Error: StoCMessage was sent before StoCLobbyMessage"));
+                    uploadToClient(new ErrorMessage("Error: StoCMessage was sent before StoCLobbyMessage", "PLAYER"));
                     logger.info("StoCMessage received before StoCLobbyMessage. Sending ErrorMessage to client");
                 } catch (UploadFailureException e) {
                     logger.info("StoCMessage received before StoCLobbyMessage. Failed to send ErrorMessage to client");
@@ -124,7 +124,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             if (gameController != null) {
 
                 try {
-                    uploadToClient(new ErrorMessage("Error: StoCLobbyMessage was sent when the game has already been chosen"));
+                    uploadToClient(new ErrorMessage("Error: StoCLobbyMessage was sent when the game has already been chosen", "PLAYER"));
                     logger.info("StoCLobbyMessage received when gameController already assigned. Sending ErrorMessage to client");
 
                 } catch (UploadFailureException e) {
@@ -140,7 +140,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 // TODO forse è meglio mettere il messaggio di errore nell'exception
             } catch (InvalidPlayerNumberException e) {
                 try {
-                    uploadToClient(new ErrorMessage("Error: invalid player number"));
+                    uploadToClient(new ErrorMessage("Error: invalid player number", "PLAYER"));
                     logger.info("Invalid player number. Sending ErrorMessage to client");
 
                 } catch (UploadFailureException ex) {
@@ -149,7 +149,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             } catch (GameAlreadyStartedException e) {
                 try {
-                    uploadToClient(new ErrorMessage("Error: Game already started"));
+                    uploadToClient(new ErrorMessage("Error: Game already started", "PLAYER"));
                     logger.info("Game already started. Sending ErrorMessage to client");
 
                 } catch (UploadFailureException ex) {
@@ -158,7 +158,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             } catch (FullLobbyException e) {
                 try {
-                    uploadToClient(new ErrorMessage("Error: Lobby already is full"));
+                    uploadToClient(new ErrorMessage("Error: Lobby already is full", "PLAYER"));
                     logger.info("Lobby is already full. Sending ErrorMessage to client");
 
                 } catch (UploadFailureException ex) {
@@ -167,7 +167,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             } catch (DuplicateNicknameException e) {
                 try {
-                    uploadToClient(new ErrorMessage("Error: Player nickname already in use"));
+                    uploadToClient(new ErrorMessage("Error: Player nickname already in use", "PLAYER"));
                     logger.info("Player nickname already in use. Sending ErrorMessage to client");
 
                 } catch (UploadFailureException ex) {
@@ -176,7 +176,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             } catch (GameNotFoundException e) {
                 try {
-                    uploadToClient(new ErrorMessage("Error: Game not found"));
+                    uploadToClient(new ErrorMessage("Error: Game not found", "PLAYER"));
                     logger.info("Game not found. Sending ErrorMessage to client");
 
                 } catch (UploadFailureException ex) {
@@ -193,7 +193,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         //TODO valutare se rimandare in dietro un messaggio di errore
         try {
-            uploadToClient(new ErrorMessage("Error: message type not recognized"));
+            uploadToClient(new ErrorMessage("Error: message type not recognized", "PLAYER"));
             logger.info("message type not recognized. Sending ErrorMessage to client");
 
         } catch (UploadFailureException e) {

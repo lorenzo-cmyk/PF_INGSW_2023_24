@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
-import it.polimi.ingsw.am32.controller.VirtualView;
+import it.polimi.ingsw.am32.client.View;
 
 public class DrawCardFailedMessage implements StoCMessage {
     private final String recipientNickname;
@@ -11,8 +11,14 @@ public class DrawCardFailedMessage implements StoCMessage {
         this.reason = reason;
     }
 
+
     @Override
-    public void processMessage(VirtualView virtualView) {
-        // TODO
+    public void processMessage(View view) {
+
+    }
+
+    @Override
+    public String getRecipientNickname() {
+        return recipientNickname;
     }
 }

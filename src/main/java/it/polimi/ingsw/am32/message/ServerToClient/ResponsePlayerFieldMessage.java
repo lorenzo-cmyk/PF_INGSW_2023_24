@@ -1,7 +1,5 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
-
-import it.polimi.ingsw.am32.controller.VirtualView;
-
+import it.polimi.ingsw.am32.client.View;
 import java.util.ArrayList;
 
 public class ResponsePlayerFieldMessage implements StoCMessage {
@@ -19,7 +17,12 @@ public class ResponsePlayerFieldMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage(VirtualView virtualView) {
+    public void processMessage(View view) {
         // TODO
+    }
+
+    @Override
+    public String getRecipientNickname() {
+        return recipientNickname;
     }
 }

@@ -1,0 +1,20 @@
+package it.polimi.ingsw.am32.client;
+
+public enum Event {
+    RULES,
+    CREATE_GAME,
+    JOIN_GAME,
+    RECONNECT_GAME,
+    PLACE_CARD,
+    DRAW_CARD,
+    SELECT_STARTER_CARD_SIDE,
+    SELECT_SECRET_CARD,
+    GAME_START,
+    GAME_END,
+    PLAYER_TURN,
+    PLAYER_END_TURN,
+    WINNER,
+    PLAYER_DISCONNECTION,
+    SELECT_GAME_MODE,
+    GAME_PREPARATION, WAITING_FOR_START
+}

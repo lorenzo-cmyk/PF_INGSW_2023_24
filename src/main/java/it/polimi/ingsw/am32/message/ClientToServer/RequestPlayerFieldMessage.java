@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.message.ClientToServer;
 
 import it.polimi.ingsw.am32.controller.GameController;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 
 public class RequestPlayerFieldMessage implements CtoSMessage {
     private final String senderNickname;
@@ -13,6 +14,6 @@ public class RequestPlayerFieldMessage implements CtoSMessage {
 
     @Override
     public void elaborateMessage(GameController gameController) {
-        // TODO
+        gameController.sendPlayerField(senderNickname, playerNickname);
     }
 }

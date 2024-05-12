@@ -1,51 +1,116 @@
 package it.polimi.ingsw.am32.controller;
 
+import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayList;
 
+/**
+ * Used to manage the messages that are sent to the client.
+ * Stays in a loop and waits for messages to be added to the queue. When a new message is added, it sends it to the client through the connection node.
+ *
+ * @author Anto
+ */
 public class VirtualView implements VirtualViewInterface, Runnable {
-    private final NodeInterface connectionNode;
-    private final BlockingQueue<StoCMessage> messages;
+    /**
+     * The connection node associated with the virtual view.
+     */
+    private NodeInterface connectionNode;
+    /**
+     * The queue of messages that are to be sent to the client.
+     */
+    private final ArrayList<StoCMessage> messageQueue;
 
+    /**
+     * Constructor for the VirtualView class.
+     * @param connectionNode The connection node associated with the virtual view.
+     */
     public VirtualView(NodeInterface connectionNode) {
         this.connectionNode = connectionNode;
-        this.messages = new LinkedBlockingQueue<>();
+        // Connection node cannot be null
+        if (connectionNode == null) {
+            throw new CriticalFailureException("Connection node cannot be null");
+        }
+        messageQueue = new ArrayList<>();
     }
 
-    @Override
+    /**
+     * The run method of the VirtualView class.
+     */
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
+            processMessage();
+        }
+    }
+
+    /**
+     * Changes the connection node associated with the virtual view. Used for reconnections
+     * @param node The new connection node to associate with the virtual view.
+     */
+    public synchronized void changeNode(NodeInterface node) {
+        connectionNode = node;
+    }
+
+    /**
+     * Adds a message to the queue of messages to be sent to the client.
+     * @param message The message to be added to the queue.
+     */
+    public synchronized void addMessage(StoCMessage message) {
+        // Message cannot be null
+        if (message == null) {
+            throw new CriticalFailureException("Message cannot be null");
+        }
+        messageQueue.add(message);
+        notifyAll();
+    }
+
+    /**
+     * Processes the message queue.
+     */
+    public synchronized void processMessage() {
+        if (messageQueue.isEmpty()) { // There is no message to be delivered to the client
             try {
-                StoCMessage message = messages.take(); // This will block if the queue is empty
-                processMessage(message);
+                wait(); // Enter sleep state, and what for a message to be added to the queue
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // Preserve interrupt status
-                break;
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+        StoCMessage message = messageQueue.getFirst();
+        try {
+            connectionNode.uploadToClient(message);
+            messageQueue.removeFirst();
+        } catch (UploadFailureException e) {
+            // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
+            try {
+                wait();
+            } catch (InterruptedException e1) {
+                Thread.currentThread().interrupt();
             }
         }
     }
 
-    public void changeNode(NodeInterface connectionNode) {
-        //TODO: Implement this method
+    /**
+     * Flushes the message queue.
+     */
+
+    public synchronized void flushMessages() {
+        messageQueue.clear();
     }
 
-    public void addMessage(StoCMessage message) {
-        this.messages.add(message);
-        // Wake up the observer thread if it was waiting for a message
-        synchronized (this) {
-            this.notify();
-        }
+    /*
+     * Method used to retrieve the message queue. Used for testing purposes only.
+     */
+    protected synchronized ArrayList<StoCMessage> getMessageQueue() {
+        return messageQueue;
     }
 
-    @Override
-    public void processMessage() {
-        // TODO: Fix this method
-    }
-
-    public void processMessage(StoCMessage message) {
-        // TODO: Process the message
+    /*
+     * Method used to retrieve the connection node. Used for testing purposes only.
+     */
+    protected synchronized NodeInterface getConnectionNode() {
+        return connectionNode;
     }
 }
