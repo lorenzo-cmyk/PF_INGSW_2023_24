@@ -80,18 +80,26 @@ public class TextUI extends UI implements Runnable {
      */
     @Override
     public void launch() {
-        run();
+        showWelcome();
+        // new Thread(this){}.start()
+        chooseConnection();
     }
 
     /**
-     * //TODO
+     * Method that listens for player input
      */
     @Override
     public void run() {
-        showWelcome();
-        chooseConnection();
-        
-        //TODO flow of the game
+        while (true) { // Listen for player forever
+            // TODO
+            int connectionChoice = inputCheckInt(); // read the input from the player and check it
+            switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
+                case 1: {
+                    // TODO Thing
+                    break;
+                }
+            }
+        }
     }
     //-------------------Connection-------------------
 
