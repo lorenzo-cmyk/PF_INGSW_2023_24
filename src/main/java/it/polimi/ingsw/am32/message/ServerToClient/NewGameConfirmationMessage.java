@@ -13,7 +13,7 @@ public class NewGameConfirmationMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view){
-
+        view.updateNewGameConfirm(matchId, recipientNickname);
     }
 
     @Override

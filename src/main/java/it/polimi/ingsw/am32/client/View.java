@@ -63,6 +63,8 @@ public abstract class View implements EventHandler{
 
     public abstract void askCreateGame();
 
+    public abstract void updateNewGameConfirm(int gameID, String recipientNickname);
+
     public abstract void askJoinGame();
 
     public abstract void askReconnectGame();

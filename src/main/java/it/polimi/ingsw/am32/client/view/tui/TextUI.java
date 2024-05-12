@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import net.bytebuddy.jar.asm.Handle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -277,10 +275,13 @@ public class TextUI extends View implements Runnable {
         } // notify the listener with the new game message
         notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
     }
-    public void createdGame(int gameID){
+    @Override
+    public void updateNewGameConfirm(int gameID, String recipientNickname){
         // once received the NewGameConfirmationMessage from the server
+        handleEvent(Event.GAME_CREATED);
         this.gameID = gameID;
-
+        this.thisPlayerNickname = recipientNickname;
+        this.players.add(recipientNickname);
     }
 
     /**
@@ -895,7 +896,7 @@ public class TextUI extends View implements Runnable {
     @Override
     public void handleEvent(Event event) {
         switch (event){
-            case LOBBY_CREATED_GAME -> {
+            case GAME_CREATED -> {
                 out.println("Game created successfully, waiting for other players to join...");
             }
         }
