@@ -14,6 +14,7 @@ import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
+import javafx.scene.Node;
 
 /**
  * Represents a controller for a single game.
@@ -137,11 +138,71 @@ public class GameController {
         chat.addMessage(message); // Adds the message to the chat history
     }
 
+    /**
+     * Method called whenever a player gets disconnected.
+     * Calls the appropriate version of the disconnect method based on the current game status.
+     *
+     * @param node The node of the player to disconnect
+     */
     public void disconnect(NodeInterface node) {
-        //TODO: Implement the disconnection of a player
+        switch (status) {
+            case GameControllerStatus.LOBBY -> disconnectDuringLobby(node);
+            case GameControllerStatus.WAITING_CARD_DRAW -> disconnectAfterPlacementBeforeDraw(node);
+            default -> disconnectStandard(node);
+        }
     }
 
-    public void reconnect(NodeInterface node){
+    /**
+     * Disconnects a player during the lobby phase.
+     * Shuts down the player's virtual view.
+     * Removes the player from the model.
+     * Removes the playerQuadruple.
+     * Notifies all players that a player has left the lobby.
+     *
+     * @param node The node of the player to disconnect
+     */
+    private void disconnectDuringLobby(NodeInterface node) {
+        PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
+
+        if (playerQuadruple == null) { // The player quadruple could not be found
+            throw new CriticalFailureException("Player quadruple not found when disconnecting player");
+        }
+
+        // Delete player from model
+        try {
+            model.deletePlayer(playerQuadruple.getNickname());
+        } catch (PlayerNotFoundException e) {
+            throw new CriticalFailureException("Player not found when deleting player from model");
+        }
+
+        // Shutdown virtual view
+        playerQuadruple.getVirtualView().setTerminating();
+
+        // Remove player quadruple
+        nodeList.remove(playerQuadruple);
+
+        // Notify all players that a player has left the lobby
+        ArrayList<String> allPlayerNicknames = getNodeList().stream()
+                .map(PlayerQuadruple::getNickname)
+                .collect(Collectors.toCollection(ArrayList::new));
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the lobby");
+            }
+        }
+    }
+
+    private void disconnectAfterPlacementBeforeDraw(NodeInterface node) {
+
+    }
+
+    private void disconnectStandard(NodeInterface node) {
+
+    }
+
+    public void reconnect(NodeInterface node) {
         //TODO: Implement the reconnection of a player
     }
 
