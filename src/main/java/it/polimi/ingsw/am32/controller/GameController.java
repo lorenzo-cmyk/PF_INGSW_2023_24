@@ -188,6 +188,7 @@ public class GameController {
         for (PlayerQuadruple playerQuadruple1 : nodeList) {
             try {
                 submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple1.getNickname(), allPlayerNicknames));
+                // FIXME: Add a message to notify the player that a player has left the lobby. We need to add it in order to keep the event consistent
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the lobby");
             }
@@ -272,14 +273,14 @@ public class GameController {
         try {
             model.addObjectivePoints();
             ArrayList<String> winners = model.getWinners();
-            // FIXME Need to notify players of points gained by objective cards?
-            // FIXME Need to notify players of objective cards of other players?
 
             for (PlayerQuadruple playerQuadruple : nodeList) {
                 // Notify the player of the status of the match
                 submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
                 // Notify the player of the winners
                 submitVirtualViewMessage(new MatchWinnersMessage(playerQuadruple.getNickname(), winners));
+                // FIXME Need to notify players of points gained by objective cards? Yes
+                // FIXME Need to notify players of objective cards of other players? Yes
                 // FIXME Added player points to MatchWinnersMessage
             }
         } catch (AlreadyComputedPointsException e) {
@@ -319,7 +320,9 @@ public class GameController {
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
             // Notify the player that he has successfully chosen his starting card's side
             submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(nickname, model.getPlayerColour(nickname)));
-            // FIXME Player resources and available spaces
+            //FIXME private final boolean isUp;
+            //FIXME private final arraylist<int[]> availablePos;
+            //FIXME private final int[] resources;
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -338,7 +341,7 @@ public class GameController {
                  status = GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE;
 
                  for (PlayerQuadruple playerQuadruple : nodeList) {
-                     // FIXME Players should receive their assigned resource, gold cards, and common objectives. Either create new message or add to AssignedSecret...
+                     // FIXME Players should receive their hand and common objectives. Put inside this message
                      submitVirtualViewMessage(new AssignedSecretObjectiveCardMessage(playerQuadruple.getNickname(), model.getSecretObjectiveCardsPlayer(playerQuadruple.getNickname())));
                  }
             }
@@ -379,6 +382,7 @@ public class GameController {
             model.receiveSecretObjectiveChoiceFromPlayer(nickname, id); // Set the player's secret objective
             // Notify the player that he has successfully chosen his secret objective
             submitVirtualViewMessage(new ConfirmSelectedSecretObjectiveCardMessage(nickname));
+            // FIXME: Add also the secret objective card ID to this message
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -400,9 +404,11 @@ public class GameController {
                     submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
                     // Notify the player of his current game status
                     submitVirtualViewMessage(generateResponseGameStatusMessage(playerQuadruple.getNickname()));
+                    // FIXME: Keeps this message in order to symlink the code in the client.
+                    // FIXME: This message must also contains the filed and points of the other player in order to keep client version of the model safe
                     // Notify the players of the current player
                     submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
-                    // FIXME PlayerTurnMessage not needed here as it is already present in the big message
+                    // FIXME PlayerTurnMessage is still needed in order to keep the event in the client
                 }
             }
         } catch (InvalidSelectionException e) { // The player has chosen an invalid secret objective card
@@ -453,7 +459,8 @@ public class GameController {
 
             // Notify the player that he has successfully placed the card
             submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname), model.getAvailableSpacesPlayer(nickname)));
-            // FIXME Need to send everyone player new resources, and points, and information about placed card (x,y,id,side); problem is that if a client disconnects, we need to roll back the information
+            // FIXME Need to send everyone player new resources, and points, and information about placed card (x,y,id,side);
+            //  FIXME: In case of rollback we will send a new type of messages with the post-rollback field, points and resources
 
             if (model.getMatchStatus() != MatchStatus.LAST_TURN.getValue()) { // We are not in the last turn; the player should draw a card
                 status = GameControllerStatus.WAITING_CARD_DRAW; // Update game status
@@ -566,6 +573,7 @@ public class GameController {
                 }
             }
         } while (!isCurrentPlayerConnected());
+        // FIXME: If all the players are disconnected this is an infinite loop
 
         // Found the next player that is currently connected
         // Notify the players of the current player
@@ -597,6 +605,7 @@ public class GameController {
      *
      * @param requesterNickname The nickname of the player that sent the message
      */
+    // FIXME: The client has an obtion to reconnect not only to access and create a new game
     public synchronized void sendGameStatus(String requesterNickname) {
         try {
             submitVirtualViewMessage(generateResponseGameStatusMessage(requesterNickname));
@@ -626,7 +635,7 @@ public class GameController {
             throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
         }
     }
-    // FIXME No longer needed? :/
+    // FIXME No longer needed? :/ Yep, unfortunately
 
     /**
      * Generates a response game status message for a given player.
