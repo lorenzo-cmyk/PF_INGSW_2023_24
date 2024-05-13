@@ -35,8 +35,10 @@ public class SKServerNode implements Runnable, NodeInterface {
     private int pingCount;
     private final PingTask pingTask;
     private boolean statusIsAlive;
+    private boolean destroyCalled;
     private final Object aliveLock;
-    private final Object processingLock;
+    private final Object ctoSProcessingLock;
+    private final Object stoCProcessingLock;
 
     public SKServerNode(Socket socket) throws UninitializedException {
         this.gameController = null;
@@ -44,7 +46,8 @@ public class SKServerNode implements Runnable, NodeInterface {
         config = Configuration.getInstance();
         pingCount = config.getMaxPingCount();
         aliveLock = new Object();
-        processingLock = new Object();
+        ctoSProcessingLock = new Object();
+        stoCProcessingLock = new Object();
 
         this.logger = LogManager.getLogger("SkServerNode");
 
@@ -95,6 +98,7 @@ public class SKServerNode implements Runnable, NodeInterface {
         }
 
         statusIsAlive = true;
+        destroyCalled = false;
         pingTask = new PingTask(this);
     }
 
@@ -110,11 +114,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                 listenForIncomingMessages();
             }
         } catch (IOException | ClassNotFoundException e) {
-
-            try {
-                if(!socket.isClosed())
-                    socket.close();
-            } catch (IOException ignored) {}
 
             destroy();
 
@@ -135,14 +134,15 @@ public class SKServerNode implements Runnable, NodeInterface {
             return;
         }
 
+        synchronized (ctoSProcessingLock) {
 
-        synchronized (aliveLock) {
-            if (!statusIsAlive)
-                throw new NodeClosedException();
-            resetTimeCounter();
-        }
+            synchronized (aliveLock) {
 
-        synchronized (processingLock) {
+                if (!statusIsAlive)
+                    throw new NodeClosedException();
+
+                resetTimeCounter();
+            }
 
             if (message instanceof CtoSMessage) {
 
@@ -247,32 +247,33 @@ public class SKServerNode implements Runnable, NodeInterface {
 
     public void uploadToClient(StoCMessage msg) throws UploadFailureException {
 
-        // TODO manca sincronizzazione qui
-        if(socket.isClosed()) {
-            logger.error("Failed to send StoCMessage to client: Socket is closed");
-            throw new UploadFailureException();
+        synchronized (stoCProcessingLock) {
+
+            synchronized (aliveLock) {
+                if (!statusIsAlive)
+                    throw new UploadFailureException();
+            }
+
+            try {
+                outputObtStr.writeObject(msg);
+                logger.info("StoCMessage sent to client");
+
+            } catch (IOException e) {
+                logger.error("Failed to send StoCMessage to client: {}", e.getMessage());
+
+                destroy();
+
+                throw new UploadFailureException();
+            }
+
+            try {
+                outputObtStr.flush();
+            } catch (IOException ignored) {}
         }
-
-        try {
-            outputObtStr.writeObject(msg);
-            logger.info("StoCMessage sent to client");
-
-        } catch (IOException e) {
-            logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
-            //TODO risolvere meglio gli errori (distruzione??)
-            throw new UploadFailureException();
-        }
-
-        try {
-            outputObtStr.flush();
-        } catch (IOException ignored) {}
     }
 
-    // TODO posso mettere protected
     @Override
     public void pingTimeOverdue() {
-
-        boolean tmpDestroy = false;
 
         synchronized (aliveLock) {
 
@@ -281,17 +282,16 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             pingCount--;
 
-            if(pingCount == 0)
-                tmpDestroy = true;
+            if(pingCount <= 0)
+                statusIsAlive = false;
         }
 
-        if(tmpDestroy)
+        if(!statusIsAlive)
             destroy();
 
         return;
     }
 
-    // TODO posso mettere private
     @Override
     public void resetTimeCounter() {
         synchronized (aliveLock){
@@ -307,17 +307,33 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         synchronized (aliveLock) {
             statusIsAlive = false;
+            if(destroyCalled)
+                return;
+            destroyCalled = true;
         }
 
         pingTask.cancel();
 
-        synchronized (processingLock) {
+        synchronized (stoCProcessingLock) {
+            synchronized (ctoSProcessingLock) {
 
-            // TODO distruggere socket e objectStreams
+                try {
+                    inputObtStr.close();
+                } catch (IOException ignored) {}
 
-            if(gameController != null) {
-                gameController.disconnect(this);
-                // TODO eliminare pingTask da timer in controller
+                try {
+                    outputObtStr.close();
+                } catch (IOException ignored) {}
+
+                try {
+                    if(!socket.isClosed())
+                        socket.close();
+                } catch (IOException ignored) {}
+
+                if(gameController != null) {
+                    gameController.getTimer().purge();
+                    gameController.disconnect(this);
+                }
             }
         }
     }

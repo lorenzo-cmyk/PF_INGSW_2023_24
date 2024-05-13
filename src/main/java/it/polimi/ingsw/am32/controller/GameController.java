@@ -702,7 +702,7 @@ public class GameController {
         return status;
     }
 
-    protected Timer getTimer() {
+    public Timer getTimer() {
         return timer;
     }
 
