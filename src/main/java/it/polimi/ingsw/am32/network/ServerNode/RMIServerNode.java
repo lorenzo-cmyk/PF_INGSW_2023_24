@@ -5,10 +5,12 @@ import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNodeInt;
+import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -21,8 +23,10 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private RMIClientNodeInt clientNode;
     private final PingTask pingTask;
     private boolean statusIsAlive;
+    private boolean destroyCalled;
     private final Object aliveLock;
-    private final Object processingLock;
+    private final Object ctoSProcessingLock;
+    private final Object stoCProcessingLock;
 
     public RMIServerNode(RMIClientNodeInt clientNode) throws RemoteException {
         this.clientNode = clientNode;
@@ -30,22 +34,26 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         config = Configuration.getInstance();
         pingCount = config.getMaxPingCount();
         aliveLock = new Object();
-        processingLock = new Object();
+        ctoSProcessingLock = new Object();
+        stoCProcessingLock = new Object();
 
         logger = LogManager.getLogger("RMIServerNode");
 
         statusIsAlive = true;
+        destroyCalled = false;
     }
 
-    public void uploadCtoS(CtoSMessage message) throws RemoteException {
+    public void uploadCtoS(CtoSMessage message) throws RemoteException, NodeClosedException {
 
-        synchronized (aliveLock) {
-            if (!statusIsAlive)
-                // TODO aggiungere nuova exception
-            resetTimeCounter();
-        }
+        synchronized (ctoSProcessingLock) {
 
-        synchronized (processingLock) {
+            synchronized (aliveLock) {
+                if (!statusIsAlive)
+                    throw new NodeClosedException();
+
+                resetTimeCounter();
+            }
+
             message.elaborateMessage(gameController);
         }
     }
@@ -56,15 +64,13 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             clientNode.uploadStoC(message);
             logger.info("StoCMessage sent to client");
 
-        } catch (RemoteException e) {
+        } catch (RemoteException e) { // TODO gestire errore RMI interfaccia client??
             logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
             throw new UploadFailureException();
         }
     }
 
     public void pingTimeOverdue() {
-
-        boolean tmpDestroy = false;
 
         synchronized (aliveLock) {
 
@@ -73,18 +79,20 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
             pingCount--;
 
-            if(pingCount == 0)
-                tmpDestroy = true;
-
-            if(tmpDestroy)
-                destroy();
-
-            return;
+            if(pingCount <= 0)
+                statusIsAlive = false;
         }
+
+        if(!statusIsAlive)
+            destroy();
+
     }
 
+    @Override
     public void resetTimeCounter() {
+
         synchronized (aliveLock){
+
             if(!statusIsAlive)
                 return;
 
@@ -96,23 +104,30 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
         synchronized (aliveLock) {
             statusIsAlive = false;
+            if(destroyCalled)
+                return;
+            destroyCalled = true;
         }
 
         pingTask.cancel();
 
-        // TODO eliminare pingTask da timer in controller
+        synchronized (ctoSProcessingLock) {
+            synchronized (stoCProcessingLock) {
 
-        synchronized (processingLock) {
-            gameController.disconnect(this);
-            // TODO eliminare pingTask da timer in controller
+                gameController.getTimer().purge();
+                gameController.disconnect(this);
 
-            // TODO UnicastRemoteObject.unexportObject(this, false);
+                try {
+                    UnicastRemoteObject.unexportObject(this, true);
+                } catch (NoSuchObjectException ignored) {}
+            }
         }
     }
 
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
-        // TODO Aggiungi PingTask al controller
+        // TODO controllare se il timer può fallire a runtime (controllare con gamecontroller)
+        gameController.getTimer().scheduleAtFixedRate(pingTask, 0, Configuration.getInstance().getPingTimeInterval());
     }
 
 }
