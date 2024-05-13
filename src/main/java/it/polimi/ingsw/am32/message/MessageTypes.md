@@ -266,11 +266,20 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "NegativeResponsePlayerFieldMessage",
   "recipientNickname": "playerName",
-  "playerNickname": "playerName",
+  "playerNickname": "playerName"
 }
 ```
 
-- PlayerDisconnectedMessage: sent by the Server to notify the other players that a player has disconnected.
+- PlayerConnectedMessage: sent by the Server to notify the other players that a player has connected to the game (only in lobby phase).
+```json
+{
+  "type": "PlayerConnectedMessage",
+  "recipientNickname": "playerName",
+  "connectedNickname": "playerName"
+}
+```
+
+- PlayerDisconnectedMessage: sent by the Server to notify the other players that a player has disconnected (in any phase of the game).
 ```json
 {
   "type": "PlayerDisconnectedMessage",
@@ -279,7 +288,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
-- PlayerReconnectedMessage: sent by the Server to notify the other players that a player has reconnected.
+- PlayerReconnectedMessage: sent by the Server to notify the other players that a player has reconnected (not in lobby phase).
 ```json
 {
   "type": "PlayerReconnectedMessage",
