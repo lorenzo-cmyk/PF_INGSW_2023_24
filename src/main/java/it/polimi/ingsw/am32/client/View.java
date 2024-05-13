@@ -42,6 +42,7 @@ public abstract class View implements EventHandler{
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
     protected static final ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
+    protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
     //TODO: add the attributes used by chat
     public View() {
         this.playerNum = 0;
@@ -105,6 +106,10 @@ public abstract class View implements EventHandler{
 
     public abstract void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources);
 
+    public abstract void requestDrawCard();
+
+    public abstract void updateAfterDrawCard();
+
     //-------------------Game start-----------------------
     public abstract void showInitialView();
 
@@ -145,6 +150,16 @@ public abstract class View implements EventHandler{
 
     public void updateConfirmSelectedSecretCard() {
     }
+
+    public abstract void showHand(ArrayList<Integer> hand);
+
+    public abstract void showCommonObjCards(ArrayList<Integer> commonObjCards);
+
+    public abstract void showSecretObjCard(int ID);
+
+    public abstract void showCard(int ID, boolean isUp);
+
+    public abstract HashMap<Integer, ArrayList<String>> setImg();
 }
 
 

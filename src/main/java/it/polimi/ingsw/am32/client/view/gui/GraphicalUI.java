@@ -8,6 +8,7 @@ import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GraphicalUI extends View {
 
@@ -45,6 +46,31 @@ public class GraphicalUI extends View {
     @Override
     public void showPoints(String playerNickname) {
 
+    }
+
+    @Override
+    public void showHand(ArrayList<Integer> hand) {
+
+    }
+
+    @Override
+    public void showCommonObjCards(ArrayList<Integer> commonObjCards) {
+
+    }
+
+    @Override
+    public void showSecretObjCard(int ID) {
+
+    }
+
+    @Override
+    public void showCard(int ID, boolean isUp) {
+
+    }
+
+    @Override
+    public HashMap<Integer, ArrayList<String>> setImg() {
+        return null;
     }
 
 
@@ -113,6 +139,16 @@ public class GraphicalUI extends View {
 
     @Override
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
+
+    }
+
+    @Override
+    public void requestDrawCard() {
+
+    }
+
+    @Override
+    public void updateAfterDrawCard() {
 
     }
 
