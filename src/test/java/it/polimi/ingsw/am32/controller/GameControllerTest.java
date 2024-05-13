@@ -325,7 +325,7 @@ public class GameControllerTest {
         AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
         int secretObjectiveCardId = -1;
         try {
-            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedSecretObjectiveCards");
             assignedCards.setAccessible(true);
             ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
             secretObjectiveCardId = secretObjectiveCardIds.getFirst();
@@ -393,7 +393,7 @@ public class GameControllerTest {
         AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
         int secretObjectiveCardId = -1;
         try {
-            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedSecretObjectiveCards");
             assignedCards.setAccessible(true);
             ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
             secretObjectiveCardId = secretObjectiveCardIds.getFirst();
@@ -564,7 +564,7 @@ public class GameControllerTest {
         AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
         int secretObjectiveCardId = -1;
         try {
-            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedSecretObjectiveCards");
             assignedCards.setAccessible(true);
             ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
             secretObjectiveCardId = secretObjectiveCardIds.getFirst();
@@ -575,7 +575,7 @@ public class GameControllerTest {
         AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage2 = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub2.getInternalMessages().get(4);
         int secretObjectiveCardId2 = -1;
         try {
-            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedSecretObjectiveCards");
             assignedCards.setAccessible(true);
             ArrayList<Integer> secretObjectiveCardIds2 = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage2);
             secretObjectiveCardId2 = secretObjectiveCardIds2.getFirst();
