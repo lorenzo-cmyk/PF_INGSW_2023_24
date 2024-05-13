@@ -12,8 +12,8 @@ public class PlayerGameStatusMessage implements StoCMessage {
     private final ArrayList<Integer> playerColours;
     private final ArrayList<Integer> playerHand;
     private final int playerSecretObjective;
-    private final int playerPoints;
-    private final ArrayList<int[]> playerField;
+    private final int[] playerPoints;
+    private final ArrayList<ArrayList<int[]>> playerFields;
     private final int[] playerResources;
     private final ArrayList<Integer> gameCommonObjectives;
     private final ArrayList<Integer> gameCurrentResourceCards;
@@ -26,8 +26,8 @@ public class PlayerGameStatusMessage implements StoCMessage {
     private final ArrayList<int[]> newAvailableFieldSpaces;
 
     public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
-                                   ArrayList<Integer> playerHand, int playerSecretObjective, int playerPoints,
-                                   ArrayList<int[]> playerField, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
+                                   ArrayList<Integer> playerHand, int playerSecretObjective, int[] playerPoints,
+                                   ArrayList<ArrayList<int[]>> playerFields, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
                                    ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
                                    int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory, String currentPlayer,
                                    ArrayList<int[]> newAvailableFieldSpaces) {
@@ -38,7 +38,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
         this.playerHand = playerHand;
         this.playerSecretObjective = playerSecretObjective;
         this.playerPoints = playerPoints;
-        this.playerField = playerField;
+        this.playerFields = playerFields;
         this.playerResources = playerResources;
         this.gameCommonObjectives = gameCommonObjectives;
         this.gameCurrentResourceCards = gameCurrentResourceCards;

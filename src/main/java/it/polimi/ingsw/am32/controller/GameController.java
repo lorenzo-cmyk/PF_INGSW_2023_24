@@ -689,9 +689,6 @@ public class GameController {
      * @param nickname The nickname of the player to generate the message for
      * @return The generated response game status message
      */
-    // FIXME: We must add the field and points of the other players in order to keep the client version of the model safe
-    // FIXME: This message must also contains the filed and points of the other player in order to keep client version of the model safe
-
     protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
@@ -705,8 +702,22 @@ public class GameController {
             }).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
             int playerSecretObjective = model.getPlayerSecretObjective(nickname);
-            int playerPoints = model.getPlayerPoints(nickname);
-            ArrayList<int[]> playerField = model.getPlayerField(nickname);
+            int[] playerPoints = model.getPlayersNicknames().stream().map(n -> {
+                try {
+                    return model.getPlayerPoints(n);
+                } catch (PlayerNotFoundException e) {
+                    throw new RuntimeException();
+                    // TODO
+                }
+            }).mapToInt(Integer::intValue).toArray();
+            ArrayList<ArrayList<int[]>> playerFields = model.getPlayersNicknames().stream().map(n -> {
+                try {
+                    return model.getPlayerField(n);
+                } catch (PlayerNotFoundException e) {
+                    throw new RuntimeException(e);
+                    // TODO
+                }
+            }).collect(Collectors.toCollection(ArrayList::new));
             int[] playerResources = model.getPlayerResources(nickname);
             ArrayList<Integer> gameCommonObjectives = model.getCommonObjectives();
             ArrayList<Integer> gameCurrentResourceCards = model.getCurrentResourcesCards();
@@ -718,7 +729,7 @@ public class GameController {
             String currentPlayer = model.getCurrentPlayerNickname();
             ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 
-            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces);
+            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces);
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         }
