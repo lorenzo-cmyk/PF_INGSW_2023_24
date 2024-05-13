@@ -415,8 +415,7 @@ public class GameController {
 
             model.receiveSecretObjectiveChoiceFromPlayer(nickname, id); // Set the player's secret objective
             // Notify the player that he has successfully chosen his secret objective
-            submitVirtualViewMessage(new ConfirmSelectedSecretObjectiveCardMessage(nickname));
-            // FIXME: Add also the secret objective card ID to this message
+            submitVirtualViewMessage(new ConfirmSelectedSecretObjectiveCardMessage(nickname, id));
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -438,11 +437,10 @@ public class GameController {
                     submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
                     // Notify the player of his current game status
                     submitVirtualViewMessage(generateResponseGameStatusMessage(playerQuadruple.getNickname()));
-                    // FIXME: Keeps this message in order to symlink the code in the client.
-                    // FIXME: This message must also contains the filed and points of the other player in order to keep client version of the model safe
+                    // Keep this message in order to keep coherency with the client build-in controller
                     // Notify the players of the current player
                     submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
-                    // FIXME PlayerTurnMessage is still needed in order to keep the event in the client
+                    // PlayerTurnMessage is still needed in order to keep the event order in the client even if the current player is already known thanks to the previous message
                 }
             }
         } catch (InvalidSelectionException e) { // The player has chosen an invalid secret objective card
@@ -677,6 +675,8 @@ public class GameController {
      * @return The generated response game status message
      */
     // FIXME: We must add the field and points of the other players in order to keep the client version of the model safe
+    // FIXME: This message must also contains the filed and points of the other player in order to keep client version of the model safe
+
     protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
