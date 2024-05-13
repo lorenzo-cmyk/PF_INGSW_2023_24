@@ -345,10 +345,14 @@ public class GameController {
 
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
             // Notify the player that he has successfully chosen his starting card's side
-            submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(nickname, model.getPlayerColour(nickname)));
-            //FIXME private final boolean isUp;
-            //FIXME private final arraylist<int[]> availablePos;
-            //FIXME private final int[] resources;
+            submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(
+                    nickname,
+                    model.getInitialCardPlayer(nickname),
+                    isUp,
+                    model.getAvailableSpacesPlayer(nickname),
+                    model.getPlayerResources(nickname),
+                    model.getPlayerColour(nickname)
+            ));
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -367,8 +371,12 @@ public class GameController {
                  status = GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE;
 
                  for (PlayerQuadruple playerQuadruple : nodeList) {
-                     // FIXME Players should receive their hand and common objectives. Put inside this message
-                     submitVirtualViewMessage(new AssignedSecretObjectiveCardMessage(playerQuadruple.getNickname(), model.getSecretObjectiveCardsPlayer(playerQuadruple.getNickname())));
+                     submitVirtualViewMessage(new AssignedSecretObjectiveCardMessage(
+                                playerQuadruple.getNickname(),
+                                model.getSecretObjectiveCardsPlayer(playerQuadruple.getNickname()),
+                                model.getCommonObjectives(),
+                                model.getPlayerHand(playerQuadruple.getNickname())
+                     ));
                  }
             }
         } catch (PlayerNotFoundException e) {
