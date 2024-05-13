@@ -651,7 +651,7 @@ public class GameController {
      *
      * @param requesterNickname The nickname of the player that sent the message
      */
-    // FIXME: The client has an option to reconnect not only to access and create a new game but that its job to request the updated information
+    // We need to keep this method since the client knows that it is reconnecting (and not just accessing a new game) and therefore it will ask for the updated game information
     public synchronized void sendGameStatus(String requesterNickname) {
         try {
             submitVirtualViewMessage(generateResponseGameStatusMessage(requesterNickname));
@@ -667,6 +667,8 @@ public class GameController {
      * @param requesterNickname The nickname of the player that sent the request message
      * @param playerNickname The nickname of the player whose field is requested
      */
+    // This method is technically not needed, since the client can just request the game status and get the field of the player whose field is requested
+    // However, we keep this method in order to allow easier debugging and testing
     public synchronized void sendPlayerField(String requesterNickname, String playerNickname) {
         try {
             submitVirtualViewMessage(new ResponsePlayerFieldMessage(requesterNickname, playerNickname, model.getPlayerField(playerNickname), model.getPlayerResources(playerNickname)));
@@ -680,7 +682,6 @@ public class GameController {
             throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
         }
     }
-    // FIXME No longer needed? :/ Yep, unfortunately
 
     /**
      * Generates a response game status message for a given player.
