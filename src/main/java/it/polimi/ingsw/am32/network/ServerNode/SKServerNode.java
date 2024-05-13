@@ -180,54 +180,56 @@ public class SKServerNode implements Runnable, NodeInterface {
                 try {
                     gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
 
-                // TODO forse è meglio mettere il messaggio di errore nell'exception
-            } catch (InvalidPlayerNumberException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: invalid player number", "PLAYER"));
-                    logger.info("Invalid player number. Sending ErrorMessage to client");
+                    // TODO forse è meglio mettere il messaggio di errore nell'exception
+                } catch (InvalidPlayerNumberException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: invalid player number", "PLAYER"));
+                        logger.info("Invalid player number. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Invalid player number. Failed to send ErrorMessage to client");
                     }
 
-            } catch (GameAlreadyStartedException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: Game already started", "PLAYER"));
-                    logger.info("Game already started. Sending ErrorMessage to client");
+                } catch (GameAlreadyStartedException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Game already started", "PLAYER"));
+                        logger.info("Game already started. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Game already started. Failed to send ErrorMessage to client");
                     }
 
-            } catch (FullLobbyException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: Lobby already is full", "PLAYER"));
-                    logger.info("Lobby is already full. Sending ErrorMessage to client");
+                } catch (FullLobbyException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Lobby already is full", "PLAYER"));
+                        logger.info("Lobby is already full. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Lobby is already full. Failed to send ErrorMessage to client");
                     }
 
-            } catch (DuplicateNicknameException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: Player nickname already in use", "PLAYER"));
-                    logger.info("Player nickname already in use. Sending ErrorMessage to client");
+                } catch (DuplicateNicknameException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Player nickname already in use", "PLAYER"));
+                        logger.info("Player nickname already in use. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Player nickname already in use. Failed to send ErrorMessage to client");
                     }
 
-            } catch (GameNotFoundException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: Game not found", "PLAYER"));
-                    logger.info("Game not found. Sending ErrorMessage to client");
+                } catch (GameNotFoundException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Game not found", "PLAYER"));
+                        logger.info("Game not found. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Game not found. Failed to send ErrorMessage to client");
                     }
                 }
 
-                // TODO aggiungi metodo per aggiungere pingtask al timer di controller
+                try {
+                    gameController.getTimer().scheduleAtFixedRate(pingTask, 0, Configuration.getInstance().getPingTimeInterval());
+                } catch (Exception ignored) {}
 
                 logger.info("CtoSLobbyMessage received");
                 return;
@@ -289,11 +291,11 @@ public class SKServerNode implements Runnable, NodeInterface {
         if(!statusIsAlive)
             destroy();
 
-        return;
     }
 
     @Override
     public void resetTimeCounter() {
+
         synchronized (aliveLock){
 
             if(!statusIsAlive)
@@ -314,8 +316,8 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         pingTask.cancel();
 
-        synchronized (stoCProcessingLock) {
-            synchronized (ctoSProcessingLock) {
+        synchronized (ctoSProcessingLock) {
+            synchronized (stoCProcessingLock) {
 
                 try {
                     inputObtStr.close();
