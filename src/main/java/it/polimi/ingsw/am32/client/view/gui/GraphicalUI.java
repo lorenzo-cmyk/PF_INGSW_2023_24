@@ -49,14 +49,20 @@ public class GraphicalUI extends View {
     }
 
     @Override
+    public void requestSelectSecretObjCard(ArrayList<Integer> cards) {
+
+    }
+
+    @Override
     public void showHand(ArrayList<Integer> hand) {
 
     }
 
     @Override
-    public void showCommonObjCards(ArrayList<Integer> commonObjCards) {
+    public void showObjectiveCards(ArrayList<Integer> ObjCards) {
 
     }
+
 
     @Override
     public void showSecretObjCard(int ID) {
@@ -162,11 +168,11 @@ public class GraphicalUI extends View {
 
     }
 
-
     @Override
-    public void requestSelectSecretObjCard() {
+    public void updatePlayerDate(ArrayList<String> players, ArrayList<Integer> colors, ArrayList<Integer> Hand, int SecretObjCard, int points, int colour, ArrayList<int[]> field, int[] resources, ArrayList<Integer> commonObjCards, ArrayList<Integer> currentResourceCards, ArrayList<Integer> currentGoldCards, int currentResourceDeckSize, int currentGoldDeckSize, int matchStatus) {
 
     }
+
 
     @Override
     public void requestPlaceCard() {

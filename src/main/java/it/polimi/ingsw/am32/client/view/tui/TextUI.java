@@ -36,6 +36,7 @@ import org.apache.logging.log4j.Logger;
  *     includes ASCI escape codes to set the color of the printed cards and the printed text.
  *
  * @author Jie
+ * //FIXME need to update all javadoc
  *
  */
 public class TextUI extends View implements Runnable {
@@ -43,7 +44,7 @@ public class TextUI extends View implements Runnable {
     private final Scanner in;
     private final PrintStream out;
     private final IsValid isValid = new IsValid();
-    private HashMap<String,BoardView> boards;
+    private HashMap<String, BoardView> boards;
     private static final int ANIMALCARD = 0X1F7E6; // Unicode for the card
     private static final int PLANTCARD = 0X1F7E9;
     private static final int FUNGICARD = 0X1F7E5;
@@ -56,7 +57,7 @@ public class TextUI extends View implements Runnable {
     private static final String ANSI_PURPLE = "\u001B[35m";
     private static final String ANSI_YELLOW = "\u001B[33m";
     private static final String ANSI_BLACK = "\u001B[30m";
-    private static final String INSECT ="\uD83E\uDD8B";   // Unicode for the corner type, object and resource of the card
+    private static final String INSECT = "\uD83E\uDD8B";   // Unicode for the corner type, object and resource of the card
     private static final String PLANT = "\uD83C\uDF3F";
     private static final String FUNGI = "\uD83C\uDF44";
     private static final String ANIMAL = "\uD83D\uDC3A";
@@ -75,34 +76,17 @@ public class TextUI extends View implements Runnable {
         out = new PrintStream(System.out);
         boards = new HashMap<>();
     }
-
+    
     /**
      * Method that launches the TextUI
      */
     @Override
     public void launch() {
         showWelcome();
-        // new Thread(this){}.start()
         chooseConnection();
         askSelectGameMode();
     }
 
-    /**
-     * Method that listens for player input
-     */
-    @Override
-    public void run() {
-        while (true) { // Listen for player forever
-            // TODO
-           // int connectionChoice = inputCheckInt(); // read the input from the player and check it
-           // switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
-              /*  case 1: {
-                    // TODO Thing
-                    break;
-                }
-            }*/
-        }
-    }
     //-------------------Connection-------------------
 
     /**
@@ -120,18 +104,19 @@ public class TextUI extends View implements Runnable {
      */
     @Override
     public void chooseConnection() {
+        logger.info("Enter chooseConnection");
         out.println("""
                 Choose the connection type:
                 1. Socket
                 2. RMI""");
         int connectionChoice = getInputInt();
-        boolean isConnected=false;
+        boolean isConnected = false;
         switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
             case 1: {
                 String ServerIP;
                 out.println("Insert the server IP");
                 in.nextLine();// read the input from the player
-                ServerIP = in.nextLine();
+                ServerIP = getInput();
                 while (!isValid.isIpValid(ServerIP)) {
                     out.println("Invalid IP, please try again");
                     ServerIP = in.nextLine();
@@ -142,11 +127,11 @@ public class TextUI extends View implements Runnable {
                 while (!isValid.isPortValid(port)) {
                     out.println("Invalid port, please try again");
                     in.nextLine();
-                    port= getInputInt();
+                    port = getInputInt();
                 }
                 try {
                     setSocketClient(ServerIP, port); // set the socket client
-                    isConnected=true;
+                    isConnected = true;
                 } catch (IOException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -160,7 +145,7 @@ public class TextUI extends View implements Runnable {
                     ServerURL = in.nextLine();
                 }
                 setRMIClient(ServerURL);// set the RMI client
-                isConnected=true;
+                isConnected = true;
                 break;
             }
             default: {
@@ -171,10 +156,11 @@ public class TextUI extends View implements Runnable {
                 break;
             }
         }
-        if(!isConnected){
-           out.println("Connection failed, please try again");
-              chooseConnection();
+        if (!isConnected) {
+            out.println("Connection failed, please try again");
+            chooseConnection();
         }
+        logger.info("Out chooseConnection");
     }
 
     /**
@@ -189,8 +175,10 @@ public class TextUI extends View implements Runnable {
     @Override
     public void setSocketClient(String ServerIP, int port) throws IOException {
         super.setSocketClient(ServerIP, port); // see the method in the superclass
-        Thread thread = new Thread(clientNode);
+        Thread thread = new Thread((clientNode));
         thread.start();
+        Thread askListener = new Thread(super.askListener);
+        askListener.start();
     }
 
     /**
@@ -227,10 +215,10 @@ public class TextUI extends View implements Runnable {
      * The method uses the {@link Event} enum to set the current event to select the game mode. The method prints the
      * menu of the game mode and asks the player to select the action to perform using the {@link #handleChoiceEvent}
      * method.
-     *
      */
     @Override
-    public void askSelectGameMode() {
+    public void askSelectGameMode() { //From this method, the player can select to use the command Service
+        logger.info("Enter askSelectGameMode");
         currentEvent = Event.SELECT_GAME_MODE;
         out.println("""
                 Menu:
@@ -239,19 +227,27 @@ public class TextUI extends View implements Runnable {
                 3. Reconnect game
                 """);
         out.println("Which action do you want to perform?");
-        int choice = getInputInt();
-        handleChoiceEvent(currentEvent, choice);
+        String choice = getInput();
+        switch (choice) {
+            case "1" -> askCreateGame();
+            case "2" -> askJoinGame();
+            case "3" -> askReconnectGame();
+            default -> {
+                logger.info("Invalid input, please select 1, 2 or 3");
+                out.println("Invalid input, please select 1, 2 or 3");
+                askSelectGameMode();
+            }
+        }
+        logger.info("Out askSelectGameMode");
     }
 
     /**
      * Method that asks the player to insert the nickname they want to use in the game.
-     *
      */
     @Override
     public void askNickname() {
         out.println("Insert the nickname you want to use in the game");
-        in.nextLine();
-        thisPlayerNickname = in.nextLine();
+        thisPlayerNickname = getInput();
     }
 
     /**
@@ -263,38 +259,40 @@ public class TextUI extends View implements Runnable {
      */
     @Override
     public void askCreateGame() {
+        logger.info("Enter askCreateGameMode");
         currentEvent = Event.CREATE_GAME;
         askNickname();
         out.println("Insert the number of players you want to play with");
         while (true) {
-            playerNum = getInputInt();
+            playerNum = Integer.parseInt(getInput());
             if (playerNum < 2 || playerNum > 4) {
                 out.println("Invalid number of players, please insert a number between 2 and 4");
-                in.nextInt();
+                playerNum = Integer.parseInt(getInput());
                 continue;
             }
             break;
         } // notify the listener with the new game message
         notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
+        logger.info("Out askCreateGameMode");
     }
+
     /**
      * Method that asks the player to insert the nickname they want to use in the game and the Access ID of the game
      * they want to join.
-     *
      */
     @Override
     public void askJoinGame() {
         currentEvent = Event.JOIN_GAME;
         out.println("Insert the nickname you want to use in the game");
-        thisPlayerNickname = in.nextLine();
+        thisPlayerNickname =getInput();
         out.println("Insert the Access ID of the game you want to join");
-        gameID = getInputInt();
+        gameID = Integer.parseInt(getInput());
         // notify the listener with the access game message
         notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
     }
+
     /**
      * Use this method to ask the player if they want to reconnect to the game.
-     *
      */
     @Override
     public void askReconnectGame() {
@@ -303,8 +301,10 @@ public class TextUI extends View implements Runnable {
         notifyAskListener(new RequestGameStatusMessage(thisPlayerNickname));
         //TODO wait for the response from the server
     }
+
     @Override
-    public void updateNewGameConfirm(int gameID, String recipientNickname){
+    public void updateNewGameConfirm(int gameID, String recipientNickname) {
+        logger.info("Received the NewGameConfirmationMessage from the server");
         // once received the NewGameConfirmationMessage from the server
         this.gameID = gameID;
         this.thisPlayerNickname = recipientNickname;
@@ -312,17 +312,20 @@ public class TextUI extends View implements Runnable {
         handleEvent(Event.GAME_CREATED);
         currentEvent = Event.WAITING_FOR_START;
     }
+
     @Override
-    public void updateNewPlayerJoin(ArrayList<String> players){
-        // once received the LobbyPlayerListMessage from the server
-        for(String player:players){
-            if(!this.players.contains(player)){
+    public void updateNewPlayerJoin(ArrayList<String> players) {
+        for (String player : players) {
+            if (!this.players.contains(player)) {
                 this.players.add(player);
             }
         }// FIXME is LOBBYPLAYERLISTMESSAGE also used to update the player list when a player leaves the game?
-        if(currentEvent.equals(Event.WAITING_FOR_START)){ // if the player is waiting for the game to start.
+        if (currentEvent.equals(Event.WAITING_FOR_START)) { // if the player is waiting for the game to start.
             handleEvent(Event.NEW_PLAYER_JOIN);
-        }else {
+            logger.info("Received the LOBBYPLAYERLISTMessage from the server when a new player joins the game");
+        } else {
+            logger.info("Received the LOBBYPLAYERLISTMessage from the server when joined" +
+                    " the game");
             setCurrentEvent(Event.WAITING_FOR_START); // if the player is the player who just joined the game.
         }
         showPlayerInGame();
@@ -330,7 +333,7 @@ public class TextUI extends View implements Runnable {
 
     //-------------------Game start-----------------------
     @Override
-    public void setUpPlayersData(){
+    public void setUpPlayersData() {
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
         handleEvent(Event.GAME_START);
         for (String player : players) {
@@ -338,77 +341,104 @@ public class TextUI extends View implements Runnable {
             boards.put(player, new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
         }
     }
+
     @Override
-    public void updateMatchStatus(int matchStatus){
+    public void updateMatchStatus(int matchStatus) {
         // once received the MatchStatusMessage from the server
-        this.Status=convertToMatchStatus(matchStatus);
+        this.Status = convertToMatchStatus(matchStatus);
+        out.println("The match status is: " + convertToMatchStatus(matchStatus));
     }
+
     @Override
-    public void requestSelectStarterCardSide(int ID){
+    public void requestSelectStarterCardSide(int ID) {
         // once received the AssignStarterCardMessage from the server
-        starterCard=ID;
+        starterCard = ID;
         currentEvent = Event.SELECT_STARTER_CARD_SIDE;
         out.println("The starter card received is following");
-        out.println("1.Front side");
-        showCard(ID,true);
-        out.println("2.Back side");
-        showCard(ID,false);
-        out.println("Please select the side of the card you want to use:");
-        int side = getInputInt();
-        while(side!=1 && side!=2){
-            logger.info("Invalid input, please select 1 or 2");
-            out.println("Invalid input, please select 1 or 2");
-            side = getInputInt();
+        out.println("Front side");
+        showCard(ID, true);
+        out.println("Back side");
+        showCard(ID, false);
+        out.println("Please select the side of the card you want to use, type[FRONT or BACK]:");
+        String side = getInput();
+        while (!side.equals("FRONT") && !side.equals("BACK")) {
+            logger.info("Invalid input, please select FRONT or BACK");
+            out.println("Invalid input, please select FRONT or BACK");
+            side = getInput();
         }
-        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side == 1));
+        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side.equals("FRONT")));
     }
+
     @Override
-    public void updateConfirmStarterCard(int colour,int cardID, boolean isUp,ArrayList<int[]> availablePos, int[] resources){
+    public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
         // once received the StarterCardConfirmationMessage from the server
         publicInfo.get(thisPlayerNickname).updateColour(convertToColour(colour));
-        out.println("Your colour of this game is: "+convertToColour(colour));
-        updateAfterPlacedCard(thisPlayerNickname,searchNonObjCardById(cardID),0,0,isUp,availablePos,
+        out.println("Your colour of this game is: " + convertToColour(colour));
+        updateAfterPlacedCard(thisPlayerNickname, searchNonObjCardById(cardID), 0, 0, isUp, availablePos,
                 resources, 0);
         out.println("Your field after placing the starter card is following:");
         showPlayersField(thisPlayerNickname);
     }
-    @Override
-    public void requestSelectSecretObjCard() {
 
-    }
     @Override
-    public void updateConfirmSelectedSecretCard(){
+    public void requestSelectSecretObjCard(ArrayList<Integer> cards) {
+        // once received the AssignedSecretObjectiveCardMessage from the server
+        currentEvent = Event.SELECT_SECRET_OBJ_CARD;
+        out.println("You received 3 cards(resources/gold cards), 2 card as a common objective card of the game:");
+        // showHand
+        // showObjectiveCards
+        out.println("Please select one of the objective cards in following to be your secret objective card type[LEFT or RIGHT]:");
+        out.println("LEFT");
+        out.println("RIGHT");
+        showObjectiveCards(cards);
+        String cardID =getInput();
+        while (!cardID.equals("LEFT") && !cardID.equals("RIGHT")) {
+            logger.info("Invalid input, please select a card from the list");
+            out.println("Invalid input, please select a card from the list, type[LEFT or RIGHT]");
+            cardID = getInput();
+        }
+        if (cardID.equals("LEFT")){
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, cards.get(0)));
+        } else {
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, cards.get(1)));
+        }
+    }
+
+    @Override
+    public void updateConfirmSelectedSecretCard() {
         // once received the SecretObjCardConfirmationMessage from the server
         out.println("The secret objective card is selected successfully");
-        //TODO
     }
-    public void setUpEnterPreparationPhase(ArrayList<String> players,ArrayList<Integer>colors,ArrayList<Integer>Hand,
-                                           int SecretObjCard, int points, int colour, ArrayList<int[]>field,
-                                           int[] resources, ArrayList<Integer> commonObjCards,
-                                           ArrayList<Integer> currentResourceCards, ArrayList<Integer> currentGoldCards,
-                                           int currentResourceDeckSize, int currentGoldDeckSize,
-                                           int matchStatus){
-        // after receiving the message from the server, the method is called to set up/initiate the view of the player
-        currentEvent= Event.GAME_PREPARATION;
 
-        this.players=players;
-        for(int i=0; i<players.size();i++){
-            publicInfo.put(players.get(i),new PlayerPub(convertToColour(colors.get(i)),0,new
-                    ArrayList<CardPlacedView>(),new int[]{0,0,0,0,0,0,0}));
-            boards.put(players.get(i),new BoardView(new int[4],new String[160][160]));
+    @Override
+    public void updatePlayerDate(ArrayList<String> players, ArrayList<Integer> colors, ArrayList<Integer> Hand,
+                                 int SecretObjCard, int points, int colour, ArrayList<int[]> field,
+                                 int[] resources, ArrayList<Integer> commonObjCards,
+                                 ArrayList<Integer> currentResourceCards, ArrayList<Integer> currentGoldCards,
+                                 int currentResourceDeckSize, int currentGoldDeckSize,
+                                 int matchStatus) {
+        // after receiving the message from the server, the method is called to set up/initiate the view of the player
+        currentEvent = Event.GAME_PREPARATION;
+
+        this.players = players;
+        for (int i = 0; i < players.size(); i++) {
+            publicInfo.put(players.get(i), new PlayerPub(convertToColour(colors.get(i)), 0, new
+                    ArrayList<CardPlacedView>(), new int[]{0, 0, 0, 0, 0, 0, 0}));
+            boards.put(players.get(i), new BoardView(new int[4], new String[160][160]));
         }
 
-        this.currentResourceCards=currentResourceCards;
-        this.currentGoldCards=currentGoldCards;
-        this.commonObjCards=commonObjCards;
-        this.currentPlayer=null;
-        this.hand=Hand;
-        this.secretObjCardSelected=SecretObjCard;
-        this.resourceDeckSize=currentResourceDeckSize;
-        this.goldDeckSize=currentGoldDeckSize;
+        this.currentResourceCards = currentResourceCards;
+        this.currentGoldCards = currentGoldCards;
+        this.commonObjCards = commonObjCards;
+        this.currentPlayer = null;
+        this.hand = Hand;
+        this.secretObjCardSelected = SecretObjCard;
+        this.resourceDeckSize = currentResourceDeckSize;
+        this.goldDeckSize = currentGoldDeckSize;
         //TODO finish the method
 
-        }
+    }
+
     //------------playing-------------
     @Override
     public void requestPlaceCard() {
@@ -419,87 +449,86 @@ public class TextUI extends View implements Runnable {
                 "2. " + hand.get(1).getId()
                 "3. " + hand.get(1).getId()""");
         //TODO change the code to show all the cards in the hand
-        int cardID = getInputInt();
         out.println("""
                 Which side do you want to place the card?
                 1. Front
                 2. Back
                 """);
         //TODO show the card selected by the player: front side and back side
-        int cardSide = getInputInt();
         //TODO
     }
+
     @Override
-    public void requestDrawCard(){
+    public void requestDrawCard() {
     }
+
     @Override
-    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card,int x, int y, boolean isUp,
-                                      ArrayList<int[]>availablePos, int[]resources,int points){
+    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp,
+                                      ArrayList<int[]> availablePos, int[] resources, int points) {
         /*once received the PlacedCardConfirmationMessage from the server, the card is searched in the
         hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
         the board of the player.*/
         // update the field of the player
-        publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(),cardImg.get(card.getID()),x,y,isUp));
+        publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(), cardImg.get(card.getID()), x, y, isUp));
         publicInfo.get(playerNickname).updateResources(resources); // update the resources
         publicInfo.get(playerNickname).updatePoints(points); // update the points
         // represents the sequence of the card placed in the field.
-        int num =  publicInfo.get(playerNickname).getField().size();
-        BoardView boardView= boards.get(playerNickname);
-        String[][] board= boardView.getBoard();
+        int num = publicInfo.get(playerNickname).getField().size();
+        BoardView boardView = boards.get(playerNickname);
+        String[][] board = boardView.getBoard();
         int[] limits = boardView.getLimits();
         //convert the x and y coordinates to the position in the board.
-        int posX=-2*y+80;
-        int posY=2*x+80;
-        updateBoardViewLimits(posX,posY,limits);
+        int posX = -2 * y + 80;
+        int posY = 2 * x + 80;
+        updateBoardViewLimits(posX, posY, limits);
 
-        String [] cornerType;
+        String[] cornerType;
         String EMPTY = iconCard(card.getKingdom()); // set the empty space of the card based on the colour of kingdom.
-        int[] permRes= card.getPermRes(); // get the permanent resources of the card.
-        String [] permResString= new String[]{EMPTY,EMPTY,EMPTY};
-        if (!card.getType().equals("STARTING")){  // if the card is not a starting card.
-            for(int i=0; i<permRes.length;i++){ // search the permanent resources of the card.
-                if(permRes[i]!=0){
-                    permResString[0]=iconArrayElement(i); //convert the permanent resources to the icon.
-                    permResString[1]=String.format("%2s",num);
+        int[] permRes = card.getPermRes(); // get the permanent resources of the card.
+        String[] permResString = new String[]{EMPTY, EMPTY, EMPTY};
+        if (!card.getType().equals("STARTING")) {  // if the card is not a starting card.
+            for (int i = 0; i < permRes.length; i++) { // search the permanent resources of the card.
+                if (permRes[i] != 0) {
+                    permResString[0] = iconArrayElement(i); //convert the permanent resources to the icon.
+                    permResString[1] = String.format("%2s", num);
                     break; // because the resource/gold card has only one permanent resource.
                 }
             }
-        }else { // if the card is a starting card
-            int count=0;
-            for(int i=0; i<permRes.length;i++){
-                if(permRes[i]!=0){
-                    permResString[count]=iconArrayElement(i); // convert the permanent resources to the icon.
+        } else { // if the card is a starting card
+            int count = 0;
+            for (int i = 0; i < permRes.length; i++) {
+                if (permRes[i] != 0) {
+                    permResString[count] = iconArrayElement(i); // convert the permanent resources to the icon.
                     count++;
                 }
             }
         }
         // update the board of the player
-        if(isUp){
-            board[posX][posY] =EMPTY;
-            board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+EMPTY+ANSI_RESET;
+        if (isUp) {
+            board[posX][posY] = EMPTY;
+            board[posX][posY - 1] = ColourCard(card.getKingdom()) + "|" + EMPTY + ANSI_RESET;
             // stored the number which represents the sequence number of the card placed in the field.
-            board[posX][posY + 1] = ColourCard(card.getKingdom())+String.format("%2s",num)+"|"+ANSI_RESET;
+            board[posX][posY + 1] = ColourCard(card.getKingdom()) + String.format("%2s", num) + "|" + ANSI_RESET;
             cornerType = card.getCorner();
-        }
-        else{
+        } else {
             board[posX][posY] = permResString[1];
-            board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+permResString[0]+ANSI_RESET;
-            board[posX][posY + 1] = ColourCard(card.getKingdom())+permResString[2]+"|"+ANSI_RESET;
+            board[posX][posY - 1] = ColourCard(card.getKingdom()) + "|" + permResString[0] + ANSI_RESET;
+            board[posX][posY + 1] = ColourCard(card.getKingdom()) + permResString[2] + "|" + ANSI_RESET;
             cornerType = card.getCornerBack();
         }
-        String topLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[0])+ANSI_RESET; // TopLeft 1)
-        String topRight = ColourCard(card.getKingdom())+icon(cornerType[1])+"|"+ANSI_RESET; // TopRight 2)
-        String bottomLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[2])+ANSI_RESET; // BottomLeft 3)
-        String bottomRight = ColourCard(card.getKingdom())+icon(cornerType[3])+"|"+ANSI_RESET; // BottomRight 4)
+        String topLeft = ColourCard(card.getKingdom()) + "|" + icon(cornerType[0]) + ANSI_RESET; // TopLeft 1)
+        String topRight = ColourCard(card.getKingdom()) + icon(cornerType[1]) + "|" + ANSI_RESET; // TopRight 2)
+        String bottomLeft = ColourCard(card.getKingdom()) + "|" + icon(cornerType[2]) + ANSI_RESET; // BottomLeft 3)
+        String bottomRight = ColourCard(card.getKingdom()) + icon(cornerType[3]) + "|" + ANSI_RESET; // BottomRight 4)
         board[posX - 1][posY] = EMPTY;
         board[posX + 1][posY] = EMPTY;
-        board[posX - 1][posY+ 1] = topRight;
-        board[posX+ 1][posY+ 1] = bottomRight ;
+        board[posX - 1][posY + 1] = topRight;
+        board[posX + 1][posY + 1] = bottomRight;
         board[posX - 1][posY - 1] = topLeft;
         board[posX + 1][posY - 1] = bottomLeft;
         /* if player is the owner of this UI, store the available positions in the board of the player, and update the
         board limits. In this way, the player can see the available positions for the next turn of the placement.*/
-        if(playerNickname.equals(thisPlayerNickname)) {
+        if (playerNickname.equals(thisPlayerNickname)) {
             for (int[] pos : availablePos) {
                 posX = -2 * pos[1] + 80;
                 posY = 2 * pos[0] + 80;
@@ -512,7 +541,8 @@ public class TextUI extends View implements Runnable {
     }
 
     @Override
-    public void updateAfterDrawCard(){}
+    public void updateAfterDrawCard() {
+    }
 
     //-------------------Last turn-------------------
 
@@ -520,125 +550,162 @@ public class TextUI extends View implements Runnable {
     //-------------------Game end-------------------
 
 
-
     //-------------------View of the game-------------------
     @Override
     public void showInitialView() {
-        currentEvent= Event.GAME_PREPARATION;
+        currentEvent = Event.GAME_PREPARATION;
 
 
     }
+
     @Override
     public void showHelpInfo() {
         //TODO show the help information: exit command, start chat command, view the player list command, view the
         // game status command, view the game rule command,view the card command, view other players' field command,
         // view the secret objective command, view the game order command, view the game ID command ecc.
-        //TODO NEED TO DICUSS WITH THE TEAM
+        out.println("""
+                Entering the Service Mode, please type the one of the following commands:
+                HELP:
+                EXIT:
+                QUIT:
+                ShowPlayerList:
+                ShowGameStatus:
+                ShowGameRULE:
+                ShowHand:
+                ShowCommonObjCard:
+                ShowSecretObjCard:
+                ShowPlacedCard:
+                ShowPlayerField:
+                ShowScoreBoard:
+                ShowCurrentPlayer:                        
+                """);
     }
 
-    public void showPlayerInGame(){
-        out.println("The players in the game are: "+players);
+    public void showPlayerInGame() {
+        out.println("The players in the game are: " + players);
     }
+
     public void showCardSelected() {
         // show the version details of the card selected by the player --> call printNonObjCard or printObjCard
-        out.println("The card selected is: " );
+        out.println("The card selected is: ");
         //TODO show the card selected by the player
     }
+
     public void showPlacedCard() {
         // when the player wants to see the details of the card placed --> call printNonObjCard
         //TODO use printNonObjCard to show the card placed by request of the player
     }
+
     public void showPlayersField(String playerNickname) {
         showBoard(playerNickname);
         showPoints(playerNickname);
     }
+
     @Override
     public void showPoints(String playerNickname) {
-        int [] resources = publicInfo.get(playerNickname).getResources();
-        out.println("Player"+playerNickname+" has: "+publicInfo.get(playerNickname).getPoints()+" points"+
-                "\nwith "+resources[0] + iconArrayElement(0)+resources[1]+iconArrayElement(1)+resources[2] +
-                iconArrayElement(2)+resources[3] + iconArrayElement(3)+resources[4] +
-                iconArrayElement(4)+resources[5] + iconArrayElement(5)+resources[6]+
-                iconArrayElement(6)+" in field");
+        int[] resources = publicInfo.get(playerNickname).getResources();
+        out.println("Player " + playerNickname + " has: " + publicInfo.get(playerNickname).getPoints() + " points" +
+                "\nwith " + resources[0] + iconArrayElement(0) + resources[1] + iconArrayElement(1) + resources[2] +
+                iconArrayElement(2) + resources[3] + iconArrayElement(3) + resources[4] +
+                iconArrayElement(4) + resources[5] + iconArrayElement(5) + resources[6] +
+                iconArrayElement(6) + " in field");
     }
 
     /**
      * Print the zone of the board where the player placed his cards and the available positions for the next
      * placement.
+     *
      * @param nickname the nickname of the player, the owner of the board that should be printed.
      */
-    private void showBoard(String nickname){
-        BoardView boardView= this.boards.get(nickname); // get the boardView of the player by nickname
-        String[][] board= boardView.getBoard(); // get the matrix of the board of the player
+    private void showBoard(String nickname) {
+        BoardView boardView = this.boards.get(nickname); // get the boardView of the player by nickname
+        String[][] board = boardView.getBoard(); // get the matrix of the board of the player
         int[] limits = boardView.getLimits(); // get the limits of the view of the board
-        for(int i=limits[1];i<=limits[0];i++){ // print the zone of the board enclosed by the limits
-            for(int j=limits[3];j<=limits[2];j++){
-                if(board[i][j]==null){
-                    board[i][j]="   "; // if the position is empty will be printed three spaces to remain the layout
+        for (int i = limits[1]; i <= limits[0]; i++) { // print the zone of the board enclosed by the limits
+            for (int j = limits[3]; j <= limits[2]; j++) {
+                if (board[i][j] == null) {
+                    board[i][j] = "   "; // if the position is empty will be printed three spaces to remain the layout
                 }
                 out.print(board[i][j]);
             }
             out.println();
         }
     }
+
     @Override
     public void showHand(ArrayList<Integer> hand) {
 
     }
-    @Override
-    public void showCommonObjCards(ArrayList<Integer> commonObjCards) {
-        // show the common objective cards
 
+    @Override
+    public void showObjectiveCards(ArrayList<Integer> ObjCards) {
+        ArrayList<String> card1 = cardImg.get(ObjCards.get(0));
+        ArrayList<String> card2 = cardImg.get(ObjCards.get(1));
+        for (int i = 0; i < 7; i++) {
+            out.println(card1.get(i) + "  " + card2.get(i));
+        }
     }
+
     @Override
     public void showSecretObjCard(int ID) {
         // show the current resource cards
     }
+
     @Override
     public void showCard(int ID, boolean isUp) {
-        // show the current resource cards
+        cardImg.get(ID);
+        if (isUp) {
+            out.println("Front side");
+            for (int i = 0; i < 7; i++) {
+                out.println(cardImg.get(ID).get(i));
+            }
+        } else {
+            out.println("Back side");
+            for (int i = 7; i < 14; i++) {
+                out.println(cardImg.get(ID).get(i));
+            }
+        }
     }
     //-------------------Card Factory-------------------
 
     /**
-     *
      * @param ID
      * @return
      */
     private ObjectiveCardFactory searchObjCardById(int ID) {
-        try{
-            for( ObjectiveCardFactory objectiveCard: objectiveCards){
-                if(objectiveCard.getID()==ID){
+        try {
+            for (ObjectiveCardFactory objectiveCard : objectiveCards) {
+                if (objectiveCard.getID() == ID) {
                     return objectiveCard;
                 }
             }
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             logger.error("The card is not found");
         }
         return null;
     }
 
     /**
-     *
      * @param ID
      * @return
      */
-    private NonObjCardFactory searchNonObjCardById(int ID){
-        try{
-            for( NonObjCardFactory nonObjCard: nonObjCards){
-                if (nonObjCard.getID()==ID){
+    private NonObjCardFactory searchNonObjCardById(int ID) {
+        try {
+            for (NonObjCardFactory nonObjCard : nonObjCards) {
+                if (nonObjCard.getID() == ID) {
                     return nonObjCard;
                 }
             }
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             logger.error("The card is not found");
         }
         return null;
     }
+
     @Override
-    public  HashMap<Integer, ArrayList<String>> setImg() {
+    public HashMap<Integer, ArrayList<String>> setImg() {
         HashMap<Integer, ArrayList<String>> Img = new HashMap<>();
-        for (NonObjCardFactory card: nonObjCards) {
+        for (NonObjCardFactory card : nonObjCards) {
             ArrayList<String> cardImage = new ArrayList<>();
             String kingdom = card.getKingdom();
             if (kingdom.equals("null")) { // if the kingdom is null, set the kingdom to STARTER
@@ -712,7 +779,7 @@ public class TextUI extends View implements Runnable {
             }
             Img.put(card.getID(), cardImage);
         }
-        for( ObjectiveCardFactory card: objectiveCards) {
+        for (ObjectiveCardFactory card : objectiveCards) {
             ArrayList<String> cardImage = new ArrayList<>();
             int value = card.getValue();
             String strategy = card.getPointStrategy();
@@ -846,29 +913,31 @@ public class TextUI extends View implements Runnable {
 
     /**
      * Use this method to set the color of the card based on the kingdom of the card.
+     *
      * @param kingdom the kingdom of the card.
      * @return the string of the color in ASCI escape code.
      */
     private static String ColourCard(String kingdom) {
-            String colour = "";
-            switch (kingdom) { // set the color of the card based on the kingdom of the card
-                case "PLANT" -> colour = ANSI_GREEN;
-                case "FUNGI" -> colour = ANSI_RED;
-                case "ANIMAL" -> colour = ANSI_BLUE;
-                case "INSECT" -> colour = ANSI_PURPLE;
-                case "STARTER" -> colour = ANSI_RESET;
-            }
-            return colour;
+        String colour = "";
+        switch (kingdom) { // set the color of the card based on the kingdom of the card
+            case "PLANT" -> colour = ANSI_GREEN;
+            case "FUNGI" -> colour = ANSI_RED;
+            case "ANIMAL" -> colour = ANSI_BLUE;
+            case "INSECT" -> colour = ANSI_PURPLE;
+            case "STARTER" -> colour = ANSI_RESET;
+        }
+        return colour;
     }
 
     /**
      * Method used to convert the integer array of the condition count of the card to a string of icons, using the
      * Unicode characters and added it in one string.
+     *
      * @param conditionCount the integer array of the requirement count of the card.
      * @return the string of icons which contains the icons of the requirements of the card.
      */
     private static String iconArray(int[] conditionCount) {
-        StringBuilder condition= new StringBuilder();
+        StringBuilder condition = new StringBuilder();
         for (int i = 0; i < conditionCount.length; i++) {  // iterate through the condition count array
             if (conditionCount[i] != 0) {
                 for (int j = 0; j < conditionCount[i]; j++) {
@@ -880,26 +949,29 @@ public class TextUI extends View implements Runnable {
         }
         return condition.toString(); // return the string which contains the icons of the requirements of the card.
     }
+
     /**
      * Method used to convert the corner type of the card to an icon, using the Unicode characters.
+     *
      * @param type the corner type of the card.
      * @return the icon of the corner type of the card.
      */
     private static String icon(String type) {
         String icon;
         switch (type) {
-            case "INSECT" -> icon= INSECT;
-            case "PLANT" ->  icon= PLANT;
-            case "FUNGI" -> icon= FUNGI;
-            case "ANIMAL" ->  icon= ANIMAL;
-            case "QUILL" -> icon= QUILL;
-            case "INKWELL" ->  icon= INKWELL;
-            case "MANUSCRIPT" -> icon= MANUSCRIPT;
-            case "NON_COVERABLE" -> icon= NON_COVERABLE;
-            default -> icon= "  ";
+            case "INSECT" -> icon = INSECT;
+            case "PLANT" -> icon = PLANT;
+            case "FUNGI" -> icon = FUNGI;
+            case "ANIMAL" -> icon = ANIMAL;
+            case "QUILL" -> icon = QUILL;
+            case "INKWELL" -> icon = INKWELL;
+            case "MANUSCRIPT" -> icon = MANUSCRIPT;
+            case "NON_COVERABLE" -> icon = NON_COVERABLE;
+            default -> icon = "  ";
         }
         return icon;
     }
+
     /**
      * Method used to convert the type of the resource/object that stored in the array of requirements of the card or
      * in the array of the permanent resources of the card to an icon, using the Unicode characters.
@@ -907,28 +979,29 @@ public class TextUI extends View implements Runnable {
     private static String iconArrayElement(int type) {
         String icon;
         switch (type) {
-            case 0 -> icon= PLANT;
-            case 1 -> icon= FUNGI;
-            case 2 -> icon= ANIMAL;
-            case 3 -> icon= INSECT;
-            case 4 -> icon= QUILL;
-            case 5 -> icon= INKWELL;
-            case 6 -> icon=MANUSCRIPT;
-            default -> icon= EMPTY;
+            case 0 -> icon = PLANT;
+            case 1 -> icon = FUNGI;
+            case 2 -> icon = ANIMAL;
+            case 3 -> icon = INSECT;
+            case 4 -> icon = QUILL;
+            case 5 -> icon = INKWELL;
+            case 6 -> icon = MANUSCRIPT;
+            default -> icon = EMPTY;
         }
         return icon;
     }
+
     /**
      * Method used to convert the colour of the card to an icon, using the Unicode characters.
      */
     private static String iconCard(String type) {
         String icon;
         switch (type) {
-            case "PLANT" -> icon= new String(Character.toChars(PLANTCARD));
-            case "FUNGI" -> icon= new String(Character.toChars(FUNGICARD));
-            case "ANIMAL" -> icon= new String(Character.toChars(ANIMALCARD));
-            case "INSECT" -> icon= new String(Character.toChars(INSECARD));
-            default -> icon= new String(Character.toChars(STARTERCARD));
+            case "PLANT" -> icon = new String(Character.toChars(PLANTCARD));
+            case "FUNGI" -> icon = new String(Character.toChars(FUNGICARD));
+            case "ANIMAL" -> icon = new String(Character.toChars(ANIMALCARD));
+            case "INSECT" -> icon = new String(Character.toChars(INSECARD));
+            default -> icon = new String(Character.toChars(STARTERCARD));
         }
         return icon;
     }
@@ -937,21 +1010,23 @@ public class TextUI extends View implements Runnable {
     /**
      * Used method to update the dimensions of the board view of the player after placing a card on the board. The
      * method is called by the {@link #updateAfterPlacedCard} method.
-     * @param posX the x coordinate of the card placed.
-     * @param posY the y coordinate of the card placed.
+     *
+     * @param posX   the x coordinate of the card placed.
+     * @param posY   the y coordinate of the card placed.
      * @param limits the array of the limits contains the maximum x and y and the minimum x and y updated.
      */
-    private void updateBoardViewLimits(int posX, int posY, int[] limits){
-        limits[0]=Math.max(limits[0],posX+1);
-        limits[1]=Math.min(limits[1],posX-1);
-        limits[2]=Math.max(limits[2],posY+1);
-        limits[3]=Math.min(limits[3],posY-1);
+    private void updateBoardViewLimits(int posX, int posY, int[] limits) {
+        limits[0] = Math.max(limits[0], posX + 1);
+        limits[1] = Math.min(limits[1], posX - 1);
+        limits[2] = Math.max(limits[2], posY + 1);
+        limits[3] = Math.min(limits[3], posY - 1);
     }
+
     @Override
     public void handleEvent(Event event) {
-        switch (event){
+        switch (event) {
             case GAME_CREATED -> {
-                out.println("Game created successfully, waiting for other players to join...");
+                out.println("Game " + gameID + " created successfully, waiting for other players to join...");
                 showPlayerInGame();
             }
             case NEW_PLAYER_JOIN -> {
@@ -960,47 +1035,18 @@ public class TextUI extends View implements Runnable {
             case JOINED_GAME -> {
                 out.println("Joined the game successfully,waiting for the game to start...");
             }
-            case GAME_START-> {
+            case GAME_START -> {
                 out.println("YEAH!!! Let's start the game!");
             }
         }
     }
+
     @Override
-    public void handleChoiceEvent(Event event, int choice){
-        switch (event) {
-            case SELECT_GAME_MODE -> {
-                switch (choice) {
-                    case 1 -> askCreateGame();
-                    case 2 -> askJoinGame();
-                    case 3 -> askReconnectGame();
-                    default -> {
-                        logger.info("Invalid input, please select 1, 2 or 3");
-                        out.println("Invalid input, please select 1, 2 or 3");
-                        askSelectGameMode();
-                    }
-                }
-            }
-            case JOIN_GAME -> System.out.println("Joining game...");
-            case RECONNECT_GAME -> System.out.println("Reconnecting game...");
-            case GAME_START -> out.println("OH YEAH! Let's start the game!");
-            case PLACE_CARD -> System.out.println("Placing card...");
-            case DRAW_CARD -> System.out.println("Drawing card...");
-            //TODO
-        }
+    public void handleChoiceEvent(Event event, int choice) {
 
     }
-    private int getInputInt() {
-        try {
-                return in.nextInt();
-            } catch (InputMismatchException e) {
-                out.println("Invalid input, please type a number");
-                in.nextLine();
-                return getInputInt();
-            }
-    }
-
     private void clearCMD() {
-        try{
+        try {
             if (System.getProperty("os.name").contains("Windows"))
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             else
@@ -1011,7 +1057,8 @@ public class TextUI extends View implements Runnable {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
-    public String convertToColour(int colour){
+
+    public String convertToColour(int colour) {
         switch (colour) {
             case 0 -> {
                 return ANSI_RED + "RED" + ANSI_RESET;
@@ -1033,8 +1080,9 @@ public class TextUI extends View implements Runnable {
             }
         }
     }
-    public String convertToMatchStatus(int status){ //FIXME should I create a enum for the status?
-        switch (status){
+
+    public String convertToMatchStatus(int status) { //FIXME should I create a enum for the status?
+        switch (status) {
             case 0 -> {
                 return "LOBBY";
             }
@@ -1059,11 +1107,58 @@ public class TextUI extends View implements Runnable {
         }
     }
 
+    public String getInput() {
+        String input = in.nextLine();
+        switch (input) {
+            case "HELP" -> showHelpInfo();
+            case "QUIT" -> System.exit(0);
+            case "ShowPlayerList" -> showPlayerInGame();
+            case "ShowGameStatus" -> out.println("The match status is: " + Status);
+            case "ShowGameRULE" -> out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");
+            case "ShowHand" -> showCardSelected();
+            case "ShowCommonObjCard" -> showObjectiveCards(commonObjCards);
+            case "ShowSecretObjCard" -> showCard(secretObjCardSelected, true);
+            case "ShowPlacedCard" -> {
+            }
+            case "ShowPlayerField" -> {
+                out.println("Whose field do you want to see?");
+                in.nextLine();
+                String Nickname = in.nextLine();
+                while (!players.contains(Nickname)) {
+                    out.println("Invalid nickname, can't find the player, please try again");
+                    in.nextLine();
+                    Nickname = in.nextLine();
+                }
+                showPlayersField(Nickname);
+            }
+            case "ShowScoreBoard" -> {
+                out.println("The players have the following points:");
+                for (String player : players) {
+                    showPoints(player);
+                }
+            }
+            case "ShowCurrentPlayer" -> {
+                out.println("Is " + currentPlayer + "'s turn.");
+            }
+        }
+        return input;
+    }
 
+    private int getInputInt() {
+        try {
+            return in.nextInt();
+        } catch (InputMismatchException e) {
+            out.println("Invalid input, please type a number");
+            in.nextLine();
+            return getInputInt();
+        }
+    }
+    @Override
+    public void run() {
 
-
-
+    }
 }
+
 
 
 

@@ -80,7 +80,6 @@ public abstract class View implements EventHandler{
         this.clientNode = clientNode;
         clientNode.startConnection(ServerIP,port);
         this.askListener = new  AskListener(clientNode);
-
         //TODO verify if this is correct
     }
     public void setRMIClient(String ServerURL){
@@ -118,7 +117,12 @@ public abstract class View implements EventHandler{
     //-------------------Game start-----------------------
 
 
-    public abstract void requestSelectSecretObjCard();
+    public abstract void updatePlayerDate(ArrayList<String> players, ArrayList<Integer> colors, ArrayList<Integer> Hand,
+                                          int SecretObjCard, int points, int colour, ArrayList<int[]> field,
+                                          int[] resources, ArrayList<Integer> commonObjCards,
+                                          ArrayList<Integer> currentResourceCards, ArrayList<Integer> currentGoldCards,
+                                          int currentResourceDeckSize, int currentGoldDeckSize,
+                                          int matchStatus);
 
     public abstract void requestPlaceCard();
 
@@ -148,18 +152,24 @@ public abstract class View implements EventHandler{
 
     public abstract void showPoints(String playerNickname);
 
+    public abstract void requestSelectSecretObjCard(ArrayList<Integer> cards);
+
     public void updateConfirmSelectedSecretCard() {
     }
 
     public abstract void showHand(ArrayList<Integer> hand);
 
-    public abstract void showCommonObjCards(ArrayList<Integer> commonObjCards);
+    public abstract void showObjectiveCards(ArrayList<Integer> ObjCards);
 
     public abstract void showSecretObjCard(int ID);
 
     public abstract void showCard(int ID, boolean isUp);
 
     public abstract HashMap<Integer, ArrayList<String>> setImg();
+
+    public void updatePlayerTurn(String playerNickname) {
+    }
+
 }
 
 
