@@ -50,4 +50,5 @@ public interface ModelInterface {
     int getResourceCardDeckSize();
     int getGoldCardDeckSize();
     ArrayList<int[]> getAvailableSpacesPlayer(String nickname) throws PlayerNotFoundException;
+    int getPointsGainedFromObjectives(String nickname) throws PlayerNotFoundException;
 }

@@ -2,15 +2,24 @@ package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.View;
 
+import java.util.ArrayList;
+
 public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
     private final String recipientNickname;
+    private final int startingCardId;
+    private final boolean side;
+    private final ArrayList<int[]> availableSpaces;
+    private final int[] playerResources;
     private final int playerColour;
-    //FIXME private final boolean isUp;
-    //FIXME private final arraylist<int[]> availablePos;
-    //FIXME private final int[] resources;
 
-    public ConfirmStarterCardSideSelectionMessage(String recipientNickname, int playerColour) {
+    public ConfirmStarterCardSideSelectionMessage(String recipientNickname, int startingCardId,
+                                                  boolean side, ArrayList<int[]> availableSpaces,
+                                                  int[] playerResources, int playerColour) {
         this.recipientNickname = recipientNickname;
+        this.startingCardId = startingCardId;
+        this.side = side;
+        this.availableSpaces = availableSpaces;
+        this.playerResources = playerResources;
         this.playerColour = playerColour;
     }
 
@@ -20,6 +29,6 @@ public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO view.updateConfirmStarterCard(int colour,int cardID, boolean isUp,ArrayList<int[]> availablePos, int[] resources)
+        // TODO
     }
 }

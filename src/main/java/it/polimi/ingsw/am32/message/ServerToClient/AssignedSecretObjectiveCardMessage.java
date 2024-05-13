@@ -6,19 +6,21 @@ import java.util.ArrayList;
 
 public class AssignedSecretObjectiveCardMessage implements StoCMessage {
     private final String recipientNickname;
-    private final ArrayList<Integer> assignedCards;
-    //FIXME private final ArrayList<Integer> objectiveCards;
-    //FIXME private final ArrayList<Integer> cardInHand;
-    // or send all the cards with assignCards
+    private final ArrayList<Integer> assignedSecretObjectiveCards;
+    private final ArrayList<Integer> chosenCommonObjectiveCards;
+    private final ArrayList<Integer> playerHand;
 
-    public AssignedSecretObjectiveCardMessage(String recipientNickname, ArrayList<Integer> assignedCards) {
+    public AssignedSecretObjectiveCardMessage(String recipientNickname, ArrayList<Integer> assignedSecretObjectiveCards,
+                                              ArrayList<Integer> chosenCommonObjectiveCards, ArrayList<Integer> playerHand) {
         this.recipientNickname = recipientNickname;
-        this.assignedCards = assignedCards;
+        this.assignedSecretObjectiveCards = assignedSecretObjectiveCards;
+        this.chosenCommonObjectiveCards = chosenCommonObjectiveCards;
+        this.playerHand = playerHand;
     }
 
     @Override
     public void processMessage(View view) {
-        //TODO view.requestSelectSecretObjCard();
+        // TODO
     }
 
     @Override

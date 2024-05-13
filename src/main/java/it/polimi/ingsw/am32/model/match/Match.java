@@ -510,6 +510,21 @@ public class Match implements ModelInterface {
     }
 
     /**
+     * Returns the points obtained from the objective cards of the player with the given nickname.
+     *
+     * @return The points obtained from the objective cards of the player with the given nickname.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     */
+    public int getPointsGainedFromObjectives(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.getPointsGainedFromObjectives();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
+    }
+
+    /**
      * Returns all players' nicknames
      * @return ArrayList containing all the players' nicknames
      */
