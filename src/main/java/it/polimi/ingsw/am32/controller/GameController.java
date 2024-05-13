@@ -14,7 +14,6 @@ import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
-import javafx.scene.Node;
 
 /**
  * Represents a controller for a single game.
@@ -144,6 +143,7 @@ public class GameController {
      *
      * @param node The node of the player to disconnect
      */
+    // TODO: Finish implementation of disconnection in the controller
     public void disconnect(NodeInterface node) {
         switch (status) {
             case GameControllerStatus.LOBBY -> disconnectDuringLobby(node);
@@ -161,6 +161,7 @@ public class GameController {
      *
      * @param node The node of the player to disconnect
      */
+    // TODO: Finish implementation of disconnection in the controller
     private void disconnectDuringLobby(NodeInterface node) {
         PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
@@ -188,17 +189,19 @@ public class GameController {
         for (PlayerQuadruple playerQuadruple1 : nodeList) {
             try {
                 submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple1.getNickname(), allPlayerNicknames));
-                // FIXME: Add a message to notify the player that a player has left the lobby. We need to add it in order to keep the event consistent
+                // FIXME: Add also message to notify the player that a player has left the lobby. We need to add it in order to keep the event consistent
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the lobby");
             }
         }
     }
 
+    // TODO: Finish implementation of disconnection in the controller
     private void disconnectAfterPlacementBeforeDraw(NodeInterface node) {
         // TODO
     }
 
+    // TODO: Finish implementation of disconnection in the controller
     private void disconnectStandard(NodeInterface node) {
         // If we are not yet playing, just disconnect normally
         // If the leaving player is not the one currently playing we just need to inform the other player
@@ -207,8 +210,9 @@ public class GameController {
         // TODO
     }
 
+    // TODO: Finish implementation of reconnection in the controller
     public void reconnect(NodeInterface node) {
-        //TODO: Implement the reconnection of a player
+        //TODO
     }
 
     /**
@@ -605,7 +609,7 @@ public class GameController {
      *
      * @param requesterNickname The nickname of the player that sent the message
      */
-    // FIXME: The client has an obtion to reconnect not only to access and create a new game
+    // FIXME: The client has an option to reconnect not only to access and create a new game but that its job to request the updated information
     public synchronized void sendGameStatus(String requesterNickname) {
         try {
             submitVirtualViewMessage(generateResponseGameStatusMessage(requesterNickname));
@@ -620,7 +624,6 @@ public class GameController {
      *
      * @param requesterNickname The nickname of the player that sent the request message
      * @param playerNickname The nickname of the player whose field is requested
-     * @throws PlayerNotFoundException If the player whose field is requested could not be found
      */
     public synchronized void sendPlayerField(String requesterNickname, String playerNickname) {
         try {
@@ -643,6 +646,7 @@ public class GameController {
      * @param nickname The nickname of the player to generate the message for
      * @return The generated response game status message
      */
+    // FIXME: We must add the field and points of the other players in order to keep the client version of the model safe
     protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
@@ -723,4 +727,3 @@ public class GameController {
         return chat;
     }
 }
-
