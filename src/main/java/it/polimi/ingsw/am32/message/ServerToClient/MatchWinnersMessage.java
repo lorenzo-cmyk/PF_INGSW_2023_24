@@ -7,10 +7,20 @@ import java.util.ArrayList;
 
 public class MatchWinnersMessage implements StoCMessage {
     private final String recipientNickname;
+    private final ArrayList<String> players;
+    private final ArrayList<Integer> points;
+    private final ArrayList<Integer> secrets;
+    private final ArrayList<Integer> pointsGainedFromSecrets;
     private final ArrayList<String> winners;
 
-    public MatchWinnersMessage(String recipientNickname, ArrayList<String> winners) {
+    public MatchWinnersMessage(String recipientNickname, ArrayList<String> players,
+                               ArrayList<Integer> points, ArrayList<Integer> secrets,
+                               ArrayList<Integer> pointsGainedFromSecrets, ArrayList<String> winners) {
         this.recipientNickname = recipientNickname;
+        this.players = players;
+        this.points = points;
+        this.secrets = secrets;
+        this.pointsGainedFromSecrets = pointsGainedFromSecrets;
         this.winners = winners;
     }
 

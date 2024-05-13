@@ -276,16 +276,38 @@ public class GameController {
 
         try {
             model.addObjectivePoints();
+
+            ArrayList<String> players = new ArrayList<>();
+            ArrayList<Integer> points = new ArrayList<>();
+            ArrayList<Integer> secrets = new ArrayList<>();
+            ArrayList<Integer> pointsGainedFromSecrets = new ArrayList<>();
             ArrayList<String> winners = model.getWinners();
+
+            // Iterate on each player in the nodeList using their nickname as key
+            for(PlayerQuadruple playerQuadruple : nodeList){
+                try {
+                    players.add(playerQuadruple.getNickname());
+                    points.add(model.getPlayerPoints(playerQuadruple.getNickname()));
+                    secrets.add(model.getPlayerSecretObjective(playerQuadruple.getNickname()));
+                    pointsGainedFromSecrets.add(model.getPointsGainedFromObjectives(playerQuadruple.getNickname()));
+
+                } catch (PlayerNotFoundException e) {
+                    throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found");
+                }
+            }
 
             for (PlayerQuadruple playerQuadruple : nodeList) {
                 // Notify the player of the status of the match
                 submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
                 // Notify the player of the winners
-                submitVirtualViewMessage(new MatchWinnersMessage(playerQuadruple.getNickname(), winners));
-                // FIXME Need to notify players of points gained by objective cards? Yes
-                // FIXME Need to notify players of objective cards of other players? Yes
-                // FIXME Added player points to MatchWinnersMessage
+                submitVirtualViewMessage(new MatchWinnersMessage(
+                        playerQuadruple.getNickname(),
+                        players,
+                        points,
+                        secrets,
+                        pointsGainedFromSecrets,
+                        winners
+                ));
             }
         } catch (AlreadyComputedPointsException e) {
             throw new CriticalFailureException("Points have already been computed");
