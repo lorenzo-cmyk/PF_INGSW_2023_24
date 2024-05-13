@@ -197,6 +197,7 @@ public class GameController {
     }
 
     // TODO: Finish implementation of disconnection in the controller
+    //  FIXME: In case of rollback we will send a new type of messages with the post-rollback field, points and resources
     private void disconnectAfterPlacementBeforeDraw(NodeInterface node) {
         // TODO
     }
@@ -489,10 +490,19 @@ public class GameController {
         try {
             model.placeCard(id, x, y, side); // Try to place card
 
-            // Notify the player that he has successfully placed the card
-            submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname), model.getAvailableSpacesPlayer(nickname)));
-            // FIXME Need to send everyone player new resources, and points, and information about placed card (x,y,id,side);
-            //  FIXME: In case of rollback we will send a new type of messages with the post-rollback field, points and resources
+            // Notify all the players that the current contender has successfully placed the card
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                submitVirtualViewMessage(new PlaceCardConfirmationMessage(
+                        playerQuadruple.getNickname(),
+                        model.getCurrentPlayerNickname(),
+                        id,
+                        new int[]{x, y},
+                        side,
+                        model.getPlayerPoints(playerQuadruple.getNickname()),
+                        model.getPlayerResources(playerQuadruple.getNickname()),
+                        model.getAvailableSpacesPlayer(playerQuadruple.getNickname())
+                ));
+            }
 
             if (model.getMatchStatus() != MatchStatus.LAST_TURN.getValue()) { // We are not in the last turn; the player should draw a card
                 status = GameControllerStatus.WAITING_CARD_DRAW; // Update game status

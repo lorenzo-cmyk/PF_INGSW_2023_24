@@ -6,14 +6,26 @@ import java.util.ArrayList;
 
 public class PlaceCardConfirmationMessage implements StoCMessage {
     private final String recipientNickname;
+
+    private final String playerNickname;
+    private final int placedCard;
+    private final int[] placedCardCoordinates;
+    private final boolean placedSide;
+    private final int playerPoints;
     private final int[] playerResources;
-    private final int points;
     private final ArrayList<int[]> newAvailableFieldSpaces;
 
-    public PlaceCardConfirmationMessage(String recipientNickname, int[] playerResources, int points, ArrayList<int[]> newAvailableFieldSpaces) {
+    public PlaceCardConfirmationMessage(String recipientNickname, String playerNickname,
+                                        int placedCard, int[] placedCardCoordinates,
+                                        boolean placedSide, int playerPoints,
+                                        int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces) {
         this.recipientNickname = recipientNickname;
-        this.playerResources= playerResources;
-        this.points = points;
+        this.playerNickname = playerNickname;
+        this.placedCard = placedCard;
+        this.placedCardCoordinates = placedCardCoordinates;
+        this.placedSide = placedSide;
+        this.playerPoints = playerPoints;
+        this.playerResources = playerResources;
         this.newAvailableFieldSpaces = newAvailableFieldSpaces;
     }
 
