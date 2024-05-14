@@ -22,4 +22,12 @@ public class DrawCardConfirmationMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    @Override
+    public String toString() {
+        return "DrawCardConfirmationMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", playerHand=" + playerHand +
+                '}' + "\n";
+    }
 }

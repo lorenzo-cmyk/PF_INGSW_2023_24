@@ -31,4 +31,16 @@ public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
     public void processMessage(View view) {
         view.updateConfirmStarterCard(playerColour,startingCardId,side, availableSpaces, playerResources);
     }
+
+    @Override
+    public String toString() {
+        return "ConfirmStarterCardSideSelectionMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", startingCardId=" + startingCardId +
+                ", side=" + side +
+                ", availableSpaces=" + availableSpaces +
+                ", playerResources=" + playerResources +
+                ", playerColour=" + playerColour +
+                '}' + "\n";
+    }
 }
