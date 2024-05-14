@@ -27,4 +27,14 @@ public class AssignedSecretObjectiveCardMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    @Override
+    public String toString() {
+        return "AssignedSecretObjectiveCardMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", assignedSecretObjectiveCards=" + assignedSecretObjectiveCards +
+                ", chosenCommonObjectiveCards=" + chosenCommonObjectiveCards +
+                ", playerHand=" + playerHand +
+                '}' + "\n";
+    }
 }

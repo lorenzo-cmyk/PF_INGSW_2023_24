@@ -22,4 +22,12 @@ public class AssignedStarterCardMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    @Override
+    public String toString() {
+        return "AssignedStarterCardMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", cardId=" + cardId +
+                '}' + "\n";
+    }
 }

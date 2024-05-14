@@ -27,4 +27,15 @@ public class DeckSizeUpdateMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    @Override
+    public String toString() {
+        return "DeckSizeUpdateMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", resourceCardDeckSize=" + resourceCardDeckSize +
+                ", goldCardDeckSize=" + goldCardDeckSize +
+                ", currentResourceCards=" + currentResourceCards +
+                ", currentGoldCards=" + currentGoldCards +
+                '}' + "\n";
+    }
 }
