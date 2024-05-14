@@ -31,6 +31,7 @@ public class Configuration {
     private int socketPort;
     private int pingTimeInterval;
     private int maxPingCount;
+    private int socketReadTimeout;
     private String serverIp;
     private final ExecutorService executorService;
 
@@ -58,6 +59,7 @@ public class Configuration {
         rmiPort = 30001;
         pingTimeInterval = 5000;
         maxPingCount = 3;
+        socketReadTimeout = 100;
         serverIp = "127.0.0.1";
         executorService = Executors.newCachedThreadPool();
 
@@ -104,7 +106,11 @@ public class Configuration {
             } catch (Exception ignored){}
 
             try {
-                serverIp = serverIpValidator(jsonNode.get("serverIp").asText());
+                socketReadTimeout = jsonNode.get("socketReadTimeout").asInt();
+            } catch (Exception ignored){}
+
+            try {
+                serverIp = serverIpValidator(jsonNode.get("serverIp").asText(), serverIp);
             } catch (Exception ignored){}
         }
 
@@ -131,7 +137,8 @@ public class Configuration {
                     case "-rp" -> rmiPortArgs = portValidator(Integer.parseInt(args[i + 1]), rmiPortArgs);
                     case "-ptp" -> pingTimeInterval = Integer.parseInt(args[i + 1]);
                     case "-mpc" -> maxPingCount = Integer.parseInt(args[i + 1]);
-                    case "-si" -> serverIp = serverIpValidator(args[i + 1]);
+                    case "-srt" -> socketReadTimeout = Integer.parseInt(args[i + 1]);
+                    case "-si" -> serverIp = serverIpValidator(args[i + 1], serverIp);
                 }
             } catch (NumberFormatException ignored) {}
 
@@ -160,7 +167,8 @@ public class Configuration {
         System.out.println("Socket port: " + socketPort);
         System.out.println("RMI port: " + rmiPort);
         System.out.println("Ping time period: " + pingTimeInterval);
-        System.out.println("Max Ping count: " + maxPingCount);
+        System.out.println("Max ping count: " + maxPingCount);
+        System.out.println("Socket read timeout: " + socketReadTimeout);
         System.out.println("Server ip: " + serverIp);
     }
 
@@ -184,9 +192,10 @@ public class Configuration {
      * Verify that the given ip comply with ipv4 rules and in that case returns it.
      *
      * @param ipToValidate is the new ip that has to be evaluated
-     * @return the given ip if valid, the previous valid ip otherwise
+     * @param lastValidIp is the last valid ip for the server
+     * @return {@code ipToValidate} if it's a valid ip, else return {@code lastValidIp}
      */
-    protected String serverIpValidator(String ipToValidate) {
+    protected String serverIpValidator(String ipToValidate , String lastValidIp) {
 
         // TODO rivalutare algoritmo
 
@@ -205,32 +214,32 @@ public class Configuration {
                 counter++;
 
                 if(counter > 3)
-                    return serverIp;
+                    return lastValidIp;
 
                 try {
                     tmp = Integer.parseInt(ipToValidate, prevIndex, i, 10);
                 }catch (Exception e){
-                    return serverIp;
+                    return lastValidIp;
                 }
 
                 if(tmp < 0 || tmp > 255)
-                    return serverIp;
+                    return lastValidIp;
 
                 prevIndex = i+1;
             }
         }
 
         if(counter < 3)
-            return serverIp;
+            return lastValidIp;
 
         try {
             tmp = Integer.parseInt(ipToValidate, prevIndex, workingIp.length, 10);
         }catch (Exception e){
-            return serverIp;
+            return lastValidIp;
         }
 
         if(tmp < 0 || tmp > 255)
-            return serverIp;
+            return lastValidIp;
 
         return ipToValidate;
     }
@@ -297,6 +306,15 @@ public class Configuration {
      */
     public int getMaxPingCount() {
         return maxPingCount;
+    }
+
+    /**
+     * Return the duration of a single attempt to read to a socket input
+     *
+     * @return an int indicating timeout for a read in a socket
+     */
+    public int getSocketReadTimeout() {
+        return socketReadTimeout;
     }
 
     /**
