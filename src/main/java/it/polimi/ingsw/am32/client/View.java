@@ -111,8 +111,6 @@ public abstract class View implements EventHandler{
 
     //-------------------Game start-----------------------
 
-    public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, ArrayList<Integer> currentResourceCards,
-                                    ArrayList<Integer> currentGoldCards);
 
     public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards,
                                     int[] currentGoldCards);

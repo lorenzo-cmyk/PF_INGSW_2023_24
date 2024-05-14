@@ -544,7 +544,7 @@ public class TextUI extends View implements Runnable {
         out.println("Resources deck size: " + resourceDeckSize + " Gold deck size: " + goldDeckSize);
         out.println("Resource cards:");
         showObjectiveCards(currentResourceCards);
-        out.println("Resource cards:");
+        out.println("Gold cards:");
         showObjectiveCards(currentGoldCards);
         String choice = getInput();
         while (!choice.equals("RESOURCE1") && !choice.equals("RESOURCE2") && !choice.equals("GOLD1") &&

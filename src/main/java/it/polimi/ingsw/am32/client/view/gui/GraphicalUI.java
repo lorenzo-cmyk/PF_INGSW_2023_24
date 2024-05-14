@@ -159,6 +159,16 @@ public class GraphicalUI extends View {
     }
 
     @Override
+    public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards) {
+
+    }
+
+    @Override
+    public void showDeck() {
+
+    }
+
+    @Override
     public void showHelpInfo() {
 
     }
