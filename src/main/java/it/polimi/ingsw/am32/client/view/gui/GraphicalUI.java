@@ -17,10 +17,6 @@ public class GraphicalUI extends View {
     //TODO
     }
 
-    @Override
-    public void updateView(StoCMessage message) {
-        //TODO
-    }
 
     @Override
     public void notifyAskListener(CtoSMessage message) {
@@ -76,6 +72,11 @@ public class GraphicalUI extends View {
 
     @Override
     public void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces) {
+
+    }
+
+    @Override
+    public void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets, ArrayList<Integer> pointsGainedFromSecrets, ArrayList<String> winners) {
 
     }
 
@@ -154,7 +155,7 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void updateAfterDrawCard(int[] hand) {
+    public void updateAfterDrawCard(ArrayList<Integer> hand) {
 
     }
 

@@ -29,6 +29,7 @@ public abstract class View implements EventHandler{
     protected ArrayList<String> players; //save and update the players in the game.
     protected String currentPlayer; //save and update the current player by receiving the message from the server.
     protected Event currentEvent; //TODO: not sure if this is useful
+    protected int indexCardPlaced=0;
     protected ArrayList<Integer> commonObjCards;
     protected int[] secretObjCards;
     protected int secretObjCardSelected;
@@ -107,10 +108,10 @@ public abstract class View implements EventHandler{
 
     public abstract void requestDrawCard();
 
-    public abstract void updateAfterDrawCard(int[] hand);
-
     //-------------------Game start-----------------------
 
+
+    public abstract void updateAfterDrawCard(ArrayList<Integer> hand);
 
     public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards,
                                     int[] currentGoldCards);
@@ -131,9 +132,6 @@ public abstract class View implements EventHandler{
     public abstract void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y,
                                                boolean isUp, ArrayList<int[]> availablePos, int[] resources,
                                                int points);
-    public void updateView(StoCMessage message){
-        message.processMessage(this);
-    }
     public void notifyAskListener(CtoSMessage message){
         askListener.addMessage(message);
     }
@@ -178,6 +176,8 @@ public abstract class View implements EventHandler{
     }
 
     public abstract void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces);
+
+    public abstract void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets, ArrayList<Integer> pointsGainedFromSecrets, ArrayList<String> winners);
 }
 
 

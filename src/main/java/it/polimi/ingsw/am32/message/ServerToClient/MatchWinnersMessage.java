@@ -25,6 +25,7 @@ public class MatchWinnersMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
+        view.showMatchWinners(players, points, secrets, pointsGainedFromSecrets, winners);
     }
 
     @Override

@@ -349,6 +349,11 @@ public class TextUI extends View implements Runnable {
         // once received the MatchStatusMessage from the server
         this.Status = convertToMatchStatus(matchStatus);
         out.println("The match status is: " + convertToMatchStatus(matchStatus));
+        if(Status.equals("TERMINATING")){
+            for (String player : players) {
+                showPoints(player);
+            }
+        }
     }
 
     @Override
@@ -356,9 +361,7 @@ public class TextUI extends View implements Runnable {
         // once received the AssignStarterCardMessage from the server
         currentEvent = Event.SELECT_STARTER_CARD_SIDE;
         out.println("The starter card received is following");
-        out.println("Front side");
         showCard(ID, true);
-        out.println("Back side");
         showCard(ID, false);
         out.println("Please select the side of the card you want to use, type[FRONT or BACK]:");
         String side = getInput();
@@ -394,8 +397,6 @@ public class TextUI extends View implements Runnable {
         showHand(hand);
         showObjectiveCards(common);
         out.println("Please select one of the objective cards in following to be your secret objective card type[LEFT or RIGHT]:");
-        out.println("LEFT");
-        out.println("RIGHT");
         showObjectiveCards(secrets);
         String cardID =getInput();
         while (!cardID.equals("LEFT") && !cardID.equals("RIGHT")) {
@@ -456,11 +457,12 @@ public class TextUI extends View implements Runnable {
     @Override
     public void updatePlayerTurn(String playerNickname) {
         // once received the PlayerTurnMessage from the server
-        if(playerNickname.equals(thisPlayerNickname)){
+        this.currentPlayer = playerNickname;
+        if(this.currentPlayer.equals(thisPlayerNickname)){
             out.println("It is your turn, please select one card from your hand to place on the field:");
             requestPlaceCard();
         }else{
-            out.println("It is " + playerNickname + "'s turn");
+            out.println("It is " + currentPlayer + "'s turn");
         }
     }
 
@@ -483,8 +485,8 @@ public class TextUI extends View implements Runnable {
             choice = getInput();
         }
         out.println("You selected the card in the " + choice + " one of your hand:");
-        int index = choice.equals("LEFT") ? 0 : choice.equals("MIDDLE") ? 1 : 2; // index of the card selected in hand
-        showCard(hand.get(index), true);
+        indexCardPlaced = choice.equals("LEFT") ? 0 : choice.equals("MIDDLE") ? 1 : 2; // index of the card selected in hand
+        showCard(hand.get(indexCardPlaced), true);
         out.println("Do you want to see the back side of the card? type[Y or N]");
         String isUp = getInput();
         while(!isUp.equals("Y") && !isUp.equals("N")) {
@@ -493,7 +495,7 @@ public class TextUI extends View implements Runnable {
             isUp = getInput();
         }
         if( "Y".equals(isUp)) {
-            showCard(hand.get(index), false);
+            showCard(hand.get(indexCardPlaced), false);
         }
        out.println("Which side do you want to place the card? type[FRONT or BACK]");
        isUp = getInput();
@@ -511,7 +513,7 @@ public class TextUI extends View implements Runnable {
                 pos = getInput();
             }
             String [] posArray = pos.split(",");
-            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(index), Integer.parseInt(posArray[0]),
+            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(indexCardPlaced), Integer.parseInt(posArray[0]),
                     Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
     }
 
@@ -524,7 +526,9 @@ public class TextUI extends View implements Runnable {
         if(playerNickname.equals(thisPlayerNickname)){
             out.println("The card is placed successfully, here is your field after placing the card:");
             showPlayersField(thisPlayerNickname);
-            requestDrawCard();
+            if(Status.equals("PLAYING")||Status.equals("TERMINATING")){
+                requestDrawCard();
+            }
         }
     }
 
@@ -541,11 +545,7 @@ public class TextUI extends View implements Runnable {
                 To draw from the resource deck, type RESOURCE
                 To draw from the gold deck, type GOLD
                 """);
-        out.println("Resources deck size: " + resourceDeckSize + " Gold deck size: " + goldDeckSize);
-        out.println("Resource cards:");
-        showObjectiveCards(currentResourceCards);
-        out.println("Gold cards:");
-        showObjectiveCards(currentGoldCards);
+        showDeck();
         String choice = getInput();
         while (!choice.equals("RESOURCE1") && !choice.equals("RESOURCE2") && !choice.equals("GOLD1") &&
                 !choice.equals("GOLD2") && !choice.equals("RESOURCE") && !choice.equals("GOLD")) {
@@ -554,11 +554,13 @@ public class TextUI extends View implements Runnable {
             choice = getInput();
         }
         if (choice.equals("RESOURCE1") || choice.equals("RESOURCE2")) {
-            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 0, choice.equals("RESOURCE1") ?
+            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 2, choice.equals("RESOURCE1") ?
                     currentResourceCards.get(0) : currentResourceCards.get(1)));
+            out.println(currentResourceCards.get(0)+currentResourceCards.get(1));
         } else if (choice.equals("GOLD1") || choice.equals("GOLD2")) {
-            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 1, choice.equals("GOLD1") ?
+            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 3, choice.equals("GOLD1") ?
                     currentGoldCards.get(0) : currentGoldCards.get(1)));
+            out.println(currentGoldCards.get(0)+currentGoldCards.get(1));
         } else {
             notifyAskListener(new DrawCardMessage(thisPlayerNickname, choice.equals("RESOURCE") ? 0 : 1, -1));
         }
@@ -643,11 +645,8 @@ public class TextUI extends View implements Runnable {
     }
 
     @Override
-    public void updateAfterDrawCard(int[]hand) {
-        this.hand.clear();
-        for(int card : hand){
-            this.hand.add(card);
-        }
+    public void updateAfterDrawCard(ArrayList<Integer> hand) {
+        this.hand.add(indexCardPlaced, hand.getLast());
         out.println("The card is added in your hand successfully, here is your hand after drawing the card:");
         showHand(this.hand);
     }
@@ -662,6 +661,7 @@ public class TextUI extends View implements Runnable {
         this.currentResourceCards.add(currentResourceCards[1]);
         this.currentGoldCards.add(currentGoldCards[0]);
         this.currentGoldCards.add(currentGoldCards[1]);
+        out.println("The situation of the deck after this turn is following:");
         showDeck();
     }
 
@@ -788,6 +788,20 @@ public class TextUI extends View implements Runnable {
             for (int i = 7; i < 14; i++) {
                 out.println(cardImg.get(ID).get(i));
             }
+        }
+    }
+    @Override
+    public void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets,
+                                 ArrayList<Integer> pointsGainedFromSecrets, ArrayList<String> winners) {
+        out.println("The match is ended !!!");
+        out.println("The winners of the match are: "+winners);
+        out.println("The final points of the players are following:");
+        for(int i=0; i<players.size(); i++) {
+            out.println("Player: " + players.get(i) + " Total points: " + points.get(i) +
+                    " Points before adding the objective points: "
+                    + publicInfo.get(players.get(i)).getPoints() +
+                    " Points gained from the secret objective: " + secrets.get(i));
+            showCard(secrets.get(i), true);
         }
     }
     //-------------------Card Factory-------------------
