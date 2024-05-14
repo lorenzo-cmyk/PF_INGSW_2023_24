@@ -352,11 +352,11 @@ public class Match implements ModelInterface {
     }
 
 /**
- * This method is used to draw a card from the deck of the game.
+ * Used to make the current player draw a card from the chosen deck.
  * @param deckType The type of deck from which the card is drawn. 0 for resourceCardsDeck, 1 for goldCardsDeck, 2 for currentResourceCards, 3 for currentGoldCards.
  * @param id If the deckType is 2 or 3, the id parameter is used to identify the card to be drawn.
  * @throws DrawException if the deckType selected for draw is not valid or the id of the card is not found. Gets also thrown if the deck is empty
- * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+ * @throws PlayerNotFoundException if the current player could not be found
  */
     public void drawCard(int deckType, int id) throws DrawException, PlayerNotFoundException {
         // Retrieve the player who is playing using the currentPlayerNickname
@@ -507,6 +507,21 @@ public class Match implements ModelInterface {
             }
         }
         return winners;
+    }
+
+    /**
+     * Returns the points obtained from the objective cards of the player with the given nickname.
+     *
+     * @return The points obtained from the objective cards of the player with the given nickname.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     */
+    public int getPointsGainedFromObjectives(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.getPointsGainedFromObjectives();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
     /**

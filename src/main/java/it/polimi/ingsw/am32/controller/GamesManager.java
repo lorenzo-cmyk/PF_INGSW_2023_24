@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.PlayerConnectedMessage;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 
@@ -134,6 +135,10 @@ public class GamesManager {
                             .collect(Collectors.toCollection(ArrayList::new));
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
                         game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
+                        // Also notify all players except player that has just connected, that a new player has connected
+                        if (!playerQuadruple.getNickname().equals(nickname)) {
+                            game.submitVirtualViewMessage(new PlayerConnectedMessage(playerQuadruple.getNickname(), nickname));
+                        }
                     }
                 } catch (VirtualViewNotFoundException e) { // Player was added, but his virtual view could not be found
                     throw new CriticalFailureException("VirtualViewNotFoundException when player joined the game");

@@ -2,15 +2,13 @@ package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.View;
 
-import java.util.ArrayList;
-
-public class DrawCardConfirmationMessage implements StoCMessage {
+public class PlayerReconnectedMessage implements StoCMessage {
     private final String recipientNickname;
-    private final ArrayList<Integer> playerHand;
+    private final String disconnectedNickname;
 
-    public DrawCardConfirmationMessage(String recipientNickname, ArrayList<Integer> playerHand) {
+    public PlayerReconnectedMessage(String recipientNickname, String disconnectedNickname) {
         this.recipientNickname = recipientNickname;
-        this.playerHand = playerHand;
+        this.disconnectedNickname = disconnectedNickname;
     }
 
     @Override

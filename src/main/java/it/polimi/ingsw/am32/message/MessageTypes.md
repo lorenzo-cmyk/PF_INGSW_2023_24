@@ -159,8 +159,8 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "playerColours": [1, 4],
   "playerHand": [10, 11, 12],
   "playerSecretObjective": 9,
-  "playerPoints": 5,
-  "playerField": [[0, 0, 31, true], [1, 1, 30, true], [-1, -1, 29, false]],
+  "playerPoints": [10, 23, 10],
+  "playerFields": [[[0, 0, 12, true], [1, 2, 4, false]], [[1, 2, 34, false]], [[0, 0, 12, false], [1, 1, 34, true]]], 
   "playerResources": [1, 1, 1, 1, 1, 1, 1],
   "gameCommonObjectives": [50, 51],
   "gameCurrentResourceCards": [20, 21],
@@ -266,11 +266,20 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "NegativeResponsePlayerFieldMessage",
   "recipientNickname": "playerName",
-  "playerNickname": "playerName",
+  "playerNickname": "playerName"
 }
 ```
 
-- PlayerDisconnectedMessage: sent by the Server to notify the other players that a player has disconnected.
+- PlayerConnectedMessage: sent by the Server to notify the other players that a player has connected to the game (only in lobby phase).
+```json
+{
+  "type": "PlayerConnectedMessage",
+  "recipientNickname": "playerName",
+  "connectedNickname": "playerName"
+}
+```
+
+- PlayerDisconnectedMessage: sent by the Server to notify the other players that a player has disconnected (in any phase of the game).
 ```json
 {
   "type": "PlayerDisconnectedMessage",
@@ -279,7 +288,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
-- PlayerReconnectedMessage: sent by the Server to notify the other players that a player has reconnected.
+- PlayerReconnectedMessage: sent by the Server to notify the other players that a player has reconnected (not in lobby phase).
 ```json
 {
   "type": "PlayerReconnectedMessage",
@@ -338,7 +347,9 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "AssignedSecretObjectiveCardMessage",
   "recipientNickname": "playerName",
-  "assignedCards": [23, 26] 
+  "assignedSecretObjectiveCards": [12, 13, 14],
+  "chosenCommonObjectiveCards": [50, 51],
+  "playerHand": [10, 11, 12]
 }
 ```
 

@@ -14,7 +14,6 @@ import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
-import javafx.scene.Node;
 
 /**
  * Represents a controller for a single game.
@@ -144,6 +143,7 @@ public class GameController {
      *
      * @param node The node of the player to disconnect
      */
+    // TODO: Finish implementation of disconnection in the controller
     public void disconnect(NodeInterface node) {
         switch (status) {
             case GameControllerStatus.LOBBY -> disconnectDuringLobby(node);
@@ -161,6 +161,7 @@ public class GameController {
      *
      * @param node The node of the player to disconnect
      */
+    // TODO: Finish implementation of disconnection in the controller
     private void disconnectDuringLobby(NodeInterface node) {
         PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
@@ -188,16 +189,20 @@ public class GameController {
         for (PlayerQuadruple playerQuadruple1 : nodeList) {
             try {
                 submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple1.getNickname(), allPlayerNicknames));
+                // FIXME: Add also message to notify the player that a player has left the lobby. We need to add it in order to keep the event consistent
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the lobby");
             }
         }
     }
 
+    // TODO: Finish implementation of disconnection in the controller
+    //  FIXME: In case of rollback we will send a new type of messages with the post-rollback field, points and resources
     private void disconnectAfterPlacementBeforeDraw(NodeInterface node) {
         // TODO
     }
 
+    // TODO: Finish implementation of disconnection in the controller
     private void disconnectStandard(NodeInterface node) {
         // If we are not yet playing, just disconnect normally
         // If the leaving player is not the one currently playing we just need to inform the other player
@@ -206,8 +211,9 @@ public class GameController {
         // TODO
     }
 
+    // TODO: Finish implementation of reconnection in the controller
     public void reconnect(NodeInterface node) {
-        //TODO: Implement the reconnection of a player
+        //TODO
     }
 
     /**
@@ -271,16 +277,38 @@ public class GameController {
 
         try {
             model.addObjectivePoints();
+
+            ArrayList<String> players = new ArrayList<>();
+            ArrayList<Integer> points = new ArrayList<>();
+            ArrayList<Integer> secrets = new ArrayList<>();
+            ArrayList<Integer> pointsGainedFromSecrets = new ArrayList<>();
             ArrayList<String> winners = model.getWinners();
-            // FIXME Need to notify players of points gained by objective cards?
-            // FIXME Need to notify players of objective cards of other players?
+
+            // Iterate on each player in the nodeList using their nickname as key
+            for(PlayerQuadruple playerQuadruple : nodeList){
+                try {
+                    players.add(playerQuadruple.getNickname());
+                    points.add(model.getPlayerPoints(playerQuadruple.getNickname()));
+                    secrets.add(model.getPlayerSecretObjective(playerQuadruple.getNickname()));
+                    pointsGainedFromSecrets.add(model.getPointsGainedFromObjectives(playerQuadruple.getNickname()));
+
+                } catch (PlayerNotFoundException e) {
+                    throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found");
+                }
+            }
 
             for (PlayerQuadruple playerQuadruple : nodeList) {
                 // Notify the player of the status of the match
                 submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
                 // Notify the player of the winners
-                submitVirtualViewMessage(new MatchWinnersMessage(playerQuadruple.getNickname(), winners));
-                // FIXME Added player points to MatchWinnersMessage
+                submitVirtualViewMessage(new MatchWinnersMessage(
+                        playerQuadruple.getNickname(),
+                        players,
+                        points,
+                        secrets,
+                        pointsGainedFromSecrets,
+                        winners
+                ));
             }
         } catch (AlreadyComputedPointsException e) {
             throw new CriticalFailureException("Points have already been computed");
@@ -318,8 +346,14 @@ public class GameController {
 
             model.createFieldPlayer(nickname, isUp); // Initialize the player's field
             // Notify the player that he has successfully chosen his starting card's side
-            submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(nickname, model.getPlayerColour(nickname)));
-            // FIXME Player resources and available spaces
+            submitVirtualViewMessage(new ConfirmStarterCardSideSelectionMessage(
+                    nickname,
+                    model.getInitialCardPlayer(nickname),
+                    isUp,
+                    model.getAvailableSpacesPlayer(nickname),
+                    model.getPlayerResources(nickname),
+                    model.getPlayerColour(nickname)
+            ));
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -338,8 +372,12 @@ public class GameController {
                  status = GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE;
 
                  for (PlayerQuadruple playerQuadruple : nodeList) {
-                     // FIXME Players should receive their assigned resource, gold cards, and common objectives. Either create new message or add to AssignedSecret...
-                     submitVirtualViewMessage(new AssignedSecretObjectiveCardMessage(playerQuadruple.getNickname(), model.getSecretObjectiveCardsPlayer(playerQuadruple.getNickname())));
+                     submitVirtualViewMessage(new AssignedSecretObjectiveCardMessage(
+                                playerQuadruple.getNickname(),
+                                model.getSecretObjectiveCardsPlayer(playerQuadruple.getNickname()),
+                                model.getCommonObjectives(),
+                                model.getPlayerHand(playerQuadruple.getNickname())
+                     ));
                  }
             }
         } catch (PlayerNotFoundException e) {
@@ -378,7 +416,7 @@ public class GameController {
 
             model.receiveSecretObjectiveChoiceFromPlayer(nickname, id); // Set the player's secret objective
             // Notify the player that he has successfully chosen his secret objective
-            submitVirtualViewMessage(new ConfirmSelectedSecretObjectiveCardMessage(nickname));
+            submitVirtualViewMessage(new ConfirmSelectedSecretObjectiveCardMessage(nickname, id));
 
             boolean playersReady = true; // Assume all players are ready
             for (String playerNickname : model.getPlayersNicknames()) { // Scan all players in the current game
@@ -400,9 +438,10 @@ public class GameController {
                     submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
                     // Notify the player of his current game status
                     submitVirtualViewMessage(generateResponseGameStatusMessage(playerQuadruple.getNickname()));
+                    // Keep this message in order to keep coherency with the client build-in controller
                     // Notify the players of the current player
                     submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
-                    // FIXME PlayerTurnMessage not needed here as it is already present in the big message
+                    // PlayerTurnMessage is still needed in order to keep the event order in the client even if the current player is already known thanks to the previous message
                 }
             }
         } catch (InvalidSelectionException e) { // The player has chosen an invalid secret objective card
@@ -451,9 +490,19 @@ public class GameController {
         try {
             model.placeCard(id, x, y, side); // Try to place card
 
-            // Notify the player that he has successfully placed the card
-            submitVirtualViewMessage(new PlaceCardConfirmationMessage(nickname, model.getPlayerResources(nickname), model.getPlayerPoints(nickname), model.getAvailableSpacesPlayer(nickname)));
-            // FIXME Need to send everyone player new resources, and points, and information about placed card (x,y,id,side); problem is that if a client disconnects, we need to roll back the information
+            // Notify all the players that the current contender has successfully placed the card
+            for (PlayerQuadruple playerQuadruple : nodeList) {
+                submitVirtualViewMessage(new PlaceCardConfirmationMessage(
+                        playerQuadruple.getNickname(),
+                        model.getCurrentPlayerNickname(),
+                        id,
+                        new int[]{x, y},
+                        side,
+                        model.getPlayerPoints(playerQuadruple.getNickname()),
+                        model.getPlayerResources(playerQuadruple.getNickname()),
+                        model.getAvailableSpacesPlayer(playerQuadruple.getNickname())
+                ));
+            }
 
             if (model.getMatchStatus() != MatchStatus.LAST_TURN.getValue()) { // We are not in the last turn; the player should draw a card
                 status = GameControllerStatus.WAITING_CARD_DRAW; // Update game status
@@ -506,10 +555,7 @@ public class GameController {
             status = GameControllerStatus.WAITING_CARD_PLACEMENT; // Update game status
 
             // Notify the player that he has successfully drawn the card
-            submitVirtualViewMessage(new DrawCardConfirmationMessage(
-                    nickname,
-                    model.getPlayerHand(nickname).stream().mapToInt(Integer::intValue).toArray()
-            ));
+            submitVirtualViewMessage(new DrawCardConfirmationMessage(nickname, model.getPlayerHand(nickname)));
 
             // Notify to all the players that the deck size has changed
             for (PlayerQuadruple playerQuadruple : nodeList) {
@@ -543,6 +589,11 @@ public class GameController {
      * Notifies all players of any changes in the model status, notifies all players of the newly elected current player.
      */
     private void setNextPlayer() {
+        // If all players are disconnected, we don't want to get stuck in an infinite loop
+        if (nodeList.stream().noneMatch(PlayerQuadruple::isConnected)) {
+            return;
+        }
+
         do {
             model.nextTurn(); // Update turn number and current player
 
@@ -597,6 +648,7 @@ public class GameController {
      *
      * @param requesterNickname The nickname of the player that sent the message
      */
+    // We need to keep this method since the client knows that it is reconnecting (and not just accessing a new game) and therefore it will ask for the updated game information
     public synchronized void sendGameStatus(String requesterNickname) {
         try {
             submitVirtualViewMessage(generateResponseGameStatusMessage(requesterNickname));
@@ -611,8 +663,9 @@ public class GameController {
      *
      * @param requesterNickname The nickname of the player that sent the request message
      * @param playerNickname The nickname of the player whose field is requested
-     * @throws PlayerNotFoundException If the player whose field is requested could not be found
      */
+    // This method is technically not needed, since the client can just request the game status and get the field of the player whose field is requested
+    // However, we keep this method in order to allow easier debugging and testing
     public synchronized void sendPlayerField(String requesterNickname, String playerNickname) {
         try {
             submitVirtualViewMessage(new ResponsePlayerFieldMessage(requesterNickname, playerNickname, model.getPlayerField(playerNickname), model.getPlayerResources(playerNickname)));
@@ -626,7 +679,6 @@ public class GameController {
             throw new CriticalFailureException("VirtualView for player " + requesterNickname + " not found");
         }
     }
-    // FIXME No longer needed? :/
 
     /**
      * Generates a response game status message for a given player.
@@ -647,8 +699,22 @@ public class GameController {
             }).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
             int playerSecretObjective = model.getPlayerSecretObjective(nickname);
-            int playerPoints = model.getPlayerPoints(nickname);
-            ArrayList<int[]> playerField = model.getPlayerField(nickname);
+            int[] playerPoints = model.getPlayersNicknames().stream().map(n -> {
+                try {
+                    return model.getPlayerPoints(n);
+                } catch (PlayerNotFoundException e) {
+                    throw new RuntimeException();
+                    // TODO
+                }
+            }).mapToInt(Integer::intValue).toArray();
+            ArrayList<ArrayList<int[]>> playerFields = model.getPlayersNicknames().stream().map(n -> {
+                try {
+                    return model.getPlayerField(n);
+                } catch (PlayerNotFoundException e) {
+                    throw new RuntimeException(e);
+                    // TODO
+                }
+            }).collect(Collectors.toCollection(ArrayList::new));
             int[] playerResources = model.getPlayerResources(nickname);
             ArrayList<Integer> gameCommonObjectives = model.getCommonObjectives();
             ArrayList<Integer> gameCurrentResourceCards = model.getCurrentResourcesCards();
@@ -660,7 +726,7 @@ public class GameController {
             String currentPlayer = model.getCurrentPlayerNickname();
             ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 
-            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerField, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces);
+            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces);
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         }
@@ -714,4 +780,3 @@ public class GameController {
         return chat;
     }
 }
-

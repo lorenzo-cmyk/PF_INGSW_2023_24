@@ -4,9 +4,11 @@ import it.polimi.ingsw.am32.client.View;
 
 public class ConfirmSelectedSecretObjectiveCardMessage implements StoCMessage {
     private final String recipientNickname;
+    private final int chosenSecretObjectiveCard;
 
-    public ConfirmSelectedSecretObjectiveCardMessage(String recipientNickname) {
+    public ConfirmSelectedSecretObjectiveCardMessage(String recipientNickname, int chosenSecretObjectiveCard) {
         this.recipientNickname = recipientNickname;
+        this.chosenSecretObjectiveCard = chosenSecretObjectiveCard;
     }
 
     public String getRecipientNickname() {
