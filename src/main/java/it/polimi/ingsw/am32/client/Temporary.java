@@ -92,7 +92,7 @@ public class Temporary implements Runnable{
             }
         }
 
-        thisPlayerNickname = "player1";
+       thisPlayerNickname = "player1";
         players=new ArrayList<>();
         players.add("player1");
         players.add("player2");
@@ -297,55 +297,55 @@ public class Temporary implements Runnable{
 
             // print the card based on the side
             // if the side is the front side
-            cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
+            cardImage.add(String.format(colour + "┏━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━┓" + ANSI_RESET));
             if (value != 0) { //if the card don't have any value.
                 // in particular, with CountResource strategy should print also the type of the resource/object that
                 // should be counted in the field to get the points.
                 if (strategy.equals("|CountResource")) {
                     padding1 = 18 - (value + card.getPointStrategyType()).length();
-                    cardImage.add(String.format(colour + "| %s |%s%" + padding1 + "s| %s |" + ANSI_RESET, icon(corner[0]),
+                    cardImage.add(String.format(colour + "  %s  %s%" + padding1 + "s  %s  " + ANSI_RESET, icon(corner[0]),
                             value + card.getPointStrategyType(), "", icon(corner[1])));
                 } else {
                     if (strategy.equals("|Empty")) { // if the strategy is empty, set the strategy to Point.
                         strategy = " Point";
                     }
-                    cardImage.add(String.format(colour + "| %s |%s%" + padding1 + "s| %s |" + ANSI_RESET, icon(corner[0]),
+                    cardImage.add(String.format(colour + "  %s  %s%" + padding1 + "s  %s  " + ANSI_RESET, icon(corner[0]),
                             value + strategy, "", icon(corner[1])));
                 }
             } else { // if the card don't have any value, print only the corner of the card and the kingdom of the card.
-                cardImage.add(String.format(colour + "| %s |%18s| %s |" + ANSI_RESET, icon(corner[0]), "", icon(corner[1])));
+                cardImage.add(String.format(colour + "  %s  %18s  %s  " + ANSI_RESET, icon(corner[0]), "", icon(corner[1])));
             }
-            cardImage.add(String.format(colour + "+----+%18s+----+", ""));
-            cardImage.add(String.format(colour + "| %s %" + padding4 + "s|" + ANSI_RESET, kingdom, ""));
-            cardImage.add(String.format(colour + "+----+%18s+----+" + ANSI_RESET, ""));
+            cardImage.add(String.format(colour + "┣━━━━┛%18s┗━━━━┫", ""));
+            cardImage.add(String.format(colour + "┃ %s %" + padding4 + "s┃" + ANSI_RESET, kingdom, ""));
+            cardImage.add(String.format(colour + "┣━━━━┓%18s┏━━━━┫" + ANSI_RESET, ""));
             // “if(requirements.length<3)” is used to adjust the padding based on the length of the requirements,
             // because the unicode characters have different visual width that can affect the layout of the card.
             if (requirements.length() < 3) {
-                cardImage.add(String.format(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s | %s |" + ANSI_RESET,
+                cardImage.add(String.format(colour + "  %s   %" + padding2 + "s%s%" + padding2 + "s   %s  " + ANSI_RESET,
                         icon(corner[2]), "", requirements, "", icon(corner[3])));
             } else {
-                cardImage.add(String.format(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s| %s |" + ANSI_RESET,
+                cardImage.add(String.format(colour + "  %s   %" + padding2 + "s%s%" + padding2 + "s  %s  " + ANSI_RESET,
                         icon(corner[2]), "", requirements, "", icon(corner[3])));
             }
-            cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
+            cardImage.add(String.format(colour + "┗━━━━┻━━━━━━━━━━━━━━━━━━┻━━━━┛" + ANSI_RESET));
             // if the side is the back side
             if (!kingdom.equals("STARTER")) {
-                cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
-                cardImage.add(String.format(colour + "|%4s|%18s|%4s|" + ANSI_RESET, "", "", ""));
-                cardImage.add(String.format(colour + "+----+%18s+----+", ""));
+                cardImage.add(String.format(colour + "┏━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━┓" + ANSI_RESET));
+                cardImage.add(String.format(colour + "┃%4s┃%18s┃%4s┃" + ANSI_RESET, "", "", ""));
+                cardImage.add(String.format(colour + "┣━━━━┛%18s┗━━━━┫", ""));
                 // print the permanent resources of the back side of the card
-                cardImage.add(String.format(colour + "|%" + padding3 + "s%s%" + padding3 + "s|" + ANSI_RESET, "", permanent, ""));
-                cardImage.add(String.format(colour + "+----+%18s+----+" + ANSI_RESET, ""));
-                cardImage.add(String.format(colour + "|%4s|%18s|%4s|" + ANSI_RESET, "", "", ""));
-                cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
+                cardImage.add(String.format(colour + " %" + padding3 + "s%s%" + padding3 + "s " + ANSI_RESET, "", permanent, ""));
+                cardImage.add(String.format(colour + "┣━━━━┓%18s┏━━━━┫" + ANSI_RESET, ""));
+                cardImage.add(String.format(colour + "┃%4s┃%18s┃%4s┃" + ANSI_RESET, "", "", ""));
+                cardImage.add(String.format(colour + "┗━━━━┻━━━━━━━━━━━━━━━━━━┻━━━━┛" + ANSI_RESET));
             } else {
-                cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
-                cardImage.add(String.format(colour + "| %s |%18s| %s |" + ANSI_RESET, icon(cornerBack[0]), "", icon(cornerBack[1])));
-                cardImage.add(String.format(colour + "+----+%18s+----+", ""));
-                cardImage.add(String.format(colour + "|%" + padding3 + "s%s%" + padding3 + "s|" + ANSI_RESET, "", permanent, ""));
-                cardImage.add(String.format(colour + "+----+%18s+----+" + ANSI_RESET, ""));
-                cardImage.add(String.format(colour + "| %s |%18s| %s |" + ANSI_RESET, icon(cornerBack[2]), "", icon(cornerBack[3])));
-                cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
+                cardImage.add(String.format(colour + "┏━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━┓" + ANSI_RESET));
+                cardImage.add(String.format(colour + "  %s  %18s  %s  " + ANSI_RESET, icon(cornerBack[0]), "", icon(cornerBack[1])));
+                cardImage.add(String.format(colour + "┣━━━━┛%18s┗━━━━┫", ""));
+                cardImage.add(String.format(colour + " %" + padding3 + "s%s%" + padding3 + "s " + ANSI_RESET, "", permanent, ""));
+                cardImage.add(String.format(colour + "┣━━━━┓%18s┏━━━━┫" + ANSI_RESET, ""));
+                cardImage.add(String.format(colour + "  %s  %18s  %s  " + ANSI_RESET, icon(cornerBack[2]), "", icon(cornerBack[3])));
+                cardImage.add(String.format(colour + "┗━━━━┻━━━━━━━━━━━━━━━━━━┻━━━━┛" + ANSI_RESET));
             }
             Img.put(card.getID(), cardImage);
         }
@@ -369,17 +369,17 @@ public class Temporary implements Runnable{
                     paddingIcon = 26 - count * icon.length();
                     paddingDescription = 26 - description.length();
                     paddingPoint = 26 - (value + "POINTS|" + strategy).length();
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT|%s%" + paddingPoint + "s |", value, strategy, ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT|%s%" + paddingPoint + "s ┃", value, strategy, ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
                     if (count == 2) { // if we need to count 2 objects.
-                        cardImage.add(String.format("| %s%s%" + paddingIcon + "s |", icon, icon, ""));
+                        cardImage.add(String.format("  %s%s%" + paddingIcon + "s  ", icon, icon, ""));
                     } else if (count == 3) { // if we need to count 3 objects.
-                        cardImage.add(String.format("| %s%s%s%" + paddingIcon + "s |", icon, icon, icon, ""));
+                        cardImage.add(String.format("  %s%s%s%" + paddingIcon + "s  ", icon, icon, icon, ""));
                     }
-                    cardImage.add(String.format("|%28s|", ""));
-                    cardImage.add(String.format("|%28s|", ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add(String.format("┃%28s┃", ""));
+                    cardImage.add(String.format("┃%28s┃", ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "Diagonals": {
@@ -389,21 +389,21 @@ public class Temporary implements Runnable{
                     paddingDescription = 26 - description.length();
                     paddingPoint = 26 - (value + " POINTS" + strategy).length();
                     paddingIcon = 26 - iconCard.length() - 4;
-                    cardImage.add(String.format(colour + "+----------------------------+" + ANSI_RESET));
-                    cardImage.add(String.format(colour + "| %s POINT %s%" + paddingPoint + "s |" + ANSI_RESET, value, strategy, ""));
-                    cardImage.add(String.format(colour + "| %s%" + paddingDescription + "s |" + ANSI_RESET, description, ""));
+                    cardImage.add(String.format(colour + "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓" + ANSI_RESET));
+                    cardImage.add(String.format(colour + "┃ %s POINT %s%" + paddingPoint + "s ┃" + ANSI_RESET, value, strategy, ""));
+                    cardImage.add(String.format(colour + "┃ %s%" + paddingDescription + "s ┃" + ANSI_RESET, description, ""));
                     // if the diagonal is from right to left: y=-x
                     if (!card.getPointStrategyLeftToRight()) {
-                        cardImage.add(String.format(colour + "|     %s%" + paddingIcon + "s |" + ANSI_RESET, iconCard, ""));
-                        cardImage.add(String.format(colour + "|         %s%" + (paddingIcon - 4) + "s |" + ANSI_RESET, iconCard, ""));
-                        cardImage.add(String.format(colour + "|             %s%" + (paddingIcon - 8) + "s |" + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "      %s%" + paddingIcon + "s  " + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "          %s%" + (paddingIcon - 4) + "s  " + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "              %s%" + (paddingIcon - 8) + "s  " + ANSI_RESET, iconCard, ""));
                         // if the diagonal is from left to right: y=x
                     } else {
-                        cardImage.add(String.format(colour + "|             %s%" + (paddingIcon - 8) + "s |" + ANSI_RESET, iconCard, ""));
-                        cardImage.add(String.format(colour + "|         %s%" + (paddingIcon - 4) + "s |" + ANSI_RESET, iconCard, ""));
-                        cardImage.add(String.format(colour + "|     %s%" + paddingIcon + "s |" + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "              %s%" + (paddingIcon - 8) + "s  " + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "          %s%" + (paddingIcon - 4) + "s  " + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "      %s%" + paddingIcon + "s  " + ANSI_RESET, iconCard, ""));
                     }
-                    cardImage.add(String.format(colour + "+----------------------------+" + ANSI_RESET));
+                    cardImage.add(String.format(colour + "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" + ANSI_RESET));
                     break;
                 }
                 // Four type of L Configuration cards
@@ -411,52 +411,52 @@ public class Temporary implements Runnable{
                     description = "2 FUNGI + 1 PLANT cards";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, "LConfig.", ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("FUNGI"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("FUNGI"), ""));
-                    cardImage.add(String.format("|          %s%" + (paddingIcon - 5) + "s |", iconCard("PLANT"), ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, "LConfig.", ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("FUNGI"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("FUNGI"), ""));
+                    cardImage.add(String.format("           %s%" + (paddingIcon - 5) + "s  ", iconCard("PLANT"), ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "LConfigurationTwo": {
                     description = "2 PLANT + 1 INSECT cards";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, "LConfig.", ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("PLANT"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("PLANT"), ""));
-                    cardImage.add(String.format("|        %s%" + (paddingIcon - 3) + "s |", iconCard("INSECT"), ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, "LConfig.", ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("PLANT"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("PLANT"), ""));
+                    cardImage.add(String.format("         %s%" + (paddingIcon - 3) + "s  ", iconCard("INSECT"), ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "LConfigurationThree": {
                     description = "2 INSECT + 1 ANIMAL cards";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, "LConfig.", ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("|        %s%" + (paddingIcon - 3) + "s |", iconCard("ANIMAL"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("INSECT"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("INSECT"), ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, "LConfig.", ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("         %s%" + (paddingIcon - 3) + "s  ", iconCard("ANIMAL"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("INSECT"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("INSECT"), ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "LConfigurationFour": {
                     description = "2 ANIMAL + 1 FUNGI cards";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, "LConfig.", ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("|          %s%" + (paddingIcon - 5) + "s |", iconCard("FUNGI"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("ANIMAL"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("ANIMAL"), ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, "LConfig.", ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("           %s%" + (paddingIcon - 5) + "s  ", iconCard("FUNGI"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("ANIMAL"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("ANIMAL"), ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "AllSpecial": {
@@ -465,14 +465,14 @@ public class Temporary implements Runnable{
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - 3 * icon("INKWELL").length();
                     paddingPoint = 26 - (value + " POINTS" + strategy).length();
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, strategy, ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("| %s%s%s%" + paddingIcon + "s |", //print the icon of the three objects specified.
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, strategy, ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("  %s%s%s%" + paddingIcon + "s  ", //print the icon of the three objects specified.
                             icon("INKWELL"), icon("QUILL"), icon("MANUSCRIPT"), ""));
-                    cardImage.add(String.format("|%28s|", ""));
-                    cardImage.add(String.format("|%28s|", ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add(String.format("┃%28s┃", ""));
+                    cardImage.add(String.format("┃%28s┃", ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
             }
