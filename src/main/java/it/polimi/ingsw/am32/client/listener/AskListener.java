@@ -28,13 +28,12 @@ public class AskListener implements AskListenerInterface, Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-            if (firstMessage) { //FIXME: IS THIS CORRECT?
+            if (firstMessage) { //FIXME
                 processLobbyMessages();
-                firstMessage = false;
+                firstMessage=false;
             }
                 processMessages();
         }
-
     }
 
     @Override
@@ -56,6 +55,7 @@ public class AskListener implements AskListenerInterface, Runnable {
                 throw new RuntimeException("Message cannot be null");
             }
             messagesBox.add(message);
+            System.out.println("Adding message to messagesBox");
             logger.info(message+"added to messagesBox");
             messagesBox.notify();
         }
@@ -76,6 +76,7 @@ public class AskListener implements AskListenerInterface, Runnable {
             CtoSLobbyMessage message = lobbyMessagesBox.getFirst();
             try {
                 clientNode.uploadToServer(message);
+                System.out.println(message+" upload to server successfully");
                 logger.info(message+" upload to server successfully");
                 lobbyMessagesBox.removeFirst();
             } catch (UploadFailureException e) {
@@ -105,6 +106,7 @@ public class AskListener implements AskListenerInterface, Runnable {
             CtoSMessage message = messagesBox.getFirst();
             try {
                 clientNode.uploadToServer(message);
+                System.out.println(message+" upload to server successfully");
                 logger.info(message+" upload to server successfully");
                 messagesBox.removeFirst();
             } catch (UploadFailureException e) {
