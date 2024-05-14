@@ -3,6 +3,8 @@ package it.polimi.ingsw.am32.message.ServerToClient;
 import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class PlaceCardConfirmationMessage implements StoCMessage {
     private final String recipientNickname;
@@ -40,15 +42,15 @@ public class PlaceCardConfirmationMessage implements StoCMessage {
     }
 
     public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "playerNickname: " + playerNickname + "\n";
-        myString += "placedCard: " + placedCard + "\n";
-        myString += "placedCardCoordinates: " + placedCardCoordinates + "\n";
-        myString += "placedSide: " + placedSide + "\n";
-        myString += "playerPoints: " + playerPoints + "\n";
-        myString += "playerResources: " + playerResources + "\n";
-        myString += "newAvailableFieldSpaces: " + newAvailableFieldSpaces + "\n";
-        return myString;
+        return "PlaceCardConfirmationMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", playerNickname='" + playerNickname + '\'' +
+                ", placedCard=" + placedCard +
+                ", placedCardCoordinates=" + Arrays.toString(placedCardCoordinates) +
+                ", placedSide=" + placedSide +
+                ", playerPoints=" + playerPoints +
+                ", playerResources=" + Arrays.toString(playerResources) +
+                ", newAvailableFieldSpaces=[" + newAvailableFieldSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
+                "]}" + "\n";
     }
 }

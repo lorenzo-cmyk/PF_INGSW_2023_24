@@ -3,6 +3,8 @@ package it.polimi.ingsw.am32.message.ServerToClient;
 import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
     private final String recipientNickname;
@@ -38,8 +40,8 @@ public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", startingCardId=" + startingCardId +
                 ", side=" + side +
-                ", availableSpaces=" + availableSpaces +
-                ", playerResources=" + playerResources +
+                ", availableSpaces=[" + availableSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
+                "], playerResources=" + Arrays.toString(playerResources) +
                 ", playerColour=" + playerColour +
                 '}' + "\n";
     }

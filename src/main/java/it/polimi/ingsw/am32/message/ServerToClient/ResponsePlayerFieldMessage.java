@@ -3,6 +3,7 @@ import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ResponsePlayerFieldMessage implements StoCMessage {
     private final String recipientNickname;
@@ -29,11 +30,9 @@ public class ResponsePlayerFieldMessage implements StoCMessage {
     }
 
     public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "playerNickname: " + playerNickname + "\n";
-        myString += "playerField: " + playerField.toString() + "\n";
-        myString += "playerResources: " + Arrays.toString(playerResources) + "\n";
-        return myString;
+        return "recipientNickname: " + recipientNickname + "\n" +
+                "playerNickname: " + playerNickname + "\n" +
+                "playerField: [" + playerField.stream().map(Arrays::toString).collect(Collectors.joining(", ")) + "]\n" +
+                "playerResources: " + Arrays.toString(playerResources) + "\n";
     }
 }
