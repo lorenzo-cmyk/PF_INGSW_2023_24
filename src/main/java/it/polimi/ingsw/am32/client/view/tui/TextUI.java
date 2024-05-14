@@ -486,6 +486,7 @@ public class TextUI extends View implements Runnable {
         }
         out.println("You selected the card in the " + choice + " one of your hand:");
         indexCardPlaced = choice.equals("LEFT") ? 0 : choice.equals("MIDDLE") ? 1 : 2; // index of the card selected in hand
+        out.println("index should be replaced"+indexCardPlaced);
         showCard(hand.get(indexCardPlaced), true);
         out.println("Do you want to see the back side of the card? type[Y or N]");
         String isUp = getInput();
@@ -646,7 +647,11 @@ public class TextUI extends View implements Runnable {
 
     @Override
     public void updateAfterDrawCard(ArrayList<Integer> hand) {
+        out.println("index should be replaced"+indexCardPlaced);
+        out.println("Hand from server"+hand);
+        this.hand.remove(indexCardPlaced);
         this.hand.add(indexCardPlaced, hand.getLast());
+        out.println("Hand after added the card from server:"+this.hand);
         out.println("The card is added in your hand successfully, here is your hand after drawing the card:");
         showHand(this.hand);
     }
@@ -664,7 +669,16 @@ public class TextUI extends View implements Runnable {
         out.println("The situation of the deck after this turn is following:");
         showDeck();
     }
-
+    @Override
+    public void handleFailureCase(Event event,String reason){
+        switch (event){
+            case PLACE_CARD_FAILURE-> {
+                out.println(reason);
+                out.println("Please re-select the card from your hand:");
+                requestPlaceCard();
+            }
+        }
+    }
     //-------------------Last turn-------------------
 
 

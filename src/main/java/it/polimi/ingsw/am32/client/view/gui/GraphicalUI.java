@@ -165,6 +165,11 @@ public class GraphicalUI extends View {
     }
 
     @Override
+    public void handleFailureCase(Event event, String reason) {
+
+    }
+
+    @Override
     public void showDeck() {
 
     }

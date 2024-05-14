@@ -116,6 +116,8 @@ public abstract class View implements EventHandler{
     public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards,
                                     int[] currentGoldCards);
 
+    public abstract void handleFailureCase(Event event, String reason);
+
     public abstract void showDeck();
 
     public abstract void showHelpInfo();
