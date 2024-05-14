@@ -114,8 +114,10 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
 
-                gameController.getTimer().purge();
-                gameController.disconnect(this);
+                if(gameController != null) {
+                    gameController.getTimer().purge();
+                    gameController.disconnect(this);
+                }
 
                 try {
                     UnicastRemoteObject.unexportObject(this, true);
