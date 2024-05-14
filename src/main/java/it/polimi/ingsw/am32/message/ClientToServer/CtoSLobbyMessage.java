@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 /**
  * This interface represents a message from the client to the server in the lobby phase.
- * It contains a single method to elaborate the message with a game manager.
+ * It contains a single method to elaborate the message
  */
 public interface CtoSLobbyMessage extends Serializable {
     GameController elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException, GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException;
