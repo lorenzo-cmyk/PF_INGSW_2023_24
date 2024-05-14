@@ -52,7 +52,7 @@ public class SKServerNode implements Runnable, NodeInterface {
         this.logger = LogManager.getLogger("SkServerNode");
 
         try {
-            socket.setSoTimeout(5000); // TODO da mettere in config
+            socket.setSoTimeout(config.getSocketReadTimeout());
 
         } catch (SocketException e) {
 
