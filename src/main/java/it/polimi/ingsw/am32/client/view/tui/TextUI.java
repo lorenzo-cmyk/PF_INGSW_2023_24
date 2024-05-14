@@ -811,10 +811,7 @@ public class TextUI extends View implements Runnable {
         out.println("The winners of the match are: "+winners);
         out.println("The final points of the players are following:");
         for(int i=0; i<players.size(); i++) {
-            out.println("Player: " + players.get(i) + " Total points: " + points.get(i) +
-                    " Points before adding the objective points: "
-                    + publicInfo.get(players.get(i)).getPoints() +
-                    " Points gained from the secret objective: " + secrets.get(i));
+            out.println("Player: " + players.get(i) + " has total points: " + points.get(i)+" with following secret objective card:");
             showCard(secrets.get(i), true);
         }
     }
