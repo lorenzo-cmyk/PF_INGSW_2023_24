@@ -555,10 +555,7 @@ public class GameController {
             status = GameControllerStatus.WAITING_CARD_PLACEMENT; // Update game status
 
             // Notify the player that he has successfully drawn the card
-            submitVirtualViewMessage(new DrawCardConfirmationMessage(
-                    nickname,
-                    model.getPlayerHand(nickname).stream().mapToInt(Integer::intValue).toArray()
-            ));
+            submitVirtualViewMessage(new DrawCardConfirmationMessage(nickname, model.getPlayerHand(nickname)));
 
             // Notify to all the players that the deck size has changed
             for (PlayerQuadruple playerQuadruple : nodeList) {
