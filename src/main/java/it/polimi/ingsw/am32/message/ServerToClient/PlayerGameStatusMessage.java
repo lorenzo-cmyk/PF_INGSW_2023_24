@@ -108,10 +108,8 @@ public class PlayerGameStatusMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        if(view.getEvent().equals(Event.GAME_START)){
             view.updatePlayerDate(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
                     gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer, newAvailableFieldSpaces);
-        }
         //TODO FOR RECONECTION
     }
 

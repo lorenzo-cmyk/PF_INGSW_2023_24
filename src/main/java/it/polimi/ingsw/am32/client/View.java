@@ -107,10 +107,17 @@ public abstract class View implements EventHandler{
 
     public abstract void requestDrawCard();
 
-    public abstract void updateAfterDrawCard();
+    public abstract void updateAfterDrawCard(int[] hand);
 
     //-------------------Game start-----------------------
-    public abstract void showInitialView();
+
+    public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, ArrayList<Integer> currentResourceCards,
+                                    ArrayList<Integer> currentGoldCards);
+
+    public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards,
+                                    int[] currentGoldCards);
+
+    public abstract void showDeck();
 
     public abstract void showHelpInfo();
 
@@ -150,14 +157,10 @@ public abstract class View implements EventHandler{
 
     public abstract void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
 
-    public void updateConfirmSelectedSecretCard() {
-    }
-
     public abstract void showHand(ArrayList<Integer> hand);
 
     public abstract void showObjectiveCards(ArrayList<Integer> ObjCards);
 
-    public abstract void showSecretObjCard(int ID);
 
     public abstract void showCard(int ID, boolean isUp);
 

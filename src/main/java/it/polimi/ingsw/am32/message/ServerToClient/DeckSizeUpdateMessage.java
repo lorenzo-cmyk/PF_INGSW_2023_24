@@ -20,7 +20,7 @@ public class DeckSizeUpdateMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateDeck(resourceCardDeckSize, goldCardDeckSize, currentResourceCards, currentGoldCards);
     }
 
     @Override

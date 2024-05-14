@@ -13,7 +13,7 @@ public class DrawCardConfirmationMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateAfterDrawCard(playerHand);
     }
 
     @Override

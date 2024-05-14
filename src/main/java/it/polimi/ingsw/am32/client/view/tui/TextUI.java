@@ -429,6 +429,7 @@ public class TextUI extends View implements Runnable {
         //     * (1 for true, 0 for false) indicating whether the card is face up.
         //     *
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
+        this.currentEvent = Event.PLAYING;
         this.players = playerNicknames;
         this.hand = playerHand;
         this.commonObjCards = gameCommonObjectives;
@@ -436,6 +437,7 @@ public class TextUI extends View implements Runnable {
         this.currentGoldCards = gameCurrentGoldCards;
         this.resourceDeckSize = gameResourcesDeckSize;
         this.goldDeckSize = gameGoldDeckSize;
+        showObjectiveCards(currentGoldCards);
         this.Status = convertToMatchStatus(matchStatus);
         this.currentPlayer = currentPlayer;
         for (int i = 0; i < playerNicknames.size(); i++){
@@ -444,6 +446,7 @@ public class TextUI extends View implements Runnable {
                 boards.put(playerNicknames.get(i), new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
             int finalI = i;
             playerFields.get(i).forEach(card -> {
+                    publicInfo.get(playerNicknames.get(finalI)).getField().clear();
                     publicInfo.get(playerNicknames.get(finalI)).addToField(new CardPlacedView(card[2], cardImg.get(card[2]), card[0], card[1], card[3] == 1));
                     updateAfterPlacedCard(playerNicknames.get(finalI), searchNonObjCardById(card[2]), card[0], card[1],
                             card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);});
@@ -500,16 +503,16 @@ public class TextUI extends View implements Runnable {
        isUp = getInput();
        }
        showBoard(thisPlayerNickname);
-         out.println("Please select one of the available positions in the board to place the card, type[x,y]:");
+         out.println("Please select one of the available positions in the board to place the card,type[x,y]");
             String pos = getInput();
-            while( !pos.equals("\\d+,\\d+")){
+            while( !pos.matches("-?\\d{1,3},-?\\d{1,3}")){
                 logger.info("Invalid input, please select a position in the board");
                 out.println("Invalid input, please select a position in the board, type[x,y]:");
                 pos = getInput();
             }
             String [] posArray = pos.split(",");
-       notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(index), Integer.parseInt(posArray[0]),
-               Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
+            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(index), Integer.parseInt(posArray[0]),
+                    Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
     }
 
     @Override
@@ -640,7 +643,26 @@ public class TextUI extends View implements Runnable {
     }
 
     @Override
-    public void updateAfterDrawCard() {
+    public void updateAfterDrawCard(int[]hand) {
+        this.hand.clear();
+        for(int card : hand){
+            this.hand.add(card);
+        }
+        out.println("The card is added in your hand successfully, here is your hand after drawing the card:");
+        showHand(this.hand);
+    }
+    @Override
+    public void updateDeck(int resourceDeckSize, int goldDeckSize,int[]currentResourceCards,
+                           int[]currentGoldCards) {
+        this.resourceDeckSize = resourceDeckSize;
+        this.goldDeckSize = goldDeckSize;
+        this.currentResourceCards.clear();
+        this.currentGoldCards.clear();
+        this.currentResourceCards.add(currentResourceCards[0]);
+        this.currentResourceCards.add(currentResourceCards[1]);
+        this.currentGoldCards.add(currentGoldCards[0]);
+        this.currentGoldCards.add(currentGoldCards[1]);
+        showDeck();
     }
 
     //-------------------Last turn-------------------
@@ -650,13 +672,15 @@ public class TextUI extends View implements Runnable {
 
 
     //-------------------View of the game-------------------
+
     @Override
-    public void showInitialView() {
-        currentEvent = Event.GAME_PREPARATION;
-
-
+    public void showDeck() {
+        out.println("Resource deck size: " + resourceDeckSize + " Gold deck size: " + goldDeckSize);
+        out.println("Resource cards:");
+        showObjectiveCards(currentResourceCards);
+        out.println("Gold cards:");
+        showObjectiveCards(currentGoldCards);
     }
-
     @Override
     public void showHelpInfo() {
         //TODO show the help information: exit command, start chat command, view the player list command, view the
@@ -744,17 +768,11 @@ public class TextUI extends View implements Runnable {
 
     @Override
     public void showObjectiveCards(ArrayList<Integer> ObjCards) {
-        out.println("Your Objective cards: ");
         ArrayList<String> card1 = cardImg.get(ObjCards.get(0));
         ArrayList<String> card2 = cardImg.get(ObjCards.get(1));
         for (int i = 0; i < 7; i++) {
             out.println(card1.get(i) + "  " + card2.get(i));
         }
-    }
-
-    @Override
-    public void showSecretObjCard(int ID) {
-        // show the current resource cards
     }
 
     @Override

@@ -65,11 +65,6 @@ public class GraphicalUI extends View {
 
 
     @Override
-    public void showSecretObjCard(int ID) {
-
-    }
-
-    @Override
     public void showCard(int ID, boolean isUp) {
 
     }
@@ -159,12 +154,7 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void updateAfterDrawCard() {
-
-    }
-
-    @Override
-    public void showInitialView() {
+    public void updateAfterDrawCard(int[] hand) {
 
     }
 
