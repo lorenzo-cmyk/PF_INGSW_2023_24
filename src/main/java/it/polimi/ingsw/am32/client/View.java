@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.client;
 
 
+import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
@@ -31,7 +32,6 @@ public abstract class View implements EventHandler{
     protected ArrayList<Integer> commonObjCards;
     protected int[] secretObjCards;
     protected int secretObjCardSelected;
-    protected int starterCard;
     protected ArrayList<Integer> hand;
     protected ArrayList<Integer> currentResourceCards;
     protected ArrayList<Integer>  currentGoldCards;
@@ -117,12 +117,8 @@ public abstract class View implements EventHandler{
     //-------------------Game start-----------------------
 
 
-    public abstract void updatePlayerDate(ArrayList<String> players, ArrayList<Integer> colors, ArrayList<Integer> Hand,
-                                          int SecretObjCard, int points, int colour, ArrayList<int[]> field,
-                                          int[] resources, ArrayList<Integer> commonObjCards,
-                                          ArrayList<Integer> currentResourceCards, ArrayList<Integer> currentGoldCards,
-                                          int currentResourceDeckSize, int currentGoldDeckSize,
-                                          int matchStatus);
+    public abstract void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard);
+    
 
     public abstract void requestPlaceCard();
 
@@ -152,7 +148,7 @@ public abstract class View implements EventHandler{
 
     public abstract void showPoints(String playerNickname);
 
-    public abstract void requestSelectSecretObjCard(ArrayList<Integer> cards);
+    public abstract void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
 
     public void updateConfirmSelectedSecretCard() {
     }
@@ -170,6 +166,17 @@ public abstract class View implements EventHandler{
     public void updatePlayerTurn(String playerNickname) {
     }
 
+    public void updatePlayerDate(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
+                                 ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
+                                 int playerSecretObjective, int[] playerPoints,
+                                 ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
+                                 ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
+                                 ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
+                                 int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces) {
+    }
+
+    public abstract void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces);
 }
 
 

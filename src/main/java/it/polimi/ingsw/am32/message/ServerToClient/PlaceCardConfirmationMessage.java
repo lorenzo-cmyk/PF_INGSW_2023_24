@@ -31,7 +31,7 @@ public class PlaceCardConfirmationMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updatePlacedCardConfirm(playerNickname, placedCard, placedCardCoordinates, placedSide, playerPoints, playerResources, newAvailableFieldSpaces);
     }
 
     @Override

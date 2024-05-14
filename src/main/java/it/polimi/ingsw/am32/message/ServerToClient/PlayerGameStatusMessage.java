@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.chat.ChatMessage;
+import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
@@ -107,7 +108,11 @@ public class PlayerGameStatusMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-
+        if(view.getEvent().equals(Event.GAME_START)){
+            view.updatePlayerDate(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
+                    gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer, newAvailableFieldSpaces);
+        }
+        //TODO FOR RECONECTION
     }
 
     @Override

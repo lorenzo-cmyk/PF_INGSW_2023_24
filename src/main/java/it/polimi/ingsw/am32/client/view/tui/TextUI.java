@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.client.view.tui;
 
 import it.polimi.ingsw.am32.Utilities.IsValid;
+import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
 
@@ -76,7 +77,7 @@ public class TextUI extends View implements Runnable {
         out = new PrintStream(System.out);
         boards = new HashMap<>();
     }
-    
+
     /**
      * Method that launches the TextUI
      */
@@ -227,6 +228,7 @@ public class TextUI extends View implements Runnable {
                 3. Reconnect game
                 """);
         out.println("Which action do you want to perform?");
+        in.nextLine();
         String choice = getInput();
         switch (choice) {
             case "1" -> askCreateGame();
@@ -337,7 +339,7 @@ public class TextUI extends View implements Runnable {
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
         handleEvent(Event.GAME_START);
         for (String player : players) {
-            publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0}));
+            publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},true));
             boards.put(player, new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
         }
     }
@@ -352,7 +354,6 @@ public class TextUI extends View implements Runnable {
     @Override
     public void requestSelectStarterCardSide(int ID) {
         // once received the AssignStarterCardMessage from the server
-        starterCard = ID;
         currentEvent = Event.SELECT_STARTER_CARD_SIDE;
         out.println("The starter card received is following");
         out.println("Front side");
@@ -366,7 +367,8 @@ public class TextUI extends View implements Runnable {
             out.println("Invalid input, please select FRONT or BACK");
             side = getInput();
         }
-        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side.equals("FRONT")));
+        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, true));
+        logger.info("Out requestSelectStarterCardSide");
     }
 
     @Override
@@ -381,85 +383,182 @@ public class TextUI extends View implements Runnable {
     }
 
     @Override
-    public void requestSelectSecretObjCard(ArrayList<Integer> cards) {
+    public void requestSelectSecretObjCard(ArrayList<Integer> secrets,ArrayList<Integer> common,ArrayList<Integer> hand) {
         // once received the AssignedSecretObjectiveCardMessage from the server
         currentEvent = Event.SELECT_SECRET_OBJ_CARD;
         out.println("You received 3 cards(resources/gold cards), 2 card as a common objective card of the game:");
-        // showHand
-        // showObjectiveCards
+        out.println();
+        this.hand = hand;
+        out.println("Your common objective cards for this game are following:");
+        this.commonObjCards = common;
+        showHand(hand);
+        showObjectiveCards(common);
         out.println("Please select one of the objective cards in following to be your secret objective card type[LEFT or RIGHT]:");
         out.println("LEFT");
         out.println("RIGHT");
-        showObjectiveCards(cards);
+        showObjectiveCards(secrets);
         String cardID =getInput();
         while (!cardID.equals("LEFT") && !cardID.equals("RIGHT")) {
             logger.info("Invalid input, please select a card from the list");
             out.println("Invalid input, please select a card from the list, type[LEFT or RIGHT]");
             cardID = getInput();
         }
-        if (cardID.equals("LEFT")){
-            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, cards.get(0)));
-        } else {
-            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, cards.get(1)));
-        }
+        notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname,cardID.equals("LEFT") ? secrets.get(0) : secrets.get(1)));
     }
 
     @Override
-    public void updateConfirmSelectedSecretCard() {
+    public void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard) {
         // once received the SecretObjCardConfirmationMessage from the server
-        out.println("The secret objective card is selected successfully");
+        secretObjCardSelected = chosenSecretObjectiveCard;
+        out.println("The secret objective card is selected successfully, here is your secret objective card:");
+        showCard(chosenSecretObjectiveCard, true);
+    }
+
+
+    @Override
+    public void updatePlayerDate(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
+                                 ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
+                                 int playerSecretObjective, int[] playerPoints,
+                                 ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
+                                 ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
+                                 ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
+                                 int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces) {
+        //The field is represented as an ArrayList of integer arrays, where each array represents a card placed on
+        //     * the field. The elements of the array are the x-coordinate, y-coordinate, id of the card, and a boolean value
+        //     * (1 for true, 0 for false) indicating whether the card is face up.
+        //     *
+        // after receiving the message from the server, the method is called to set up/initiate the view of the player
+        this.players = playerNicknames;
+        this.hand = playerHand;
+        this.commonObjCards = gameCommonObjectives;
+        this.currentResourceCards = gameCurrentResourceCards;
+        this.currentGoldCards = gameCurrentGoldCards;
+        this.resourceDeckSize = gameResourcesDeckSize;
+        this.goldDeckSize = gameGoldDeckSize;
+        this.Status = convertToMatchStatus(matchStatus);
+        this.currentPlayer = currentPlayer;
+        for (int i = 0; i < playerNicknames.size(); i++){
+                publicInfo.put(playerNicknames.get(i), new PlayerPub(convertToColour(playerColours.get(i)),
+                        playerPoints[i], new ArrayList<>(), playerResources, playerConnected.get(i)));
+                boards.put(playerNicknames.get(i), new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
+            int finalI = i;
+            playerFields.get(i).forEach(card -> {
+                    publicInfo.get(playerNicknames.get(finalI)).addToField(new CardPlacedView(card[2], cardImg.get(card[2]), card[0], card[1], card[3] == 1));
+                    updateAfterPlacedCard(playerNicknames.get(finalI), searchNonObjCardById(card[2]), card[0], card[1],
+                            card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);});
+        }
     }
 
     @Override
-    public void updatePlayerDate(ArrayList<String> players, ArrayList<Integer> colors, ArrayList<Integer> Hand,
-                                 int SecretObjCard, int points, int colour, ArrayList<int[]> field,
-                                 int[] resources, ArrayList<Integer> commonObjCards,
-                                 ArrayList<Integer> currentResourceCards, ArrayList<Integer> currentGoldCards,
-                                 int currentResourceDeckSize, int currentGoldDeckSize,
-                                 int matchStatus) {
-        // after receiving the message from the server, the method is called to set up/initiate the view of the player
-        currentEvent = Event.GAME_PREPARATION;
-
-        this.players = players;
-        for (int i = 0; i < players.size(); i++) {
-            publicInfo.put(players.get(i), new PlayerPub(convertToColour(colors.get(i)), 0, new
-                    ArrayList<CardPlacedView>(), new int[]{0, 0, 0, 0, 0, 0, 0}));
-            boards.put(players.get(i), new BoardView(new int[4], new String[160][160]));
+    public void updatePlayerTurn(String playerNickname) {
+        // once received the PlayerTurnMessage from the server
+        if(playerNickname.equals(thisPlayerNickname)){
+            out.println("It is your turn, please select one card from your hand to place on the field:");
+            requestPlaceCard();
+        }else{
+            out.println("It is " + playerNickname + "'s turn");
         }
-
-        this.currentResourceCards = currentResourceCards;
-        this.currentGoldCards = currentGoldCards;
-        this.commonObjCards = commonObjCards;
-        this.currentPlayer = null;
-        this.hand = Hand;
-        this.secretObjCardSelected = SecretObjCard;
-        this.resourceDeckSize = currentResourceDeckSize;
-        this.goldDeckSize = currentGoldDeckSize;
-        //TODO finish the method
-
     }
 
     //------------playing-------------
     @Override
     public void requestPlaceCard() {
         currentEvent = Event.PLACE_CARD;
+        out.println("Here is your field right now:");
+        showBoard(thisPlayerNickname);
+        showHand(hand);
         out.println("""
-                Insert the card you want to place:
-                "1. " + hand.get(1).getId()  
-                "2. " + hand.get(1).getId()
-                "3. " + hand.get(1).getId()""");
-        //TODO change the code to show all the cards in the hand
-        out.println("""
-                Which side do you want to place the card?
-                1. Front
-                2. Back
+                To choose the left one, type LEFT
+                To choose the middle one, type MIDDLE
+                To choose the right one, type RIGHT
                 """);
-        //TODO show the card selected by the player: front side and back side
-        //TODO
+        String choice = getInput();
+        while (!choice.equals("LEFT") && !choice.equals("MIDDLE") && !choice.equals("RIGHT")) {
+            logger.info("Invalid input, please select LEFT, MIDDLE or RIGHT");
+            out.println("Invalid input, please select LEFT, MIDDLE or RIGHT");
+            choice = getInput();
+        }
+        out.println("You selected the card in the " + choice + " one of your hand:");
+        int index = choice.equals("LEFT") ? 0 : choice.equals("MIDDLE") ? 1 : 2; // index of the card selected in hand
+        showCard(hand.get(index), true);
+        out.println("Do you want to see the back side of the card? type[Y or N]");
+        String isUp = getInput();
+        while(!isUp.equals("Y") && !isUp.equals("N")) {
+            logger.info("Invalid input, please select Y or N");
+            out.println("Invalid input, please select Y or N");
+            isUp = getInput();
+        }
+        if( "Y".equals(isUp)) {
+            showCard(hand.get(index), false);
+        }
+       out.println("Which side do you want to place the card? type[FRONT or BACK]");
+       isUp = getInput();
+       while(!isUp.equals("FRONT") && !isUp.equals("BACK")) {
+       logger.info("Invalid input, please select FRONT or BACK");
+       out.println("Invalid input, please select FRONT or BACK");
+       isUp = getInput();
+       }
+       showBoard(thisPlayerNickname);
+         out.println("Please select one of the available positions in the board to place the card, type[x,y]:");
+            String pos = getInput();
+            while( !pos.equals("\\d+,\\d+")){
+                logger.info("Invalid input, please select a position in the board");
+                out.println("Invalid input, please select a position in the board, type[x,y]:");
+                pos = getInput();
+            }
+            String [] posArray = pos.split(",");
+       notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(index), Integer.parseInt(posArray[0]),
+               Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
     }
 
     @Override
+    public void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates,
+                                        boolean placedSide, int playerPoints, int[] playerResources,
+                                        ArrayList<int[]> newAvailableFieldSpaces) {
+        updateAfterPlacedCard(playerNickname, searchNonObjCardById(placedCard), placedCardCoordinates[0],
+                placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints);
+        if(playerNickname.equals(thisPlayerNickname)){
+            out.println("The card is placed successfully, here is your field after placing the card:");
+            showPlayersField(thisPlayerNickname);
+            requestDrawCard();
+        }
+    }
+
+
+    @Override
     public void requestDrawCard() {
+        currentEvent = Event.DRAW_CARD;
+        out.println("Now please select one card to add to your hand:");
+        out.println("""
+                To draw a resource card left one, type RESOURCE1
+                To draw a resource card right one, type RESOURCE2
+                To draw a gold card left one, type GOLD1
+                To draw a gold card right one, type GOLD2
+                To draw from the resource deck, type RESOURCE
+                To draw from the gold deck, type GOLD
+                """);
+        out.println("Resources deck size: " + resourceDeckSize + " Gold deck size: " + goldDeckSize);
+        out.println("Resource cards:");
+        showObjectiveCards(currentResourceCards);
+        out.println("Resource cards:");
+        showObjectiveCards(currentGoldCards);
+        String choice = getInput();
+        while (!choice.equals("RESOURCE1") && !choice.equals("RESOURCE2") && !choice.equals("GOLD1") &&
+                !choice.equals("GOLD2") && !choice.equals("RESOURCE") && !choice.equals("GOLD")) {
+            logger.info("Invalid input, please select a card from the list");
+            out.println("Invalid input, please try again");
+            choice = getInput();
+        }
+        if (choice.equals("RESOURCE1") || choice.equals("RESOURCE2")) {
+            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 0, choice.equals("RESOURCE1") ?
+                    currentResourceCards.get(0) : currentResourceCards.get(1)));
+        } else if (choice.equals("GOLD1") || choice.equals("GOLD2")) {
+            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 1, choice.equals("GOLD1") ?
+                    currentGoldCards.get(0) : currentGoldCards.get(1)));
+        } else {
+            notifyAskListener(new DrawCardMessage(thisPlayerNickname, choice.equals("RESOURCE") ? 0 : 1, -1));
+        }
     }
 
     @Override
@@ -634,11 +733,18 @@ public class TextUI extends View implements Runnable {
 
     @Override
     public void showHand(ArrayList<Integer> hand) {
-
+        out.println("Hand cards: ");
+        ArrayList<String> card1 = cardImg.get(hand.get(0));
+        ArrayList<String> card2 = cardImg.get(hand.get(1));
+        ArrayList<String> card3 = cardImg.get(hand.get(2));
+        for (int i = 0; i < 7; i++) {
+            out.println(card1.get(i) + "  " + card2.get(i)+" "+card3.get(i));
+        }
     }
 
     @Override
     public void showObjectiveCards(ArrayList<Integer> ObjCards) {
+        out.println("Your Objective cards: ");
         ArrayList<String> card1 = cardImg.get(ObjCards.get(0));
         ArrayList<String> card2 = cardImg.get(ObjCards.get(1));
         for (int i = 0; i < 7; i++) {

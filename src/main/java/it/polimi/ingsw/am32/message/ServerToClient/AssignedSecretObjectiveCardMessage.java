@@ -20,7 +20,7 @@ public class AssignedSecretObjectiveCardMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.requestSelectSecretObjCard(assignedSecretObjectiveCards, chosenCommonObjectiveCards, playerHand);
     }
 
     @Override

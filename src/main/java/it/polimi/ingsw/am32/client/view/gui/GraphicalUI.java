@@ -49,7 +49,7 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void requestSelectSecretObjCard(ArrayList<Integer> cards) {
+    public void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
 
     }
 
@@ -77,6 +77,11 @@ public class GraphicalUI extends View {
     @Override
     public HashMap<Integer, ArrayList<String>> setImg() {
         return null;
+    }
+
+    @Override
+    public void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces) {
+
     }
 
 
@@ -169,7 +174,7 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void updatePlayerDate(ArrayList<String> players, ArrayList<Integer> colors, ArrayList<Integer> Hand, int SecretObjCard, int points, int colour, ArrayList<int[]> field, int[] resources, ArrayList<Integer> commonObjCards, ArrayList<Integer> currentResourceCards, ArrayList<Integer> currentGoldCards, int currentResourceDeckSize, int currentGoldDeckSize, int matchStatus) {
+    public void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard) {
 
     }
 

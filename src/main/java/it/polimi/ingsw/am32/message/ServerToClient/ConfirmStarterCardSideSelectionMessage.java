@@ -29,6 +29,6 @@ public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateConfirmStarterCard(playerColour,startingCardId,side, availableSpaces, playerResources);
     }
 }
