@@ -347,7 +347,9 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 {
   "type": "AssignedSecretObjectiveCardMessage",
   "recipientNickname": "playerName",
-  "assignedCards": [23, 26] 
+  "assignedSecretObjectiveCards": [12, 13, 14],
+  "chosenCommonObjectiveCards": [50, 51],
+  "playerHand": [10, 11, 12]
 }
 ```
 
