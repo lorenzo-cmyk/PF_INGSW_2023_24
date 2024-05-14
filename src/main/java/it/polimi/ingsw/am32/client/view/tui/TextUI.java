@@ -575,11 +575,11 @@ public class TextUI extends View implements Runnable {
         hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
         the board of the player.*/
         // update the field of the player
+        int num = publicInfo.get(playerNickname).getField().size();
         publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(), cardImg.get(card.getID()), x, y, isUp));
         publicInfo.get(playerNickname).updateResources(resources); // update the resources
         publicInfo.get(playerNickname).updatePoints(points); // update the points
         // represents the sequence of the card placed in the field.
-        int num = publicInfo.get(playerNickname).getField().size();
         BoardView boardView = boards.get(playerNickname);
         String[][] board = boardView.getBoard();
         int[] limits = boardView.getLimits();
@@ -737,11 +737,6 @@ public class TextUI extends View implements Runnable {
         // show the version details of the card selected by the player --> call printNonObjCard or printObjCard
         out.println("The card selected is: ");
         //TODO show the card selected by the player
-    }
-
-    public void showPlacedCard() {
-        // when the player wants to see the details of the card placed --> call printNonObjCard
-        //TODO use printNonObjCard to show the card placed by request of the player
     }
 
     public void showPlayersField(String playerNickname) {
@@ -1280,6 +1275,10 @@ public class TextUI extends View implements Runnable {
             case "ShowCommonObjCard" -> showObjectiveCards(commonObjCards);
             case "ShowSecretObjCard" -> showCard(secretObjCardSelected, true);
             case "ShowPlacedCard" -> {
+                out.println("Which card place in the field, you want to see?");
+                String card = getInput();
+                CardPlacedView cardPlaced = publicInfo.get(thisPlayerNickname).getField().get(Integer.parseInt(card));
+                showCard(cardPlaced.ID(),cardPlaced.side());
             }
             case "ShowPlayerField" -> {
                 out.println("Whose field do you want to see?");
