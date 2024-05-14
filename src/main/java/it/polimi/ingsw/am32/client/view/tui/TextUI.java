@@ -379,6 +379,7 @@ public class TextUI extends View implements Runnable {
         // once received the StarterCardConfirmationMessage from the server
         publicInfo.get(thisPlayerNickname).updateColour(convertToColour(colour));
         out.println("Your colour of this game is: " + convertToColour(colour));
+        availableSpaces = availablePos;
         updateAfterPlacedCard(thisPlayerNickname, searchNonObjCardById(cardID), 0, 0, isUp, availablePos,
                 resources, 0);
         out.println("Your field after placing the starter card is following:");
@@ -634,6 +635,16 @@ public class TextUI extends View implements Runnable {
         /* if player is the owner of this UI, store the available positions in the board of the player, and update the
         board limits. In this way, the player can see the available positions for the next turn of the placement.*/
         if (playerNickname.equals(thisPlayerNickname)) {
+            availableSpaces.removeIf(pos -> pos[0] == x && pos[1] == y); //TODO check if exists another way to do this
+            for(int[] pos : availableSpaces){ // delete the old available positions in the board.
+                posX = -2 * pos[1] + 80;
+                posY = 2 * pos[0] + 80;
+                updateBoardViewLimits(posX, posY, limits);
+                board[posX][posY] = "   ";
+                board[posX][posY - 1] = "   ";
+                board[posX][posY + 1] = "   ";
+            }
+            availableSpaces = availablePos; // update the available positions for the next turn of the placement.
             for (int[] pos : availablePos) {
                 posX = -2 * pos[1] + 80;
                 posY = 2 * pos[0] + 80;
@@ -647,11 +658,11 @@ public class TextUI extends View implements Runnable {
 
     @Override
     public void updateAfterDrawCard(ArrayList<Integer> hand) {
-        out.println("index should be replaced"+indexCardPlaced);
-        out.println("Hand from server"+hand);
+        //out.println("index should be replaced"+indexCardPlaced);
+        //out.println("Hand from server"+hand);
         this.hand.remove(indexCardPlaced);
         this.hand.add(indexCardPlaced, hand.getLast());
-        out.println("Hand after added the card from server:"+this.hand);
+        //out.println("Hand after added the card from server:"+this.hand);
         out.println("The card is added in your hand successfully, here is your hand after drawing the card:");
         showHand(this.hand);
     }
@@ -811,7 +822,8 @@ public class TextUI extends View implements Runnable {
         out.println("The winners of the match are: "+winners);
         out.println("The final points of the players are following:");
         for(int i=0; i<players.size(); i++) {
-            out.println("Player: " + players.get(i) + " has total points: " + points.get(i)+" with following secret objective card:");
+            out.println("Player " + players.get(i) + " has total points: " + points.get(i)+" with "+
+                    pointsGainedFromSecrets.get(i)+ " points gained from this secret objective card:");
             showCard(secrets.get(i), true);
         }
     }

@@ -54,6 +54,7 @@ public class Temporary implements Runnable{
     protected int resourceDeckSize;
     protected int goldDeckSize;
     protected String Status;
+    protected ArrayList<int[]> availableSpaces;
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
     protected static ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
@@ -91,11 +92,11 @@ public class Temporary implements Runnable{
             }
         }
 
-        /*thisPlayerNickname = "player1";
+        thisPlayerNickname = "player1";
         players=new ArrayList<>();
         players.add("player1");
         players.add("player2");
-        publicInfo.put("player1",new PlayerPub("null",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0}));
+        publicInfo.put("player1",new PlayerPub("null",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
         boards.put("player1",new BoardView(new int[]{80,80,80,80},new String[160][160]));
         ArrayList<int[]>availablePos = new ArrayList<>();
         availablePos.add(new int[]{0,0});
@@ -105,14 +106,15 @@ public class Temporary implements Runnable{
         availablePos.add(new int[]{-1,-1});
         availablePos.add(new int[]{2,2});
         availablePos.add(new int[]{3,3});
+        availableSpaces= availablePos;
         availablePos.add(new int[]{4,4});
         availablePos.add(new int[]{-2,-2});
         availablePos.add(new int[]{-3,-3});
-        updateAfterPlacedCard("player1",nonObjCards.get(85),0,0,true,availablePos,new int[]{0,0,0},0);
-        updateAfterPlacedCard("player1",nonObjCards.get(5),1,1,true,availablePos,new int[]{0,0,0},0);
-        updateAfterPlacedCard("player1",nonObjCards.get(15),1,-1,true,availablePos,new int[]{0,0,0},0);
-        updateAfterPlacedCard("player1",nonObjCards.get(25),-1,1,true,availablePos,new int[]{0,0,0},0);
-        updateAfterPlacedCard("player1",nonObjCards.get(35),-1,-1,true,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(85),0,0,false,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(5),1,1,false,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(15),1,-1,false,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(25),-1,1,false,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(35),-1,-1,false,availablePos,new int[]{0,0,0},0);
         updateAfterPlacedCard("player1",nonObjCards.get(45),2,2,true,availablePos,new int[]{0,0,0},0);
         updateAfterPlacedCard("player1",nonObjCards.get(55),3,3,true,availablePos,new int[]{0,0,0},0);
         updateAfterPlacedCard("player1",nonObjCards.get(65),4,4,true,availablePos,new int[]{0,0,0},0);
@@ -122,7 +124,7 @@ public class Temporary implements Runnable{
         int res[] = new int[]{0,0,2,0,1,0,0};
         publicInfo.get("player1").updateResources(res);
         showPoints("player1");
-        out.println("Your colour of this game is: "+convertToColour(2));*/
+        out.println("Your colour of this game is: "+convertToColour(2));
     }
     public void showPoints(String playerNickname) {
         int [] resources = publicInfo.get(playerNickname).getResources();
@@ -146,74 +148,82 @@ public class Temporary implements Runnable{
             out.println();
         }
     }
-    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card,int x, int y, boolean isUp,
-                                      ArrayList<int[]>availablePos, int[]resources,int points){
+    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp,
+                                      ArrayList<int[]> availablePos, int[] resources, int points) {
         /*once received the PlacedCardConfirmationMessage from the server, the card is searched in the
         hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
         the board of the player.*/
         // update the field of the player
-        //publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(),x,y,isUp));
+        publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(), cardImg.get(card.getID()), x, y, isUp));
         publicInfo.get(playerNickname).updateResources(resources); // update the resources
         publicInfo.get(playerNickname).updatePoints(points); // update the points
         // represents the sequence of the card placed in the field.
-        int num =  publicInfo.get(playerNickname).getField().size();
-        BoardView boardView= boards.get(playerNickname);
-        String[][] board= boardView.getBoard();
+        int num = publicInfo.get(playerNickname).getField().size();
+        BoardView boardView = boards.get(playerNickname);
+        String[][] board = boardView.getBoard();
         int[] limits = boardView.getLimits();
         //convert the x and y coordinates to the position in the board.
-        int posX=-2*y+80;
-        int posY=2*x+80;
-        updateBoardViewLimits(posX,posY,limits);
+        int posX = -2 * y + 80;
+        int posY = 2 * x + 80;
+        updateBoardViewLimits(posX, posY, limits);
 
-        String [] cornerType;
+        String[] cornerType;
         String EMPTY = iconCard(card.getKingdom()); // set the empty space of the card based on the colour of kingdom.
-        int[] permRes= card.getPermRes(); // get the permanent resources of the card.
-        String [] permResString= new String[]{EMPTY,EMPTY,EMPTY};
-        if (!card.getType().equals("STARTING")){  // if the card is not a starting card.
-            for(int i=0; i<permRes.length;i++){ // search the permanent resources of the card.
-                if(permRes[i]!=0){
-                    permResString[0]=iconArrayElement(i); //convert the permanent resources to the icon.
-                    permResString[1]=String.format("%2s",num);
+        int[] permRes = card.getPermRes(); // get the permanent resources of the card.
+        String[] permResString = new String[]{EMPTY, EMPTY, EMPTY};
+        if (!card.getType().equals("STARTING")) {  // if the card is not a starting card.
+            for (int i = 0; i < permRes.length; i++) { // search the permanent resources of the card.
+                if (permRes[i] != 0) {
+                    permResString[0] = iconArrayElement(i); //convert the permanent resources to the icon.
+                    permResString[1] = String.format("%2s", num);
                     break; // because the resource/gold card has only one permanent resource.
                 }
             }
-        }else { // if the card is a starting card
-            int count=0;
-            for(int i=0; i<permRes.length;i++){
-                if(permRes[i]!=0){
-                    permResString[count]=iconArrayElement(i); // convert the permanent resources to the icon.
+        } else { // if the card is a starting card
+            int count = 0;
+            for (int i = 0; i < permRes.length; i++) {
+                if (permRes[i] != 0) {
+                    permResString[count] = iconArrayElement(i); // convert the permanent resources to the icon.
                     count++;
                 }
             }
         }
         // update the board of the player
-        if(isUp){
-            board[posX][posY] =EMPTY;
-            board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+EMPTY+ANSI_RESET;
+        if (isUp) {
+            board[posX][posY] = EMPTY;
+            board[posX][posY - 1] = ColourCard(card.getKingdom()) + "|" + EMPTY + ANSI_RESET;
             // stored the number which represents the sequence number of the card placed in the field.
-            board[posX][posY + 1] = ColourCard(card.getKingdom())+String.format("%2s",num)+"|"+ANSI_RESET;
+            board[posX][posY + 1] = ColourCard(card.getKingdom()) + String.format("%2s", num) + "|" + ANSI_RESET;
             cornerType = card.getCorner();
-        }
-        else{
+        } else {
             board[posX][posY] = permResString[1];
-            board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+permResString[0]+ANSI_RESET;
-            board[posX][posY + 1] = ColourCard(card.getKingdom())+permResString[2]+"|"+ANSI_RESET;
+            board[posX][posY - 1] = ColourCard(card.getKingdom()) + "|" + permResString[0] + ANSI_RESET;
+            board[posX][posY + 1] = ColourCard(card.getKingdom()) + permResString[2] + "|" + ANSI_RESET;
             cornerType = card.getCornerBack();
         }
-        String topLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[0])+ANSI_RESET; // TopLeft 1)
-        String topRight = ColourCard(card.getKingdom())+icon(cornerType[1])+"|"+ANSI_RESET; // TopRight 2)
-        String bottomLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[2])+ANSI_RESET; // BottomLeft 3)
-        String bottomRight = ColourCard(card.getKingdom())+icon(cornerType[3])+"|"+ANSI_RESET; // BottomRight 4)
+        String topLeft = ColourCard(card.getKingdom()) + "|" + icon(cornerType[0]) + ANSI_RESET; // TopLeft 1)
+        String topRight = ColourCard(card.getKingdom()) + icon(cornerType[1]) + "|" + ANSI_RESET; // TopRight 2)
+        String bottomLeft = ColourCard(card.getKingdom()) + "|" + icon(cornerType[2]) + ANSI_RESET; // BottomLeft 3)
+        String bottomRight = ColourCard(card.getKingdom()) + icon(cornerType[3]) + "|" + ANSI_RESET; // BottomRight 4)
         board[posX - 1][posY] = EMPTY;
         board[posX + 1][posY] = EMPTY;
-        board[posX - 1][posY+ 1] = topRight;
-        board[posX+ 1][posY+ 1] = bottomRight ;
+        board[posX - 1][posY + 1] = topRight;
+        board[posX + 1][posY + 1] = bottomRight;
         board[posX - 1][posY - 1] = topLeft;
         board[posX + 1][posY - 1] = bottomLeft;
-        availablePos.removeIf(pos -> pos[0] == x && pos[1] == y); //JUST FOR TESTING PRINT OF AVAILABLE POSITIONS
         /* if player is the owner of this UI, store the available positions in the board of the player, and update the
         board limits. In this way, the player can see the available positions for the next turn of the placement.*/
-        if(playerNickname.equals(thisPlayerNickname)) {
+        if (playerNickname.equals(thisPlayerNickname)) {
+            availableSpaces.removeIf(pos -> pos[0] == x && pos[1] == y); //TODO check if exists another way to do this
+            for(int[] pos : availableSpaces){ // delete the old available positions in the board.
+                posX = -2 * pos[1] + 80;
+                posY = 2 * pos[0] + 80;
+                updateBoardViewLimits(posX, posY, limits);
+                board[posX][posY] = "   ";
+                board[posX][posY - 1] = "   ";
+                board[posX][posY + 1] = "   ";
+            }
+            availableSpaces = availablePos; // update the available positions for the next turn of the placement.
             for (int[] pos : availablePos) {
                 posX = -2 * pos[1] + 80;
                 posY = 2 * pos[0] + 80;

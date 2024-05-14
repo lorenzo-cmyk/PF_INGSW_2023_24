@@ -40,6 +40,7 @@ public abstract class View implements EventHandler{
     protected int goldDeckSize;
     protected String Status;
     protected AskListener askListener;
+    protected ArrayList<int[]> availableSpaces;
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
     protected static final ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
