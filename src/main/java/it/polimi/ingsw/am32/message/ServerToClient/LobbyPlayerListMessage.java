@@ -23,4 +23,11 @@ public class LobbyPlayerListMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "playerList: " + playerList + "\n";
+        return myString;
+    }
 }

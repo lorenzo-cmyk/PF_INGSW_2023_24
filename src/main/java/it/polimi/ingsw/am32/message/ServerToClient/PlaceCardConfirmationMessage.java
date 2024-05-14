@@ -38,4 +38,17 @@ public class PlaceCardConfirmationMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "playerNickname: " + playerNickname + "\n";
+        myString += "placedCard: " + placedCard + "\n";
+        myString += "placedCardCoordinates: " + placedCardCoordinates + "\n";
+        myString += "placedSide: " + placedSide + "\n";
+        myString += "playerPoints: " + playerPoints + "\n";
+        myString += "playerResources: " + playerResources + "\n";
+        myString += "newAvailableFieldSpaces: " + newAvailableFieldSpaces + "\n";
+        return myString;
+    }
 }

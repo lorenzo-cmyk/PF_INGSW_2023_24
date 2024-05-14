@@ -20,4 +20,11 @@ public class PlaceCardFailedMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "reason: " + reason + "\n";
+        return myString;
+    }
 }

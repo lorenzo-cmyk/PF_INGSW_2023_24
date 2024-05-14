@@ -32,4 +32,15 @@ public class MatchWinnersMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "players: " + players + "\n";
+        myString += "points: " + points + "\n";
+        myString += "secrets: " + secrets + "\n";
+        myString += "pointsGainedFromSecrets: " + pointsGainedFromSecrets + "\n";
+        myString += "winners: " + winners + "\n";
+        return myString;
+    }
 }

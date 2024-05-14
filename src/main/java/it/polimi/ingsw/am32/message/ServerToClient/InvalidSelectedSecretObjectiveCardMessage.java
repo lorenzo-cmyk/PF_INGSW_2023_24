@@ -23,4 +23,11 @@ public class InvalidSelectedSecretObjectiveCardMessage implements StoCMessage {
     public void processMessage(View view) {
 
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "reason: " + reason + "\n";
+        return myString;
+    }
 }

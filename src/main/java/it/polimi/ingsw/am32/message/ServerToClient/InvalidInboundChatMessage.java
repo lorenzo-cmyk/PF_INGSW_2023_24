@@ -21,4 +21,11 @@ public class InvalidInboundChatMessage implements StoCMessage {
     public void processMessage(View view) {
         // TODO
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "reason: " + reason + "\n";
+        return myString;
+    }
 }

@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.message.ServerToClient;
 import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ResponsePlayerFieldMessage implements StoCMessage {
     private final String recipientNickname;
@@ -25,5 +26,14 @@ public class ResponsePlayerFieldMessage implements StoCMessage {
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "playerNickname: " + playerNickname + "\n";
+        myString += "playerField: " + playerField.toString() + "\n";
+        myString += "playerResources: " + Arrays.toString(playerResources) + "\n";
+        return myString;
     }
 }

@@ -20,4 +20,11 @@ public class MatchStatusMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "matchStatus: " + matchStatus + "\n";
+        return myString;
+    }
 }

@@ -22,4 +22,12 @@ public class OutboundChatMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientString;
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientString: " + recipientString + "\n";
+        myString += "senderNickname: " + senderNickname + "\n";
+        myString += "content: " + content + "\n";
+        return myString;
+    }
 }
