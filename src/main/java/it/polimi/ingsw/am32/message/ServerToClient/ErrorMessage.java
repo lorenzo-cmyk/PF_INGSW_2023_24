@@ -12,7 +12,6 @@ public class ErrorMessage implements StoCMessage{
     }
 
     @Override
-
     public void processMessage(View view) {
         // TODO
     }

@@ -83,4 +83,14 @@ public class ChatMessage {
     public String getMessageContent() {
         return messageContent;
     }
+
+    @Override
+    public String toString() {
+        return "ChatMessage{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", recipientNickname='" + recipientNickname + '\'' +
+                ", multicastFlag=" + multicastFlag +
+                ", messageContent='" + messageContent + '\'' +
+                '}';
+    }
 }

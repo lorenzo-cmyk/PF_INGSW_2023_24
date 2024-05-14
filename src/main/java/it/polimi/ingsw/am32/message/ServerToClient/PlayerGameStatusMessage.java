@@ -6,6 +6,7 @@ import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class PlayerGameStatusMessage implements StoCMessage {
     /**
@@ -120,25 +121,31 @@ public class PlayerGameStatusMessage implements StoCMessage {
     }
 
     public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "playerNicknames: " + playerNicknames.toString() + "\n";
-        myString += "playerConnected: " + playerConnected.toString() + "\n";
-        myString += "playerColours: " + playerColours.toString() + "\n";
-        myString += "playerHand: " + playerHand.toString() + "\n";
-        myString += "playerSecretObjective: " + playerSecretObjective + "\n";
-        myString += "playerPoints: " + Arrays.toString(playerPoints) + "\n";
-        myString += "playerFields: " + playerFields.toString() + "\n";
-        myString += "playerResources: " + Arrays.toString(playerResources) + "\n";
-        myString += "gameCommonObjectives: " + gameCommonObjectives.toString() + "\n";
-        myString += "gameCurrentResourceCards: " + gameCurrentResourceCards.toString() + "\n";
-        myString += "gameCurrentGoldCards: " + gameCurrentGoldCards.toString() + "\n";
-        myString += "gameResourcesDeckSize: " + gameResourcesDeckSize + "\n";
-        myString += "gameGoldDeckSize: " + gameGoldDeckSize + "\n";
-        myString += "matchStatus: " + matchStatus + "\n";
-        myString += "chatHistory: " + chatHistory.toString() + "\n";
-        myString += "currentPlayer: " + currentPlayer + "\n";
-        myString += "newAvailableFieldSpaces: " + newAvailableFieldSpaces.toString() + "\n";
-        return myString;
+        String playerFieldsAsString = playerFields.stream()
+            .map(innerList -> innerList.stream()
+                .map(Arrays::toString)
+                .collect(Collectors.joining(", ", "[", "]")))
+            .collect(Collectors.joining(", ", "[", "]"));
+
+        return "PlayerGameStatusMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", playerNicknames=" + playerNicknames +
+                ", playerConnected=" + playerConnected.toString() +
+                ", playerColours=" + playerColours.toString() +
+                ", playerHand=" + playerHand.toString() +
+                ", playerSecretObjective=" + playerSecretObjective +
+                ", playerPoints=" + Arrays.toString(playerPoints) +
+                ", playerFields=" + playerFieldsAsString +
+                ", playerResources=" + Arrays.toString(playerResources) +
+                ", gameCommonObjectives=" + gameCommonObjectives.toString() +
+                ", gameCurrentResourceCards=" + gameCurrentResourceCards.toString() +
+                ", gameCurrentGoldCards=" + gameCurrentGoldCards.toString() +
+                ", gameResourcesDeckSize=" + gameResourcesDeckSize +
+                ", gameGoldDeckSize=" + gameGoldDeckSize +
+                ", matchStatus=" + matchStatus +
+                ", chatHistory=" + chatHistory.stream().map(ChatMessage::toString).toList() +
+                ", currentPlayer='" + currentPlayer + '\'' +
+                ", newAvailableFieldSpaces=[" + newAvailableFieldSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
+                "]}" + "\n";
     }
 }
