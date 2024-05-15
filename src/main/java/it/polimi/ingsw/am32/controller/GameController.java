@@ -161,7 +161,6 @@ public class GameController {
      *
      * @param node The node of the player to disconnect
      */
-    // TODO: Finish implementation of disconnection in the controller
     private void disconnectDuringLobby(NodeInterface node) {
         PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
@@ -189,7 +188,7 @@ public class GameController {
         for (PlayerQuadruple playerQuadruple1 : nodeList) {
             try {
                 submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple1.getNickname(), allPlayerNicknames));
-                // FIXME: Add also message to notify the player that a player has left the lobby. We need to add it in order to keep the event consistent
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the lobby");
             }
