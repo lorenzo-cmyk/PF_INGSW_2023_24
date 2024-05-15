@@ -197,6 +197,7 @@ public class GameController {
             throw new CriticalFailureException("Player quadruple not found when disconnecting player");
         }
 
+        // Player quadruple found
         // TODO there are no more players in the lobby, we should delete the game
 
         // Delete player from model
@@ -226,12 +227,47 @@ public class GameController {
         }
     }
 
+    /**
+     * Method called when a player disconnects before the game has started, in the preparation phase such as
+     * when players are choosing the side of their starter card.
+     * Removes the player from the game, and shuts down the player's VirtualView.
+     *
+     * @param node The node of the player that has disconnected
+     */
     private void disconnectBeforeGameStart(NodeInterface node) {
+        PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
+        if (playerQuadruple == null) { // The player quadruple could not be found
+            throw new CriticalFailureException("Player quadruple not found when disconnecting player");
+        }
+
+        // Empty player's message queue
+        playerQuadruple.getVirtualView().flushMessages();
+
+        // Set virtual view node to null
+        playerQuadruple.getVirtualView().changeNode(null);
+
+        // Set player state to disconnected
+        playerQuadruple.setConnected(false);
     }
 
     private void disconnectNotCurrentPlayer(NodeInterface node) {
+        PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
+        if (playerQuadruple == null) { // The player quadruple could not be found
+            throw new CriticalFailureException("Player quadruple not found when disconnecting player");
+        }
+
+        // Empty player's message queue
+        playerQuadruple.getVirtualView().flushMessages();
+
+        // Set virtual view node to null
+        playerQuadruple.getVirtualView().changeNode(null);
+
+        // Set player state to disconnected
+        playerQuadruple.setConnected(false);
+
+        // TODO if there are no players left, start timer for winner declaration
     }
 
     private void disconnectCurrentPlayerAfterPlacing(NodeInterface node) {
