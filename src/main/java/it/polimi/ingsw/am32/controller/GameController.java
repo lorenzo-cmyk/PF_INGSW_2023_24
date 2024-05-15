@@ -733,6 +733,8 @@ public class GameController {
 
     /**
      * Used to reply to a PingMessage. The method sends a PongMessage to the requester.
+     *
+     * @param nickname The nickname of the player that sent the ping message
      */
     public synchronized void pongPlayer(String nickname) {
         try {
@@ -767,6 +769,11 @@ public class GameController {
         return status;
     }
 
+    /**
+     * Getter for the timer of the game controller.
+     *
+     * @return The timer of the game controller
+     */
     public Timer getTimer() {
         return timer;
     }
