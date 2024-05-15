@@ -148,6 +148,12 @@ public class GameController {
     - Player disconnects after game has ended
      */
 
+    /**
+     * Method called when a player disconnects from the game.
+     * Handles the disconnection based on the current status of the game.
+     *
+     * @param node The node of the player that has disconnected
+     */
     public synchronized void disconnect(NodeInterface node) {
         PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
@@ -178,6 +184,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Method called when a player disconnects during the lobby phase.
+     * Removes the player from the game, notifies all players that the player has left the lobby, and shuts down the player's VirtualView.
+     *
+     * @param node The node of the player that has disconnected
+     */
     private void disconnectDuringLobby(NodeInterface node) {
         PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
