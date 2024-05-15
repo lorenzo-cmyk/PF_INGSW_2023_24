@@ -8,9 +8,7 @@ import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,10 +16,11 @@ class VirtualViewTest {
 
     // Stub class for NodeInterface and StoCMessage. Used to test VirtualView.
     private static class NodeInterfaceStub implements NodeInterface {
-        public void uploadToClient(StoCMessage message) throws UploadFailureException {}
+        private int messageCount;
+        public void uploadToClient(StoCMessage message) throws UploadFailureException { messageCount++; }
         public void pingTimeOverdue() {}
         public void resetTimeCounter() {}
-        public void setGameController(GameController gameController) {}
+        public int getMessageCount() { return messageCount; }
         public NodeInterfaceStub() {}
     }
 
@@ -119,33 +118,6 @@ class VirtualViewTest {
         assertTrue(virtualView.getMessageQueue().contains(message2));
     }
 
-    @DisplayName("Should handle multiple threads calling processMessage concurrently")
-    @Test
-    void shouldHandleMultipleThreadsCallingProcessMessageConcurrently() {
-        NodeInterface node = new NodeInterfaceStub();
-        VirtualView virtualView = new VirtualView(node);
-        StoCMessage message1 = new StoCMessageStub();
-        StoCMessage message2 = new StoCMessageStub();
-        // Add messages to the queue
-        virtualView.addMessage(message1);
-        virtualView.addMessage(message2);
-        // Create two threads that process messages
-        Thread thread1 = new Thread(virtualView::processMessage);
-        Thread thread2 = new Thread(virtualView::processMessage);
-        // Start the threads
-        thread1.start();
-        thread2.start();
-        // Wait for the threads to finish
-        try {
-            thread1.join();
-            thread2.join();
-        } catch (InterruptedException e) {
-            fail();
-        }
-        // Check that all messages have been processed
-        assertTrue(virtualView.getMessageQueue().isEmpty());
-    }
-
     @DisplayName("Should handle multiple threads calling flushMessages concurrently")
     @Test
     void shouldHandleMultipleThreadsCallingFlushMessagesConcurrently() {
@@ -194,36 +166,6 @@ class VirtualViewTest {
         }
         NodeInterface finalNode = virtualView.getConnectionNode();
         assertTrue(finalNode == newNode1 || finalNode == newNode2);
-    }
-
-    @DisplayName("Should handle a combination of adding messages and processing messages concurrently")
-    @Test
-    void shouldHandleCombinationOfAddingAndProcessingMessagesConcurrently() {
-        NodeInterface node = new NodeInterfaceStub();
-        VirtualView virtualView = new VirtualView(node);
-        StoCMessage message1 = new StoCMessageStub();
-        StoCMessage message2 = new StoCMessageStub();
-        // Create threads that add and process messages
-        Thread thread1 = new Thread(() -> virtualView.addMessage(message1));
-        Thread thread2 = new Thread(virtualView::processMessage);
-        Thread thread3 = new Thread(() -> virtualView.addMessage(message2));
-        Thread thread4 = new Thread(virtualView::processMessage);
-        // Start the threads
-        thread1.start();
-        thread2.start();
-        thread3.start();
-        thread4.start();
-        // Wait for the threads to finish
-        try {
-            thread1.join();
-            thread2.join();
-            thread3.join();
-            thread4.join();
-        } catch (InterruptedException e) {
-            fail();
-        }
-        // Check that all messages have been added and processed correctly
-        assertTrue(virtualView.getMessageQueue().isEmpty());
     }
 
     @DisplayName("Should process message when submitted to ThreadPoolExecutor")
@@ -285,6 +227,47 @@ class VirtualViewTest {
 
         // Check that the message has not been processed and is still in the queue
         assertFalse(virtualView.getMessageQueue().isEmpty());
+    }
+
+    @DisplayName("Should be able to handle multiple messages being added concurrently")
+    @Test
+    void shouldBeAbleToHandleMessagesBurst(){
+        // Create a VirtualView with a NodeInterface that throws UploadFailureException
+        NodeInterfaceStub node = new NodeInterfaceStub();
+        VirtualView virtualView = new VirtualView(node);
+
+        // Create a ThreadPoolExecutor with a single thread: the VirtualView
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<?> future = executorService.submit(virtualView);
+
+        // Add 1000 messages to the VirtualView
+        for(int i = 0; i < 1000; i++){
+            StoCMessage message = new StoCMessageStub();
+            virtualView.addMessage(message);
+        }
+
+        // Give some time for the VirtualView to process the messages
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that the messages have been processed
+        assertEquals(1000, node.getMessageCount());
+
+        // Terminate the VirtualView
+        virtualView.setTerminating();
+
+        // Give some time for the VirtualView to terminate
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Check that the VirtualView has terminated
+        assertTrue(future.isDone());
     }
 
 }

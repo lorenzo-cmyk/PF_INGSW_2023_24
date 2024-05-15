@@ -25,7 +25,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
     /**
      * A boolean that indicates if the virtual view is terminating.
      */
-    private boolean terminating = false;
+    private boolean terminating;
 
     /**
      * Constructor for the VirtualView class.
@@ -87,19 +87,21 @@ public class VirtualView implements VirtualViewInterface, Runnable {
                 return;
             }
         }
-        StoCMessage message = messageQueue.getFirst();
-        try {
-            connectionNode.uploadToClient(message);
-            messageQueue.removeFirst();
-        } catch (UploadFailureException e) {
-            // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
+        while(!messageQueue.isEmpty()){
+            StoCMessage message = messageQueue.getFirst();
             try {
-                wait();
-                if (terminating) { // If the virtual view is being shutdown, return early
-                    return;
+                connectionNode.uploadToClient(message);
+                messageQueue.removeFirst();
+            } catch (UploadFailureException e) {
+                // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
+                try {
+                    wait();
+                    if (terminating) { // If the virtual view is being shutdown, return early
+                        return; // Probably not necessary, but it's here for clarity.
+                    }
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
                 }
-            } catch (InterruptedException e1) {
-                Thread.currentThread().interrupt();
             }
         }
     }
