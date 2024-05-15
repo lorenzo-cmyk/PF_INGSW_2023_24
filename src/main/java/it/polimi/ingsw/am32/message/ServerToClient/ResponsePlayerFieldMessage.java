@@ -1,6 +1,9 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 import it.polimi.ingsw.am32.client.View;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ResponsePlayerFieldMessage implements StoCMessage {
     private final String recipientNickname;
@@ -24,5 +27,12 @@ public class ResponsePlayerFieldMessage implements StoCMessage {
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    public String toString(){
+        return "recipientNickname: " + recipientNickname + "\n" +
+                "playerNickname: " + playerNickname + "\n" +
+                "playerField: [" + playerField.stream().map(Arrays::toString).collect(Collectors.joining(", ")) + "]\n" +
+                "playerResources: " + Arrays.toString(playerResources) + "\n";
     }
 }

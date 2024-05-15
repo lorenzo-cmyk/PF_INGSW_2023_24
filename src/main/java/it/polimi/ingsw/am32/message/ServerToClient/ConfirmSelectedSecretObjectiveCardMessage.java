@@ -17,6 +17,14 @@ public class ConfirmSelectedSecretObjectiveCardMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
+        view.updateConfirmSelectedSecretCard(chosenSecretObjectiveCard);
+    }
 
+    @Override
+    public String toString() {
+        return "ConfirmSelectedSecretObjectiveCardMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", chosenSecretObjectiveCard=" + chosenSecretObjectiveCard +
+                '}' + "\n";
     }
 }

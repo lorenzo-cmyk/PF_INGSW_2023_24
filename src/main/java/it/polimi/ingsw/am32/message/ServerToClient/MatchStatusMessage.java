@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.View;
-import it.polimi.ingsw.am32.controller.VirtualView;
 
 public class MatchStatusMessage implements StoCMessage {
     private final String recipientNickname;
@@ -14,11 +13,18 @@ public class MatchStatusMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateMatchStatus(matchStatus);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "matchStatus: " + matchStatus + "\n";
+        return myString;
     }
 }

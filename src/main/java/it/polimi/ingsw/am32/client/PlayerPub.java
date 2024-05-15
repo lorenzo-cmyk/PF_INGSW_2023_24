@@ -7,16 +7,18 @@ import java.util.ArrayList;
  * class contains all the information that the player can request to know about the other players.
  */
 public class PlayerPub {
-    private final String colour;
+    private String colour;
     private int points;
     private final ArrayList<CardPlacedView> field;
     private int[]resources;
+    private boolean isOnline;
 
-    public PlayerPub( String colour, int points,ArrayList<CardPlacedView> field,int[]resources) {
+    public PlayerPub( String colour, int points,ArrayList<CardPlacedView> field,int[]resources,boolean isOnline){
         this.colour = colour;
         this.points = points;
         this.field = field;
         this.resources = resources;
+        this.isOnline = isOnline;
     }
     public String getColour() {
 
@@ -53,5 +55,11 @@ public class PlayerPub {
      */
     public void addToField(CardPlacedView card){
         this.field.add(card);
+    }
+    public void updateColour(String colour){
+        this.colour = colour;
+    }
+    public void updateOnline(boolean isOnline){
+        this.isOnline = isOnline;
     }
 }

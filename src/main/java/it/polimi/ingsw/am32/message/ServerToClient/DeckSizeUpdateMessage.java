@@ -2,6 +2,8 @@ package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.View;
 
+import java.util.Arrays;
+
 public class DeckSizeUpdateMessage implements StoCMessage {
     private final String recipientNickname;
     private final int resourceCardDeckSize;
@@ -20,11 +22,22 @@ public class DeckSizeUpdateMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateDeck(resourceCardDeckSize, goldCardDeckSize, currentResourceCards, currentGoldCards);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    @Override
+    public String toString() {
+        return "DeckSizeUpdateMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", resourceCardDeckSize=" + resourceCardDeckSize +
+                ", goldCardDeckSize=" + goldCardDeckSize +
+                ", currentResourceCards=" + Arrays.toString(currentResourceCards) +
+                ", currentGoldCards=" + Arrays.toString(currentGoldCards) +
+                '}' + "\n";
     }
 }

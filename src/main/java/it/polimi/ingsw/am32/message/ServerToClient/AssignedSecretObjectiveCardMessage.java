@@ -20,11 +20,21 @@ public class AssignedSecretObjectiveCardMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.requestSelectSecretObjCard(assignedSecretObjectiveCards, chosenCommonObjectiveCards, playerHand);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    @Override
+    public String toString() {
+        return "AssignedSecretObjectiveCardMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", assignedSecretObjectiveCards=" + assignedSecretObjectiveCards.toString() +
+                ", chosenCommonObjectiveCards=" + chosenCommonObjectiveCards.toString() +
+                ", playerHand=" + playerHand.toString() +
+                '}' + "\n";
     }
 }

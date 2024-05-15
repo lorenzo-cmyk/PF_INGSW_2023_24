@@ -22,4 +22,12 @@ public class PointsUpdateMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "playerNickname: " + playerNickname + "\n";
+        myString += "points: " + points + "\n";
+        return myString;
+    }
 }

@@ -13,11 +13,18 @@ public class PlayerTurnMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updatePlayerTurn(playerNickname);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "playerNickname: " + playerNickname + "\n";
+        return myString;
     }
 }

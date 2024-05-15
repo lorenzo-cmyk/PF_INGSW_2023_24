@@ -15,11 +15,19 @@ public class DrawCardConfirmationMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateAfterDrawCard(playerHand);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    @Override
+    public String toString() {
+        return "DrawCardConfirmationMessage{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", playerHand=" + playerHand.toString() +
+                '}' + "\n";
     }
 }

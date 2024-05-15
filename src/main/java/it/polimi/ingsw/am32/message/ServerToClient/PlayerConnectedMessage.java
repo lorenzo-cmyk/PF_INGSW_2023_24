@@ -20,5 +20,12 @@ public class PlayerConnectedMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "connectedNickname: " + connectedNickname + "\n";
+        return myString;
+    }
 }
 

@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.View;
-import it.polimi.ingsw.am32.controller.VirtualView;
 
 import java.util.ArrayList;
 
@@ -26,11 +25,22 @@ public class MatchWinnersMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.showMatchWinners(players, points, secrets, pointsGainedFromSecrets, winners);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    public String toString(){
+        String myString = "";
+        myString += "recipientNickname: " + recipientNickname + "\n";
+        myString += "players: " + players + "\n";
+        myString += "points: " + points.toString() + "\n";
+        myString += "secrets: " + secrets.toString() + "\n";
+        myString += "pointsGainedFromSecrets: " + pointsGainedFromSecrets.toString() + "\n";
+        myString += "winners: " + winners + "\n";
+        return myString;
     }
 }

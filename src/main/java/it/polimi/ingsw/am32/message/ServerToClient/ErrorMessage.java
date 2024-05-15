@@ -12,7 +12,6 @@ public class ErrorMessage implements StoCMessage{
     }
 
     @Override
-
     public void processMessage(View view) {
         // TODO
     }
@@ -22,4 +21,11 @@ public class ErrorMessage implements StoCMessage{
         return recipientNickname;
     }
 
+    @Override
+    public String toString() {
+        return "ErrorMessage{" +
+                "message='" + message + '\'' +
+                ", recipientNickname='" + recipientNickname + '\'' +
+                '}' + "\n";
+    }
 }
