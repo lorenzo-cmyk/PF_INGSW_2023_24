@@ -14,6 +14,7 @@ import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
+import javafx.scene.Node;
 
 /**
  * Represents a controller for a single game.
@@ -137,36 +138,54 @@ public class GameController {
         chat.addMessage(message); // Adds the message to the chat history
     }
 
-    /**
-     * Method called whenever a player gets disconnected.
-     * Calls the appropriate version of the disconnect method based on the current game status.
-     *
-     * @param node The node of the player to disconnect
+    /*
+    Disconnection types:
+    - Player disconnects during the lobby phase
+    - Player disconnects before game has started
+    - Player disconnects after game has started but is not current player
+    - Player disconnects after game has started and is current player (has placed but not yet drawn)
+    - Player disconnects after game has started and is current player (has not yet placed)
+    - Player disconnects after game has ended
      */
-    // TODO: Finish implementation of disconnection in the controller
-    public void disconnect(NodeInterface node) {
-        switch (status) {
-            case GameControllerStatus.LOBBY -> disconnectDuringLobby(node);
-            case GameControllerStatus.WAITING_CARD_DRAW -> disconnectAfterPlacementBeforeDraw(node);
-            default -> disconnectStandard(node);
+
+    public synchronized void disconnect(NodeInterface node) {
+        PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
+
+        if (playerQuadruple == null) { // The player quadruple could not be found
+            throw new CriticalFailureException("Player quadruple not found when disconnecting player");
+        }
+
+        // The player quadruple was found
+        if (status == GameControllerStatus.LOBBY) { // We are in the lobby phase
+            disconnectDuringLobby(node);
+        }
+        else if (status == GameControllerStatus.WAITING_STARTER_CARD_CHOICE || status == GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE) { // We are in the preparation phase
+            disconnectBeforeGameStart(node);
+        }
+        else if (status == GameControllerStatus.GAME_ENDED) { // The game has finished
+            disconnectAfterGameEnd(node);
+        }
+        // We are in the playing phase
+        else if (!model.getCurrentPlayerNickname().equals(playerQuadruple.getNickname())) { // We are not the current player
+            disconnectNotCurrentPlayer(node);
+        }
+        // We are the current player
+        else if (status == GameControllerStatus.WAITING_CARD_PLACEMENT) { // We have not yet placed a card
+            disconnectCurrentPlayerBeforePlacing(node);
+        }
+        else if (status == GameControllerStatus.WAITING_CARD_DRAW) { // We have placed a card but not yet drawn one
+            disconnectCurrentPlayerAfterPlacing(node);
         }
     }
 
-    /**
-     * Disconnects a player during the lobby phase.
-     * Shuts down the player's virtual view.
-     * Removes the player from the model.
-     * Removes the playerQuadruple.
-     * Notifies all players that a player has left the lobby.
-     *
-     * @param node The node of the player to disconnect
-     */
     private void disconnectDuringLobby(NodeInterface node) {
         PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
         if (playerQuadruple == null) { // The player quadruple could not be found
             throw new CriticalFailureException("Player quadruple not found when disconnecting player");
         }
+
+        // TODO there are no more players in the lobby, we should delete the game
 
         // Delete player from model
         try {
@@ -195,19 +214,24 @@ public class GameController {
         }
     }
 
-    // TODO: Finish implementation of disconnection in the controller
-    //  FIXME: In case of rollback we will send a new type of messages with the post-rollback field, points and resources
-    private void disconnectAfterPlacementBeforeDraw(NodeInterface node) {
-        // TODO
+    private void disconnectBeforeGameStart(NodeInterface node) {
+
     }
 
-    // TODO: Finish implementation of disconnection in the controller
-    private void disconnectStandard(NodeInterface node) {
-        // If we are not yet playing, just disconnect normally
-        // If the leaving player is not the one currently playing we just need to inform the other player
+    private void disconnectNotCurrentPlayer(NodeInterface node) {
 
-        // If the leaving player is the one currently playing and he has not yet placed a card we need to skip the turn and then inform the other players
-        // TODO
+    }
+
+    private void disconnectCurrentPlayerAfterPlacing(NodeInterface node) {
+
+    }
+
+    private void disconnectCurrentPlayerBeforePlacing(NodeInterface node) {
+
+    }
+
+    private void disconnectAfterGameEnd(NodeInterface node) {
+
     }
 
     // TODO: Finish implementation of reconnection in the controller
