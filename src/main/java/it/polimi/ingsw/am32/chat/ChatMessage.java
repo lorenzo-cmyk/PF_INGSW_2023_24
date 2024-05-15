@@ -12,6 +12,7 @@ import java.util.Objects;
  * @author Lorenzo
  * @author Anto
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class ChatMessage {
     private final String senderNickname;
     private final String recipientNickname;
