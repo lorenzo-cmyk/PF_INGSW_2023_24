@@ -693,8 +693,10 @@ public class GameController {
             ArrayList<Integer> playerColours = model.getPlayersNicknames().stream().map(playerNickname -> {
                 try {
                     return model.getPlayerColour(playerNickname);
-                } catch (PlayerNotFoundException | NullColourException e) {
-                    throw new CriticalFailureException("Could not generate game status for Player " + playerNickname);
+                } catch (PlayerNotFoundException e) {
+                    throw new CriticalFailureException("Player " + playerNickname + " not found when generating game status message");
+                } catch (NullColourException e) {
+                    throw new CriticalFailureException("Player " + playerNickname + " has a null colour");
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
@@ -703,16 +705,14 @@ public class GameController {
                 try {
                     return model.getPlayerPoints(n);
                 } catch (PlayerNotFoundException e) {
-                    throw new RuntimeException();
-                    // TODO
+                    throw new CriticalFailureException("Player " + n + " not found when generating game status message");
                 }
             }).mapToInt(Integer::intValue).toArray();
             ArrayList<ArrayList<int[]>> playerFields = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerField(n);
                 } catch (PlayerNotFoundException e) {
-                    throw new RuntimeException(e);
-                    // TODO
+                    throw new CriticalFailureException("Player " + n + " not found when generating game status message");
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
             int[] playerResources = model.getPlayerResources(nickname);
