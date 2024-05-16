@@ -242,7 +242,7 @@ public class GameController {
         }
 
         // Empty player's message queue
-        playerQuadruple.getVirtualView().flushMessages();
+        playerQuadruple.getVirtualView().flushMessages(); // FIXME Is this necessary?
 
         // Set virtual view node to null
         playerQuadruple.getVirtualView().changeNode(null);
@@ -268,7 +268,7 @@ public class GameController {
         }
 
         // Empty player's message queue
-        playerQuadruple.getVirtualView().flushMessages();
+        playerQuadruple.getVirtualView().flushMessages(); // FIXME Is this necessary?
 
         // Set virtual view node to null
         playerQuadruple.getVirtualView().changeNode(null);
@@ -289,18 +289,78 @@ public class GameController {
     }
 
     private void disconnectCurrentPlayerAfterPlacing(NodeInterface node) {
+        PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
+        if (playerQuadruple == null) { // The player quadruple could not be found
+            throw new CriticalFailureException("Player quadruple not found when disconnecting player");
+        }
+
+        // Empty player's message queue
+        playerQuadruple.getVirtualView().flushMessages(); // FIXME Is this necessary?
+
+        // Set virtual view node to null
+        playerQuadruple.getVirtualView().changeNode(null);
+
+        // Set player state to disconnected
+        playerQuadruple.setConnected(false);
+
+        // Update the new current player
+        setNextPlayer();
+
+        // Undo the player's placement
+        try {
+            model.rollbackPlacement();
+        } catch (RollbackException e) {
+            throw new CriticalFailureException("RollbackException when rolling back placement");
+        } catch (PlayerNotFoundException e) {
+            throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found when rolling back placement");
+        }
+
+        // Notify all players that a player has left the game
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
+            }
+        }
+
+        // TODO Must send rollback message
     }
 
     private void disconnectCurrentPlayerBeforePlacing(NodeInterface node) {
+        PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
+        if (playerQuadruple == null) { // The player quadruple could not be found
+            throw new CriticalFailureException("Player quadruple not found when disconnecting player");
+        }
+
+        // Empty player's message queue
+        playerQuadruple.getVirtualView().flushMessages(); // FIXME Is this necessary?
+
+        // Set virtual view node to null
+        playerQuadruple.getVirtualView().changeNode(null);
+
+        // Set player state to disconnected
+        playerQuadruple.setConnected(false);
+
+        // Update the new current player
+        setNextPlayer();
+
+        // Notify all players that a player has left the game
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
+            }
+        }
     }
 
     private void disconnectAfterGameEnd(NodeInterface node) {
-
+        // TODO Is this necessary?
     }
 
-    // TODO: Finish implementation of reconnection in the controller
     public void reconnect(NodeInterface node) {
         //TODO
     }
