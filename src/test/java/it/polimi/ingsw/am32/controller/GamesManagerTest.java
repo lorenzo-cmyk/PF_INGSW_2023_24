@@ -259,8 +259,8 @@ class GamesManagerTest {
         for (int i = 0; i < 500; i++) {
             service.submit(() -> {
                 try {
-                    GameController gameController = gamesManager.createGame("creator" + Thread.currentThread().getId(), 3, node);
-                    gamesManager.accessGame("player" + Thread.currentThread().getId(), gameController.getId(), node);
+                    GameController gameController = gamesManager.createGame("creator " + Thread.currentThread().getId(), 3, node);
+                    gamesManager.accessGame("player " + Thread.currentThread().getId(), gameController.getId(), node);
                 } catch (Exception e) {
                     fail("Unexpected exception: " + e.getMessage());
                 }
