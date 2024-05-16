@@ -13,6 +13,7 @@ import org.junit.jupiter.api.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Timer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -1505,6 +1506,15 @@ public class GameControllerTest {
 
         assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
         assertInstanceOf(PongMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+    }
+
+    @DisplayName("getTimer should return the timer")
+    @Test
+    void getTimerTest() {
+        // Check that the timer is not null
+        assertNotNull(gameController.getTimer());
+        // Check that the timer is an instance of Timer
+        assertInstanceOf(Timer.class, gameController.getTimer());
     }
 
 }
