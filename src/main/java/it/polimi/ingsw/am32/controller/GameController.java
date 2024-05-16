@@ -249,6 +249,15 @@ public class GameController {
 
         // Set player state to disconnected
         playerQuadruple.setConnected(false);
+
+        // Notify all players that a player has left the game
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
+            }
+        }
     }
 
     private void disconnectNotCurrentPlayer(NodeInterface node) {
@@ -267,7 +276,16 @@ public class GameController {
         // Set player state to disconnected
         playerQuadruple.setConnected(false);
 
-        // TODO if there are no players left, start timer for winner declaration
+        // Notify all players that a player has left the game
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
+            }
+        }
+
+        // TODO if there are no other players left, start timer for winner declaration
     }
 
     private void disconnectCurrentPlayerAfterPlacing(NodeInterface node) {
