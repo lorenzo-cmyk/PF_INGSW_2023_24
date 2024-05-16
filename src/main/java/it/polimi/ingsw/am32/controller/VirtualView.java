@@ -78,7 +78,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
     /**
      * Processes the message queue.
      */
-    private synchronized void processMessage() { // Synchronized statement might not be necessary, but it is kept as it is considered "more correct"
+    protected synchronized void processMessage() { // Synchronized statement might not be necessary, but it is kept as it is considered "more correct"
         if (messageQueue.isEmpty()) { // There is no message to be delivered to the client
             try {
                 wait(); // Enter sleep state, and what for a message to be added to the queue
