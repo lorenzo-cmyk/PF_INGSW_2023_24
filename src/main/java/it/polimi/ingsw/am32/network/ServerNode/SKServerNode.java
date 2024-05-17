@@ -85,7 +85,9 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         } catch (IOException e) {
 
-            inputObtStr = null;
+            try {
+                inputObtStr.close();
+            } catch (IOException ignored) {}
 
             try {
                 if(!socket.isClosed())
@@ -117,7 +119,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             destroy();
 
-            logger.error("Critical ObjectInputStream error while receiving: {}" +
+            logger.error("Critical ObjectInputStream error while reading: {}" +
                     "\nSocket Closed", e.getMessage()); //TODO risolvere meglio gli errori
         } catch (NodeClosedException e) {
             return;
