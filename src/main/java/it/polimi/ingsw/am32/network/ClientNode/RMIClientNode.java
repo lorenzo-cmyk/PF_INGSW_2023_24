@@ -34,4 +34,9 @@ public class RMIClientNode implements ClientNodeInterface, RMIClientNodeInt {
     public void run() {
         // TODO
     }
+
+    @Override
+    public void pingTimeOverdue() {
+
+    }
 }

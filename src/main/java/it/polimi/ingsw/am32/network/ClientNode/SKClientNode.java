@@ -77,4 +77,9 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         this.socketIn = new ObjectInputStream(socket.getInputStream());
 
     }
+
+    @Override
+    public void pingTimeOverdue() {
+
+    }
 }

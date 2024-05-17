@@ -10,4 +10,5 @@ public interface ClientNodeInterface extends Runnable {
     void uploadToServer(CtoSMessage message) throws UploadFailureException;
     void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException;
     void receiveFromServer() throws IOException, ClassNotFoundException;
+    void pingTimeOverdue();
 }
