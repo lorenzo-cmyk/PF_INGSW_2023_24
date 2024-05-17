@@ -33,7 +33,7 @@ public class SKServerNode implements Runnable, NodeInterface {
     private ObjectOutputStream outputObtStr;
     private final Socket socket;
     private int pingCount;
-    private final PingTask pingTask;
+    private final ServerPingTask serverPingTask;
     private boolean statusIsAlive;
     private boolean destroyCalled;
     private final Object aliveLock;
@@ -101,7 +101,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         statusIsAlive = true;
         destroyCalled = false;
-        pingTask = new PingTask(this);
+        serverPingTask = new ServerPingTask(this);
     }
 
     public void run() {
@@ -230,7 +230,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 }
 
                 try {
-                    gameController.getTimer().scheduleAtFixedRate(pingTask, 0, Configuration.getInstance().getPingTimeInterval());
+                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
                 } catch (Exception ignored) {}
 
                 logger.info("CtoSLobbyMessage received");
@@ -316,7 +316,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             destroyCalled = true;
         }
 
-        pingTask.cancel();
+        serverPingTask.cancel();
 
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
