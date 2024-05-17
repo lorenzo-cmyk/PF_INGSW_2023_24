@@ -403,8 +403,12 @@ public class GameController {
         }
     }
 
-    public void reconnect(NodeInterface node) {
-        //TODO
+    public void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException {
+        // Throw exception if nickname is not present in the list of players
+        if (nodeList.stream().noneMatch(pq -> pq.getNickname().equals(nickname))) {
+            throw new PlayerNotFoundException("Player " + nickname + " not found when reconnecting");
+        }
+        // TODO
     }
 
     /**
