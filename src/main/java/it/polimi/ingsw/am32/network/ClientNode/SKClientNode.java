@@ -79,6 +79,8 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     @Override
     public void pingTimeOverdue() {
-
+        try {
+            uploadToServer(new PingMessage(nickname));
+        } catch (UploadFailureException ignored) {}
     }
 }
