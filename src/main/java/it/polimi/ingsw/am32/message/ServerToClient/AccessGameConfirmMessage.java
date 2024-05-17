@@ -14,7 +14,7 @@ public class AccessGameConfirmMessage implements StoCMessage {
 
     public void processMessage(View view) {
         view.setCurrentEvent(Event.JOINED_GAME);
-        view.handleEvent(Event.JOINED_GAME);
+        view.handleEvent(Event.JOINED_GAME); // notify the player that he joined the game successfully.
     }
 
     @Override

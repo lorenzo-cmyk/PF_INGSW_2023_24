@@ -105,9 +105,9 @@ public class TextUI extends View implements Runnable {
      */
     @Override
     public void chooseConnection() {
-        logger.info("Enter chooseConnection");
+        currentEvent = Event.CHOOSE_CONNECTION;
         out.println("""
-                Choose the connection type:
+                Choose the connection type,type[1 or 2]:
                 1. Socket
                 2. RMI""");
         int connectionChoice = getInputInt();
@@ -115,14 +115,14 @@ public class TextUI extends View implements Runnable {
         switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
             case 1: {
                 String ServerIP;
-                out.println("Insert the server IP");
+                out.println("Insert the server IP:");
                 in.nextLine();// read the input from the player
                 ServerIP = getInput();
                 while (!isValid.isIpValid(ServerIP)) {
                     out.println("Invalid IP, please try again");
                     ServerIP = in.nextLine();
                 }// if the IP address is invalid, print the error message and ask the player to re-enter the IP address
-                out.println("Insert the server port");
+                out.println("Insert the server port:");
                 int port = getInputInt();
                 // if the port number is invalid, print the error message and ask the player to re-enter the port number
                 while (!isValid.isPortValid(port)) {
@@ -161,7 +161,6 @@ public class TextUI extends View implements Runnable {
             out.println("Connection failed, please try again");
             chooseConnection();
         }
-        logger.info("Out chooseConnection");
     }
 
     /**
@@ -214,12 +213,10 @@ public class TextUI extends View implements Runnable {
 
     /**
      * The method uses the {@link Event} enum to set the current event to select the game mode. The method prints the
-     * menu of the game mode and asks the player to select the action to perform using the {@link #handleChoiceEvent}
-     * method.
+     * menu of the game mode and asks the player to select the action to perform.
      */
     @Override
     public void askSelectGameMode() { //From this method, the player can select to use the command Service
-        logger.info("Enter askSelectGameMode");
         currentEvent = Event.SELECT_GAME_MODE;
         out.println("""
                 Menu:
@@ -227,7 +224,7 @@ public class TextUI extends View implements Runnable {
                 2. Join game with game ID
                 3. Reconnect game
                 """);
-        out.println("Which action do you want to perform?");
+        out.println("Which action do you want to perform, type[1,2 or 3]:");
         in.nextLine();
         String choice = getInput();
         switch (choice) {
@@ -240,7 +237,6 @@ public class TextUI extends View implements Runnable {
                 askSelectGameMode();
             }
         }
-        logger.info("Out askSelectGameMode");
     }
 
     /**
@@ -248,7 +244,7 @@ public class TextUI extends View implements Runnable {
      */
     @Override
     public void askNickname() {
-        out.println("Insert the nickname you want to use in the game");
+        out.println("Insert the nickname you want to use in the game:");
         thisPlayerNickname = getInput();
     }
 
@@ -261,10 +257,9 @@ public class TextUI extends View implements Runnable {
      */
     @Override
     public void askCreateGame() {
-        logger.info("Enter askCreateGameMode");
         currentEvent = Event.CREATE_GAME;
-        askNickname();
-        out.println("Insert the number of players you want to play with");
+        askNickname(); // ask the player to insert the nickname
+        out.println("Insert the number of players you want to play with,type[2,3 or 4]:");
         while (true) {
             playerNum = Integer.parseInt(getInput());
             if (playerNum < 2 || playerNum > 4) {
@@ -275,7 +270,6 @@ public class TextUI extends View implements Runnable {
             break;
         } // notify the listener with the new game message
         notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
-        logger.info("Out askCreateGameMode");
     }
 
     /**
@@ -285,10 +279,10 @@ public class TextUI extends View implements Runnable {
     @Override
     public void askJoinGame() {
         currentEvent = Event.JOIN_GAME;
-        out.println("Insert the nickname you want to use in the game");
+        out.println("Insert the nickname you want to use in the game:");
         thisPlayerNickname =getInput();
-        out.println("Insert the Access ID of the game you want to join");
-        gameID = Integer.parseInt(getInput());
+        out.println("Insert the Access ID of the game you want to join:");
+        this.gameID = Integer.parseInt(getInput());
         // notify the listener with the access game message
         notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
     }
@@ -304,46 +298,57 @@ public class TextUI extends View implements Runnable {
         //TODO wait for the response from the server
     }
 
+    /**
+     * Once the player receives the NewGameConfirmationMessage from the server, the method is called by processMessage
+     * to store the gameID, the nickname of the player who created the game, and add it in the list of players.
+     * @param gameID the game ID returned by the server after the confirmation of the new game
+     * @param recipientNickname the nickname of the player who asked to create the new game
+     */
     @Override
     public void updateNewGameConfirm(int gameID, String recipientNickname) {
-        logger.info("Received the NewGameConfirmationMessage from the server");
-        // once received the NewGameConfirmationMessage from the server
         this.gameID = gameID;
         this.thisPlayerNickname = recipientNickname;
         this.players.add(recipientNickname);
-        handleEvent(Event.GAME_CREATED);
-        currentEvent = Event.WAITING_FOR_START;
+        handleEvent(Event.GAME_CREATED); // print the message to notify the player that the game is created correctly
+        currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
     }
-
+    /**
+     * Once the player receives the AccessGameConfirmationMessage from the server, the method is called by
+     * processMessage, and
+     */
     @Override
     public void updateNewPlayerJoin(ArrayList<String> players) {
+        setCurrentEvent(Event.WAITING_FOR_START);
         for (String player : players) {
             if (!this.players.contains(player)) {
                 this.players.add(player);
             }
-        }// FIXME is LOBBYPLAYERLISTMESSAGE also used to update the player list when a player leaves the game?
-        if (currentEvent.equals(Event.WAITING_FOR_START)) { // if the player is waiting for the game to start.
-            handleEvent(Event.NEW_PLAYER_JOIN);
-            logger.info("Received the LOBBYPLAYERLISTMessage from the server when a new player joins the game");
-        } else {
-            logger.info("Received the LOBBYPLAYERLISTMessage from the server when joined" +
-                    " the game");
-            setCurrentEvent(Event.WAITING_FOR_START); // if the player is the player who just joined the game.
         }
         showPlayerInGame();
     }
 
     //-------------------Game start-----------------------
+
+    /**
+     * After receiving the GameStarted message from the server, the method is called to set up the view of the player
+     * and initialize the data and the boards of the players.
+     */
     @Override
     public void setUpPlayersData() {
-        // after receiving the message from the server, the method is called to set up/initiate the view of the player
-        handleEvent(Event.GAME_START);
+        handleEvent(Event.GAME_START);  // notify the player that the game is started
         for (String player : players) {
-            publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},true));
+            // set up the data of the players and initialize the board of the players
+            publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
+                    true));
             boards.put(player, new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
         }
     }
-
+    /**
+     * Once the player receives the MatchStatus message from the server, the method is called by processMessage to
+     * update the match status of the player, and print the message to notify the player of the current match status.
+     * And if the match status is TERMINATING, the method is called to show the points of all players in the game.
+     * @param matchStatus the current match status received from the server
+     */
     @Override
     public void updateMatchStatus(int matchStatus) {
         // once received the MatchStatusMessage from the server
@@ -356,10 +361,14 @@ public class TextUI extends View implements Runnable {
         }
     }
 
+    /**
+     * Once the player receives the AssignedStarterCardMessage from the server, the method is called by processMessage
+     * to request the player to select the side of the starter card they want to use. The player will be able to see
+     * the front and back side of the card and select the side they want to use.
+     * @param ID the ID of the starter card received from the server and assigned to the player.
+     */
     @Override
     public void requestSelectStarterCardSide(int ID) {
-        // once received the AssignStarterCardMessage from the server
-        currentEvent = Event.SELECT_STARTER_CARD_SIDE;
         out.println("The starter card received is following");
         showCard(ID, true);
         showCard(ID, false);
@@ -371,12 +380,20 @@ public class TextUI extends View implements Runnable {
             side = getInput();
         }
         notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, true));
-        logger.info("Out requestSelectStarterCardSide");
     }
 
+    /**
+     * Once received the StarterCardConfirmationMessage from the server, the method is called by processMessage to
+     * update the view of the player and print the message to notify the player that the starter card is selected
+      * @param colour the colour of the player in the game.
+     * @param cardID the ID of the starter card selected by the player and received from the server.
+     * @param isUp indicates the side of the card selected by the player to be placed.
+     * @param availablePos the available positions in the field after the placement of the starter card.
+     * @param resources the resources of the player in the field after the placement of the starter card.
+     */
     @Override
-    public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
-        // once received the StarterCardConfirmationMessage from the server
+    public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos,
+                                         int[] resources) {
         publicInfo.get(thisPlayerNickname).updateColour(convertToColour(colour));
         out.println("Your colour of this game is: " + convertToColour(colour));
         availableSpaces = availablePos;
@@ -426,11 +443,9 @@ public class TextUI extends View implements Runnable {
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces) {
-        //The field is represented as an ArrayList of integer arrays, where each array represents a card placed on
-        //     * the field. The elements of the array are the x-coordinate, y-coordinate, id of the card, and a boolean value
-        //     * (1 for true, 0 for false) indicating whether the card is face up.
-        //     *
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
+        //FIXME NEED TO FIX IT WITH THE DIFFERENT STATUS
+        //Update when entering the playing status
         this.currentEvent = Event.PLAYING;
         this.players = playerNicknames;
         this.hand = playerHand;
@@ -453,6 +468,7 @@ public class TextUI extends View implements Runnable {
                     updateAfterPlacedCard(playerNicknames.get(finalI), searchNonObjCardById(card[2]), card[0], card[1],
                             card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);});
         }
+        //TODO Update when a specific player reconnects with rollback...
     }
 
     @Override
@@ -464,6 +480,9 @@ public class TextUI extends View implements Runnable {
             requestPlaceCard();
         }else{
             out.println("It is " + currentPlayer + "'s turn");
+            /*while(currentEvent.equals(Event.NOT_YOUR_TURN)){
+                 String input = getInput();
+            }*/
         }
     }
 
@@ -679,16 +698,6 @@ public class TextUI extends View implements Runnable {
         this.currentGoldCards.add(currentGoldCards[1]);
         out.println("The situation of the deck after this turn is following:");
         showDeck();
-    }
-    @Override
-    public void handleFailureCase(Event event,String reason){
-        switch (event){
-            case PLACE_CARD_FAILURE-> {
-                out.println(reason);
-                out.println("Please re-select the card from your hand:");
-                requestPlaceCard();
-            }
-        }
     }
     //-------------------Last turn-------------------
 
@@ -995,6 +1004,7 @@ public class TextUI extends View implements Runnable {
                 // Four type of L Configuration cards
                 case "LConfigurationOne": {
                     description = "2 FUNGI + 1 PLANT cards";
+
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
                     cardImage.add("+----------------------------+");
@@ -1176,6 +1186,32 @@ public class TextUI extends View implements Runnable {
         limits[1] = Math.min(limits[1], posX - 1);
         limits[2] = Math.max(limits[2], posY + 1);
         limits[3] = Math.min(limits[3], posY - 1);
+    }
+
+    @Override
+    public void handleFailureCase(Event event,String reason){
+        switch (event){
+            case CHOOSE_CONNECTION -> {
+                out.println(reason);
+                out.println("Please try again:");
+                chooseConnection();
+            }
+            case CREATE_GAME-> {
+                out.println(reason);
+                out.println("Please try again:");
+                askCreateGame();
+            }
+            case JOIN_GAME-> {
+                out.println(reason);
+                out.println("Please try again:");
+                askJoinGame();
+            }
+            case PLACE_CARD_FAILURE-> {
+                out.println(reason);
+                out.println("Please re-select the card from your hand:");
+                requestPlaceCard();
+            }
+        }
     }
 
     @Override
