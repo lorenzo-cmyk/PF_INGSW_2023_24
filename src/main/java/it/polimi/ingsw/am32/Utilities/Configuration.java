@@ -32,6 +32,7 @@ public class Configuration {
     private int pingTimeInterval;
     private int maxPingCount;
     private int socketReadTimeout;
+    private int endGameDueToDisconnectionTimeout;
     private String serverIp;
     private final ExecutorService executorService;
 
@@ -62,6 +63,7 @@ public class Configuration {
         socketReadTimeout = 100;
         serverIp = "127.0.0.1";
         executorService = Executors.newCachedThreadPool();
+        endGameDueToDisconnectionTimeout = 2 * 60 * 1000; // 2 minutes
 
         // temporary values
 
@@ -112,6 +114,10 @@ public class Configuration {
             try {
                 serverIp = serverIpValidator(jsonNode.get("serverIp").asText(), serverIp);
             } catch (Exception ignored){}
+
+            try {
+                endGameDueToDisconnectionTimeout = jsonNode.get("endGameDueToDisconnectionTimeout").asInt();
+            } catch (Exception ignored){}
         }
 
         // overwrite server configuration with data from startup parameters
@@ -138,6 +144,7 @@ public class Configuration {
                     case "-ptp" -> pingTimeInterval = Integer.parseInt(args[i + 1]);
                     case "-mpc" -> maxPingCount = Integer.parseInt(args[i + 1]);
                     case "-srt" -> socketReadTimeout = Integer.parseInt(args[i + 1]);
+                    case "-edt" -> endGameDueToDisconnectionTimeout = Integer.parseInt(args[i + 1]);
                     case "-si" -> serverIp = serverIpValidator(args[i + 1], serverIp);
                 }
             } catch (NumberFormatException ignored) {}
@@ -169,6 +176,7 @@ public class Configuration {
         System.out.println("Ping time period: " + pingTimeInterval);
         System.out.println("Max ping count: " + maxPingCount);
         System.out.println("Socket read timeout: " + socketReadTimeout);
+        System.out.println("End game due to disconnection timeout: " + endGameDueToDisconnectionTimeout);
         System.out.println("Server ip: " + serverIp);
     }
 
@@ -333,5 +341,14 @@ public class Configuration {
      */
     public ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    /**
+     * Return the time after which the game ends due to loss of players.
+     *
+     * @return An int indicating the time in milliseconds
+     */
+    public int getEndGameDueToDisconnectionTimeout() {
+        return endGameDueToDisconnectionTimeout;
     }
 }

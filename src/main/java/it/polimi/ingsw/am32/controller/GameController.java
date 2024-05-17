@@ -263,11 +263,9 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
-            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
         }
     }
-
 
     /**
      * Method called when a player disconnects after the game has started and is the current player, and has already placed a card (but not yet drawn).
@@ -322,8 +320,7 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
-            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
         }
     }
 
@@ -352,8 +349,7 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
-            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
         }
     }
 
