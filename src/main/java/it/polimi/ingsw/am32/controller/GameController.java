@@ -283,7 +283,22 @@ public class GameController {
             throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found when rolling back placement");
         }
 
-        // TODO: Inform all players of the rollback.
+        // Notify all players that the current player has rolled back his placement
+        for (PlayerQuadruple pq : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlaceCardRollbackMessage(
+                        pq.getNickname(),
+                        playerQuadruple.getNickname(),
+                        model.getPlayerHand(playerQuadruple.getNickname()).getFirst(),
+                        model.getPlayerPoints(playerQuadruple.getNickname()),
+                        model.getPlayerResources(playerQuadruple.getNickname())
+                ));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the current player has rolled back his placement");
+            } catch (PlayerNotFoundException e) {
+                throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found when notifying players that the current player has rolled back his placement");
+            }
+        }
 
         // Notify all players that a player has left the game
         for (PlayerQuadruple playerQuadruple1 : nodeList) {
