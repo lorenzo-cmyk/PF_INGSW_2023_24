@@ -21,7 +21,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private GameController gameController;
     private int pingCount;
     private RMIClientNodeInt clientNode;
-    private final PingTask pingTask;
+    private final ServerPingTask serverPingTask;
     private boolean statusIsAlive;
     private boolean destroyCalled;
     private final Object aliveLock;
@@ -30,7 +30,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     public RMIServerNode(RMIClientNodeInt clientNode) throws RemoteException {
         this.clientNode = clientNode;
-        pingTask = new PingTask(this);
+        serverPingTask = new ServerPingTask(this);
         config = Configuration.getInstance();
         pingCount = config.getMaxPingCount();
         aliveLock = new Object();
@@ -109,7 +109,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             destroyCalled = true;
         }
 
-        pingTask.cancel();
+        serverPingTask.cancel();
 
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
@@ -129,7 +129,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
         // TODO controllare se il timer può fallire a runtime (controllare con gamecontroller)
-        gameController.getTimer().scheduleAtFixedRate(pingTask, 0, Configuration.getInstance().getPingTimeInterval());
+        gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
     }
 
 }

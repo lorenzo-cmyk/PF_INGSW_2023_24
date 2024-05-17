@@ -2,9 +2,9 @@ package it.polimi.ingsw.am32.network.ServerNode;
 
 import java.util.TimerTask;
 
-public class PingTask extends TimerTask {
+public class ServerPingTask extends TimerTask {
     private final NodeInterface node;
-    public PingTask(NodeInterface node) {
+    public ServerPingTask(NodeInterface node) {
         this.node = node;
     }
     public void run() {
