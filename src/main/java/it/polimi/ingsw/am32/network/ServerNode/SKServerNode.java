@@ -53,22 +53,16 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         try {
             socket.setSoTimeout(config.getSocketReadTimeout());
-
+            inputObtStr = new ObjectInputStream(socket.getInputStream());
+            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
         } catch (SocketException e) {
-
             try {
                 if(!socket.isClosed())
                     socket.close();
             } catch (IOException ignored) {}
 
             logger.error("InputTimeout Error: {}\nSocket Closed", e.getMessage());
-
             throw new UninitializedException();
-        }
-
-        try {
-            inputObtStr = new ObjectInputStream(socket.getInputStream());
-
         } catch (IOException e) {
             try {
                 if(!socket.isClosed())
@@ -76,24 +70,6 @@ public class SKServerNode implements Runnable, NodeInterface {
             } catch (IOException ignored) {}
 
             logger.error("Could not open input stream: {}\nSocket Closed", e.getMessage());
-
-            throw new UninitializedException();
-        }
-
-        try {
-            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
-
-        } catch (IOException e) {
-
-            inputObtStr = null;
-
-            try {
-                if(!socket.isClosed())
-                    socket.close();
-            } catch (IOException ignored) {}
-
-            logger.error("Could not open output stream: {}\nSocket Closed", e.getMessage());
-
             throw new UninitializedException();
         }
 

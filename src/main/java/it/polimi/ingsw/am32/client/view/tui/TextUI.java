@@ -379,6 +379,7 @@ public class TextUI extends View implements Runnable {
         // once received the StarterCardConfirmationMessage from the server
         publicInfo.get(thisPlayerNickname).updateColour(convertToColour(colour));
         out.println("Your colour of this game is: " + convertToColour(colour));
+        availableSpaces = availablePos;
         updateAfterPlacedCard(thisPlayerNickname, searchNonObjCardById(cardID), 0, 0, isUp, availablePos,
                 resources, 0);
         out.println("Your field after placing the starter card is following:");
@@ -574,11 +575,11 @@ public class TextUI extends View implements Runnable {
         hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
         the board of the player.*/
         // update the field of the player
+        int num = publicInfo.get(playerNickname).getField().size();
         publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(), cardImg.get(card.getID()), x, y, isUp));
         publicInfo.get(playerNickname).updateResources(resources); // update the resources
         publicInfo.get(playerNickname).updatePoints(points); // update the points
         // represents the sequence of the card placed in the field.
-        int num = publicInfo.get(playerNickname).getField().size();
         BoardView boardView = boards.get(playerNickname);
         String[][] board = boardView.getBoard();
         int[] limits = boardView.getLimits();
@@ -634,6 +635,16 @@ public class TextUI extends View implements Runnable {
         /* if player is the owner of this UI, store the available positions in the board of the player, and update the
         board limits. In this way, the player can see the available positions for the next turn of the placement.*/
         if (playerNickname.equals(thisPlayerNickname)) {
+            availableSpaces.removeIf(pos -> pos[0] == x && pos[1] == y); //TODO check if exists another way to do this
+            for(int[] pos : availableSpaces){ // delete the old available positions in the board.
+                posX = -2 * pos[1] + 80;
+                posY = 2 * pos[0] + 80;
+                updateBoardViewLimits(posX, posY, limits);
+                board[posX][posY] = "   ";
+                board[posX][posY - 1] = "   ";
+                board[posX][posY + 1] = "   ";
+            }
+            availableSpaces = availablePos; // update the available positions for the next turn of the placement.
             for (int[] pos : availablePos) {
                 posX = -2 * pos[1] + 80;
                 posY = 2 * pos[0] + 80;
@@ -647,11 +658,11 @@ public class TextUI extends View implements Runnable {
 
     @Override
     public void updateAfterDrawCard(ArrayList<Integer> hand) {
-        out.println("index should be replaced"+indexCardPlaced);
-        out.println("Hand from server"+hand);
+        //out.println("index should be replaced"+indexCardPlaced);
+        //out.println("Hand from server"+hand);
         this.hand.remove(indexCardPlaced);
         this.hand.add(indexCardPlaced, hand.getLast());
-        out.println("Hand after added the card from server:"+this.hand);
+        //out.println("Hand after added the card from server:"+this.hand);
         out.println("The card is added in your hand successfully, here is your hand after drawing the card:");
         showHand(this.hand);
     }
@@ -726,11 +737,6 @@ public class TextUI extends View implements Runnable {
         // show the version details of the card selected by the player --> call printNonObjCard or printObjCard
         out.println("The card selected is: ");
         //TODO show the card selected by the player
-    }
-
-    public void showPlacedCard() {
-        // when the player wants to see the details of the card placed --> call printNonObjCard
-        //TODO use printNonObjCard to show the card placed by request of the player
     }
 
     public void showPlayersField(String playerNickname) {
@@ -811,7 +817,8 @@ public class TextUI extends View implements Runnable {
         out.println("The winners of the match are: "+winners);
         out.println("The final points of the players are following:");
         for(int i=0; i<players.size(); i++) {
-            out.println("Player: " + players.get(i) + " has total points: " + points.get(i)+" with following secret objective card:");
+            out.println("Player " + players.get(i) + " has total points: " + points.get(i)+" with "+
+                    pointsGainedFromSecrets.get(i)+ " points gained from this secret objective card:");
             showCard(secrets.get(i), true);
         }
     }
@@ -1268,6 +1275,10 @@ public class TextUI extends View implements Runnable {
             case "ShowCommonObjCard" -> showObjectiveCards(commonObjCards);
             case "ShowSecretObjCard" -> showCard(secretObjCardSelected, true);
             case "ShowPlacedCard" -> {
+                out.println("Which card place in the field, you want to see?");
+                String card = getInput();
+                CardPlacedView cardPlaced = publicInfo.get(thisPlayerNickname).getField().get(Integer.parseInt(card));
+                showCard(cardPlaced.ID(),cardPlaced.side());
             }
             case "ShowPlayerField" -> {
                 out.println("Whose field do you want to see?");

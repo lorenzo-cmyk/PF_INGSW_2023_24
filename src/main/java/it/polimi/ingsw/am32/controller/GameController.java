@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.controller;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,10 @@ public class GameController {
      * status: The status of the game controller
      */
     private GameControllerStatus status;
+    /**
+     * lastOnlinePlayer: The nickname of the last player that was online
+     */
+    private String lastOnlinePlayer;
 
     /**
      * Constructor for the GameController class. Initializes the game controller with the given id and game size.
@@ -137,37 +142,56 @@ public class GameController {
         chat.addMessage(message); // Adds the message to the chat history
     }
 
-    /**
-     * Method called whenever a player gets disconnected.
-     * Calls the appropriate version of the disconnect method based on the current game status.
-     *
-     * @param node The node of the player to disconnect
+    /*
+    Disconnection types:
+    - Player disconnects during the lobby phase
+    - Player disconnects before game has started
+    - Player disconnects after game has started but is not current player
+    - Player disconnects after game has started and is current player (has placed but not yet drawn)
+    - Player disconnects after game has started and is current player (has not yet placed)
+    - Player disconnects after game has ended
      */
-    // TODO: Finish implementation of disconnection in the controller
-    public void disconnect(NodeInterface node) {
-        switch (status) {
-            case GameControllerStatus.LOBBY -> disconnectDuringLobby(node);
-            case GameControllerStatus.WAITING_CARD_DRAW -> disconnectAfterPlacementBeforeDraw(node);
-            default -> disconnectStandard(node);
-        }
-    }
 
     /**
-     * Disconnects a player during the lobby phase.
-     * Shuts down the player's virtual view.
-     * Removes the player from the model.
-     * Removes the playerQuadruple.
-     * Notifies all players that a player has left the lobby.
+     * Method called when a player disconnects from the game.
+     * Handles the disconnection based on the current status of the game.
      *
-     * @param node The node of the player to disconnect
+     * @param node The node of the player that has disconnected
      */
-    private void disconnectDuringLobby(NodeInterface node) {
+    public synchronized void disconnect(NodeInterface node) {
         PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
         if (playerQuadruple == null) { // The player quadruple could not be found
             throw new CriticalFailureException("Player quadruple not found when disconnecting player");
         }
 
+        // The player quadruple was found
+        if (status == GameControllerStatus.LOBBY) { // We are in the lobby phase
+            disconnectDuringLobby(playerQuadruple);
+        }
+        else if (status == GameControllerStatus.WAITING_STARTER_CARD_CHOICE || status == GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE) { // We are in the preparation phase
+            disconnectBeforeGameStart(playerQuadruple);
+        }
+        // We are in the playing phase
+        else if (!model.getCurrentPlayerNickname().equals(playerQuadruple.getNickname())) { // We are not the current player
+            disconnectNotCurrentPlayer(playerQuadruple);
+        }
+        // We are the current player
+        else if (status == GameControllerStatus.WAITING_CARD_PLACEMENT) { // We have not yet placed a card
+            disconnectCurrentPlayerBeforePlacing(playerQuadruple);
+        }
+        else if (status == GameControllerStatus.WAITING_CARD_DRAW) { // We have placed a card but not yet drawn one
+            disconnectCurrentPlayerAfterPlacing(playerQuadruple);
+        }
+    }
+
+    /**
+     * Method called when a player disconnects during the lobby phase.
+     * Removes the player from the game, notifies all players that the player has left the lobby, and shuts down the player's VirtualView.
+     *
+     * @param playerQuadruple The PlayerQuadruple of the player that has disconnected
+     */
+    private void disconnectDuringLobby(PlayerQuadruple playerQuadruple) {
         // Delete player from model
         try {
             model.deletePlayer(playerQuadruple.getNickname());
@@ -195,22 +219,190 @@ public class GameController {
         }
     }
 
-    // TODO: Finish implementation of disconnection in the controller
-    //  FIXME: In case of rollback we will send a new type of messages with the post-rollback field, points and resources
-    private void disconnectAfterPlacementBeforeDraw(NodeInterface node) {
-        // TODO
+    /**
+     * Method called when a player disconnects before the game has started, in the preparation phase such as
+     * when players are choosing the side of their starter card.
+     * Sets the player status to "Disconnected" hoping that it will reconnect eventually.
+     *
+     * @param playerQuadruple The PlayerQuadruple of the player that has disconnected
+     */
+    private void disconnectBeforeGameStart(PlayerQuadruple playerQuadruple) {
+        // Set player state to disconnected
+        playerQuadruple.setConnected(false);
+
+        // Notify all players that a player has left the game
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
+            }
+        }
     }
 
-    // TODO: Finish implementation of disconnection in the controller
-    private void disconnectStandard(NodeInterface node) {
-        // If we are not yet playing, just disconnect normally
-        // If the leaving player is not the one currently playing we just need to inform the other player
+    /**
+     * Method called when a player disconnects after the game has started but is not the current player.
+     * Sets the player status to "Disconnected" hoping that it will reconnect eventually.
+     * Notifies all players that a player has left the game.
+     * If only one player remain connected, starts a timer for winner declaration.
+     *
+     * @param playerQuadruple The PlayerQuadruple of the player that has disconnected
+     */
+    private void disconnectNotCurrentPlayer(PlayerQuadruple playerQuadruple) {
+        // Set player state to disconnected
+        playerQuadruple.setConnected(false);
 
-        // If the leaving player is the one currently playing and he has not yet placed a card we need to skip the turn and then inform the other players
-        // TODO
+        // Notify all players that a player has left the game
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
+            }
+        }
+
+        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
+            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
+            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+        }
     }
 
-    // TODO: Finish implementation of reconnection in the controller
+
+    /**
+     * Method called when a player disconnects after the game has started and is the current player, and has already placed a card (but not yet drawn).
+     * Sets the player status to "Disconnected" hoping that it will reconnect eventually.
+     * Rolls back the player's placement and informs all players of the rollback.
+     * Notifies all players that a player has left the game and updates the current player.
+     * If only one player remain connected, starts a timer for winner declaration.
+     *
+     * @param playerQuadruple The PlayerQuadruple of the player that has disconnected
+     */
+    private void disconnectCurrentPlayerAfterPlacing(PlayerQuadruple playerQuadruple) {
+        // Set player state to disconnected
+        playerQuadruple.setConnected(false);
+
+        // Undo the player's placement
+        try {
+            model.rollbackPlacement();
+        } catch (RollbackException e) {
+            throw new CriticalFailureException("RollbackException when rolling back placement");
+        } catch (PlayerNotFoundException e) {
+            throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found when rolling back placement");
+        }
+
+        // Notify all players that the current player has rolled back his placement
+        for (PlayerQuadruple pq : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlaceCardRollbackMessage(
+                        pq.getNickname(),
+                        playerQuadruple.getNickname(),
+                        model.getPlayerHand(playerQuadruple.getNickname()).getFirst(),
+                        model.getPlayerPoints(playerQuadruple.getNickname()),
+                        model.getPlayerResources(playerQuadruple.getNickname())
+                ));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the current player has rolled back his placement");
+            } catch (PlayerNotFoundException e) {
+                throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found when notifying players that the current player has rolled back his placement");
+            }
+        }
+
+        // Notify all players that a player has left the game
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
+            }
+        }
+
+        // Update the new current player. The notification is handled internally
+        setNextPlayer();
+
+        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
+            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
+            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+        }
+    }
+
+    /**
+     * Method called when a player disconnects after the game has started and is the current player, but has not yet placed a card.
+     * Sets the player status to "Disconnected" hoping that it will reconnect eventually.
+     * Notifies all players that a player has left the game, updates the current player, and starts a timer for winner declaration if only one player remains connected.
+     *
+     * @param playerQuadruple The PlayerQuadruple of the player that has disconnected
+     */
+    private void disconnectCurrentPlayerBeforePlacing(PlayerQuadruple playerQuadruple) {
+        // Set player state to disconnected
+        playerQuadruple.setConnected(false);
+
+        // Notify all players that a player has left the game
+        for (PlayerQuadruple playerQuadruple1 : nodeList) {
+            try {
+                submitVirtualViewMessage(new PlayerDisconnectMessage(playerQuadruple1.getNickname(), playerQuadruple.getNickname()));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
+            }
+        }
+
+        // Update the new current player
+        setNextPlayer();
+
+        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
+            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
+            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+        }
+    }
+
+    protected void endMatchDueToDisconnection() {
+        // Set the Game Controller status to GAME_ENDED
+        status = GameControllerStatus.GAME_ENDED;
+
+        // Notify all players that the game was won by the remaining player
+        ArrayList<String> players = new ArrayList<>();
+        ArrayList<Integer> points = new ArrayList<>();
+        ArrayList<Integer> secrets = new ArrayList<>();
+        ArrayList<Integer> pointsGainedFromSecrets = new ArrayList<>();
+        ArrayList<String> winners = new ArrayList<>();
+
+        // Iterate on each player in the nodeList using their nickname as key
+        for(PlayerQuadruple playerQuadruple : nodeList){
+            try {
+                players.add(playerQuadruple.getNickname());
+                points.add(model.getPlayerPoints(playerQuadruple.getNickname()));
+                secrets.add(model.getPlayerSecretObjective(playerQuadruple.getNickname()));
+                pointsGainedFromSecrets.add(0);
+            } catch (PlayerNotFoundException e) {
+                throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found");
+            }
+        }
+
+        // Add the remaining player to the list of winners
+        winners.add(lastOnlinePlayer);
+
+        // Notify all players of the new match status and of the winners
+        for (PlayerQuadruple playerQuadruple : nodeList) {
+            try {
+                // Notify the player of the status of the match
+                submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                // Notify the player of the winners
+                submitVirtualViewMessage(new MatchWinnersMessage(
+                        playerQuadruple.getNickname(),
+                        players,
+                        points,
+                        secrets,
+                        pointsGainedFromSecrets,
+                        winners
+                ));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the game has ended");
+            }
+        }
+    }
+
     public void reconnect(NodeInterface node) {
         //TODO
     }

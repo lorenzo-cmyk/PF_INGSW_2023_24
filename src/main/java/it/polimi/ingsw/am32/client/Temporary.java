@@ -54,6 +54,7 @@ public class Temporary implements Runnable{
     protected int resourceDeckSize;
     protected int goldDeckSize;
     protected String Status;
+    protected ArrayList<int[]> availableSpaces;
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
     protected static ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
@@ -91,11 +92,11 @@ public class Temporary implements Runnable{
             }
         }
 
-        /*thisPlayerNickname = "player1";
+       thisPlayerNickname = "player1";
         players=new ArrayList<>();
         players.add("player1");
         players.add("player2");
-        publicInfo.put("player1",new PlayerPub("null",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0}));
+        publicInfo.put("player1",new PlayerPub("null",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
         boards.put("player1",new BoardView(new int[]{80,80,80,80},new String[160][160]));
         ArrayList<int[]>availablePos = new ArrayList<>();
         availablePos.add(new int[]{0,0});
@@ -105,14 +106,15 @@ public class Temporary implements Runnable{
         availablePos.add(new int[]{-1,-1});
         availablePos.add(new int[]{2,2});
         availablePos.add(new int[]{3,3});
+        availableSpaces= availablePos;
         availablePos.add(new int[]{4,4});
         availablePos.add(new int[]{-2,-2});
         availablePos.add(new int[]{-3,-3});
-        updateAfterPlacedCard("player1",nonObjCards.get(85),0,0,true,availablePos,new int[]{0,0,0},0);
-        updateAfterPlacedCard("player1",nonObjCards.get(5),1,1,true,availablePos,new int[]{0,0,0},0);
-        updateAfterPlacedCard("player1",nonObjCards.get(15),1,-1,true,availablePos,new int[]{0,0,0},0);
-        updateAfterPlacedCard("player1",nonObjCards.get(25),-1,1,true,availablePos,new int[]{0,0,0},0);
-        updateAfterPlacedCard("player1",nonObjCards.get(35),-1,-1,true,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(85),0,0,false,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(5),1,1,false,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(15),1,-1,false,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(25),-1,1,false,availablePos,new int[]{0,0,0},0);
+        updateAfterPlacedCard("player1",nonObjCards.get(35),-1,-1,false,availablePos,new int[]{0,0,0},0);
         updateAfterPlacedCard("player1",nonObjCards.get(45),2,2,true,availablePos,new int[]{0,0,0},0);
         updateAfterPlacedCard("player1",nonObjCards.get(55),3,3,true,availablePos,new int[]{0,0,0},0);
         updateAfterPlacedCard("player1",nonObjCards.get(65),4,4,true,availablePos,new int[]{0,0,0},0);
@@ -122,7 +124,7 @@ public class Temporary implements Runnable{
         int res[] = new int[]{0,0,2,0,1,0,0};
         publicInfo.get("player1").updateResources(res);
         showPoints("player1");
-        out.println("Your colour of this game is: "+convertToColour(2));*/
+        out.println("Your colour of this game is: "+convertToColour(2));
     }
     public void showPoints(String playerNickname) {
         int [] resources = publicInfo.get(playerNickname).getResources();
@@ -146,74 +148,82 @@ public class Temporary implements Runnable{
             out.println();
         }
     }
-    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card,int x, int y, boolean isUp,
-                                      ArrayList<int[]>availablePos, int[]resources,int points){
+    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp,
+                                      ArrayList<int[]> availablePos, int[] resources, int points) {
         /*once received the PlacedCardConfirmationMessage from the server, the card is searched in the
         hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
         the board of the player.*/
         // update the field of the player
-        //publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(),x,y,isUp));
+        publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(), cardImg.get(card.getID()), x, y, isUp));
         publicInfo.get(playerNickname).updateResources(resources); // update the resources
         publicInfo.get(playerNickname).updatePoints(points); // update the points
         // represents the sequence of the card placed in the field.
-        int num =  publicInfo.get(playerNickname).getField().size();
-        BoardView boardView= boards.get(playerNickname);
-        String[][] board= boardView.getBoard();
+        int num = publicInfo.get(playerNickname).getField().size();
+        BoardView boardView = boards.get(playerNickname);
+        String[][] board = boardView.getBoard();
         int[] limits = boardView.getLimits();
         //convert the x and y coordinates to the position in the board.
-        int posX=-2*y+80;
-        int posY=2*x+80;
-        updateBoardViewLimits(posX,posY,limits);
+        int posX = -2 * y + 80;
+        int posY = 2 * x + 80;
+        updateBoardViewLimits(posX, posY, limits);
 
-        String [] cornerType;
+        String[] cornerType;
         String EMPTY = iconCard(card.getKingdom()); // set the empty space of the card based on the colour of kingdom.
-        int[] permRes= card.getPermRes(); // get the permanent resources of the card.
-        String [] permResString= new String[]{EMPTY,EMPTY,EMPTY};
-        if (!card.getType().equals("STARTING")){  // if the card is not a starting card.
-            for(int i=0; i<permRes.length;i++){ // search the permanent resources of the card.
-                if(permRes[i]!=0){
-                    permResString[0]=iconArrayElement(i); //convert the permanent resources to the icon.
-                    permResString[1]=String.format("%2s",num);
+        int[] permRes = card.getPermRes(); // get the permanent resources of the card.
+        String[] permResString = new String[]{EMPTY, EMPTY, EMPTY};
+        if (!card.getType().equals("STARTING")) {  // if the card is not a starting card.
+            for (int i = 0; i < permRes.length; i++) { // search the permanent resources of the card.
+                if (permRes[i] != 0) {
+                    permResString[0] = iconArrayElement(i); //convert the permanent resources to the icon.
+                    permResString[1] = String.format("%2s", num);
                     break; // because the resource/gold card has only one permanent resource.
                 }
             }
-        }else { // if the card is a starting card
-            int count=0;
-            for(int i=0; i<permRes.length;i++){
-                if(permRes[i]!=0){
-                    permResString[count]=iconArrayElement(i); // convert the permanent resources to the icon.
+        } else { // if the card is a starting card
+            int count = 0;
+            for (int i = 0; i < permRes.length; i++) {
+                if (permRes[i] != 0) {
+                    permResString[count] = iconArrayElement(i); // convert the permanent resources to the icon.
                     count++;
                 }
             }
         }
         // update the board of the player
-        if(isUp){
-            board[posX][posY] =EMPTY;
-            board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+EMPTY+ANSI_RESET;
+        if (isUp) {
+            board[posX][posY] = EMPTY;
+            board[posX][posY - 1] = ColourCard(card.getKingdom()) + "|" + EMPTY + ANSI_RESET;
             // stored the number which represents the sequence number of the card placed in the field.
-            board[posX][posY + 1] = ColourCard(card.getKingdom())+String.format("%2s",num)+"|"+ANSI_RESET;
+            board[posX][posY + 1] = ColourCard(card.getKingdom()) + String.format("%2s", num) + "|" + ANSI_RESET;
             cornerType = card.getCorner();
-        }
-        else{
+        } else {
             board[posX][posY] = permResString[1];
-            board[posX][posY- 1] = ColourCard(card.getKingdom())+"|"+permResString[0]+ANSI_RESET;
-            board[posX][posY + 1] = ColourCard(card.getKingdom())+permResString[2]+"|"+ANSI_RESET;
+            board[posX][posY - 1] = ColourCard(card.getKingdom()) + "|" + permResString[0] + ANSI_RESET;
+            board[posX][posY + 1] = ColourCard(card.getKingdom()) + permResString[2] + "|" + ANSI_RESET;
             cornerType = card.getCornerBack();
         }
-        String topLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[0])+ANSI_RESET; // TopLeft 1)
-        String topRight = ColourCard(card.getKingdom())+icon(cornerType[1])+"|"+ANSI_RESET; // TopRight 2)
-        String bottomLeft = ColourCard(card.getKingdom())+"|"+icon(cornerType[2])+ANSI_RESET; // BottomLeft 3)
-        String bottomRight = ColourCard(card.getKingdom())+icon(cornerType[3])+"|"+ANSI_RESET; // BottomRight 4)
+        String topLeft = ColourCard(card.getKingdom()) + "|" + icon(cornerType[0]) + ANSI_RESET; // TopLeft 1)
+        String topRight = ColourCard(card.getKingdom()) + icon(cornerType[1]) + "|" + ANSI_RESET; // TopRight 2)
+        String bottomLeft = ColourCard(card.getKingdom()) + "|" + icon(cornerType[2]) + ANSI_RESET; // BottomLeft 3)
+        String bottomRight = ColourCard(card.getKingdom()) + icon(cornerType[3]) + "|" + ANSI_RESET; // BottomRight 4)
         board[posX - 1][posY] = EMPTY;
         board[posX + 1][posY] = EMPTY;
-        board[posX - 1][posY+ 1] = topRight;
-        board[posX+ 1][posY+ 1] = bottomRight ;
+        board[posX - 1][posY + 1] = topRight;
+        board[posX + 1][posY + 1] = bottomRight;
         board[posX - 1][posY - 1] = topLeft;
         board[posX + 1][posY - 1] = bottomLeft;
-        availablePos.removeIf(pos -> pos[0] == x && pos[1] == y); //JUST FOR TESTING PRINT OF AVAILABLE POSITIONS
         /* if player is the owner of this UI, store the available positions in the board of the player, and update the
         board limits. In this way, the player can see the available positions for the next turn of the placement.*/
-        if(playerNickname.equals(thisPlayerNickname)) {
+        if (playerNickname.equals(thisPlayerNickname)) {
+            availableSpaces.removeIf(pos -> pos[0] == x && pos[1] == y); //TODO check if exists another way to do this
+            for(int[] pos : availableSpaces){ // delete the old available positions in the board.
+                posX = -2 * pos[1] + 80;
+                posY = 2 * pos[0] + 80;
+                updateBoardViewLimits(posX, posY, limits);
+                board[posX][posY] = "   ";
+                board[posX][posY - 1] = "   ";
+                board[posX][posY + 1] = "   ";
+            }
+            availableSpaces = availablePos; // update the available positions for the next turn of the placement.
             for (int[] pos : availablePos) {
                 posX = -2 * pos[1] + 80;
                 posY = 2 * pos[0] + 80;
@@ -287,55 +297,55 @@ public class Temporary implements Runnable{
 
             // print the card based on the side
             // if the side is the front side
-            cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
+            cardImage.add(String.format(colour + "┏━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━┓" + ANSI_RESET));
             if (value != 0) { //if the card don't have any value.
                 // in particular, with CountResource strategy should print also the type of the resource/object that
                 // should be counted in the field to get the points.
                 if (strategy.equals("|CountResource")) {
                     padding1 = 18 - (value + card.getPointStrategyType()).length();
-                    cardImage.add(String.format(colour + "| %s |%s%" + padding1 + "s| %s |" + ANSI_RESET, icon(corner[0]),
+                    cardImage.add(String.format(colour + "  %s  %s%" + padding1 + "s  %s  " + ANSI_RESET, icon(corner[0]),
                             value + card.getPointStrategyType(), "", icon(corner[1])));
                 } else {
                     if (strategy.equals("|Empty")) { // if the strategy is empty, set the strategy to Point.
                         strategy = " Point";
                     }
-                    cardImage.add(String.format(colour + "| %s |%s%" + padding1 + "s| %s |" + ANSI_RESET, icon(corner[0]),
+                    cardImage.add(String.format(colour + "  %s  %s%" + padding1 + "s  %s  " + ANSI_RESET, icon(corner[0]),
                             value + strategy, "", icon(corner[1])));
                 }
             } else { // if the card don't have any value, print only the corner of the card and the kingdom of the card.
-                cardImage.add(String.format(colour + "| %s |%18s| %s |" + ANSI_RESET, icon(corner[0]), "", icon(corner[1])));
+                cardImage.add(String.format(colour + "  %s  %18s  %s  " + ANSI_RESET, icon(corner[0]), "", icon(corner[1])));
             }
-            cardImage.add(String.format(colour + "+----+%18s+----+", ""));
-            cardImage.add(String.format(colour + "| %s %" + padding4 + "s|" + ANSI_RESET, kingdom, ""));
-            cardImage.add(String.format(colour + "+----+%18s+----+" + ANSI_RESET, ""));
+            cardImage.add(String.format(colour + "┣━━━━┛%18s┗━━━━┫", ""));
+            cardImage.add(String.format(colour + "┃ %s %" + padding4 + "s┃" + ANSI_RESET, kingdom, ""));
+            cardImage.add(String.format(colour + "┣━━━━┓%18s┏━━━━┫" + ANSI_RESET, ""));
             // “if(requirements.length<3)” is used to adjust the padding based on the length of the requirements,
             // because the unicode characters have different visual width that can affect the layout of the card.
             if (requirements.length() < 3) {
-                cardImage.add(String.format(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s | %s |" + ANSI_RESET,
+                cardImage.add(String.format(colour + "  %s   %" + padding2 + "s%s%" + padding2 + "s   %s  " + ANSI_RESET,
                         icon(corner[2]), "", requirements, "", icon(corner[3])));
             } else {
-                cardImage.add(String.format(colour + "| %s | %" + padding2 + "s%s%" + padding2 + "s| %s |" + ANSI_RESET,
+                cardImage.add(String.format(colour + "  %s   %" + padding2 + "s%s%" + padding2 + "s  %s  " + ANSI_RESET,
                         icon(corner[2]), "", requirements, "", icon(corner[3])));
             }
-            cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
+            cardImage.add(String.format(colour + "┗━━━━┻━━━━━━━━━━━━━━━━━━┻━━━━┛" + ANSI_RESET));
             // if the side is the back side
             if (!kingdom.equals("STARTER")) {
-                cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
-                cardImage.add(String.format(colour + "|%4s|%18s|%4s|" + ANSI_RESET, "", "", ""));
-                cardImage.add(String.format(colour + "+----+%18s+----+", ""));
+                cardImage.add(String.format(colour + "┏━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━┓" + ANSI_RESET));
+                cardImage.add(String.format(colour + "┃%4s┃%18s┃%4s┃" + ANSI_RESET, "", "", ""));
+                cardImage.add(String.format(colour + "┣━━━━┛%18s┗━━━━┫", ""));
                 // print the permanent resources of the back side of the card
-                cardImage.add(String.format(colour + "|%" + padding3 + "s%s%" + padding3 + "s|" + ANSI_RESET, "", permanent, ""));
-                cardImage.add(String.format(colour + "+----+%18s+----+" + ANSI_RESET, ""));
-                cardImage.add(String.format(colour + "|%4s|%18s|%4s|" + ANSI_RESET, "", "", ""));
-                cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
+                cardImage.add(String.format(colour + " %" + padding3 + "s%s%" + padding3 + "s " + ANSI_RESET, "", permanent, ""));
+                cardImage.add(String.format(colour + "┣━━━━┓%18s┏━━━━┫" + ANSI_RESET, ""));
+                cardImage.add(String.format(colour + "┃%4s┃%18s┃%4s┃" + ANSI_RESET, "", "", ""));
+                cardImage.add(String.format(colour + "┗━━━━┻━━━━━━━━━━━━━━━━━━┻━━━━┛" + ANSI_RESET));
             } else {
-                cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
-                cardImage.add(String.format(colour + "| %s |%18s| %s |" + ANSI_RESET, icon(cornerBack[0]), "", icon(cornerBack[1])));
-                cardImage.add(String.format(colour + "+----+%18s+----+", ""));
-                cardImage.add(String.format(colour + "|%" + padding3 + "s%s%" + padding3 + "s|" + ANSI_RESET, "", permanent, ""));
-                cardImage.add(String.format(colour + "+----+%18s+----+" + ANSI_RESET, ""));
-                cardImage.add(String.format(colour + "| %s |%18s| %s |" + ANSI_RESET, icon(cornerBack[2]), "", icon(cornerBack[3])));
-                cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
+                cardImage.add(String.format(colour + "┏━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━┓" + ANSI_RESET));
+                cardImage.add(String.format(colour + "  %s  %18s  %s  " + ANSI_RESET, icon(cornerBack[0]), "", icon(cornerBack[1])));
+                cardImage.add(String.format(colour + "┣━━━━┛%18s┗━━━━┫", ""));
+                cardImage.add(String.format(colour + " %" + padding3 + "s%s%" + padding3 + "s " + ANSI_RESET, "", permanent, ""));
+                cardImage.add(String.format(colour + "┣━━━━┓%18s┏━━━━┫" + ANSI_RESET, ""));
+                cardImage.add(String.format(colour + "  %s  %18s  %s  " + ANSI_RESET, icon(cornerBack[2]), "", icon(cornerBack[3])));
+                cardImage.add(String.format(colour + "┗━━━━┻━━━━━━━━━━━━━━━━━━┻━━━━┛" + ANSI_RESET));
             }
             Img.put(card.getID(), cardImage);
         }
@@ -359,17 +369,17 @@ public class Temporary implements Runnable{
                     paddingIcon = 26 - count * icon.length();
                     paddingDescription = 26 - description.length();
                     paddingPoint = 26 - (value + "POINTS|" + strategy).length();
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT|%s%" + paddingPoint + "s |", value, strategy, ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT|%s%" + paddingPoint + "s ┃", value, strategy, ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
                     if (count == 2) { // if we need to count 2 objects.
-                        cardImage.add(String.format("| %s%s%" + paddingIcon + "s |", icon, icon, ""));
+                        cardImage.add(String.format("  %s%s%" + paddingIcon + "s  ", icon, icon, ""));
                     } else if (count == 3) { // if we need to count 3 objects.
-                        cardImage.add(String.format("| %s%s%s%" + paddingIcon + "s |", icon, icon, icon, ""));
+                        cardImage.add(String.format("  %s%s%s%" + paddingIcon + "s  ", icon, icon, icon, ""));
                     }
-                    cardImage.add(String.format("|%28s|", ""));
-                    cardImage.add(String.format("|%28s|", ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add(String.format("┃%28s┃", ""));
+                    cardImage.add(String.format("┃%28s┃", ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "Diagonals": {
@@ -379,21 +389,21 @@ public class Temporary implements Runnable{
                     paddingDescription = 26 - description.length();
                     paddingPoint = 26 - (value + " POINTS" + strategy).length();
                     paddingIcon = 26 - iconCard.length() - 4;
-                    cardImage.add(String.format(colour + "+----------------------------+" + ANSI_RESET));
-                    cardImage.add(String.format(colour + "| %s POINT %s%" + paddingPoint + "s |" + ANSI_RESET, value, strategy, ""));
-                    cardImage.add(String.format(colour + "| %s%" + paddingDescription + "s |" + ANSI_RESET, description, ""));
+                    cardImage.add(String.format(colour + "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓" + ANSI_RESET));
+                    cardImage.add(String.format(colour + "┃ %s POINT %s%" + paddingPoint + "s ┃" + ANSI_RESET, value, strategy, ""));
+                    cardImage.add(String.format(colour + "┃ %s%" + paddingDescription + "s ┃" + ANSI_RESET, description, ""));
                     // if the diagonal is from right to left: y=-x
                     if (!card.getPointStrategyLeftToRight()) {
-                        cardImage.add(String.format(colour + "|     %s%" + paddingIcon + "s |" + ANSI_RESET, iconCard, ""));
-                        cardImage.add(String.format(colour + "|         %s%" + (paddingIcon - 4) + "s |" + ANSI_RESET, iconCard, ""));
-                        cardImage.add(String.format(colour + "|             %s%" + (paddingIcon - 8) + "s |" + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "      %s%" + paddingIcon + "s  " + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "          %s%" + (paddingIcon - 4) + "s  " + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "              %s%" + (paddingIcon - 8) + "s  " + ANSI_RESET, iconCard, ""));
                         // if the diagonal is from left to right: y=x
                     } else {
-                        cardImage.add(String.format(colour + "|             %s%" + (paddingIcon - 8) + "s |" + ANSI_RESET, iconCard, ""));
-                        cardImage.add(String.format(colour + "|         %s%" + (paddingIcon - 4) + "s |" + ANSI_RESET, iconCard, ""));
-                        cardImage.add(String.format(colour + "|     %s%" + paddingIcon + "s |" + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "              %s%" + (paddingIcon - 8) + "s  " + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "          %s%" + (paddingIcon - 4) + "s  " + ANSI_RESET, iconCard, ""));
+                        cardImage.add(String.format(colour + "      %s%" + paddingIcon + "s  " + ANSI_RESET, iconCard, ""));
                     }
-                    cardImage.add(String.format(colour + "+----------------------------+" + ANSI_RESET));
+                    cardImage.add(String.format(colour + "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" + ANSI_RESET));
                     break;
                 }
                 // Four type of L Configuration cards
@@ -401,52 +411,52 @@ public class Temporary implements Runnable{
                     description = "2 FUNGI + 1 PLANT cards";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, "LConfig.", ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("FUNGI"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("FUNGI"), ""));
-                    cardImage.add(String.format("|          %s%" + (paddingIcon - 5) + "s |", iconCard("PLANT"), ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, "LConfig.", ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("FUNGI"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("FUNGI"), ""));
+                    cardImage.add(String.format("           %s%" + (paddingIcon - 5) + "s  ", iconCard("PLANT"), ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "LConfigurationTwo": {
                     description = "2 PLANT + 1 INSECT cards";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, "LConfig.", ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("PLANT"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("PLANT"), ""));
-                    cardImage.add(String.format("|        %s%" + (paddingIcon - 3) + "s |", iconCard("INSECT"), ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, "LConfig.", ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("PLANT"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("PLANT"), ""));
+                    cardImage.add(String.format("         %s%" + (paddingIcon - 3) + "s  ", iconCard("INSECT"), ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "LConfigurationThree": {
                     description = "2 INSECT + 1 ANIMAL cards";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, "LConfig.", ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("|        %s%" + (paddingIcon - 3) + "s |", iconCard("ANIMAL"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("INSECT"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("INSECT"), ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, "LConfig.", ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("         %s%" + (paddingIcon - 3) + "s  ", iconCard("ANIMAL"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("INSECT"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("INSECT"), ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "LConfigurationFour": {
                     description = "2 ANIMAL + 1 FUNGI cards";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - iconCard("FUNGI").length() - 4;
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, "LConfig.", ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("|          %s%" + (paddingIcon - 5) + "s |", iconCard("FUNGI"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("ANIMAL"), ""));
-                    cardImage.add(String.format("|         %s%" + (paddingIcon - 4) + "s |", iconCard("ANIMAL"), ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, "LConfig.", ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("           %s%" + (paddingIcon - 5) + "s  ", iconCard("FUNGI"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("ANIMAL"), ""));
+                    cardImage.add(String.format("          %s%" + (paddingIcon - 4) + "s  ", iconCard("ANIMAL"), ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
                 case "AllSpecial": {
@@ -455,14 +465,14 @@ public class Temporary implements Runnable{
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - 3 * icon("INKWELL").length();
                     paddingPoint = 26 - (value + " POINTS" + strategy).length();
-                    cardImage.add("+----------------------------+");
-                    cardImage.add(String.format("| %s POINT %s%" + paddingPoint + "s |", value, strategy, ""));
-                    cardImage.add(String.format("| %s%" + paddingDescription + "s |", description, ""));
-                    cardImage.add(String.format("| %s%s%s%" + paddingIcon + "s |", //print the icon of the three objects specified.
+                    cardImage.add("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                    cardImage.add(String.format("┃ %s POINT %s%" + paddingPoint + "s ┃", value, strategy, ""));
+                    cardImage.add(String.format("┃ %s%" + paddingDescription + "s ┃", description, ""));
+                    cardImage.add(String.format("  %s%s%s%" + paddingIcon + "s  ", //print the icon of the three objects specified.
                             icon("INKWELL"), icon("QUILL"), icon("MANUSCRIPT"), ""));
-                    cardImage.add(String.format("|%28s|", ""));
-                    cardImage.add(String.format("|%28s|", ""));
-                    cardImage.add("+----------------------------+");
+                    cardImage.add(String.format("┃%28s┃", ""));
+                    cardImage.add(String.format("┃%28s┃", ""));
+                    cardImage.add("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
                     break;
                 }
             }
