@@ -168,9 +168,6 @@ public class GameController {
         else if (status == GameControllerStatus.WAITING_STARTER_CARD_CHOICE || status == GameControllerStatus.WAITING_SECRET_OBJECTIVE_CARD_CHOICE) { // We are in the preparation phase
             disconnectBeforeGameStart(node);
         }
-        else if (status == GameControllerStatus.GAME_ENDED) { // The game has finished
-            disconnectAfterGameEnd(node);
-        }
         // We are in the playing phase
         else if (!model.getCurrentPlayerNickname().equals(playerQuadruple.getNickname())) { // We are not the current player
             disconnectNotCurrentPlayer(node);
@@ -198,7 +195,6 @@ public class GameController {
         }
 
         // Player quadruple found
-        // TODO there are no more players in the lobby, we should delete the game
 
         // Delete player from model
         try {
@@ -230,7 +226,7 @@ public class GameController {
     /**
      * Method called when a player disconnects before the game has started, in the preparation phase such as
      * when players are choosing the side of their starter card.
-     * Removes the player from the game, and shuts down the player's VirtualView.
+     * Sets the player status to "Disconnected" hoping that it will reconnect eventually.
      *
      * @param node The node of the player that has disconnected
      */
@@ -240,12 +236,6 @@ public class GameController {
         if (playerQuadruple == null) { // The player quadruple could not be found
             throw new CriticalFailureException("Player quadruple not found when disconnecting player");
         }
-
-        // Empty player's message queue
-        playerQuadruple.getVirtualView().flushMessages(); // FIXME Is this necessary?
-
-        // Set virtual view node to null
-        playerQuadruple.getVirtualView().changeNode(null);
 
         // Set player state to disconnected
         playerQuadruple.setConnected(false);
@@ -258,6 +248,8 @@ public class GameController {
                 throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
             }
         }
+
+        // TODO if there are no other players left, start timer for winner declaration
     }
 
     private void disconnectNotCurrentPlayer(NodeInterface node) {
@@ -266,12 +258,6 @@ public class GameController {
         if (playerQuadruple == null) { // The player quadruple could not be found
             throw new CriticalFailureException("Player quadruple not found when disconnecting player");
         }
-
-        // Empty player's message queue
-        playerQuadruple.getVirtualView().flushMessages(); // FIXME Is this necessary?
-
-        // Set virtual view node to null
-        playerQuadruple.getVirtualView().changeNode(null);
 
         // Set player state to disconnected
         playerQuadruple.setConnected(false);
@@ -295,17 +281,8 @@ public class GameController {
             throw new CriticalFailureException("Player quadruple not found when disconnecting player");
         }
 
-        // Empty player's message queue
-        playerQuadruple.getVirtualView().flushMessages(); // FIXME Is this necessary?
-
-        // Set virtual view node to null
-        playerQuadruple.getVirtualView().changeNode(null);
-
         // Set player state to disconnected
         playerQuadruple.setConnected(false);
-
-        // Update the new current player
-        setNextPlayer();
 
         // Undo the player's placement
         try {
@@ -316,6 +293,8 @@ public class GameController {
             throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found when rolling back placement");
         }
 
+        // TODO Must send rollback message here
+
         // Notify all players that a player has left the game
         for (PlayerQuadruple playerQuadruple1 : nodeList) {
             try {
@@ -325,7 +304,10 @@ public class GameController {
             }
         }
 
-        // TODO Must send rollback message
+        // Update the new current player. The notification is handled internally
+        setNextPlayer();
+
+        // TODO if there are no other players left, start timer for winner declaration
     }
 
     private void disconnectCurrentPlayerBeforePlacing(NodeInterface node) {
@@ -335,17 +317,8 @@ public class GameController {
             throw new CriticalFailureException("Player quadruple not found when disconnecting player");
         }
 
-        // Empty player's message queue
-        playerQuadruple.getVirtualView().flushMessages(); // FIXME Is this necessary?
-
-        // Set virtual view node to null
-        playerQuadruple.getVirtualView().changeNode(null);
-
         // Set player state to disconnected
         playerQuadruple.setConnected(false);
-
-        // Update the new current player
-        setNextPlayer();
 
         // Notify all players that a player has left the game
         for (PlayerQuadruple playerQuadruple1 : nodeList) {
@@ -355,10 +328,11 @@ public class GameController {
                 throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that a player has left the game");
             }
         }
-    }
 
-    private void disconnectAfterGameEnd(NodeInterface node) {
-        // TODO Is this necessary?
+        // Update the new current player
+        setNextPlayer();
+
+        // TODO if there are no other players left, start timer for winner declaration
     }
 
     public void reconnect(NodeInterface node) {
