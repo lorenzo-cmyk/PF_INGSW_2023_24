@@ -14,7 +14,6 @@ import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
-import javafx.scene.Node;
 
 /**
  * Represents a controller for a single game.
@@ -444,6 +443,10 @@ public class GameController {
         } catch (VirtualViewNotFoundException e) {
             throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the game has ended");
         }
+
+        // The game has ended; the Node are going to be closing by themselves after the timeout due to client disconnection.
+        // The VirtualView however must be manually closed by the GameController.
+        shutdownGameController();
     }
 
     /**
@@ -914,5 +917,18 @@ public class GameController {
 
     protected Chat getChat(){
         return chat;
+    }
+
+    private void shutdownGameController(){
+        // Set the status of the GameController to GAME_ENDED
+        status = GameControllerStatus.GAME_ENDED;
+
+        // Shutdown the VirtualViews
+        for(PlayerQuadruple playerQuadruple : nodeList){
+            playerQuadruple.getVirtualView().setTerminating();
+        }
+
+        // Shutdown all the scheduled tasks if still ongoing
+        timer.cancel();
     }
 }
