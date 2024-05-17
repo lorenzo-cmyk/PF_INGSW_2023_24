@@ -23,7 +23,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         // Listen for incoming messages
         try{
             while(true) {
-                receiveFromServer();
+                listenForIncomingMessages();
             }
         } catch (IOException | ClassNotFoundException e) {
             try {
@@ -62,8 +62,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         }
     }
 
-    @Override
-    public void receiveFromServer() throws IOException, ClassNotFoundException {
+    public void listenForIncomingMessages() throws IOException, ClassNotFoundException {
         StoCMessage message = (StoCMessage) socketIn.readObject();
         System.out.println("Received"+message.getClass().getName()+" from server");
         System.out.println(message.toString());
