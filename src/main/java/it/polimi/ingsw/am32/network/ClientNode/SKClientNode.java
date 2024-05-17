@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.network.ClientNode;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 
@@ -12,8 +13,20 @@ import java.net.Socket;
 public class SKClientNode implements ClientNodeInterface, Runnable {
     private View view;
     private Socket socket;
+    private String ip;
+    private int port;
     private ObjectOutputStream socketOut;
     private ObjectInputStream socketIn;
+    private String nickname;
+    private ClientPingTask clientPingTask;
+
+    public SKClientNode(View view, String ip, int port, String nickname) {
+        this.view = view;
+        this.ip = ip;
+        this.port = port;
+        this.nickname = nickname;
+        clientPingTask = new ClientPingTask(this);
+    }
 
     public SKClientNode(View view) {
         this.view = view;
@@ -36,17 +49,11 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         }
     }
 
-    @Override
-    public void uploadToServer(CtoSMessage message) throws UploadFailureException {
-        if (socket.isClosed()) {
-            throw new UploadFailureException();
-        }
-
-        try {
-            socketOut.writeObject(message);
-        } catch (IOException e) {
-            throw new UploadFailureException();
-        }
+    public void listenForIncomingMessages() throws IOException, ClassNotFoundException {
+        StoCMessage message = (StoCMessage) socketIn.readObject();
+        System.out.println("Received"+message.getClass().getName()+" from server");
+        System.out.println(message.toString());
+        message.processMessage(view);
     }
 
     @Override
@@ -62,11 +69,17 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         }
     }
 
-    public void listenForIncomingMessages() throws IOException, ClassNotFoundException {
-        StoCMessage message = (StoCMessage) socketIn.readObject();
-        System.out.println("Received"+message.getClass().getName()+" from server");
-        System.out.println(message.toString());
-        message.processMessage(view);
+    @Override
+    public void uploadToServer(CtoSMessage message) throws UploadFailureException {
+        if (socket.isClosed()) {
+            throw new UploadFailureException();
+        }
+
+        try {
+            socketOut.writeObject(message);
+        } catch (IOException e) {
+            throw new UploadFailureException();
+        }
     }
 
     public void startConnection(String ip, int port) throws IOException {
