@@ -51,7 +51,9 @@ public class GameController {
      * status: The status of the game controller
      */
     private GameControllerStatus status;
-    /** lastOnlinePlayer: The nickname of the last player that was online */
+    /**
+     * lastOnlinePlayer: The nickname of the last player that was online
+     */
     private String lastOnlinePlayer;
 
     /**
@@ -261,7 +263,8 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            // TODO: Start timer for winner declaration
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
+            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
         }
     }
 
@@ -319,7 +322,8 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            // TODO: Start timer for winner declaration
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
+            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
         }
     }
 
@@ -348,7 +352,8 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            // TODO: Start timer for winner declaration
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
+            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
         }
     }
 
