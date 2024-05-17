@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.controller;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,6 @@ import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
-import javafx.scene.Node;
 
 /**
  * Represents a controller for a single game.
@@ -51,6 +51,8 @@ public class GameController {
      * status: The status of the game controller
      */
     private GameControllerStatus status;
+    /** lastOnlinePlayer: The nickname of the last player that was online */
+    private String lastOnlinePlayer;
 
     /**
      * Constructor for the GameController class. Initializes the game controller with the given id and game size.
@@ -257,7 +259,10 @@ public class GameController {
             }
         }
 
-        // TODO If only one player is still connected, start timer for winner declaration
+        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
+            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
+            // TODO: Start timer for winner declaration
+        }
     }
 
 
@@ -312,7 +317,10 @@ public class GameController {
         // Update the new current player. The notification is handled internally
         setNextPlayer();
 
-        // TODO If only one player is still connected, start timer for winner declaration
+        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
+            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
+            // TODO: Start timer for winner declaration
+        }
     }
 
     /**
@@ -338,7 +346,56 @@ public class GameController {
         // Update the new current player
         setNextPlayer();
 
-        // TODO If only one player is still connected, start timer for winner declaration
+        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
+            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
+            // TODO: Start timer for winner declaration
+        }
+    }
+
+    protected void endMatchDueToDisconnection() {
+        // Set the Game Controller status to GAME_ENDED
+        status = GameControllerStatus.GAME_ENDED;
+
+        // Notify all players that the game was won by the remaining player
+        ArrayList<String> players = new ArrayList<>();
+        ArrayList<Integer> points = new ArrayList<>();
+        ArrayList<Integer> secrets = new ArrayList<>();
+        ArrayList<Integer> pointsGainedFromSecrets = new ArrayList<>();
+        ArrayList<String> winners = new ArrayList<>();
+
+        // Iterate on each player in the nodeList using their nickname as key
+        for(PlayerQuadruple playerQuadruple : nodeList){
+            try {
+                players.add(playerQuadruple.getNickname());
+                points.add(model.getPlayerPoints(playerQuadruple.getNickname()));
+                secrets.add(model.getPlayerSecretObjective(playerQuadruple.getNickname()));
+                pointsGainedFromSecrets.add(0);
+            } catch (PlayerNotFoundException e) {
+                throw new CriticalFailureException("Player " + playerQuadruple.getNickname() + " not found");
+            }
+        }
+
+        // Add the remaining player to the list of winners
+        winners.add(lastOnlinePlayer);
+
+        // Notify all players of the new match status and of the winners
+        for (PlayerQuadruple playerQuadruple : nodeList) {
+            try {
+                // Notify the player of the status of the match
+                submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                // Notify the player of the winners
+                submitVirtualViewMessage(new MatchWinnersMessage(
+                        playerQuadruple.getNickname(),
+                        players,
+                        points,
+                        secrets,
+                        pointsGainedFromSecrets,
+                        winners
+                ));
+            } catch (VirtualViewNotFoundException e) {
+                throw new CriticalFailureException("VirtualViewNotFoundException when notifying players that the game has ended");
+            }
+        }
     }
 
     public void reconnect(NodeInterface node) {
