@@ -35,8 +35,10 @@ public class SKServerNode implements Runnable, NodeInterface {
     private int pingCount;
     private final PingTask pingTask;
     private boolean statusIsAlive;
+    private boolean destroyCalled;
     private final Object aliveLock;
-    private final Object processingLock;
+    private final Object ctoSProcessingLock;
+    private final Object stoCProcessingLock;
 
     public SKServerNode(Socket socket) throws UninitializedException {
         this.gameController = null;
@@ -44,28 +46,23 @@ public class SKServerNode implements Runnable, NodeInterface {
         config = Configuration.getInstance();
         pingCount = config.getMaxPingCount();
         aliveLock = new Object();
-        processingLock = new Object();
+        ctoSProcessingLock = new Object();
+        stoCProcessingLock = new Object();
 
         this.logger = LogManager.getLogger("SkServerNode");
 
         try {
-            socket.setSoTimeout(5000); // TODO da mettere in config
-
+            socket.setSoTimeout(config.getSocketReadTimeout());
+            inputObtStr = new ObjectInputStream(socket.getInputStream());
+            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
         } catch (SocketException e) {
-
             try {
                 if(!socket.isClosed())
                     socket.close();
             } catch (IOException ignored) {}
 
             logger.error("InputTimeout Error: {}\nSocket Closed", e.getMessage());
-
             throw new UninitializedException();
-        }
-
-        try {
-            inputObtStr = new ObjectInputStream(socket.getInputStream());
-
         } catch (IOException e) {
             try {
                 if(!socket.isClosed())
@@ -73,28 +70,11 @@ public class SKServerNode implements Runnable, NodeInterface {
             } catch (IOException ignored) {}
 
             logger.error("Could not open input stream: {}\nSocket Closed", e.getMessage());
-
-            throw new UninitializedException();
-        }
-
-        try {
-            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
-
-        } catch (IOException e) {
-
-            inputObtStr = null;
-
-            try {
-                if(!socket.isClosed())
-                    socket.close();
-            } catch (IOException ignored) {}
-
-            logger.error("Could not open output stream: {}\nSocket Closed", e.getMessage());
-
             throw new UninitializedException();
         }
 
         statusIsAlive = true;
+        destroyCalled = false;
         pingTask = new PingTask(this);
     }
 
@@ -110,11 +90,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                 listenForIncomingMessages();
             }
         } catch (IOException | ClassNotFoundException e) {
-
-            try {
-                if(!socket.isClosed())
-                    socket.close();
-            } catch (IOException ignored) {}
 
             destroy();
 
@@ -135,14 +110,15 @@ public class SKServerNode implements Runnable, NodeInterface {
             return;
         }
 
+        synchronized (ctoSProcessingLock) {
 
-        synchronized (aliveLock) {
-            if (!statusIsAlive)
-                throw new NodeClosedException();
-            resetTimeCounter();
-        }
+            synchronized (aliveLock) {
 
-        synchronized (processingLock) {
+                if (!statusIsAlive)
+                    throw new NodeClosedException();
+
+                resetTimeCounter();
+            }
 
             if (message instanceof CtoSMessage) {
 
@@ -180,54 +156,56 @@ public class SKServerNode implements Runnable, NodeInterface {
                 try {
                     gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
 
-                // TODO forse è meglio mettere il messaggio di errore nell'exception
-            } catch (InvalidPlayerNumberException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: invalid player number", "PLAYER"));
-                    logger.info("Invalid player number. Sending ErrorMessage to client");
+                    // TODO forse è meglio mettere il messaggio di errore nell'exception
+                } catch (InvalidPlayerNumberException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: invalid player number", "PLAYER"));
+                        logger.info("Invalid player number. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Invalid player number. Failed to send ErrorMessage to client");
                     }
 
-            } catch (GameAlreadyStartedException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: Game already started", "PLAYER"));
-                    logger.info("Game already started. Sending ErrorMessage to client");
+                } catch (GameAlreadyStartedException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Game already started", "PLAYER"));
+                        logger.info("Game already started. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Game already started. Failed to send ErrorMessage to client");
                     }
 
-            } catch (FullLobbyException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: Lobby already is full", "PLAYER"));
-                    logger.info("Lobby is already full. Sending ErrorMessage to client");
+                } catch (FullLobbyException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Lobby already is full", "PLAYER"));
+                        logger.info("Lobby is already full. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Lobby is already full. Failed to send ErrorMessage to client");
                     }
 
-            } catch (DuplicateNicknameException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: Player nickname already in use", "PLAYER"));
-                    logger.info("Player nickname already in use. Sending ErrorMessage to client");
+                } catch (DuplicateNicknameException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Player nickname already in use", "PLAYER"));
+                        logger.info("Player nickname already in use. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Player nickname already in use. Failed to send ErrorMessage to client");
                     }
 
-            } catch (GameNotFoundException e) {
-                try {
-                    uploadToClient(new ErrorMessage("Error: Game not found", "PLAYER"));
-                    logger.info("Game not found. Sending ErrorMessage to client");
+                } catch (GameNotFoundException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Game not found", "PLAYER"));
+                        logger.info("Game not found. Sending ErrorMessage to client");
 
                     } catch (UploadFailureException ex) {
                         logger.info("Game not found. Failed to send ErrorMessage to client");
                     }
                 }
 
-                // TODO aggiungi metodo per aggiungere pingtask al timer di controller
+                try {
+                    gameController.getTimer().scheduleAtFixedRate(pingTask, 0, Configuration.getInstance().getPingTimeInterval());
+                } catch (Exception ignored) {}
 
                 logger.info("CtoSLobbyMessage received");
                 return;
@@ -247,32 +225,33 @@ public class SKServerNode implements Runnable, NodeInterface {
 
     public void uploadToClient(StoCMessage msg) throws UploadFailureException {
 
-        // TODO manca sincronizzazione qui
-        if(socket.isClosed()) {
-            logger.error("Failed to send StoCMessage to client: Socket is closed");
-            throw new UploadFailureException();
+        synchronized (stoCProcessingLock) {
+
+            synchronized (aliveLock) {
+                if (!statusIsAlive)
+                    throw new UploadFailureException();
+            }
+
+            try {
+                outputObtStr.writeObject(msg);
+                logger.info("StoCMessage sent to client");
+
+            } catch (IOException e) {
+                logger.error("Failed to send StoCMessage to client: {}", e.getMessage());
+
+                destroy();
+
+                throw new UploadFailureException();
+            }
+
+            try {
+                outputObtStr.flush();
+            } catch (IOException ignored) {}
         }
-
-        try {
-            outputObtStr.writeObject(msg);
-            logger.info("StoCMessage sent to client");
-
-        } catch (IOException e) {
-            logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
-            //TODO risolvere meglio gli errori (distruzione??)
-            throw new UploadFailureException();
-        }
-
-        try {
-            outputObtStr.flush();
-        } catch (IOException ignored) {}
     }
 
-    // TODO posso mettere protected
     @Override
     public void pingTimeOverdue() {
-
-        boolean tmpDestroy = false;
 
         synchronized (aliveLock) {
 
@@ -281,19 +260,18 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             pingCount--;
 
-            if(pingCount == 0)
-                tmpDestroy = true;
+            if(pingCount <= 0)
+                statusIsAlive = false;
         }
 
-        if(tmpDestroy)
+        if(!statusIsAlive)
             destroy();
 
-        return;
     }
 
-    // TODO posso mettere private
     @Override
     public void resetTimeCounter() {
+
         synchronized (aliveLock){
 
             if(!statusIsAlive)
@@ -307,17 +285,33 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         synchronized (aliveLock) {
             statusIsAlive = false;
+            if(destroyCalled)
+                return;
+            destroyCalled = true;
         }
 
         pingTask.cancel();
 
-        synchronized (processingLock) {
+        synchronized (ctoSProcessingLock) {
+            synchronized (stoCProcessingLock) {
 
-            // TODO distruggere socket e objectStreams
+                try {
+                    inputObtStr.close();
+                } catch (IOException ignored) {}
 
-            if(gameController != null) {
-                gameController.disconnect(this);
-                // TODO eliminare pingTask da timer in controller
+                try {
+                    outputObtStr.close();
+                } catch (IOException ignored) {}
+
+                try {
+                    if(!socket.isClosed())
+                        socket.close();
+                } catch (IOException ignored) {}
+
+                if(gameController != null) {
+                    gameController.getTimer().purge();
+                    gameController.disconnect(this);
+                }
             }
         }
     }

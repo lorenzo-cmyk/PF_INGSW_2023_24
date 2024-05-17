@@ -58,4 +58,30 @@ class ChatMessageTest {
     void shouldThrowExceptionWhenMessageContentIsNull() {
         assertThrows(MalformedMessageException.class, () -> new ChatMessage("sender", "recipient", false, null));
     }
+
+    @DisplayName("toString should return the correct string representation of ChatMessage")
+    @Test
+    void shouldReturnCorrectStringRepresentationOfChatMessage() {
+        ChatMessage chatMessage = new ChatMessage("sender", "recipient", false, "Hello, World!");
+        String expectedString = "ChatMessage{" +
+                "senderNickname='sender'" +
+                ", recipientNickname='recipient'" +
+                ", multicastFlag=false" +
+                ", messageContent='Hello, World!'" +
+                '}';
+        assertEquals(expectedString, chatMessage.toString());
+    }
+
+    @DisplayName("toString should return the correct string representation of ChatMessage even when the recipient nickname is null and the message is multicast")
+    @Test
+    void shouldReturnCorrectStringRepresentationWhenRecipientNicknameIsNullAndMulticast() {
+        ChatMessage chatMessage = new ChatMessage("sender", null, true, "Hello, World!");
+        String expectedString = "ChatMessage{" +
+                "senderNickname='sender'" +
+                ", recipientNickname='null'" +
+                ", multicastFlag=true" +
+                ", messageContent='Hello, World!'" +
+                '}';
+        assertEquals(expectedString, chatMessage.toString());
+    }
 }

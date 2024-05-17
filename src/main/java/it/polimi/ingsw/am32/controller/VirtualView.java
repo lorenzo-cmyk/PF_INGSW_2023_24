@@ -25,7 +25,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
     /**
      * A boolean that indicates if the virtual view is terminating.
      */
-    private boolean terminating = false;
+    private boolean terminating;
 
     /**
      * Constructor for the VirtualView class.
@@ -45,14 +45,16 @@ public class VirtualView implements VirtualViewInterface, Runnable {
     /**
      * The run method of the VirtualView class.
      */
-    public void run() {
+    public synchronized void run() {
         while (!Thread.currentThread().isInterrupted() && !terminating) {
             processMessage();
         }
+        // If we get to this point, the virtualView thread dies
     }
 
     /**
      * Changes the connection node associated with the virtual view. Used for reconnections
+     *
      * @param node The new connection node to associate with the virtual view.
      */
     public synchronized void changeNode(NodeInterface node) {
@@ -61,6 +63,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
 
     /**
      * Adds a message to the queue of messages to be sent to the client.
+     *
      * @param message The message to be added to the queue.
      */
     public synchronized void addMessage(StoCMessage message) {
@@ -69,17 +72,20 @@ public class VirtualView implements VirtualViewInterface, Runnable {
             throw new CriticalFailureException("Message cannot be null");
         }
         messageQueue.add(message);
-        notifyAll();
+        notifyAll(); // Wake up early threads waiting to be synchronized to this
     }
 
     /**
      * Processes the message queue.
      */
-    public synchronized void processMessage() {
+    protected synchronized void processMessage() { // Synchronized statement might not be necessary, but it is kept as it is considered "more correct"
         if (messageQueue.isEmpty()) { // There is no message to be delivered to the client
             try {
                 wait(); // Enter sleep state, and what for a message to be added to the queue
                 if (terminating) { // If the virtual view is being shutdown, return early
+                    return;
+                }
+                else if (connectionNode == null) { // Player was disconnected, and the server node destroyed
                     return;
                 }
             } catch (InterruptedException e) {
@@ -87,19 +93,26 @@ public class VirtualView implements VirtualViewInterface, Runnable {
                 return;
             }
         }
-        StoCMessage message = messageQueue.getFirst();
-        try {
-            connectionNode.uploadToClient(message);
-            messageQueue.removeFirst();
-        } catch (UploadFailureException e) {
-            // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
+
+        // There are messages to be delivered to the client
+        while (!messageQueue.isEmpty()) { // Keep delivering until there are no more messages to send to the client
+            StoCMessage message = messageQueue.getFirst(); // Get the message from the queue but don't delete it yet
             try {
-                wait();
-                if (terminating) { // If the virtual view is being shutdown, return early
-                    return;
+                connectionNode.uploadToClient(message);
+                messageQueue.removeFirst(); // Remove the delivered message from the queue
+            } catch (UploadFailureException e) { // FIXME When does this actually happen?
+                // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
+                try {
+                    wait();
+                    if (terminating) { // If the virtual view is being shutdown, return early
+                        return; // Probably not necessary, but it's here for clarity.
+                    }
+                    else if (connectionNode == null) { // Player was disconnected, and the server node destroyed
+                        return;
+                    }
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
                 }
-            } catch (InterruptedException e1) {
-                Thread.currentThread().interrupt();
             }
         }
     }
@@ -127,9 +140,10 @@ public class VirtualView implements VirtualViewInterface, Runnable {
 
     /*
      * Method used to terminate the thread running the virtual view.
+     * Used by the GameController, when the player's virtual view must be destroyed
      */
     protected synchronized void setTerminating() {
         terminating = true;
-        notifyAll(); // If the thread is waiting, wake it up
+        notifyAll(); // Wake up early threads waiting to be synchronized to this
     }
 }

@@ -28,7 +28,7 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
             gameController = message.elaborateMessage(rmiServerNode);
         } catch (DuplicateNicknameException | InvalidPlayerNumberException | GameAlreadyStartedException |
                  FullLobbyException | GameNotFoundException e) {
-            //TODO distruggere RMIServerNode
+            rmiServerNode.destroy();
             throw e;
         }
 
