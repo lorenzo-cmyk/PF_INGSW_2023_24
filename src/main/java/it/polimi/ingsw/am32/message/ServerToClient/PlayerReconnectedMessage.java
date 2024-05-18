@@ -13,7 +13,7 @@ public class PlayerReconnectedMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updatePlayerReconnected(disconnectedNickname);
     }
 
     @Override

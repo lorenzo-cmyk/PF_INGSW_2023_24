@@ -513,6 +513,11 @@ public class TextUI extends View implements Runnable {
             }
         }
     }
+    @Override
+    public  void updatePlayerReconnected(String disconnectedNickname){
+        publicInfo.get(disconnectedNickname).updateOnline(true);
+        out.println(disconnectedNickname+" has reconnected to the game");
+    }
 
     @Override
     public void updatePlayerTurn(String playerNickname) {
@@ -1272,6 +1277,7 @@ public class TextUI extends View implements Runnable {
             case GAME_START -> {
                 out.println("YEAH!!! Let's start the game!");
             }
+            case GAME_RECONNECTED -> out.println("Reconnected to the game successfully");
         }
     }
 
