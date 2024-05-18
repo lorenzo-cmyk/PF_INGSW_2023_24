@@ -55,6 +55,10 @@ public class GameController {
      * lastOnlinePlayer: The nickname of the last player that was online
      */
     private String lastOnlinePlayer;
+    /**
+     * endMatchDueToDisconnectionTimerTask: The timer task that is used to end a match due to disconnection when only one player remains connected
+     */
+    private EndMatchDueToDisconnectionTimerTask endMatchDueToDisconnectionTimerTask;
 
     /**
      * Constructor for the GameController class. Initializes the game controller with the given id and game size.
@@ -70,6 +74,7 @@ public class GameController {
         this.timer = new Timer();
         this.id = id;
         this.gameSize = gameSize;
+        this.endMatchDueToDisconnectionTimerTask = null;
 
         // Enter lobby phase immediately
         model.enterLobbyPhase();
@@ -261,10 +266,8 @@ public class GameController {
             }
         }
 
-        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
-            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
-        }
+        // Start the timer for winner declaration if only one player remains connected
+        handleLastConnectedPlayerIfPresent();
     }
 
     /**
@@ -318,10 +321,8 @@ public class GameController {
         // Update the new current player. The notification is handled internally
         setNextPlayer();
 
-        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
-            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
-        }
+        // Start the timer for winner declaration if only one player remains connected
+        handleLastConnectedPlayerIfPresent();
     }
 
     /**
@@ -347,9 +348,25 @@ public class GameController {
         // Update the new current player
         setNextPlayer();
 
-        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
-            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
+        // Start the timer for winner declaration if only one player remains connected
+        handleLastConnectedPlayerIfPresent();
+    }
+
+    /**
+     * Checks if only one player remains connected to the game.
+     * If only one player remains connected, starts a timer for winner declaration.
+     * If more than one player remains connected, returns.
+     */
+    private void handleLastConnectedPlayerIfPresent() {
+        if (nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) { // Only one player remains connected
+            if (endMatchDueToDisconnectionTimerTask != null) { // A timer task is already running
+                throw new CriticalFailureException("Timer task already running when only one player remains connected");
+                // FIXME Should we just cancel the already started timer? An already running timer task should never be present here
+            }
+            endMatchDueToDisconnectionTimerTask = new EndMatchDueToDisconnectionTimerTask(this); // Create a new timer task
+
+            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname(); // Fetch the nickname of the remaining connected player
+            timer.schedule(endMatchDueToDisconnectionTimerTask, Configuration.getInstance().getEndGameDueToDisconnectionTimeout()); // Schedule the timer task that terminates the game early and declares the last player as the winner to run after a certain amount of time
         }
     }
 
@@ -421,28 +438,33 @@ public class GameController {
         // Then set the player's node to the new node, and set the player's status to connected.
         for (PlayerQuadruple playerQuadruple : nodeList) {
             if (playerQuadruple.getNickname().equals(nickname)) { // Found the player's playerQuadruple
-                if (playerQuadruple.isConnected()) { // The player is already connected
+                if (playerQuadruple.isConnected()) { // The player that is trying to reconnect is already connected to the game
                     throw new PlayerAlreadyConnectedException("Player " + nickname + " is already connected");
                 }
 
                 playerQuadruple.getVirtualView().flushMessages(); // Empty the player's VirtualView of all messages
                 playerQuadruple.setNode(node); // Reattach the player's node to the VirtualView
                 playerQuadruple.setConnected(true); // Set the player's status to connected
-                break;
+                break; // Exit the for loop
             }
         }
 
         // The player has successfully reconnected
-        // TODO Reset timer
+
+        // FIXME Could be problematic if all player have disconnected from the game
+        // Cancel the timer task that would have declared the last player as the winner if present
+        if (endMatchDueToDisconnectionTimerTask != null) { // A timer task is running
+            endMatchDueToDisconnectionTimerTask.cancel(); // Cancel the timer task
+            timer.purge(); // Remove the cancelled timer task from the timer
+            endMatchDueToDisconnectionTimerTask = null; // Set the timer task to null
+        }
+        // If endMatchDueToDisconnectionTimerTask is null, then no timer task is running, and no action is necessary
 
         try {
-            submitVirtualViewMessage(generateResponseGameStatusMessage(nickname));
+            submitVirtualViewMessage(generateResponseGameStatusMessage(nickname)); // Send the player the large message containing all the information about the current game state
         } catch (VirtualViewNotFoundException e) {
             throw new CriticalFailureException("VirtualViewNotFoundException when reconnecting player");
-            // I've accessed the VV just before, so this exception should never be thrown.
         }
-
-        // All other required messages will be sent by the GamesManager
     }
 
     /**
