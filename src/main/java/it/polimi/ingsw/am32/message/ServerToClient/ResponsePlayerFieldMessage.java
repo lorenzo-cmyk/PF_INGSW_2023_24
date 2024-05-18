@@ -21,7 +21,7 @@ public class ResponsePlayerFieldMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        // This method is never called by Client, the ResponsePlayerFieldMessage is kept for easier debugging and testing
     }
 
     @Override
