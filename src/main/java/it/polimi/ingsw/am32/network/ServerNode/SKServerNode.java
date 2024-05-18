@@ -33,7 +33,7 @@ public class SKServerNode implements Runnable, NodeInterface {
     private ObjectOutputStream outputObtStr;
     private final Socket socket;
     private int pingCount;
-    private final PingTask pingTask;
+    private final ServerPingTask serverPingTask;
     private boolean statusIsAlive;
     private boolean destroyCalled;
     private final Object aliveLock;
@@ -53,16 +53,22 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         try {
             socket.setSoTimeout(config.getSocketReadTimeout());
-            inputObtStr = new ObjectInputStream(socket.getInputStream());
-            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+
         } catch (SocketException e) {
+
             try {
                 if(!socket.isClosed())
                     socket.close();
             } catch (IOException ignored) {}
 
             logger.error("InputTimeout Error: {}\nSocket Closed", e.getMessage());
+
             throw new UninitializedException();
+        }
+
+        try {
+            inputObtStr = new ObjectInputStream(socket.getInputStream());
+
         } catch (IOException e) {
             try {
                 if(!socket.isClosed())
@@ -70,12 +76,32 @@ public class SKServerNode implements Runnable, NodeInterface {
             } catch (IOException ignored) {}
 
             logger.error("Could not open input stream: {}\nSocket Closed", e.getMessage());
+
+            throw new UninitializedException();
+        }
+
+        try {
+            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+
+        } catch (IOException e) {
+
+            try {
+                inputObtStr.close();
+            } catch (IOException ignored) {}
+
+            try {
+                if(!socket.isClosed())
+                    socket.close();
+            } catch (IOException ignored) {}
+
+            logger.error("Could not open output stream: {}\nSocket Closed", e.getMessage());
+
             throw new UninitializedException();
         }
 
         statusIsAlive = true;
         destroyCalled = false;
-        pingTask = new PingTask(this);
+        serverPingTask = new ServerPingTask(this);
     }
 
     public void run() {
@@ -93,7 +119,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             destroy();
 
-            logger.error("Critical ObjectInputStream error while receiving: {}" +
+            logger.error("Critical ObjectInputStream error while reading: {}" +
                     "\nSocket Closed", e.getMessage()); //TODO risolvere meglio gli errori
         } catch (NodeClosedException e) {
             return;
@@ -204,7 +230,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 }
 
                 try {
-                    gameController.getTimer().scheduleAtFixedRate(pingTask, 0, Configuration.getInstance().getPingTimeInterval());
+                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
                 } catch (Exception ignored) {}
 
                 logger.info("CtoSLobbyMessage received");
@@ -290,7 +316,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             destroyCalled = true;
         }
 
-        pingTask.cancel();
+        serverPingTask.cancel();
 
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
