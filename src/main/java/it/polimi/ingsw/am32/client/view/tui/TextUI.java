@@ -260,15 +260,18 @@ public class TextUI extends View {
     public void askCreateGame() {
         currentEvent = Event.CREATE_GAME;
         askNickname(); // ask the player to insert the nickname
-        out.println("Insert the number of players you want to play with,type[2,3 or 4]:");
         while (true) {
-            playerNum = Integer.parseInt(getInput());
-            if (playerNum < 2 || playerNum > 4) {
-                out.println("Invalid number of players, please insert a number between 2 and 4");
+            try {
+                out.println("Insert the number of players you want to play with,type[2,3 or 4]:");
                 playerNum = Integer.parseInt(getInput());
-                continue;
+                if (playerNum < 2 || playerNum > 4) {
+                    out.println("Invalid number of players, please insert a number between 2 and 4");
+                }else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                out.println("Invalid input, please insert a number between 2 and 4");
             }
-            break;
         } // notify the listener with the new game message
         notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
     }
@@ -282,8 +285,15 @@ public class TextUI extends View {
         currentEvent = Event.JOIN_GAME;
         out.println("Insert the nickname you want to use in the game:");
         thisPlayerNickname =getInput();
-        out.println("Insert the Access ID of the game you want to join:");
-        this.gameID = Integer.parseInt(getInput());
+        while (true) {
+            try {
+                out.println("Insert the Access ID of the game you want to join:");
+                this.gameID = Integer.parseInt(getInput());
+                break;
+            } catch (NumberFormatException e) {
+                out.println("Invalid input, please insert a number");
+            }
+        }
         // notify the listener with the access game message
         notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
     }
@@ -295,8 +305,15 @@ public class TextUI extends View {
     public void askReconnectGame() {
         currentEvent = Event.RECONNECT_GAME;
         askNickname();
-        out.println("Insert the Access ID of the game you want to reconnect to:");
-        this.gameID = Integer.parseInt(getInput());
+        while (true) {
+            try {
+                out.println("Insert the Access ID of the game you want to reconnect to:");
+                this.gameID = Integer.parseInt(getInput());
+                break;
+            } catch (NumberFormatException e) {
+                out.println("Invalid input, please insert a number");
+            }
+        }
         notifyAskListenerLobby(new ReconnectGameMessage(thisPlayerNickname,gameID));
     }
 
@@ -497,6 +514,10 @@ public class TextUI extends View {
                 });
             }
         }else {
+            this.currentResourceCards = gameCurrentResourceCards;
+            this.currentGoldCards = gameCurrentGoldCards;
+            this.resourceDeckSize = gameResourcesDeckSize;
+            this.goldDeckSize = gameGoldDeckSize;
             this.chatHistory = chatHistory;
             this.currentPlayer = currentPlayer;
             int []card;
@@ -516,6 +537,7 @@ public class TextUI extends View {
     @Override
     public void updatePlayerTurn(String playerNickname) {
         // once received the PlayerTurnMessage from the server
+        out.println("Order of the game: "+players);
         this.currentPlayer = playerNickname;
         if(this.currentPlayer.equals(thisPlayerNickname)){
             out.println("It is your turn, please select one card from your hand to place on the field:");
