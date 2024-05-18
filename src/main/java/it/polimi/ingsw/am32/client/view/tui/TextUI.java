@@ -310,6 +310,7 @@ public class TextUI extends View implements Runnable {
         this.players.add(recipientNickname);
         handleEvent(Event.GAME_CREATED); // print the message to notify the player that the game is created correctly
         currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
+        Status = Event.LOBBY;
     }
     /**
      * Once the player receives the LobbyPlayerList message from the server, the method is called by
@@ -347,9 +348,9 @@ public class TextUI extends View implements Runnable {
     @Override
     public void updateMatchStatus(int matchStatus) {
         // once received the MatchStatusMessage from the server
-        this.Status = convertToMatchStatus(matchStatus);
-        out.println("The match status is: " + convertToMatchStatus(matchStatus));
-        if(Status.equals("TERMINATING")){
+        this.Status = Event.getEvent(matchStatus);
+        out.println("The match status is: " + Status);
+        if(Status.equals(Event.TERMINATING)){
             for (String player : players) {
                 showPoints(player);
             }
@@ -450,7 +451,7 @@ public class TextUI extends View implements Runnable {
         this.resourceDeckSize = gameResourcesDeckSize;
         this.goldDeckSize = gameGoldDeckSize;
         showObjectiveCards(currentGoldCards);
-        this.Status = convertToMatchStatus(matchStatus);
+        this.Status = Event.getEvent(matchStatus);
         this.currentPlayer = currentPlayer;
         for (int i = 0; i < playerNicknames.size(); i++){
                 publicInfo.put(playerNicknames.get(i), new PlayerPub(convertToColour(playerColours.get(i)),
@@ -1212,7 +1213,7 @@ public class TextUI extends View implements Runnable {
             case NEW_PLAYER_JOIN -> {
                 out.println("New player join the game :)");
             }
-            case JOINED_GAME -> {
+            case GAME_JOINED -> {
                 out.println("Joined the game "+gameID+ " successfully,waiting for the game to start...");
             }
             case GAME_START -> {
@@ -1250,32 +1251,6 @@ public class TextUI extends View implements Runnable {
             }
             case 4 -> {
                 return ANSI_BLACK + "BLACK" + ANSI_RESET;
-            }
-            default -> {
-                return null;
-            }
-        }
-    }
-
-    public String convertToMatchStatus(int status) { //FIXME should I create a enum for the status?
-        switch (status) {
-            case 0 -> {
-                return "LOBBY";
-            }
-            case 1 -> {
-                return "PREPARATION";
-            }
-            case 2 -> {
-                return "PLAYING";
-            }
-            case 3 -> {
-                return "TERMINATING";
-            }
-            case 4 -> {
-                return "LAST_TURN";
-            }
-            case 5 -> {
-                return "TERMINATED";
             }
             default -> {
                 return null;

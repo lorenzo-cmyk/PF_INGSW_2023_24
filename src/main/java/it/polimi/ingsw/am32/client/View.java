@@ -38,7 +38,7 @@ public abstract class View implements EventHandler{
     protected ArrayList<Integer>  currentGoldCards;
     protected int resourceDeckSize;
     protected int goldDeckSize;
-    protected String Status;
+    protected Event Status;
     protected AskListener askListener;
     protected ArrayList<int[]> availableSpaces;
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
