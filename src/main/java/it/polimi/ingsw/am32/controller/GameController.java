@@ -432,6 +432,9 @@ public class GameController {
             }
         }
 
+        // The player has successfully reconnected
+        // TODO Reset timer
+
         try {
             submitVirtualViewMessage(generateResponseGameStatusMessage(nickname));
         } catch (VirtualViewNotFoundException e) {
