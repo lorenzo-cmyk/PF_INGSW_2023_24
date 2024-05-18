@@ -80,6 +80,11 @@ public class GraphicalUI extends View {
 
     }
 
+    @Override
+    public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
+
+    }
+
 
     @Override
     public void showWelcome() {
@@ -198,7 +203,7 @@ public class GraphicalUI extends View {
 
 
     @Override
-    public void handleEvent(Event event) {
+    public void handleEvent(Event event, String message) {
         //TODO
     }
 }

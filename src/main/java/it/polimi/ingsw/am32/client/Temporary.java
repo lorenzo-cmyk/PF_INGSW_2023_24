@@ -533,7 +533,7 @@ public class Temporary implements Runnable{
             case "INKWELL" ->  icon= INKWELL;
             case "MANUSCRIPT" -> icon= MANUSCRIPT;
             case "NON_COVERABLE" -> icon= NON_COVERABLE;
-            default -> icon= "  ";
+            default -> icon= EMPTY;
         }
         return icon;
     }

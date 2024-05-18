@@ -67,6 +67,7 @@ public class TextUI extends View implements Runnable {
     private static final String MANUSCRIPT = "\uD83D\uDCDC";
     private static final String NON_COVERABLE = "\u274C";
     private static final String EMPTY = "  ";
+    private static final String BLANK = "   ";
 
     /**
      * Constructor of the class TextUI
@@ -308,7 +309,7 @@ public class TextUI extends View implements Runnable {
         this.gameID = gameID;
         this.thisPlayerNickname = recipientNickname;
         this.players.add(recipientNickname);
-        handleEvent(Event.GAME_CREATED); // print the message to notify the player that the game is created correctly
+        handleEvent(Event.GAME_CREATED,null); // print the message to notify the player that the game is created correctly
         currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
         Status = Event.LOBBY;
     }
@@ -323,6 +324,35 @@ public class TextUI extends View implements Runnable {
         showPlayerInGame();
     }
 
+    /**
+     * Method used to update the player's board and public info when the player disconnects from the game after the
+     * placement of the card.
+     * @param playerNickname the nickname of the player whose board should be updated with the rollback
+     * @param removedCard the ID of the card that should be removed from the board and the public info of the player
+     * @param playerPoints the points of the player after the rollback
+     * @param playerResources the resources of the player after the rollback
+     */
+    @Override
+    public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
+        int x = publicInfo.get(playerNickname).getField().getLast().x();
+        int y = publicInfo.get(playerNickname).getField().getLast().y();
+        String[][]board = boards.get(playerNickname).getBoard();
+        int posX = -2 * y + 80;
+        int posY = 2 * x + 80;
+        board[posX][posY] = BLANK; //TODO CHECK PRINT WITH THE TEMPORARY
+        board[posX - 1][posY] = BLANK;
+        board[posX + 1][posY] = BLANK;
+        board[posX][posY - 1] = BLANK;
+        board[posX][posY + 1] = BLANK;
+        board[posX - 1][posY + 1] = BLANK;
+        board[posX + 1][posY + 1] = BLANK;
+        board[posX - 1][posY - 1] = BLANK;
+        board[posX + 1][posY - 1] = BLANK;
+        publicInfo.get(playerNickname).getField().removeLast();
+        publicInfo.get(playerNickname).updatePoints(playerPoints);
+        publicInfo.get(playerNickname).updateResources(playerResources);
+    }
+
     //-------------------Game start-----------------------
 
     /**
@@ -331,7 +361,7 @@ public class TextUI extends View implements Runnable {
      */
     @Override
     public void setUpPlayersData() {
-        handleEvent(Event.GAME_START);  // notify the player that the game is started
+        handleEvent(Event.GAME_START,null);  // notify the player that the game is started
         for (String player : players) {
             // set up the data of the players and initialize the board of the players
             publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
@@ -543,7 +573,7 @@ public class TextUI extends View implements Runnable {
         if(playerNickname.equals(thisPlayerNickname)){
             out.println("The card is placed successfully, here is your field after placing the card:");
             showPlayersField(thisPlayerNickname);
-            if(Status.equals("PLAYING")||Status.equals("TERMINATING")){
+            if(Status.equals(Event.PLAYING)||Status.equals(Event.TERMINATING)){
                 requestDrawCard();
             }
         }
@@ -772,7 +802,7 @@ public class TextUI extends View implements Runnable {
         for (int i = limits[1]; i <= limits[0]; i++) { // print the zone of the board enclosed by the limits
             for (int j = limits[3]; j <= limits[2]; j++) {
                 if (board[i][j] == null) {
-                    board[i][j] = "   "; // if the position is empty will be printed three spaces to remain the layout
+                    board[i][j] = BLANK; // if the position is empty will be printed three spaces to remain the layout
                 }
                 out.print(board[i][j]);
             }
@@ -827,6 +857,7 @@ public class TextUI extends View implements Runnable {
             showCard(secrets.get(i), true);
         }
     }
+
     //-------------------Card Factory-------------------
 
     /**
@@ -1204,7 +1235,7 @@ public class TextUI extends View implements Runnable {
     }
 
     @Override
-    public void handleEvent(Event event) { //FIXME IT IS NECESSARY TO IMPLEMENT THIS METHOD in TUI?
+    public void handleEvent(Event event,String nickname) { //FIXME IT IS NECESSARY TO IMPLEMENT THIS METHOD in TUI?
         switch (event) {
             case GAME_CREATED -> {
                 out.println("Game " + gameID + " created successfully, waiting for other players to join...");
@@ -1214,6 +1245,7 @@ public class TextUI extends View implements Runnable {
                 out.println("New player join the game :)");
             }
             case GAME_JOINED -> {
+                Status = Event.LOBBY;
                 out.println("Joined the game "+gameID+ " successfully,waiting for the game to start...");
             }
             case GAME_START -> {

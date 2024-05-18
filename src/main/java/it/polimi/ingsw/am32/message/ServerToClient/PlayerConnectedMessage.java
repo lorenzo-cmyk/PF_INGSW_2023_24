@@ -14,7 +14,7 @@ public class PlayerConnectedMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        view.handleEvent(Event.NEW_PLAYER_JOIN);
+        view.handleEvent(Event.NEW_PLAYER_JOIN, connectedNickname);
     }
 
     @Override

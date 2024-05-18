@@ -181,6 +181,8 @@ public abstract class View implements EventHandler{
     public abstract void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces);
 
     public abstract void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets, ArrayList<Integer> pointsGainedFromSecrets, ArrayList<String> winners);
+
+    public abstract void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources);
 }
 
 

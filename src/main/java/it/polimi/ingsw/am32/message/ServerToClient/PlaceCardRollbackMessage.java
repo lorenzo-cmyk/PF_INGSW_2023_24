@@ -17,11 +17,12 @@ public class PlaceCardRollbackMessage implements StoCMessage{
         this.removedCard = removedCard;
         this.playerPoints = playerPoints;
         this.playerResources = playerResources;
+        //TODO: add the attributes availableSpaces
     }
 
     @Override
     public void processMessage(View view) {
-        // TODO: Not yet implemented
+        view.updateRollback(playerNickname, removedCard, playerPoints, playerResources);
     }
 
     @Override

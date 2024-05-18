@@ -14,7 +14,7 @@ public class PlayerDisconnectMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        view.setCurrentEvent(Event.PLAYER_DISCONNECTED);
+        view.handleEvent(Event.PLAYER_DISCONNECTED, disconnectedNickname);
     }
 
     @Override
