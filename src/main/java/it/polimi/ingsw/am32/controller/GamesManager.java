@@ -132,11 +132,11 @@ public class GamesManager {
                             .map(PlayerQuadruple::getNickname)
                             .collect(Collectors.toCollection(ArrayList::new));
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
-                        game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                         // Also notify all players except player that has just connected, that a new player has connected
                         if (!playerQuadruple.getNickname().equals(nickname)) {
                             game.submitVirtualViewMessage(new PlayerConnectedMessage(playerQuadruple.getNickname(), nickname));
                         }
+                        game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                     }
                 } catch (VirtualViewNotFoundException e) { // Player was added, but his virtual view could not be found
                     throw new CriticalFailureException("VirtualViewNotFoundException when player joined the game");
