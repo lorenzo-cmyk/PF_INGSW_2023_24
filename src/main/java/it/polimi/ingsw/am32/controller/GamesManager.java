@@ -152,6 +152,17 @@ public class GamesManager {
         throw new GameNotFoundException("No game found with code " + gameCode);
     }
 
+    /**
+     * Reconnects the player with the given nickname to the game with the given code
+     *
+     * @param nickname The nickname of the player to be reconnected
+     * @param gameCode The code of the game to be accessed
+     * @param node The server node associated with the given player
+     * @return The GameController of the game with the given code
+     * @throws GameAlreadyEndedException If the game has already ended
+     * @throws PlayerNotFoundException If the player with the given nickname is not found in the game
+     * @throws GameNotFoundException If no game with the given code is found
+     */
     public synchronized GameController reconnectToGame(String nickname, int gameCode, NodeInterface node) throws GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException {
         if (nickname == null || nickname.isBlank()) {
             throw new CriticalFailureException("Nickname cannot be null or empty");

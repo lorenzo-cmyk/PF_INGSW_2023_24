@@ -354,6 +354,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Method called when a player reconnects to the game.
+     * Reconnects the player to the game, and sends all necessary messages to the player to bring him up to speed with the current game state.
+     *
+     * @throws PlayerNotFoundException If the player could not be found in the list of players
+     */
     protected void endMatchDueToDisconnection() {
         // Set the Game Controller status to GAME_ENDED
         status = GameControllerStatus.GAME_ENDED;
@@ -400,6 +406,14 @@ public class GameController {
         }
     }
 
+    /**
+     * Method called when a player reconnects to the game.
+     * Reconnects the player to the game, and sends all necessary messages to the player to bring him up to speed with the current game state.
+     *
+     * @param nickname The nickname of the player that has reconnected
+     * @param node The node of the player that has reconnected
+     * @throws PlayerNotFoundException If the player could not be found in the list of players
+     */
     public void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException {
         // Throw exception if nickname is not present in the list of players
         if (nodeList.stream().noneMatch(pq -> pq.getNickname().equals(nickname))) {
