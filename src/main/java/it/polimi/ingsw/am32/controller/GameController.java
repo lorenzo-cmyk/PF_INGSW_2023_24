@@ -144,12 +144,13 @@ public class GameController {
 
     /*
     Disconnection types:
-    - Player disconnects during the lobby phase
-    - Player disconnects before game has started
-    - Player disconnects after game has started but is not current player
-    - Player disconnects after game has started and is current player (has placed but not yet drawn)
-    - Player disconnects after game has started and is current player (has not yet placed)
-    - Player disconnects after game has ended
+    - Player disconnects during the lobby phase -- The player cannot be reconnected. He must rejoin the game. Handled by GamesManager
+    // TODO: Refuse the reconnection in GamesManager!
+    - Player disconnects before game has started -- Reconnection handled here.
+    - Player disconnects after game has started but is not current player -- Reconnection handled here.
+    - Player disconnects after game has started and is current player (has placed but not yet drawn) -- Reconnection handled here.
+    - Player disconnects after game has started and is current player (has not yet placed) -- Reconnection handled here.
+    - Player disconnects after game has ended -- The player cannot be reconnected. The game is over. Handled by GamesManager
      */
 
     /**
@@ -263,11 +264,9 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
-            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
         }
     }
-
 
     /**
      * Method called when a player disconnects after the game has started and is the current player, and has already placed a card (but not yet drawn).
@@ -322,8 +321,7 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
-            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
         }
     }
 
@@ -352,8 +350,7 @@ public class GameController {
 
         if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
             lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), 1000 * 60 * 2);
-            // FIXME: The timer is set to 2 minutes for testing purposes. The actual time should be read from the Configuration class.
+            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
         }
     }
 
@@ -403,8 +400,33 @@ public class GameController {
         }
     }
 
-    public void reconnect(NodeInterface node) {
-        //TODO
+    public void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException {
+        // Throw exception if nickname is not present in the list of players
+        if (nodeList.stream().noneMatch(pq -> pq.getNickname().equals(nickname))) {
+            throw new PlayerNotFoundException("Player " + nickname + " not found when reconnecting");
+        }
+
+        // Player is found
+
+        // Flush the player's VirtualView. This is necessary to avoid sending messages to the player that are no longer relevant.
+        // Then set the player's node to the new node, and set the player's status to connected.
+        for (PlayerQuadruple playerQuadruple : nodeList) {
+            if (playerQuadruple.getNickname().equals(nickname)) {
+                playerQuadruple.getVirtualView().flushMessages();
+                playerQuadruple.setNode(node);
+                playerQuadruple.setConnected(true);
+                return;
+            }
+        }
+
+        try {
+            submitVirtualViewMessage(generateResponseGameStatusMessage(nickname));
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualViewNotFoundException when reconnecting player");
+            // I've accessed the VV just before, so this exception should never be thrown.
+        }
+
+        // All other required messages will be sent by the GamesManager
     }
 
     /**

@@ -1,11 +1,9 @@
 package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.*;
-import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.PlayerConnectedMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 
 import java.util.ArrayList;
@@ -146,6 +144,41 @@ public class GamesManager {
 
                 if (game.getGameSize() == game.getLobbyPlayerCount()) { // Lobby is now full
                     game.enterPreparationPhase();
+                }
+
+                return game;
+            }
+        }
+        throw new GameNotFoundException("No game found with code " + gameCode);
+    }
+
+    public synchronized GameController reconnectToGame(String nickname, int gameCode, NodeInterface node) throws GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException {
+        if (nickname == null || nickname.isBlank()) {
+            throw new CriticalFailureException("Nickname cannot be null or empty");
+        }
+        if (node == null) {
+            throw new CriticalFailureException("Node cannot be null");
+        }
+
+        for (GameController game : games) {
+            if (game.getId() == gameCode) {
+                if (game.getStatus() == GameControllerStatus.GAME_ENDED) { // If the game has already finished, the player cannot reconnect
+                    throw new GameAlreadyEndedException("Game has already ended, cannot reconnect now");
+                }
+
+                // Game has not yet ended
+                try {
+                    game.reconnect(nickname, node); // Attempt to reconnect the player
+                    game.submitVirtualViewMessage(new ReconnectGameConfirmMessage(nickname)); // Notify the player that he has joined the game
+
+                    for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
+                        // Also notify all players except player that has just reconnected, that a player has reconnected
+                        if (!playerQuadruple.getNickname().equals(nickname)) {
+                            game.submitVirtualViewMessage(new PlayerReconnectedMessage(playerQuadruple.getNickname(), nickname));
+                        }
+                    }
+                } catch (VirtualViewNotFoundException e) {
+                    throw new CriticalFailureException("VirtualViewNotFoundException when player reconnected to the game");
                 }
 
                 return game;

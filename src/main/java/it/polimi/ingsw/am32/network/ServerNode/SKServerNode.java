@@ -2,14 +2,12 @@ package it.polimi.ingsw.am32.network.ServerNode;
 
 import it.polimi.ingsw.am32.Utilities.Configuration;
 import it.polimi.ingsw.am32.controller.GameController;
-import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
-import it.polimi.ingsw.am32.controller.exceptions.GameAlreadyStartedException;
-import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
-import it.polimi.ingsw.am32.controller.exceptions.InvalidPlayerNumberException;
+import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.ErrorMessage;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import it.polimi.ingsw.am32.network.exceptions.UninitializedException;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
@@ -226,6 +224,22 @@ public class SKServerNode implements Runnable, NodeInterface {
 
                     } catch (UploadFailureException ex) {
                         logger.info("Game not found. Failed to send ErrorMessage to client");
+                    }
+                } catch (GameAlreadyEndedException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Game already ended", "PLAYER"));
+                        logger.info("Game already ended. Sending ErrorMessage to client");
+
+                    } catch (UploadFailureException ex) {
+                        logger.info("Game already ended. Failed to send ErrorMessage to client");
+                    }
+                } catch (PlayerNotFoundException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Player not found", "PLAYER"));
+                        logger.info("Player not found. Sending ErrorMessage to client");
+
+                    } catch (UploadFailureException ex) {
+                        logger.info("Player not found. Failed to send ErrorMessage to client");
                     }
                 }
 
