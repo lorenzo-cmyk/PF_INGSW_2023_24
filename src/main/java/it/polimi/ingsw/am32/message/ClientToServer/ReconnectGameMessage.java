@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.controller.GamesManager;
 import it.polimi.ingsw.am32.controller.exceptions.GameAlreadyEndedException;
 import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
+import it.polimi.ingsw.am32.controller.exceptions.PlayerAlreadyConnectedException;
 import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 
@@ -17,7 +18,7 @@ public class ReconnectGameMessage implements CtoSLobbyMessage {
     }
 
     @Override
-    public GameController elaborateMessage(NodeInterface nodeInterface) throws GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException {
+    public GameController elaborateMessage(NodeInterface nodeInterface) throws GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException, PlayerAlreadyConnectedException {
         return GamesManager.getInstance().reconnectToGame(senderNickname, matchId, nodeInterface);
     }
 }

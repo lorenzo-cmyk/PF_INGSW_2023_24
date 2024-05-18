@@ -145,7 +145,6 @@ public class GameController {
     /*
     Disconnection types:
     - Player disconnects during the lobby phase -- The player cannot be reconnected. He must rejoin the game. Handled by GamesManager
-    // TODO: Refuse the reconnection in GamesManager!
     - Player disconnects before game has started -- Reconnection handled here.
     - Player disconnects after game has started but is not current player -- Reconnection handled here.
     - Player disconnects after game has started and is current player (has placed but not yet drawn) -- Reconnection handled here.
@@ -354,12 +353,7 @@ public class GameController {
         }
     }
 
-    /**
-     * Method called when a player reconnects to the game.
-     * Reconnects the player to the game, and sends all necessary messages to the player to bring him up to speed with the current game state.
-     *
-     * @throws PlayerNotFoundException If the player could not be found in the list of players
-     */
+    // TODO Need javadoc
     protected void endMatchDueToDisconnection() {
         // Set the Game Controller status to GAME_ENDED
         status = GameControllerStatus.GAME_ENDED;
@@ -413,8 +407,9 @@ public class GameController {
      * @param nickname The nickname of the player that has reconnected
      * @param node The node of the player that has reconnected
      * @throws PlayerNotFoundException If the player could not be found in the list of players
+     * @throws PlayerAlreadyConnectedException If the player is already connected when attemping to reconnect
      */
-    public void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException {
+    public void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException, PlayerAlreadyConnectedException {
         // Throw exception if nickname is not present in the list of players
         if (nodeList.stream().noneMatch(pq -> pq.getNickname().equals(nickname))) {
             throw new PlayerNotFoundException("Player " + nickname + " not found when reconnecting");
@@ -425,11 +420,15 @@ public class GameController {
         // Flush the player's VirtualView. This is necessary to avoid sending messages to the player that are no longer relevant.
         // Then set the player's node to the new node, and set the player's status to connected.
         for (PlayerQuadruple playerQuadruple : nodeList) {
-            if (playerQuadruple.getNickname().equals(nickname)) {
-                playerQuadruple.getVirtualView().flushMessages();
-                playerQuadruple.setNode(node);
-                playerQuadruple.setConnected(true);
-                return;
+            if (playerQuadruple.getNickname().equals(nickname)) { // Found the player's playerQuadruple
+                if (playerQuadruple.isConnected()) { // The player is already connected
+                    throw new PlayerAlreadyConnectedException("Player " + nickname + " is already connected");
+                }
+
+                playerQuadruple.getVirtualView().flushMessages(); // Empty the player's VirtualView of all messages
+                playerQuadruple.setNode(node); // Reattach the player's node to the VirtualView
+                playerQuadruple.setConnected(true); // Set the player's status to connected
+                break;
             }
         }
 

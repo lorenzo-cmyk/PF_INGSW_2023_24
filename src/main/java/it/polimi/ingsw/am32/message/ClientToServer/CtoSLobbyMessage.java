@@ -15,5 +15,5 @@ import java.io.Serializable;
  * It contains a single method to elaborate the message
  */
 public interface CtoSLobbyMessage extends Serializable {
-    GameController elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException, GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException, GameAlreadyEndedException, PlayerNotFoundException;
+    GameController elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException, GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException, GameAlreadyEndedException, PlayerNotFoundException, PlayerAlreadyConnectedException;
 }

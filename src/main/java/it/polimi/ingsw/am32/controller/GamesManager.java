@@ -162,8 +162,9 @@ public class GamesManager {
      * @throws GameAlreadyEndedException If the game has already ended
      * @throws PlayerNotFoundException If the player with the given nickname is not found in the game
      * @throws GameNotFoundException If no game with the given code is found
+     * @throws PlayerAlreadyConnectedException If the player with the given nickname is already connected to the game
      */
-    public synchronized GameController reconnectToGame(String nickname, int gameCode, NodeInterface node) throws GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException {
+    public synchronized GameController reconnectToGame(String nickname, int gameCode, NodeInterface node) throws GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException, PlayerAlreadyConnectedException {
         if (nickname == null || nickname.isBlank()) {
             throw new CriticalFailureException("Nickname cannot be null or empty");
         }
