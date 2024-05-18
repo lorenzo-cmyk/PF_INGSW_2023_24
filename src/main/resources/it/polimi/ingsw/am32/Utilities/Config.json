@@ -4,5 +4,6 @@
   "pingTimePeriod": 5000,
   "socketReadTimeout": 100,
   "maxPingCount": 3,
-  "serverIp": "127.0.0.1"
+  "serverIp": "127.0.0.1",
+  "endGameDueToDisconnectionTimeout": 120000
 }
