@@ -40,7 +40,7 @@ import org.apache.logging.log4j.Logger;
  * //FIXME need to update all javadoc
  *
  */
-public class TextUI extends View implements Runnable {
+public class TextUI extends View {
     private static final Logger logger = LogManager.getLogger("TUILogger");
     private final Scanner in;
     private final PrintStream out;
@@ -522,9 +522,17 @@ public class TextUI extends View implements Runnable {
             requestPlaceCard();
         }else{
             out.println("It is " + currentPlayer + "'s turn");
-            /*while(currentEvent.equals(Event.NOT_YOUR_TURN)){
-                 String input = getInput();
-            }*/
+            // create a new thread to get the input from the player when it is not the player's turn
+            Thread service = new Thread(() -> {
+                while (!currentPlayer.equals(thisPlayerNickname)) {
+                    try {
+                        getInput();
+                    } catch (Exception e) {
+                        //TODO
+                    }
+                }
+            });
+            service.start();
         }
     }
 
@@ -1368,10 +1376,6 @@ public class TextUI extends View implements Runnable {
             in.nextLine();
             return getInputInt();
         }
-    }
-    @Override
-    public void run() {
-
     }
 }
 
