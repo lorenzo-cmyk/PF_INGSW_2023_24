@@ -294,8 +294,7 @@ public class TextUI extends View implements Runnable {
     public void askReconnectGame() {
         currentEvent = Event.RECONNECT_GAME;
         // don't need to ask the player nickname because it is already stored
-        notifyAskListener(new RequestGameStatusMessage(thisPlayerNickname));
-        //TODO wait for the response from the server
+        //TODO wait for the adding of new class of the message
     }
 
     /**
@@ -1190,32 +1189,25 @@ public class TextUI extends View implements Runnable {
 
     @Override
     public void handleFailureCase(Event event,String reason){
+        out.println(reason);
         switch (event){
-            case CHOOSE_CONNECTION -> {
-                out.println(reason);
+            case CHOOSE_CONNECTION -> { // Connection failure
                 out.println("Please try again:");
                 chooseConnection();
             }
-            case CREATE_GAME-> {
-                out.println(reason);
+            case CREATE_GAME-> { // Create game failure
                 out.println("Please try again:");
                 askCreateGame();
             }
-            case JOIN_GAME-> {
-                out.println(reason);
+            case JOIN_GAME-> { // Join game failure
                 out.println("Please try again:");
                 askJoinGame();
-            }
-            case PLACE_CARD_FAILURE-> {
-                out.println(reason);
-                out.println("Please re-select the card from your hand:");
-                requestPlaceCard();
             }
         }
     }
 
     @Override
-    public void handleEvent(Event event) {
+    public void handleEvent(Event event) { //FIXME IT IS NECESSARY TO IMPLEMENT THIS METHOD?
         switch (event) {
             case GAME_CREATED -> {
                 out.println("Game " + gameID + " created successfully, waiting for other players to join...");
@@ -1233,10 +1225,6 @@ public class TextUI extends View implements Runnable {
         }
     }
 
-    @Override
-    public void handleChoiceEvent(Event event, int choice) {
-
-    }
     private void clearCMD() {
         try {
             if (System.getProperty("os.name").contains("Windows"))
