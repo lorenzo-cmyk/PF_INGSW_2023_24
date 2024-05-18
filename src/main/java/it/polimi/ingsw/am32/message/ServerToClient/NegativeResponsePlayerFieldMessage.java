@@ -13,7 +13,7 @@ public class NegativeResponsePlayerFieldMessage implements StoCMessage{
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        // This method is never called by Client, the NegativeResponsePlayerFieldMessage is kept for easier debugging and testing
     }
 
     @Override
