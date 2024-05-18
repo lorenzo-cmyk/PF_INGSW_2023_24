@@ -113,10 +113,6 @@ public class GraphicalUI extends View {
         //TODO
     }
 
-    @Override
-    public void updateNewPlayerJoin(ArrayList<String> players) {
-
-    }
 
     @Override
     public void askReconnectGame() {
@@ -127,6 +123,11 @@ public class GraphicalUI extends View {
     @Override
     public void chooseConnection() {
 
+    }
+
+    @Override
+    public void updatePlayerList(ArrayList<String> players) {
+        
     }
 
     @Override
@@ -198,11 +199,6 @@ public class GraphicalUI extends View {
 
     @Override
     public void handleEvent(Event event) {
-        //TODO
-    }
-
-    @Override
-    public void handleChoiceEvent(Event event, int Choice) {
         //TODO
     }
 }

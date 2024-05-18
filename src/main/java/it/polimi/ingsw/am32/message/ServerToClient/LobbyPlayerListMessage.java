@@ -16,7 +16,7 @@ public class LobbyPlayerListMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        view.updateNewPlayerJoin(playerList);
+        view.updatePlayerList(playerList); // update the player list in the view
     }
 
     @Override

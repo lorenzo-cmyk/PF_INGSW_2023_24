@@ -70,8 +70,6 @@ public abstract class View implements EventHandler{
 
     public abstract void askJoinGame();
 
-    public abstract void updateNewPlayerJoin(ArrayList<String> players);
-
     public abstract void askReconnectGame();
 
 
@@ -97,6 +95,8 @@ public abstract class View implements EventHandler{
             //TODO
         }
     }
+
+    public abstract void updatePlayerList(ArrayList<String> players);
 
     public abstract void setUpPlayersData();
 

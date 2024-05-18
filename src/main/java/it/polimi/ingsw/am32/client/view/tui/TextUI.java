@@ -312,17 +312,13 @@ public class TextUI extends View implements Runnable {
         currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
     }
     /**
-     * Once the player receives the AccessGameConfirmationMessage from the server, the method is called by
-     * processMessage, and
+     * Once the player receives the LobbyPlayerList message from the server, the method is called by
+     * processMessage, to update the player's list in the Lobby phase and print the player's list updated.
+     * @param players the list updated of players in the game.
      */
     @Override
-    public void updateNewPlayerJoin(ArrayList<String> players) {
-        setCurrentEvent(Event.WAITING_FOR_START);
-        for (String player : players) {
-            if (!this.players.contains(player)) {
-                this.players.add(player);
-            }
-        }
+    public void updatePlayerList(ArrayList<String> players) {
+        this.players = players;
         showPlayerInGame();
     }
 
@@ -1207,7 +1203,7 @@ public class TextUI extends View implements Runnable {
     }
 
     @Override
-    public void handleEvent(Event event) { //FIXME IT IS NECESSARY TO IMPLEMENT THIS METHOD?
+    public void handleEvent(Event event) { //FIXME IT IS NECESSARY TO IMPLEMENT THIS METHOD in TUI?
         switch (event) {
             case GAME_CREATED -> {
                 out.println("Game " + gameID + " created successfully, waiting for other players to join...");
@@ -1217,7 +1213,7 @@ public class TextUI extends View implements Runnable {
                 out.println("New player join the game :)");
             }
             case JOINED_GAME -> {
-                out.println("Joined the game successfully,waiting for the game to start...");
+                out.println("Joined the game "+gameID+ " successfully,waiting for the game to start...");
             }
             case GAME_START -> {
                 out.println("YEAH!!! Let's start the game!");
