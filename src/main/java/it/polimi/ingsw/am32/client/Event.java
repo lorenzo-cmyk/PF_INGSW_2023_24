@@ -25,7 +25,8 @@ public enum Event {
     SELECT_SECRET_OBJ_CARD_FAILURE (21),
     PLACE_CARD(22),
     PLACE_CARD_FAILURE (23),
-    DRAW_CARD(24);
+    DRAW_CARD(24),
+    PLAYER_RECONNECTED(25);
     private final int value;
 
     Event(int value) {

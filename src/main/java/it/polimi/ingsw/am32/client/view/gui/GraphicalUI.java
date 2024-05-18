@@ -85,11 +85,6 @@ public class GraphicalUI extends View {
 
     }
 
-    @Override
-    public void updatePlayerReconnected(String disconnectedNickname) {
-
-    }
-
 
     @Override
     public void showWelcome() {

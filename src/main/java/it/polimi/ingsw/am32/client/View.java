@@ -185,7 +185,6 @@ public abstract class View implements EventHandler{
 
     public abstract void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources);
 
-    public abstract void updatePlayerReconnected(String disconnectedNickname) ;
 }
 
 
