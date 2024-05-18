@@ -45,7 +45,7 @@ public abstract class View implements EventHandler{
     protected static final ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
     protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
-    //TODO: add the attributes used by chat
+    protected ArrayList<ChatMessage>chatHistory;
     public View() {
         this.playerNum = 0;
         this.currentPlayer = null;
@@ -56,6 +56,7 @@ public abstract class View implements EventHandler{
         this.players = new ArrayList<>();
         this.hand = new ArrayList<>();
         this.publicInfo = new HashMap<>();
+        this.chatHistory = new ArrayList<>();
     }
 
     public abstract void showWelcome();

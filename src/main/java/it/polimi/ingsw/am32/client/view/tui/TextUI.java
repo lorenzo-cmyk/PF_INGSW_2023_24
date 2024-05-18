@@ -294,8 +294,10 @@ public class TextUI extends View implements Runnable {
     @Override
     public void askReconnectGame() {
         currentEvent = Event.RECONNECT_GAME;
-        // don't need to ask the player nickname because it is already stored
-        //TODO wait for the adding of new class of the message
+        askNickname();
+        out.println("Insert the Access ID of the game you want to reconnect to:");
+        this.gameID = Integer.parseInt(getInput());
+        notifyAskListenerLobby(new ReconnectGameMessage(thisPlayerNickname,gameID));
     }
 
     /**
@@ -470,31 +472,46 @@ public class TextUI extends View implements Runnable {
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces) {
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
-        //FIXME NEED TO FIX IT WITH THE DIFFERENT STATUS
-        //Update when entering the playing status
-        this.currentEvent = Event.PLAYING;
-        this.players = playerNicknames;
-        this.hand = playerHand;
-        this.commonObjCards = gameCommonObjectives;
-        this.currentResourceCards = gameCurrentResourceCards;
-        this.currentGoldCards = gameCurrentGoldCards;
-        this.resourceDeckSize = gameResourcesDeckSize;
-        this.goldDeckSize = gameGoldDeckSize;
-        showObjectiveCards(currentGoldCards);
-        this.Status = Event.getEvent(matchStatus);
-        this.currentPlayer = currentPlayer;
-        for (int i = 0; i < playerNicknames.size(); i++){
+        if(currentEvent.equals(Event.RECONNECT_GAME)) {
+            this.players = playerNicknames;
+            this.hand = playerHand;
+            this.commonObjCards = gameCommonObjectives;
+            this.secretObjCardSelected = playerSecretObjective;
+            this.currentResourceCards = gameCurrentResourceCards;
+            this.currentGoldCards = gameCurrentGoldCards;
+            this.resourceDeckSize = gameResourcesDeckSize;
+            this.goldDeckSize = gameGoldDeckSize;
+            this.Status = Event.getEvent(matchStatus);
+            this.chatHistory = chatHistory;
+            this.currentPlayer = currentPlayer;
+            for (int i = 0; i < playerNicknames.size(); i++) {
                 publicInfo.put(playerNicknames.get(i), new PlayerPub(convertToColour(playerColours.get(i)),
                         playerPoints[i], new ArrayList<>(), playerResources, playerConnected.get(i)));
                 boards.put(playerNicknames.get(i), new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
-            int finalI = i;
-            playerFields.get(i).forEach(card -> {
+                int finalI = i;
+                playerFields.get(i).forEach(card -> {
                     publicInfo.get(playerNicknames.get(finalI)).getField().clear();
                     publicInfo.get(playerNicknames.get(finalI)).addToField(new CardPlacedView(card[2], cardImg.get(card[2]), card[0], card[1], card[3] == 1));
                     updateAfterPlacedCard(playerNicknames.get(finalI), searchNonObjCardById(card[2]), card[0], card[1],
-                            card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);});
+                            card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);
+                });
+            }
+        }else {
+            this.chatHistory = chatHistory;
+            this.currentPlayer = currentPlayer;
+            int []card;
+            PlayerPub playerSpecific;
+            for (int i = 1; i < playerNicknames.size(); i++) {
+                playerSpecific=publicInfo.get(playerNicknames.get(i));
+                playerSpecific.updateColour(convertToColour(playerColours.get(i)));
+                playerSpecific.updateResources(playerResources);
+                card=playerFields.get(i).get(0);
+                playerSpecific.addToField(new CardPlacedView(card[2], cardImg.get(card[2]),
+                        card[0], card[1], card[3] == 1));
+                updateAfterPlacedCard(playerNicknames.get(i), searchNonObjCardById(card[2]), card[0], card[1],
+                        card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[i]);
+            }
         }
-        //TODO Update when a specific player reconnects with rollback...
     }
 
     @Override
@@ -1230,6 +1247,10 @@ public class TextUI extends View implements Runnable {
             case JOIN_GAME-> { // Join game failure
                 out.println("Please try again:");
                 askJoinGame();
+            }
+            case RECONNECT_GAME -> { // Reconnect game failure
+                out.println("Please try again:");
+                askReconnectGame();
             }
         }
     }
