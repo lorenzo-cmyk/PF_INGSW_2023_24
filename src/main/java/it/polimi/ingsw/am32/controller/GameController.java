@@ -849,8 +849,9 @@ public class GameController {
      * Notifies all players of any changes in the model status, notifies all players of the newly elected current player.
      */
     private void setNextPlayer() {
-        // If all players are disconnected, we don't want to get stuck in an infinite loop
-        if (nodeList.stream().noneMatch(PlayerQuadruple::isConnected)) {
+        // If all players are disconnected, we don't want to get stuck in an infinite loop.
+        // If only one player is connected, we don't want to let him play forever.
+        if (nodeList.stream().filter(PlayerQuadruple::isConnected).count() <= 1) {
             return;
         }
 
