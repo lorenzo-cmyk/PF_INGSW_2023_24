@@ -231,8 +231,9 @@ public class TextUI extends View {
      * menu of the game mode and asks the player to select the action to perform.
      */
     @Override
-    public void askSelectGameMode() { //From this method, the player can select to use the command Service
+    public void askSelectGameMode() {
         currentEvent = Event.SELECT_GAME_MODE;
+
         out.println("""
                 Menu:
                 1. Create new game
@@ -240,17 +241,21 @@ public class TextUI extends View {
                 3. Reconnect game
                 """);
         out.println("Which action do you want to perform, type[1,2 or 3]:");
-        in.nextLine();
-        String choice = getInput();
-        switch (choice) {
-            case "1" -> askCreateGame();
-            case "2" -> askJoinGame();
-            case "3" -> askReconnectGame();
-            default -> {
-                logger.info("Invalid input, please select 1, 2 or 3");
-                out.println("Invalid input, please select 1, 2 or 3");
-                askSelectGameMode();
+
+        while (true) { // Keep looping until the player enters a valid choice
+            int choice = getInputInt(); // Read the player's input
+            switch (choice) {
+                case 1 -> askCreateGame();
+                case 2 -> askJoinGame();
+                case 3 -> askReconnectGame();
+                default -> { // If the player's input is not one of the valid options
+                    logger.info("Invalid input, please select 1, 2 or 3");
+                    out.println("Invalid input, please select 1, 2 or 3");
+                    continue;
+                }
             }
+            // If we get to this point, the player has entered a valid choice
+            break;
         }
     }
 
