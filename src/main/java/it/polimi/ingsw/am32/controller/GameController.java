@@ -89,7 +89,7 @@ public class GameController {
      * @param message The message object to be delivered
      * @throws VirtualViewNotFoundException If the recipient's VirtualView could not be found among the listeners
      */
-    protected void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
+    protected synchronized void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Look through list of all connected players
             if (playerQuadruple.getNickname().equals((message.getRecipientNickname()))) { // If the correct recipient is found
                 playerQuadruple.getVirtualView().addMessage(message); // Add the message to the recipient's VirtualView
@@ -370,8 +370,12 @@ public class GameController {
         }
     }
 
-    // TODO Need javadoc
-    protected void endMatchDueToDisconnection() {
+    /**
+     * Method called by EndMatchDueToDisconnectionTimerTask when the timer expires.
+     * Ends the match and declares the last remaining player as the winner.
+     * Notifies all players of the match status and of the winners (if any).
+     */
+    protected synchronized void endMatchDueToDisconnection() {
         // Set the Game Controller status to GAME_ENDED
         status = GameControllerStatus.GAME_ENDED;
 
@@ -426,7 +430,7 @@ public class GameController {
      * @throws PlayerNotFoundException If the player could not be found in the list of players
      * @throws PlayerAlreadyConnectedException If the player is already connected when attemping to reconnect
      */
-    public void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException, PlayerAlreadyConnectedException {
+    public synchronized void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException, PlayerAlreadyConnectedException {
         // Throw exception if nickname is not present in the list of players
         if (nodeList.stream().noneMatch(pq -> pq.getNickname().equals(nickname))) {
             throw new PlayerNotFoundException("Player " + nickname + " not found when reconnecting");
@@ -475,7 +479,7 @@ public class GameController {
      * @param node The node of the player to add
      * @throws FullLobbyException If the lobby is already full
      */
-    protected void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
+    protected synchronized void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
 
         model.addPlayer(nickname); // Add the player to the actual match instance
@@ -490,7 +494,7 @@ public class GameController {
      * Method called when the lobby is full.
      * Enters the preparation phase of the game, assigns colours and starting cards to players, and notifies all players of the game start.
      */
-    protected void enterPreparationPhase() {
+    protected synchronized void enterPreparationPhase() {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players that the game has started
             try {
                 submitVirtualViewMessage(new GameStartedMessage(playerQuadruple.getNickname()));
@@ -522,7 +526,7 @@ public class GameController {
     /**
      * Sets the model to the terminated phase, and notifies all players that the game has ended.
      */
-    protected void enterEndPhase() {
+    protected synchronized void enterEndPhase() {
         status = GameControllerStatus.GAME_ENDED;
         model.enterTerminatedPhase();
 
@@ -937,7 +941,7 @@ public class GameController {
      * @param nickname The nickname of the player to generate the message for
      * @return The generated response game status message
      */
-    protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
+    protected synchronized PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
             ArrayList<Boolean> playerConnected = nodeList.stream().map(PlayerQuadruple::isConnected).collect(Collectors.toCollection(ArrayList::new));
@@ -1001,23 +1005,23 @@ public class GameController {
      *
      * @return The ID of the game controller
      */
-    public int getId() {
+    public synchronized int getId() {
         return id;
     }
 
-    protected ArrayList<PlayerQuadruple> getNodeList() {
+    protected synchronized ArrayList<PlayerQuadruple> getNodeList() {
         return nodeList;
     }
 
-    protected int getGameSize() {
+    protected synchronized int getGameSize() {
         return gameSize;
     }
 
-    protected int getLobbyPlayerCount() {
+    protected synchronized int getLobbyPlayerCount() {
         return model.getPlayersNicknames().size();
     }
 
-    protected GameControllerStatus getStatus() {
+    protected synchronized GameControllerStatus getStatus() {
         return status;
     }
 
@@ -1026,15 +1030,15 @@ public class GameController {
      *
      * @return The timer of the game controller
      */
-    public Timer getTimer() {
+    public synchronized Timer getTimer() {
         return timer;
     }
 
-    protected ModelInterface getModel(){
+    protected synchronized ModelInterface getModel(){
         return model;
     }
 
-    protected Chat getChat(){
+    protected synchronized Chat getChat(){
         return chat;
     }
 }
