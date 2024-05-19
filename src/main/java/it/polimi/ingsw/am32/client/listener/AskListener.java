@@ -14,7 +14,7 @@ public class AskListener implements AskListenerInterface, Runnable {
     private final ClientNodeInterface clientNode;
     private final ArrayList<CtoSLobbyMessage> lobbyMessagesBox;
     private final ArrayList<CtoSMessage> messagesBox;
-    private boolean firstMessage=true;
+    //private boolean firstMessage=true;
 
     public AskListener(ClientNodeInterface clientNode) {
         this.clientNode = clientNode;
@@ -28,10 +28,7 @@ public class AskListener implements AskListenerInterface, Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-            if (firstMessage) { //FIXME
                 processLobbyMessages();
-                firstMessage=false;
-            }
                 processMessages();
         }
     }
@@ -64,28 +61,29 @@ public class AskListener implements AskListenerInterface, Runnable {
     @Override
     public void processLobbyMessages() {
         synchronized (lobbyMessagesBox) {
-            if (lobbyMessagesBox.isEmpty()) {
-                try {
+            if (!lobbyMessagesBox.isEmpty()) { //TODO: check if this is the right way to do it
+                /*try {
                     logger.info("MessagesBox is empty");
                     lobbyMessagesBox.wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;
                 }
-            }
-            CtoSLobbyMessage message = lobbyMessagesBox.getFirst();
-            try {
-                clientNode.uploadToServer(message);
-                System.out.println(message+" upload to server successfully");
-                logger.info(message+" upload to server successfully");
-                lobbyMessagesBox.removeFirst();
-            } catch (UploadFailureException e) {
-                // If the message cannot be uploaded to the server
+            }*/
+                CtoSLobbyMessage message = lobbyMessagesBox.getFirst();
                 try {
-                    logger.info(message+" upload to server failed");
-                    lobbyMessagesBox.wait();
-                } catch (InterruptedException e1) {
-                    Thread.currentThread().interrupt();
+                    clientNode.uploadToServer(message);
+                    System.out.println(message + " upload to server successfully");
+                    logger.info(message + " upload to server successfully");
+                    lobbyMessagesBox.removeFirst();
+                } catch (UploadFailureException e) {
+                    // If the message cannot be uploaded to the server
+                    try {
+                        logger.info(message + " upload to server failed");
+                        lobbyMessagesBox.wait();
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
         }
@@ -94,28 +92,29 @@ public class AskListener implements AskListenerInterface, Runnable {
     @Override
     public void processMessages() {
         synchronized (messagesBox) {
-            if (messagesBox.isEmpty()) {
-                try {
+            if (!messagesBox.isEmpty()) { //TODO: check if this is the right way to do it
+               /* try {
                     logger.info("MessagesBox is empty");
                     messagesBox.wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;
                 }
-            }
-            CtoSMessage message = messagesBox.getFirst();
-            try {
-                clientNode.uploadToServer(message);
-                System.out.println(message+" upload to server successfully");
-                logger.info(message+" upload to server successfully");
-                messagesBox.removeFirst();
-            } catch (UploadFailureException e) {
-                // If the message cannot be uploaded to the server
+            }*/
+                CtoSMessage message = messagesBox.getFirst();
                 try {
-                    System.out.println("MessagesBox error");
-                    messagesBox.wait();
-                } catch (InterruptedException e1) {
-                    Thread.currentThread().interrupt();
+                    clientNode.uploadToServer(message);
+                    System.out.println(message + " upload to server successfully");
+                    logger.info(message + " upload to server successfully");
+                    messagesBox.removeFirst();
+                } catch (UploadFailureException e) {
+                    // If the message cannot be uploaded to the server
+                    try {
+                        System.out.println("MessagesBox error");
+                        messagesBox.wait();
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
         }
