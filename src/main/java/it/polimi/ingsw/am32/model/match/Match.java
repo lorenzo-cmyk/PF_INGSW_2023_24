@@ -66,6 +66,10 @@ public class Match implements ModelInterface {
      */
     private MatchStatus matchStatus;
     /**
+     * Backup of matchStatus used for the rollback functionality.
+     */
+    private MatchStatus backupMatchStatus;
+    /**
      * Nickname that identifies the current player.
      */
     private String currentPlayerNickname;
@@ -318,6 +322,7 @@ public class Match implements ModelInterface {
      */
     public void placeCard(int id, int x, int y, boolean side) throws InvalidSelectionException,
             MissingRequirementsException, InvalidPositionException, PlayerNotFoundException {
+        backupMatchStatus = matchStatus;
         for (int i=0; i<=players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerNickname)) { // Found current player
                 players.get(i).performMove(id, x, y, side); // Place card
@@ -339,6 +344,7 @@ public class Match implements ModelInterface {
         for (Player player : players) {
             if (player.getNickname().equals(currentPlayerNickname)) {
                 player.rollbackMove();
+                matchStatus = backupMatchStatus;
                 return;
             }
         }
@@ -346,11 +352,11 @@ public class Match implements ModelInterface {
     }
 
 /**
- * This method is used to draw a card from the deck of the game.
+ * Used to make the current player draw a card from the chosen deck.
  * @param deckType The type of deck from which the card is drawn. 0 for resourceCardsDeck, 1 for goldCardsDeck, 2 for currentResourceCards, 3 for currentGoldCards.
  * @param id If the deckType is 2 or 3, the id parameter is used to identify the card to be drawn.
  * @throws DrawException if the deckType selected for draw is not valid or the id of the card is not found. Gets also thrown if the deck is empty
- * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+ * @throws PlayerNotFoundException if the current player could not be found
  */
     public void drawCard(int deckType, int id) throws DrawException, PlayerNotFoundException {
         // Retrieve the player who is playing using the currentPlayerNickname
@@ -504,6 +510,21 @@ public class Match implements ModelInterface {
     }
 
     /**
+     * Returns the points obtained from the objective cards of the player with the given nickname.
+     *
+     * @return The points obtained from the objective cards of the player with the given nickname.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     */
+    public int getPointsGainedFromObjectives(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.getPointsGainedFromObjectives();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
+    }
+
+    /**
      * Returns all players' nicknames
      * @return ArrayList containing all the players' nicknames
      */
@@ -614,7 +635,7 @@ public class Match implements ModelInterface {
      * @return An ArrayList of integer arrays representing the player's field. Each array represents a card placed on
      * the field. The elements of the array are the x-coordinate, y-coordinate, id of the card, and a boolean
      * value (1 for true, 0 for false) indicating whether the card is face up. If no player with the provided
-     * nickname is found, an empty ArrayList is returned.
+     * nickname is found, an empty ArrayList is returned. Returns null if the player's field has not yet been initialized.
      * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
      */
     public ArrayList<int[]> getPlayerField(String nickname) throws PlayerNotFoundException {
@@ -624,6 +645,9 @@ public class Match implements ModelInterface {
 
         if (playerOptional.isEmpty()) {
             throw new PlayerNotFoundException("Player not found in the list of players");
+        }
+        if (playerOptional.get().getField() == null) { // Player field has not yet been initialized
+            return null;
         }
 
         return playerOptional.get().getField().getFieldCards().stream()
@@ -637,7 +661,7 @@ public class Match implements ModelInterface {
      *
      * @return Status of match
      */
-    protected int getMatchStatus() {
+    public int getMatchStatus() {
         // Return the integer value associated with the current match status. If the matchStatus is null, return -1.
         return isNull(matchStatus) ? -1 : matchStatus.getValue();
     }
@@ -710,6 +734,79 @@ public class Match implements ModelInterface {
      */
     protected ArrayList<NonObjectiveCard> getGoldCardsDeck() {
         return goldCardsDeck.getCards();
+    }
+
+    /**
+     * Getter. Get the points of a Player.
+     *
+     * @param nickname The nickname of the player whose points we want to get.
+     * @throws PlayerNotFoundException if the player with the given nickname was not found in the list of players.
+     * @return The points of the player with the given nickname.
+     */
+    public int getPlayerPoints(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.getPoints();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
+    }
+
+    /**
+     * Getter. Get the remaining cards in the resource card deck.
+     *
+     * @return The number of cards in the resource card deck.
+     */
+    public int getResourceCardDeckSize() {
+        return resourceCardsDeck.getCards().size();
+    }
+
+    /**
+     * Getter. Get the remaining cards in the gold card deck.
+     *
+     * @return The number of cards in the gold card deck.
+     */
+    public int getGoldCardDeckSize() {
+        return goldCardsDeck.getCards().size();
+    }
+
+    /**
+     * Getter. Get the list of all available spaces in the player's field upon which a card can be freely played.
+     *
+     * @param nickname The nickname of the player whose available spaces we want to get.
+     * @return ArrayList of integer arrays containing the x and y coordinates of all available spaces in the player's field.
+     */
+    public ArrayList<int[]> getAvailableSpacesPlayer(String nickname) throws PlayerNotFoundException {
+        for (Player player : players) {
+            if (player.getNickname().equals(nickname)) {
+                return player.availableSpacesPlayer();
+            }
+        }
+        throw new PlayerNotFoundException("Player not found in the list of players");
+    }
+
+    /**
+     * Getter. Get the Kingdom of the card ready to be drawn from the resource card deck (if not empty).
+     *
+     * @return The Kingdom of the card ready to be drawn from the resource card deck. If the deck is empty, return an empty optional.
+     */
+    public Optional<Integer> getNextResourceCardKingdom() {
+        if (resourceCardsDeck.getCards().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(resourceCardsDeck.getCards().getLast().getKingdom().getValue());
+    }
+
+    /**
+     * Getter. Get the Kingdom of the card ready to be drawn from the gold card deck (if not empty).
+     *
+     * @return The Kingdom of the card ready to be drawn from the gold card deck. If the deck is empty, return an empty optional.
+     */
+    public Optional<Integer> getNextGoldCardKingdom() {
+        if (goldCardsDeck.getCards().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(goldCardsDeck.getCards().getLast().getKingdom().getValue());
     }
 
 }

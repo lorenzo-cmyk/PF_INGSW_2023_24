@@ -272,6 +272,45 @@ public class Player {
         points = oldPoints;
     }
 
+    /**
+     * Calculates and returns a list of all available spaces in the player's field upon which a card can be freely played
+     *
+     * @return ArrayList of couples of integers denoting the x and y coordinates of the available position in the player's field
+     */
+    public ArrayList<int[]> availableSpacesPlayer() {
+        ArrayList<int[]> availableCoordinate = new ArrayList<>(); // Create a new ArrayList of int arrays to store the available coordinates
+        for (int j = 0; j < getField().getFieldCards().size(); j++) { // Loop through all the cards in the player's field
+            int Ax, Ay;
+            Ax = getField().getFieldCards().get(j).getX();
+            Ay = getField().getFieldCards().get(j).getY();
+            if (getField().availableSpace(Ax + 1, Ay + 1)) { // Check if the space to the right and below the card is available
+                int[] temp = new int[2];
+                temp[0] = Ax + 1;
+                temp[1] = Ay + 1;
+                availableCoordinate.add(temp);
+            }
+            if (getField().availableSpace(Ax - 1, Ay - 1)) { // Check if the space to the left and above the card is available
+                int[] temp = new int[2];
+                temp[0] = Ax - 1;
+                temp[1] = Ay - 1;
+                availableCoordinate.add(temp);
+            }
+            if (getField().availableSpace(Ax + 1, Ay - 1)) { // Check if the space to the right and above the card is available
+                int[] temp = new int[2];
+                temp[0] = Ax + 1;
+                temp[1] = Ay - 1;
+                availableCoordinate.add(temp);
+            }
+            if (getField().availableSpace(Ax - 1, Ay + 1)) { // Check if the space to the left and below the card is available
+                int[] temp = new int[2];
+                temp[0] = Ax - 1;
+                temp[1] = Ay + 1;
+                availableCoordinate.add(temp);
+            }
+        }
+        return availableCoordinate;
+    }
+
     //---------------------------------------------------------------------------------------------
     // Getters
 
