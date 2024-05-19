@@ -264,8 +264,15 @@ public class TextUI extends View {
      */
     @Override
     public void askNickname() {
-        out.println("Insert the nickname you want to use in the game:");
-        thisPlayerNickname = getInput();
+        while(true) {
+            out.println("Insert the nickname you want to use in the game:");
+            thisPlayerNickname = in.nextLine();
+            if (thisPlayerNickname.isBlank()) {
+                out.println("Invalid nickname, do not leave it blank");
+                continue;
+            }
+            return;
+        }
     }
 
     /**
@@ -280,7 +287,6 @@ public class TextUI extends View {
         currentEvent = Event.CREATE_GAME;
         askNickname(); // ask the player to insert the nickname
         while (true) {
-            try {
                 out.println("Insert the number of players you want to play with,type[2,3 or 4]:");
                 playerNum = Integer.parseInt(getInput());
                 if (playerNum < 2 || playerNum > 4) {
@@ -288,9 +294,6 @@ public class TextUI extends View {
                 }else {
                     break;
                 }
-            } catch (NumberFormatException e) {
-                out.println("Invalid input, please insert a number between 2 and 4");
-            }
         } // notify the listener with the new game message
         notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
     }
