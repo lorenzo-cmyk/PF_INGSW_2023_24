@@ -43,17 +43,23 @@ public class Client {
     public static void chooseUI(){
         View view;
 
-        out.println("""
+        out.println(""" 
                 Choose the User Interface:
                 1. Text User Interface
-                2. Graphical User Interface""");
+                2. Graphical User Interface"""); // Print prompt only once at the start
 
         int uiChoice; // Stores an integer indicating the user's choice (GUI or TUI)
         while (true) { // Keep looping until the user enters a valid choice
             try {
                 uiChoice = in.nextInt(); // Read the user's input
+
+                String remainder = in.nextLine(); // Read the rest of the line (if any)
+                if (!remainder.isBlank()) { // If there is any input left
+                    out.println("Invalid input (must be single integer), please try again");
+                    continue; // Continue the loop
+                }
             } catch (InputMismatchException e) { // User entered non-integer
-                out.println("! Invalid input, please try again");
+                out.println("Invalid input (must be integer), please try again");
                 in.nextLine(); // Clear the input buffer (otherwise the same input will be read again)
                 continue; // Continue the loop
             }
