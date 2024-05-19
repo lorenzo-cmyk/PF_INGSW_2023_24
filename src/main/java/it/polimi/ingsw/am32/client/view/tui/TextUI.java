@@ -106,62 +106,76 @@ public class TextUI extends View {
      */
     @Override
     public void chooseConnection() {
-        currentEvent = Event.CHOOSE_CONNECTION;
-        out.println("""
+        currentEvent = Event.CHOOSE_CONNECTION; // Update the state of the client
+
+        boolean isConnected = false; // Indicates whether the connection is established
+        do {
+            out.println("""
                 Choose the connection type,type[1 or 2]:
                 1. Socket
-                2. RMI""");
-        int connectionChoice = getInputInt();
-        boolean isConnected = false;
-        switch (connectionChoice) { // if the input is 1, set the socket client, if the input is 2, set the RMI client
-            case 1: {
-                String ServerIP;
-                out.println("Insert the server IP:");
-                in.nextLine();// read the input from the player
-                ServerIP = getInput();
-                while (!isValid.isIpValid(ServerIP)) {
-                    out.println("Invalid IP, please try again");
-                    ServerIP = in.nextLine();
-                }// if the IP address is invalid, print the error message and ask the player to re-enter the IP address
-                out.println("Insert the server port:");
-                int port = getInputInt();
-                // if the port number is invalid, print the error message and ask the player to re-enter the port number
-                while (!isValid.isPortValid(port)) {
-                    out.println("Invalid port, please try again");
-                    in.nextLine();
-                    port = getInputInt();
+                2. RMI"""); // Print the prompt for the player
+
+            int connectionChoice = getInputInt(); // Ask the player to choose the connection type
+
+            // At this point, the user will have inputted an integer, but it might not be a valid choice
+            switch (connectionChoice) {
+                case 1: { // Player chooses socket connection
+                    // Ask the player to insert the server IP
+                    out.println("Insert the server IP:"); // Ask the player to insert the server IP
+
+                    String ServerIP = getInput(); // Read the player's input
+                    while (!isValid.isIpValid(ServerIP)) { // Check if the IP address is valid
+                        out.println("Invalid IP, please try again"); // Print an error message
+                        ServerIP = getInput(); // Ask the player to re-enter the IP address
+                    }
+
+                    // Ask the player to insert the server port
+                    out.println("Insert the server port:"); // Ask the player to insert the server port
+
+                    int port = getInputInt(); // Read the player's input
+                    while (!isValid.isPortValid(port)) { // Check if the port number is valid
+                        out.println("Invalid port, please try again"); // Print an error message
+                        port = getInputInt(); // Ask the player to re-enter the port number
+                    }
+
+                    try {
+                        setSocketClient(ServerIP, port); // Set the socket client
+                        isConnected = true; // Set the connection status to true
+                    } catch (IOException e) { // If an I/O error occurs
+                        Thread.currentThread().interrupt(); // Interrupt the current thread
+                        // TODO Should probably log this
+                    }
+
+                    break;
                 }
-                try {
-                    setSocketClient(ServerIP, port); // set the socket client
-                    isConnected = true;
-                } catch (IOException e) {
-                    Thread.currentThread().interrupt();
+                case 2: { // Player chooses RMI connection
+                    // Ask the player to insert the server URL
+                    out.println("Insert the server URL"); // Ask the player to insert the server URL
+                    // TODO Should ask the player to insert the server URL in a specific format
+
+                    String ServerURL = in.nextLine(); // Read the player's input
+                    while (!isValid.isURLValid(ServerURL)) { // Check if the URL is valid
+                        out.println("Invalid URL, please try again"); // Print an error message
+                        ServerURL = in.nextLine(); // Ask the player to re-enter the URL
+                    }
+
+                    setRMIClient(ServerURL); // Set the RMI client
+                    isConnected = true; // Set the connection status to true
+
+                    break;
                 }
-                break;
-            }
-            case 2: {
-                out.println("Insert the server URL"); //TODO show the format of the URL to the player
-                String ServerURL = in.nextLine(); //
-                while (!isValid.isURLValid(ServerURL)) {
-                    out.println("Invalid URL, please try again");
-                    ServerURL = in.nextLine();
+                default: { // If the player's input is not one of the valid options
+                    logger.info("Invalid input, please select 1 or 2");
+                    out.println("Invalid input, please select 1 or 2");
+                    continue; // Continue here to avoid printing connection failed message
                 }
-                setRMIClient(ServerURL);// set the RMI client
-                isConnected = true;
-                break;
             }
-            default: {
-                // if the input is neither 1 nor 2, print the error message and ask the player to re-enter the input
-                logger.info("Invalid input, please select 1 or 2");
-                out.println("Invalid input, please select 1 or 2");
-                chooseConnection();
-                break;
+
+            // We have now attempted to establish a connection, but it may have failed
+            if (!isConnected) { // If the connection is not established
+                out.println("Connection failed, please try again"); // Print an error message
             }
-        }
-        if (!isConnected) {
-            out.println("Connection failed, please try again");
-            chooseConnection();
-        }
+        } while (!isConnected); // Keep looping until the connection is established
     }
 
     /**
@@ -1390,13 +1404,30 @@ public class TextUI extends View {
         return input;
     }
 
+    /**
+     * Loops until the user enters a valid single integer.
+     * Inputs such as "string 5", "4 string", "string" are all invalid.
+     *
+     * @return Integer input from the user
+     */
     private int getInputInt() {
-        try {
-            return in.nextInt();
-        } catch (InputMismatchException e) {
-            out.println("Invalid input, please type a number");
-            in.nextLine();
-            return getInputInt();
+        int choice;
+        while (true) { // Loop until the user enters a valid integer
+            try {
+                choice = in.nextInt();
+
+                String remainder = in.nextLine(); // Consume the rest of the line
+                if (!remainder.isBlank()) { // If there is anything left on the line
+                    out.println("Invalid input, please type a single integer");
+                    continue;
+                }
+
+                // If the input is valid, return it
+                return choice;
+            } catch (InputMismatchException e) { // If the input is not an integer
+                out.println("Invalid input, please type a number");
+                in.nextLine(); // Consume the invalid input
+            }
         }
     }
 }
