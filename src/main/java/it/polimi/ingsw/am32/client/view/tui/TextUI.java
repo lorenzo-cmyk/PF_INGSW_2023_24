@@ -278,20 +278,21 @@ public class TextUI extends View {
     @Override
     public void askCreateGame() {
         currentEvent = Event.CREATE_GAME;
-        askNickname(); // ask the player to insert the nickname
-        while (true) {
-            try {
-                out.println("Insert the number of players you want to play with,type[2,3 or 4]:");
-                playerNum = Integer.parseInt(getInput());
-                if (playerNum < 2 || playerNum > 4) {
-                    out.println("Invalid number of players, please insert a number between 2 and 4");
-                }else {
-                    break;
-                }
-            } catch (NumberFormatException e) {
-                out.println("Invalid input, please insert a number between 2 and 4");
+        askNickname(); // Ask the player to insert his nickname
+
+        out.println("Insert the number of players you want to play with, type[2, 3 or 4]:");
+
+        while (true) { // Keep looping until the player enters a valid choice
+            playerNum = getInputInt();
+
+            if (playerNum < 2 || playerNum > 4) {
+                out.println("Invalid number of players, please insert a number between 2 and 4");
+            } else { // If the number of players is valid
+                break;
             }
-        } // notify the listener with the new game message
+        }
+
+        // Notify the listener with the new game message
         notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
     }
 
