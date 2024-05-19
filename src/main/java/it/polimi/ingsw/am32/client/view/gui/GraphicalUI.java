@@ -85,6 +85,11 @@ public class GraphicalUI extends View {
 
     }
 
+    @Override
+    public void updateChat(String recipientString, String senderNickname, String content) {
+
+    }
+
 
     @Override
     public void showWelcome() {
@@ -172,6 +177,11 @@ public class GraphicalUI extends View {
 
     @Override
     public void handleFailureCase(Event event, String reason) {
+
+    }
+
+    @Override
+    public void startChatting() {
 
     }
 

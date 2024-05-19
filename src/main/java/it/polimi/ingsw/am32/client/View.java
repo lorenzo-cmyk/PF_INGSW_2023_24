@@ -17,7 +17,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 
 public abstract class View implements EventHandler{
@@ -45,7 +47,8 @@ public abstract class View implements EventHandler{
     protected static final ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
     protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
-    protected ArrayList<ChatMessage>chatHistory;
+    protected List<ChatMessage>chatHistory;
+    protected boolean chatMode = false;
     public View() {
         this.playerNum = 0;
         this.currentPlayer = null;
@@ -56,7 +59,7 @@ public abstract class View implements EventHandler{
         this.players = new ArrayList<>();
         this.hand = new ArrayList<>();
         this.publicInfo = new HashMap<>();
-        this.chatHistory = new ArrayList<>();
+        this.chatHistory = Collections.synchronizedList(new ArrayList<>());
     }
 
     public abstract void showWelcome();
@@ -119,6 +122,8 @@ public abstract class View implements EventHandler{
                                     int[] currentGoldCards);
 
     public abstract void handleFailureCase(Event event, String reason);
+
+    public abstract void startChatting();
 
     public abstract void showDeck();
 
@@ -185,6 +190,7 @@ public abstract class View implements EventHandler{
 
     public abstract void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources);
 
+    public abstract void updateChat(String recipientString, String senderNickname, String content);
 }
 
 

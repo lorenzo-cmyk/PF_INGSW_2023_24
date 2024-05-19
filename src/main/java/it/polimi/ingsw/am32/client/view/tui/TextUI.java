@@ -794,6 +794,63 @@ public class TextUI extends View {
         out.println("The situation of the deck after this turn is following:");
         showDeck();
     }
+    @Override
+    public void startChatting() {
+        chatMode = true;
+        out.println("You can start chatting now, your chat history is following:");
+        for (ChatMessage chat : chatHistory) {
+            if(chat.getSenderNickname().equals(thisPlayerNickname)){
+                if (!chat.isMulticastFlag()){
+                    out.println("You --> " + chat.getRecipientNickname()+":\" "+chat.getMessageContent()+"\"");
+                }else {
+                    out.println("You --> all players:\" "+chat.getMessageContent()+"\"");
+                }
+            }
+            else if(chat.getRecipientNickname().equals(thisPlayerNickname)){
+                    out.println(chat.getSenderNickname() + " --> You:\" "+chat.getMessageContent()+"\"");
+            }
+        }
+        out.println("Please the nickname of the player you want to chat with, type[ALL or specific player nickname] or " +
+                "type [EXIT to exit the chat]:");
+        out.println("The players in the game are: " + players);
+        String recipient = in.nextLine();
+        while(true){
+            if (!players.contains(recipient) && !recipient.equals("ALL")) {
+                if(recipient.equals("EXIT")){
+                    chatMode = false;
+                    return;
+                }
+                out.println("Invalid input, please select a player from the list or type ALL");
+                recipient = in.nextLine();
+            }else break;
+        }
+        out.println("Please type your message or type[EXIT to exit the chat]:");
+        String messageContent = in.nextLine();
+        while(true){
+            if(messageContent.equals("EXIT")){
+                chatMode = false;
+                return;
+            }
+            if (recipient.equals("ALL")) {
+                ChatMessage message = new ChatMessage(thisPlayerNickname, "ALL", true, messageContent);
+                chatHistory.add(message);
+                notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, true, messageContent));
+            } else {
+                ChatMessage message = new ChatMessage(thisPlayerNickname, recipient, false, messageContent);
+                chatHistory.add(message);
+                notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient,  false, messageContent));
+            }
+            messageContent = in.nextLine();
+        }
+    }
+    @Override
+    public void updateChat(String recipientString, String senderNickname, String content){
+        ChatMessage message = new ChatMessage(senderNickname, recipientString,false, content);
+        chatHistory.add(message);
+        if(chatMode){
+                out.println(senderNickname + " --> You:\" "+content+"\"");
+        }
+    }
     //-------------------Last turn-------------------
 
 
@@ -829,7 +886,8 @@ public class TextUI extends View {
                 ShowPlacedCard:
                 ShowPlayerField:
                 ShowScoreBoard:
-                ShowCurrentPlayer:                        
+                ShowCurrentPlayer: 
+                Chat:                       
                 """);
     }
 
@@ -1409,6 +1467,7 @@ public class TextUI extends View {
             case "ShowCurrentPlayer" -> {
                 out.println("Is " + currentPlayer + "'s turn.");
             }
+            case "Chat" -> startChatting();
         }
         return input;
     }
