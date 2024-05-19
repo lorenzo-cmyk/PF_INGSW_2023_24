@@ -54,6 +54,7 @@ public class Client {
                 uiChoice = in.nextInt(); // Read the user's input
             } catch (InputMismatchException e) { // User entered non-integer
                 out.println("! Invalid input, please try again");
+                in.nextLine(); // Clear the input buffer (otherwise the same input will be read again)
                 continue; // Continue the loop
             }
 
