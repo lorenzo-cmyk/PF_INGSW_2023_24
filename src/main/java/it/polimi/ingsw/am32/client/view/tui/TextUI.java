@@ -317,17 +317,12 @@ public class TextUI extends View {
     @Override
     public void askJoinGame() {
         currentEvent = Event.JOIN_GAME;
-        out.println("Insert the nickname you want to use in the game:");
-        thisPlayerNickname =getInput();
-        while (true) {
-            try {
-                out.println("Insert the Access ID of the game you want to join:");
-                this.gameID = Integer.parseInt(getInput());
-                break;
-            } catch (NumberFormatException e) {
-                out.println("Invalid input, please insert a number");
-            }
-        }
+        askNickname(); // Ask the player to insert his nickname
+
+        out.println("Insert the Access ID of the game you want to join:");
+
+        gameID = getInputInt();
+
         // notify the listener with the access game message
         notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
     }
@@ -339,15 +334,10 @@ public class TextUI extends View {
     public void askReconnectGame() {
         currentEvent = Event.RECONNECT_GAME;
         askNickname();
-        while (true) {
-            try {
-                out.println("Insert the Access ID of the game you want to reconnect to:");
-                this.gameID = Integer.parseInt(getInput());
-                break;
-            } catch (NumberFormatException e) {
-                out.println("Invalid input, please insert a number");
-            }
-        }
+
+        gameID = getInputInt();
+
+        // notify the listener with the reconnect game message
         notifyAskListenerLobby(new ReconnectGameMessage(thisPlayerNickname,gameID));
     }
 
