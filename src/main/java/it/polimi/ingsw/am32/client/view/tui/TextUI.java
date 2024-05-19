@@ -452,11 +452,11 @@ public class TextUI extends View {
         showCard(ID, true);
         showCard(ID, false);
         out.println("Please select the side of the card you want to use, type[FRONT or BACK]:");
-        String side = getInput();
+        String side = in.nextLine();
         while (!side.equals("FRONT") && !side.equals("BACK")) {
             logger.info("Invalid input, please select FRONT or BACK");
             out.println("Invalid input, please select FRONT or BACK");
-            side = getInput();
+            side = in.nextLine();
         }
         notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, true));
     }
@@ -487,7 +487,6 @@ public class TextUI extends View {
         // once received the AssignedSecretObjectiveCardMessage from the server
         currentEvent = Event.SELECT_SECRET_OBJ_CARD;
         out.println("You received 3 cards(resources/gold cards), 2 card as a common objective card of the game:");
-        out.println();
         this.hand = hand;
         out.println("Your common objective cards for this game are following:");
         this.commonObjCards = common;
@@ -495,11 +494,11 @@ public class TextUI extends View {
         showObjectiveCards(common);
         out.println("Please select one of the objective cards in following to be your secret objective card type[LEFT or RIGHT]:");
         showObjectiveCards(secrets);
-        String cardID =getInput();
+        String cardID = in.nextLine();
         while (!cardID.equals("LEFT") && !cardID.equals("RIGHT")) {
             logger.info("Invalid input, please select a card from the list");
             out.println("Invalid input, please select a card from the list, type[LEFT or RIGHT]");
-            cardID = getInput();
+            cardID = in.nextLine();
         }
         notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname,cardID.equals("LEFT") ? secrets.get(0) : secrets.get(1)));
     }
