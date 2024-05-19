@@ -361,7 +361,6 @@ public class GameController {
         if (nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) { // Only one player remains connected
             if (endMatchDueToDisconnectionTimerTask != null) { // A timer task is already running
                 throw new CriticalFailureException("Timer task already running when only one player remains connected");
-                // FIXME Should we just cancel the already started timer? An already running timer task should never be present here
             }
             endMatchDueToDisconnectionTimerTask = new EndMatchDueToDisconnectionTimerTask(this); // Create a new timer task
 
@@ -455,14 +454,20 @@ public class GameController {
 
         // The player has successfully reconnected
 
-        // FIXME Could be problematic if all player have disconnected from the game
-        // Cancel the timer task that would have declared the last player as the winner if present
-        if (endMatchDueToDisconnectionTimerTask != null) { // A timer task is running
+        // Cancel the timer task that would have declared the last player as the winner if present.
+        // The timer needs to be rescheduled only if the reconnecting player is different from the winner candidate (if any).
+        if (endMatchDueToDisconnectionTimerTask != null && !Objects.equals(lastOnlinePlayer, nickname)) { // A timer task is running
             endMatchDueToDisconnectionTimerTask.cancel(); // Cancel the timer task
             timer.purge(); // Remove the cancelled timer task from the timer
             endMatchDueToDisconnectionTimerTask = null; // Set the timer task to null
         }
-        // If endMatchDueToDisconnectionTimerTask is null, then no timer task is running, and no action is necessary
+
+        // If endMatchDueToDisconnectionTimerTask is null, meaning that the timer task has been cancelled or has never been scheduled,
+        // we need to check if the reconnecting player is alone in the game: if so, he becomes the new winner candidate.
+        if(endMatchDueToDisconnectionTimerTask == null){
+            // If the reconnecting player is still alone (because the old winner candidate disconnected) it becomes the new winner candidate
+            handleLastConnectedPlayerIfPresent(); // The check on the connected player count is done inside the method.
+        }
 
         try {
             submitVirtualViewMessage(generateResponseGameStatusMessage(nickname)); // Send the player the large message containing all the information about the current game state
