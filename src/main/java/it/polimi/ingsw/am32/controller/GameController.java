@@ -824,7 +824,9 @@ public class GameController {
                         model.getResourceCardDeckSize(),
                         model.getGoldCardDeckSize(),
                         model.getCurrentResourcesCards().stream().mapToInt(Integer::intValue).toArray(),
-                        model.getCurrentGoldCards().stream().mapToInt(Integer::intValue).toArray()
+                        model.getCurrentGoldCards().stream().mapToInt(Integer::intValue).toArray(),
+                        model.getNextResourceCardKingdom().orElse(-1),
+                        model.getNextGoldCardKingdom().orElse(-1)
                 ));
             }
 
@@ -981,13 +983,19 @@ public class GameController {
             ArrayList<Integer> gameCurrentResourceCards = model.getCurrentResourcesCards();
             ArrayList<Integer> gameCurrentGoldCards = model.getCurrentGoldCards();
             int gameResourcesDeckSize = model.getResourceCardDeckSize();
+            int gameResourceDeckFacingKingdom = model.getNextResourceCardKingdom().orElse(-1);
             int gameGoldDeckSize = model.getGoldCardDeckSize();
+            int gameGoldDeckFacingKingdom = model.getNextGoldCardKingdom().orElse(-1);
             int matchStatus = model.getMatchStatus();
             ArrayList<ChatMessage> playerChatHistory = chat.getPlayerChatHistory(nickname);
             String currentPlayer = model.getCurrentPlayerNickname();
             ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 
-            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces);
+            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand,
+                    playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
+                    gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize,
+                    matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces,
+                    gameResourceDeckFacingKingdom, gameGoldDeckFacingKingdom);
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         }
