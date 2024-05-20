@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.client;
 
 
+import it.polimi.ingsw.am32.Utilities.IsValid;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
@@ -23,6 +24,7 @@ import java.util.List;
 
 
 public abstract class View implements EventHandler{
+    protected final IsValid isValid = new IsValid();
     protected ClientNodeInterface clientNode;
     protected String thisPlayerNickname;
     protected int gameID; //save the game ID received from the NewGameConfirmationMessage or AccessGameConfirmMessage.

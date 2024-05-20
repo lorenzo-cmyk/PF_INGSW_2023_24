@@ -46,7 +46,6 @@ public class TextUI extends View{
     private static final Logger logger = LogManager.getLogger("TUILogger");
     private final Scanner in;
     private final PrintStream out;
-    private final IsValid isValid = new IsValid();
     private HashMap<String, BoardView> boards;
     private static final int ANIMALCARD = 0X1F7E6; // Unicode for the card
     private static final int PLANTCARD = 0X1F7E9;
