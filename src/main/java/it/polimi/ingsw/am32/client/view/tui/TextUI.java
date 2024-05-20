@@ -38,9 +38,11 @@ import org.apache.logging.log4j.Logger;
  *
  * @author Jie
  * //FIXME need to update all javadoc
- *
+ * //TODO fix the order of the deck after the player draws a card
+ * //TODO fix the print of the order of the game
+ * //TODO simulate the chat
  */
-public class TextUI extends View {
+public class TextUI extends View{
     private static final Logger logger = LogManager.getLogger("TUILogger");
     private final Scanner in;
     private final PrintStream out;
@@ -68,6 +70,7 @@ public class TextUI extends View {
     private static final String NON_COVERABLE = "\u274C";
     private static final String EMPTY = "  ";
     private static final String BLANK = "   ";
+    private final Object lock = new Object();
 
     /**
      * Constructor of the class TextUI
@@ -560,25 +563,39 @@ public class TextUI extends View {
     @Override
     public void updatePlayerTurn(String playerNickname) {
         // once received the PlayerTurnMessage from the server
-        out.println("Order of the game: "+players);
+        out.println("Order of the game: " + players);
         this.currentPlayer = playerNickname;
-        if(this.currentPlayer.equals(thisPlayerNickname)){
+        if (this.currentPlayer.equals(thisPlayerNickname)) {
+            isMyTurn = true;
             out.println("It is your turn, please select one card from your hand to place on the field:");
             requestPlaceCard();
-        }else{
+        } else {
+            isMyTurn = false;
+            readInputThread();
             out.println("It is " + currentPlayer + "'s turn");
             // create a new thread to get the input from the player when it is not the player's turn
-            Thread service = new Thread(() -> {
-                while (!currentPlayer.equals(thisPlayerNickname)) {
-                    try {
-                        getInput();
-                    } catch (Exception e) {
-                        //TODO
-                    }
-                }
-            });
-            service.start();
+            synchronized (lock) {
+                lock.notify();
+            }
         }
+    }
+    public void readInputThread() {
+        Thread service = new Thread(() -> {
+            while (true) {
+                synchronized (lock) {
+                    while (isMyTurn) {
+                        try {
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                    }
+                    System.out.println("thread" + getInput());//FIXME cant' stop immediately thread when the player's turn
+                }
+            }
+        });
+        service.start();
     }
 
     //------------playing-------------
@@ -1430,7 +1447,7 @@ public class TextUI extends View {
         }
     }
 
-    public String getInput() {
+    public synchronized String getInput() {
         String input = in.nextLine();
         switch (input) {
             case "HELP" -> showHelpInfo();
@@ -1443,9 +1460,9 @@ public class TextUI extends View {
             case "ShowSecretObjCard" -> showCard(secretObjCardSelected, true);
             case "ShowPlacedCard" -> {
                 out.println("Which card place in the field, you want to see?");
-                String card = getInput();
+                /*String card = getInput();
                 CardPlacedView cardPlaced = publicInfo.get(thisPlayerNickname).getField().get(Integer.parseInt(card));
-                showCard(cardPlaced.ID(),cardPlaced.side());
+                showCard(cardPlaced.ID(),cardPlaced.side());*/
             }
             case "ShowPlayerField" -> {
                 out.println("Whose field do you want to see?");

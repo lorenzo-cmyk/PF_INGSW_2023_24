@@ -49,6 +49,7 @@ public abstract class View implements EventHandler{
     protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
     protected List<ChatMessage>chatHistory;
     protected boolean chatMode = false;
+    protected volatile boolean isMyTurn = false;
     public View() {
         this.playerNum = 0;
         this.currentPlayer = null;
