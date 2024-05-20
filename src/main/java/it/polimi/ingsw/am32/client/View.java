@@ -146,7 +146,7 @@ public abstract class View implements EventHandler{
         askListener.addMessage(message);
     }
     public void notifyAskListenerLobby(CtoSLobbyMessage message){
-        askListener.addLobbyMessage(message);
+        askListener.addMessage(message);
     }
     public void setCurrentEvent(Event event){
         this.currentEvent = event;
