@@ -227,16 +227,6 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
-- PointsUpdateMessage: sent by the Server to notify the player of the updated points.
-```json
-{
-  "type": "PointsUpdateMessage",
-  "recipientNickname": "playerName",
-  "playerNickname": "playerName",
-  "points": 5
-}
-```
-
 - DrawCardConfirmationMessage: sent by the Server to confirm the drawing of a card.
 ```json
 {

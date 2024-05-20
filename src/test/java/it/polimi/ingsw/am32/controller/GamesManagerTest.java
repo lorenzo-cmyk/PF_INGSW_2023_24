@@ -138,11 +138,11 @@ class GamesManagerTest {
         for (PlayerQuadruple playerQuadruple : gamesManager.getGames().getFirst().getNodeList()) {
             NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
             if (playerQuadruple.getNickname().equals("creator")) {
-                // Creator should have received a NewGameConfirmationMessage, a LobbyPlayerListMessage, and a PlayerConnectedMessage
+                // Creator should have received a NewGameConfirmationMessage, a PlayerConnectedMessage, and a LobbyPlayerListMessage
                 assertEquals(3, nodeInterfaceStub.getInternalMessages().size());
                 assertInstanceOf(NewGameConfirmationMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
-                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
-                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
             }
             else if (playerQuadruple.getNickname().equals("player")) {
                 // Player should have received an AccessGameConfirmMessage, and a LobbyPlayerListMessage
@@ -182,10 +182,10 @@ class GamesManagerTest {
                 // - a PlayerConnectedMessage
                 assertEquals(5, nodeInterfaceStub.getInternalMessages().size());
                 assertInstanceOf(NewGameConfirmationMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
-                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
-                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
-                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
-                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
             }
             else if (playerQuadruple.getNickname().equals("player")) {
                 // Player should have received:
@@ -196,8 +196,8 @@ class GamesManagerTest {
                 assertEquals(4, nodeInterfaceStub.getInternalMessages().size());
                 assertInstanceOf(AccessGameConfirmMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
                 assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
-                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
-                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
             }
             else if (playerQuadruple.getNickname().equals("player2")) {
                 // Player2 should have received:

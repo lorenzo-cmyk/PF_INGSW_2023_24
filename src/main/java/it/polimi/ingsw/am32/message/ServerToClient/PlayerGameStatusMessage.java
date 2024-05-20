@@ -62,9 +62,17 @@ public class PlayerGameStatusMessage implements StoCMessage {
      */
     private final int gameResourcesDeckSize;
     /**
+     * Integer that represents the kingdom of the card facing up in the resources deck.
+     */
+    private final int resourceCardDeckFacingKingdom;
+    /**
      * Integer that represents the size of the gold deck
      */
     private final int gameGoldDeckSize;
+    /**
+     * Integer that represents the kingdom of the card facing up in the gold deck.
+     */
+    private final int goldCardDeckFacingKingdom;
     /**
      * Integer that represents the status of the match
      */
@@ -87,7 +95,8 @@ public class PlayerGameStatusMessage implements StoCMessage {
                                    ArrayList<ArrayList<int[]>> playerFields, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
                                    ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
                                    int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory, String currentPlayer,
-                                   ArrayList<int[]> newAvailableFieldSpaces) {
+                                   ArrayList<int[]> newAvailableFieldSpaces,
+                                   int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
         this.recipientNickname = recipientNickname;
         this.playerNicknames = playerNicknames;
         this.playerConnected = playerConnected;
@@ -106,14 +115,16 @@ public class PlayerGameStatusMessage implements StoCMessage {
         this.chatHistory = chatHistory;
         this.currentPlayer = currentPlayer;
         this.newAvailableFieldSpaces = newAvailableFieldSpaces;
+        this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
+        this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
     }
 
     @Override
     public void processMessage(View view) {
-            view.updatePlayerDate(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective,
-                    playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards,
-                    gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory,
-                    currentPlayer, newAvailableFieldSpaces);
+            view.updatePlayerDate(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
+                    gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer, newAvailableFieldSpaces);
+        // TODO FOR RECONECTION
+        // FIXME: Update the view with the new kingdoms information.
     }
 
     @Override
@@ -142,7 +153,9 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 ", gameCurrentResourceCards=" + gameCurrentResourceCards.toString() +
                 ", gameCurrentGoldCards=" + gameCurrentGoldCards.toString() +
                 ", gameResourcesDeckSize=" + gameResourcesDeckSize +
+                ", resourceCardDeckFacingKingdom=" + resourceCardDeckFacingKingdom +
                 ", gameGoldDeckSize=" + gameGoldDeckSize +
+                ", goldCardDeckFacingKingdom=" + goldCardDeckFacingKingdom +
                 ", matchStatus=" + matchStatus +
                 ", chatHistory=" + chatHistory.stream().map(ChatMessage::toString).toList() +
                 ", currentPlayer='" + currentPlayer + '\'' +

@@ -55,6 +55,10 @@ public class GameController {
      * lastOnlinePlayer: The nickname of the last player that was online
      */
     private String lastOnlinePlayer;
+    /**
+     * endMatchDueToDisconnectionTimerTask: The timer task that is used to end a match due to disconnection when only one player remains connected
+     */
+    private EndMatchDueToDisconnectionTimerTask endMatchDueToDisconnectionTimerTask;
 
     /**
      * Constructor for the GameController class. Initializes the game controller with the given id and game size.
@@ -70,6 +74,7 @@ public class GameController {
         this.timer = new Timer();
         this.id = id;
         this.gameSize = gameSize;
+        this.endMatchDueToDisconnectionTimerTask = null;
 
         // Enter lobby phase immediately
         model.enterLobbyPhase();
@@ -84,7 +89,7 @@ public class GameController {
      * @param message The message object to be delivered
      * @throws VirtualViewNotFoundException If the recipient's VirtualView could not be found among the listeners
      */
-    protected void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
+    protected synchronized void submitVirtualViewMessage(StoCMessage message) throws VirtualViewNotFoundException {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Look through list of all connected players
             if (playerQuadruple.getNickname().equals((message.getRecipientNickname()))) { // If the correct recipient is found
                 playerQuadruple.getVirtualView().addMessage(message); // Add the message to the recipient's VirtualView
@@ -145,7 +150,6 @@ public class GameController {
     /*
     Disconnection types:
     - Player disconnects during the lobby phase -- The player cannot be reconnected. He must rejoin the game. Handled by GamesManager
-    // TODO: Refuse the reconnection in GamesManager!
     - Player disconnects before game has started -- Reconnection handled here.
     - Player disconnects after game has started but is not current player -- Reconnection handled here.
     - Player disconnects after game has started and is current player (has placed but not yet drawn) -- Reconnection handled here.
@@ -262,10 +266,8 @@ public class GameController {
             }
         }
 
-        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
-            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
-        }
+        // Start the timer for winner declaration if only one player remains connected
+        handleLastConnectedPlayerIfPresent();
     }
 
     /**
@@ -319,10 +321,8 @@ public class GameController {
         // Update the new current player. The notification is handled internally
         setNextPlayer();
 
-        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
-            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
-        }
+        // Start the timer for winner declaration if only one player remains connected
+        handleLastConnectedPlayerIfPresent();
     }
 
     /**
@@ -348,13 +348,33 @@ public class GameController {
         // Update the new current player
         setNextPlayer();
 
-        if(nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) {
-            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname();
-            timer.schedule(new EndMatchDueToDisconnectionTimerTask(this), Configuration.getInstance().getEndGameDueToDisconnectionTimeout());
+        // Start the timer for winner declaration if only one player remains connected
+        handleLastConnectedPlayerIfPresent();
+    }
+
+    /**
+     * Checks if only one player remains connected to the game.
+     * If only one player remains connected, starts a timer for winner declaration.
+     * If more than one player remains connected, returns.
+     */
+    private void handleLastConnectedPlayerIfPresent() {
+        if (nodeList.stream().filter(PlayerQuadruple::isConnected).count() == 1) { // Only one player remains connected
+            if (endMatchDueToDisconnectionTimerTask != null) { // A timer task is already running
+                throw new CriticalFailureException("Timer task already running when only one player remains connected");
+            }
+            endMatchDueToDisconnectionTimerTask = new EndMatchDueToDisconnectionTimerTask(this); // Create a new timer task
+
+            lastOnlinePlayer = Objects.requireNonNull(nodeList.stream().filter(PlayerQuadruple::isConnected).findFirst().orElse(null)).getNickname(); // Fetch the nickname of the remaining connected player
+            timer.schedule(endMatchDueToDisconnectionTimerTask, Configuration.getInstance().getEndGameDueToDisconnectionTimeout()); // Schedule the timer task that terminates the game early and declares the last player as the winner to run after a certain amount of time
         }
     }
 
-    protected void endMatchDueToDisconnection() {
+    /**
+     * Method called by EndMatchDueToDisconnectionTimerTask when the timer expires.
+     * Ends the match and declares the last remaining player as the winner.
+     * Notifies all players of the match status and of the winners (if any).
+     */
+    protected synchronized void endMatchDueToDisconnection() {
         // Set the Game Controller status to GAME_ENDED
         status = GameControllerStatus.GAME_ENDED;
 
@@ -400,7 +420,16 @@ public class GameController {
         }
     }
 
-    public void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException {
+    /**
+     * Method called when a player reconnects to the game.
+     * Reconnects the player to the game, and sends all necessary messages to the player to bring him up to speed with the current game state.
+     *
+     * @param nickname The nickname of the player that has reconnected
+     * @param node The node of the player that has reconnected
+     * @throws PlayerNotFoundException If the player could not be found in the list of players
+     * @throws PlayerAlreadyConnectedException If the player is already connected when attemping to reconnect
+     */
+    public synchronized void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException, PlayerAlreadyConnectedException {
         // Throw exception if nickname is not present in the list of players
         if (nodeList.stream().noneMatch(pq -> pq.getNickname().equals(nickname))) {
             throw new PlayerNotFoundException("Player " + nickname + " not found when reconnecting");
@@ -411,22 +440,40 @@ public class GameController {
         // Flush the player's VirtualView. This is necessary to avoid sending messages to the player that are no longer relevant.
         // Then set the player's node to the new node, and set the player's status to connected.
         for (PlayerQuadruple playerQuadruple : nodeList) {
-            if (playerQuadruple.getNickname().equals(nickname)) {
-                playerQuadruple.getVirtualView().flushMessages();
-                playerQuadruple.setNode(node);
-                playerQuadruple.setConnected(true);
-                return;
+            if (playerQuadruple.getNickname().equals(nickname)) { // Found the player's playerQuadruple
+                if (playerQuadruple.isConnected()) { // The player that is trying to reconnect is already connected to the game
+                    throw new PlayerAlreadyConnectedException("Player " + nickname + " is already connected");
+                }
+
+                playerQuadruple.getVirtualView().flushMessages(); // Empty the player's VirtualView of all messages
+                playerQuadruple.setNode(node); // Reattach the player's node to the VirtualView
+                playerQuadruple.setConnected(true); // Set the player's status to connected
+                break; // Exit the for loop
             }
         }
 
-        try {
-            submitVirtualViewMessage(generateResponseGameStatusMessage(nickname));
-        } catch (VirtualViewNotFoundException e) {
-            throw new CriticalFailureException("VirtualViewNotFoundException when reconnecting player");
-            // I've accessed the VV just before, so this exception should never be thrown.
+        // The player has successfully reconnected
+
+        // Cancel the timer task that would have declared the last player as the winner if present.
+        // The timer needs to be rescheduled only if the reconnecting player is different from the winner candidate (if any).
+        if (endMatchDueToDisconnectionTimerTask != null && !Objects.equals(lastOnlinePlayer, nickname)) { // A timer task is running
+            endMatchDueToDisconnectionTimerTask.cancel(); // Cancel the timer task
+            timer.purge(); // Remove the cancelled timer task from the timer
+            endMatchDueToDisconnectionTimerTask = null; // Set the timer task to null
         }
 
-        // All other required messages will be sent by the GamesManager
+        // If endMatchDueToDisconnectionTimerTask is null, meaning that the timer task has been cancelled or has never been scheduled,
+        // we need to check if the reconnecting player is alone in the game: if so, he becomes the new winner candidate.
+        if(endMatchDueToDisconnectionTimerTask == null){
+            // If the reconnecting player is still alone (because the old winner candidate disconnected) it becomes the new winner candidate
+            handleLastConnectedPlayerIfPresent(); // The check on the connected player count is done inside the method.
+        }
+
+        try {
+            submitVirtualViewMessage(generateResponseGameStatusMessage(nickname)); // Send the player the large message containing all the information about the current game state
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualViewNotFoundException when reconnecting player");
+        }
     }
 
     /**
@@ -437,7 +484,7 @@ public class GameController {
      * @param node The node of the player to add
      * @throws FullLobbyException If the lobby is already full
      */
-    protected void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
+    protected synchronized void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
 
         model.addPlayer(nickname); // Add the player to the actual match instance
@@ -452,7 +499,7 @@ public class GameController {
      * Method called when the lobby is full.
      * Enters the preparation phase of the game, assigns colours and starting cards to players, and notifies all players of the game start.
      */
-    protected void enterPreparationPhase() {
+    protected synchronized void enterPreparationPhase() {
         for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players that the game has started
             try {
                 submitVirtualViewMessage(new GameStartedMessage(playerQuadruple.getNickname()));
@@ -484,7 +531,7 @@ public class GameController {
     /**
      * Sets the model to the terminated phase, and notifies all players that the game has ended.
      */
-    protected void enterEndPhase() {
+    protected synchronized void enterEndPhase() {
         status = GameControllerStatus.GAME_ENDED;
         model.enterTerminatedPhase();
 
@@ -777,7 +824,9 @@ public class GameController {
                         model.getResourceCardDeckSize(),
                         model.getGoldCardDeckSize(),
                         model.getCurrentResourcesCards().stream().mapToInt(Integer::intValue).toArray(),
-                        model.getCurrentGoldCards().stream().mapToInt(Integer::intValue).toArray()
+                        model.getCurrentGoldCards().stream().mapToInt(Integer::intValue).toArray(),
+                        model.getNextResourceCardKingdom().orElse(-1),
+                        model.getNextGoldCardKingdom().orElse(-1)
                 ));
             }
 
@@ -802,8 +851,9 @@ public class GameController {
      * Notifies all players of any changes in the model status, notifies all players of the newly elected current player.
      */
     private void setNextPlayer() {
-        // If all players are disconnected, we don't want to get stuck in an infinite loop
-        if (nodeList.stream().noneMatch(PlayerQuadruple::isConnected)) {
+        // If all players are disconnected, we don't want to get stuck in an infinite loop.
+        // If only one player is connected, we don't want to let him play forever.
+        if (nodeList.stream().filter(PlayerQuadruple::isConnected).count() <= 1) {
             return;
         }
 
@@ -899,7 +949,7 @@ public class GameController {
      * @param nickname The nickname of the player to generate the message for
      * @return The generated response game status message
      */
-    protected PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
+    protected synchronized PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
             ArrayList<Boolean> playerConnected = nodeList.stream().map(PlayerQuadruple::isConnected).collect(Collectors.toCollection(ArrayList::new));
@@ -933,13 +983,19 @@ public class GameController {
             ArrayList<Integer> gameCurrentResourceCards = model.getCurrentResourcesCards();
             ArrayList<Integer> gameCurrentGoldCards = model.getCurrentGoldCards();
             int gameResourcesDeckSize = model.getResourceCardDeckSize();
+            int gameResourceDeckFacingKingdom = model.getNextResourceCardKingdom().orElse(-1);
             int gameGoldDeckSize = model.getGoldCardDeckSize();
+            int gameGoldDeckFacingKingdom = model.getNextGoldCardKingdom().orElse(-1);
             int matchStatus = model.getMatchStatus();
             ArrayList<ChatMessage> playerChatHistory = chat.getPlayerChatHistory(nickname);
             String currentPlayer = model.getCurrentPlayerNickname();
             ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 
-            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces);
+            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand,
+                    playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
+                    gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize,
+                    matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces,
+                    gameResourceDeckFacingKingdom, gameGoldDeckFacingKingdom);
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
         }
@@ -963,23 +1019,23 @@ public class GameController {
      *
      * @return The ID of the game controller
      */
-    public int getId() {
+    public synchronized int getId() {
         return id;
     }
 
-    protected ArrayList<PlayerQuadruple> getNodeList() {
+    protected synchronized ArrayList<PlayerQuadruple> getNodeList() {
         return nodeList;
     }
 
-    protected int getGameSize() {
+    protected synchronized int getGameSize() {
         return gameSize;
     }
 
-    protected int getLobbyPlayerCount() {
+    protected synchronized int getLobbyPlayerCount() {
         return model.getPlayersNicknames().size();
     }
 
-    protected GameControllerStatus getStatus() {
+    protected synchronized GameControllerStatus getStatus() {
         return status;
     }
 
@@ -988,15 +1044,15 @@ public class GameController {
      *
      * @return The timer of the game controller
      */
-    public Timer getTimer() {
+    public synchronized Timer getTimer() {
         return timer;
     }
 
-    protected ModelInterface getModel(){
+    protected synchronized ModelInterface getModel(){
         return model;
     }
 
-    protected Chat getChat(){
+    protected synchronized Chat getChat(){
         return chat;
     }
 }

@@ -132,11 +132,11 @@ public class GamesManager {
                             .map(PlayerQuadruple::getNickname)
                             .collect(Collectors.toCollection(ArrayList::new));
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
-                        game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                         // Also notify all players except player that has just connected, that a new player has connected
                         if (!playerQuadruple.getNickname().equals(nickname)) {
                             game.submitVirtualViewMessage(new PlayerConnectedMessage(playerQuadruple.getNickname(), nickname));
                         }
+                        game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                     }
                 } catch (VirtualViewNotFoundException e) { // Player was added, but his virtual view could not be found
                     throw new CriticalFailureException("VirtualViewNotFoundException when player joined the game");
@@ -152,7 +152,19 @@ public class GamesManager {
         throw new GameNotFoundException("No game found with code " + gameCode);
     }
 
-    public synchronized GameController reconnectToGame(String nickname, int gameCode, NodeInterface node) throws GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException {
+    /**
+     * Reconnects the player with the given nickname to the game with the given code
+     *
+     * @param nickname The nickname of the player to be reconnected
+     * @param gameCode The code of the game to be accessed
+     * @param node The server node associated with the given player
+     * @return The GameController of the game with the given code
+     * @throws GameAlreadyEndedException If the game has already ended
+     * @throws PlayerNotFoundException If the player with the given nickname is not found in the game
+     * @throws GameNotFoundException If no game with the given code is found
+     * @throws PlayerAlreadyConnectedException If the player with the given nickname is already connected to the game
+     */
+    public synchronized GameController reconnectToGame(String nickname, int gameCode, NodeInterface node) throws GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException, PlayerAlreadyConnectedException {
         if (nickname == null || nickname.isBlank()) {
             throw new CriticalFailureException("Nickname cannot be null or empty");
         }

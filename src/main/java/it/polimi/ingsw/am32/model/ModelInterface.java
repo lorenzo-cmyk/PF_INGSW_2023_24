@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model;
 import it.polimi.ingsw.am32.model.exceptions.*;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @SuppressWarnings("ALL")
 public interface ModelInterface {
@@ -51,4 +52,6 @@ public interface ModelInterface {
     int getGoldCardDeckSize();
     ArrayList<int[]> getAvailableSpacesPlayer(String nickname) throws PlayerNotFoundException;
     int getPointsGainedFromObjectives(String nickname) throws PlayerNotFoundException;
+    public Optional<Integer> getNextResourceCardKingdom();
+    public Optional<Integer> getNextGoldCardKingdom();
 }
