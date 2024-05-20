@@ -66,7 +66,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     public void receiveFromServer() throws IOException, ClassNotFoundException {
         StoCMessage message = (StoCMessage) socketIn.readObject();
         System.out.println("Received"+message.getClass().getName()+" from server");
-        System.out.println(message.toString());
+        System.out.println(message);
         message.processMessage(view);
     }
 
