@@ -418,6 +418,12 @@ public class Match implements ModelInterface {
         throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
+    /**
+     * Used to progress the game to the next turn.
+     * The current player is set to the next player in the list of players.
+     * If the current player is the last player in the list, the first player in the list is selected.
+     * The current turn number is incremented by 1.
+     */
     public void nextTurn() {
         for (int i=0; i<players.size(); i++) {
             if (players.get(i).getNickname().equals(currentPlayerNickname)) {
