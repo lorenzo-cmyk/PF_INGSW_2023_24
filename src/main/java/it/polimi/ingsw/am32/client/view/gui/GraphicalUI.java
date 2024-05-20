@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.client.view.gui;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.View;
+import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -45,9 +46,7 @@ public class GraphicalUI extends View {
     @Override
     public void showWelcome() {
         welcomeRoot = new StackPane();
-        Button ruleButton = new Button(" [Rule Book] ");
-        ruleButton.setStyle("-fx-background-color: transparent;-fx-text-fill: #E6DEB3;-fx-alignment: center;" +
-                "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10,0,0,10 );");
+        Button ruleButton = createTransButton("[Rule Book]",30,"#E6DEB3",0,300);
         welcomeRoot.getChildren().add(ruleButton);
         ruleButton.setTranslateX(350);
         ruleButton.setTranslateY(300);
@@ -195,6 +194,52 @@ public class GraphicalUI extends View {
         });
     }
 
+    @Override
+    public void askCreateGame() {
+        StackPane createGameRoot = new StackPane();
+
+        Label labelNickname = createLabel("Nickname",-90,-80);
+        Label labelPlayers = createLabel("Players number",-60,30);
+
+        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+
+        Button twoButton = createTransButton("[2]",30,"#3A2111",-150,70);
+        Button threeButton3 = createTransButton("[3]",30,"#3A2111",-70,70);
+        Button fourButton = createTransButton("[4]",30,"#3A2111",10,70);
+        Button createButton = createButton("[Create]",140,65);
+
+        createGameRoot.getChildren().addAll(labelNickname,labelPlayers,nickname,twoButton,threeButton3,fourButton,createButton);
+
+        twoButton.setOnAction(e->{
+            playerNum = 2;
+        });
+        threeButton3.setOnAction(e->{
+            playerNum = 3;
+        });
+        fourButton.setOnAction(e->{
+            playerNum = 4;
+        });
+        createButton.setOnAction(e -> {
+            thisPlayerNickname = nickname.getText();
+            if (thisPlayerNickname.isBlank()) {
+                createAlert("Nickname cannot be left blank");
+                nickname.clear();
+            }
+            else if (thisPlayerNickname.length() > 20) {
+                createAlert("Nickname must be less than 20 characters");
+                nickname.clear();
+            }
+            else {
+                if (playerNum==2||playerNum==3||playerNum==4) { //TODO ADD ANIMATION
+                    notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
+                }
+                else {
+                    createAlert("Please select the number of players");
+                }
+            }
+        });
+        selectionPane.getChildren().add(createGameRoot);
+    }
 
     @Override
     public void setSocketClient(String ServerIP, int portNumber) throws IOException {
@@ -211,6 +256,14 @@ public class GraphicalUI extends View {
         label.setTranslateX(X);
         label.setTranslateY(Y);
         return label;
+    }
+    private Button createTransButton(String buttonName,int size,String color,int X, int Y) {
+        Button button = new Button(buttonName);
+        button.setStyle("-fx-background-color: transparent;-fx-text-fill:"+color+";-fx-alignment: center;" +
+                "-fx-font-size: "+size+"px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10,0,0,10 );");
+        button.setTranslateX(X);
+        button.setTranslateY(Y);
+        return button;
     }
     private Button createButton(String buttonName, int X, int Y) {
         Button button = new Button(buttonName);
@@ -312,11 +365,6 @@ public class GraphicalUI extends View {
 
     @Override
     public void askNickname() {
-        //TODO
-    }
-
-    @Override
-    public void askCreateGame() {
         //TODO
     }
 
