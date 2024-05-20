@@ -46,6 +46,7 @@ class GamesManagerTest {
 
     @BeforeEach
     void setUp() {
+        GamesManager.getInstance().clearInstance();
         gamesManager = GamesManager.getInstance();
         node = new NodeInterfaceStub();
     }
