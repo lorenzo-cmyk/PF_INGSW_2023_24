@@ -126,10 +126,10 @@ public class TextUI extends View{
                     // Ask the player to insert the server IP
                     out.println("Insert the server IP:"); // Ask the player to insert the server IP
 
-                    String ServerIP = getInput(); // Read the player's input
+                    String ServerIP = in.nextLine(); // Read the player's input
                     while (!isValid.isIpValid(ServerIP)) { // Check if the IP address is valid
                         out.println("Invalid IP, please try again"); // Print an error message
-                        ServerIP = getInput(); // Ask the player to re-enter the IP address
+                        ServerIP = in.nextLine(); // Ask the player to re-enter the IP address
                     }
 
                     // Ask the player to insert the server port
@@ -426,6 +426,9 @@ public class TextUI extends View{
         // once received the MatchStatusMessage from the server
         this.Status = Event.getEvent(matchStatus);
         out.println("The match status is: " + Status);
+        if(Status.equals(Event.PLAYING)){
+            readInputThread();
+        }
         if(Status.equals(Event.TERMINATING)){
             for (String player : players) {
                 showPoints(player);
@@ -567,11 +570,9 @@ public class TextUI extends View{
         this.currentPlayer = playerNickname;
         if (this.currentPlayer.equals(thisPlayerNickname)) {
             isMyTurn = true;
-            out.println("It is your turn, please select one card from your hand to place on the field:");
             requestPlaceCard();
         } else {
             isMyTurn = false;
-            readInputThread();
             out.println("It is " + currentPlayer + "'s turn");
             // create a new thread to get the input from the player when it is not the player's turn
             synchronized (lock) {
@@ -591,7 +592,9 @@ public class TextUI extends View{
                             return;
                         }
                     }
-                    System.out.println("thread" + getInput());//FIXME cant' stop immediately thread when the player's turn
+                    isInThread = true;
+                    getInput();
+                    System.out.println("Exit from service mode");
                 }
             }
         });
@@ -608,8 +611,13 @@ public class TextUI extends View{
         out.println("""
                 To choose the left one, type LEFT
                 To choose the middle one, type MIDDLE
-                To choose the right one, type RIGHT
-                """);
+                To choose the right one, type RIGHT""");
+        if (isInThread) {
+            out.println("It is your turn now, please type something to exit from the service mode,then" +
+                    "please select one card from your hand to place on the field:\");");
+        }else{
+            out.println("Please select one card from your hand to place on the field:");
+        }
         String choice = getInput();
         while (!choice.equals("LEFT") && !choice.equals("MIDDLE") && !choice.equals("RIGHT")) {
             logger.info("Invalid input, please select LEFT, MIDDLE or RIGHT");
