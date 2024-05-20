@@ -7,10 +7,7 @@ import it.polimi.ingsw.am32.message.ClientToServer.*;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,7 +44,7 @@ public class TextUI extends View{
     private final Scanner in;
     private final PrintStream out;
     private final IsValid isValid = new IsValid();
-    private HashMap<String, BoardView> boards;
+    private final HashMap<String, BoardView> boards;
     private static final int ANIMALCARD = 0X1F7E6; // Unicode for the card
     private static final int PLANTCARD = 0X1F7E9;
     private static final int FUNGICARD = 0X1F7E5;
@@ -823,17 +820,10 @@ public class TextUI extends View{
     public void startChatting() {
         chatMode = true;
         out.println("You can start chatting now, your chat history is following:");
-        for (ChatMessage chat : chatHistory) {
-            if(chat.getSenderNickname().equals(thisPlayerNickname)){
-                if (!chat.isMulticastFlag()){
-                    out.println("You --> " + chat.getRecipientNickname()+":\" "+chat.getMessageContent()+"\"");
-                }else {
-                    out.println("You --> all players:\" "+chat.getMessageContent()+"\"");
-                }
-            }
-            else if(chat.getRecipientNickname().equals(thisPlayerNickname)){
-                    out.println(chat.getSenderNickname() + " --> You:\" "+chat.getMessageContent()+"\"");
-            }
+        if (chatHistory.isEmpty()) {
+            out.println("No chat history yet");
+        } else {
+            showChatHistory(chatHistory);
         }
         out.println("Please the nickname of the player you want to chat with, type[ALL or specific player nickname] or " +
                 "type [EXIT to exit the chat]:");
@@ -869,11 +859,27 @@ public class TextUI extends View{
         }
     }
     @Override
+    public void showChatHistory(List<ChatMessage> chatHistory){
+        for (ChatMessage chat : chatHistory) {
+            if(chat.getSenderNickname().equals(thisPlayerNickname)){
+                if (!chat.isMulticastFlag()){
+                    out.println("You --> " + chat.getRecipientNickname()+":\" "+chat.getMessageContent()+"\"");
+                }else {
+                    out.println("You --> all players:\" "+chat.getMessageContent()+"\"");
+                }
+            }
+            else if(chat.getRecipientNickname().equals(thisPlayerNickname)){
+                out.println(chat.getSenderNickname() + " --> You:\" "+chat.getMessageContent()+"\"");
+            }
+        }
+    }
+    @Override
     public void updateChat(String recipientString, String senderNickname, String content){
         ChatMessage message = new ChatMessage(senderNickname, recipientString,false, content);
         chatHistory.add(message);
         if(chatMode){
-                out.println(senderNickname + " --> You:\" "+content+"\"");
+            out.println("New message received, here is the chat history updated:");
+            showChatHistory(this.chatHistory);
         }
     }
     //-------------------Last turn-------------------
@@ -911,7 +917,7 @@ public class TextUI extends View{
                 ShowPlacedCard:
                 ShowPlayerField:
                 ShowScoreBoard:
-                ShowCurrentPlayer: 
+                ShowCurrentPlayer:
                 Chat:                       
                 """);
     }

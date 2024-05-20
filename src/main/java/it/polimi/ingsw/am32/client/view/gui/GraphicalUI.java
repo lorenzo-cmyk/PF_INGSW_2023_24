@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
+import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.View;
@@ -9,6 +10,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class GraphicalUI extends View {
 
@@ -82,6 +84,11 @@ public class GraphicalUI extends View {
 
     @Override
     public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
+
+    }
+
+    @Override
+    public void showChatHistory(List<ChatMessage> chatHistory) {
 
     }
 
