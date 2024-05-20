@@ -116,9 +116,7 @@ public class GraphicalUI extends View {
         Background background = new Background(backgroundImg);
         selectionPane.setBackground(background);
 
-        Label label = new Label("Choose Connection");
-        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
-        label.setTranslateY(-50);
+        Label label = createLabel("Connection",-80,-70);
 
         Button socketButton = createButton("[Socket]",100,0);
 
@@ -130,15 +128,13 @@ public class GraphicalUI extends View {
 
         StackPane socketRoot = new StackPane();
 
-        Label labelIP = new Label("Server IP");
-        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
-        label.setTranslateY(-50);
+        Label labelIP = createLabel("Socket",-80,-80);
 
-        TextField ip = createTextField("Please enter the IP address", 40, 300, 0, 0);
+        TextField ip = createTextField("Enter the IP", 35, 250, -50, -30);
 
-        TextField port = createTextField("Please enter the port number", 40, 300, 0, 100);
+        TextField port = createTextField("Enter the port", 35, 250, -50, 50);
 
-        Button OkButton = createButton("[OK]",0,100);
+        Button OkButton = createButton("[OK]",160,0);
 
         socketRoot.getChildren().addAll(OkButton,labelIP,ip,port);
 
@@ -154,18 +150,20 @@ public class GraphicalUI extends View {
             try {
                 portNumber = Integer.parseInt(ServerPort);
             } catch (NumberFormatException ex) {
-                createAlert("Invalid port number, please try numbers only");
+                createAlert("Invalid port number");
                 port.clear();
             }
             if (!isValid.isIpValid(ServerIP)||!isValid.isPortValid(portNumber)) { // Check if the IP address is valid
-                createAlert("Invalid IP address or port number, please try again");
+                createAlert("Invalid IP/port number");
                 ip.clear();
                 port.clear();
-            } else {
+            }else {
                 try {
                     setSocketClient(ServerIP, portNumber);
+                    selectionPane.getChildren().remove(socketRoot);
+                    askSelectGameMode();
                 } catch (IOException ex) {
-                    createAlert("Connection failed, please try again");
+                    createAlert("Connection failed");
                     ip.clear();
                     port.clear();
                 }
@@ -173,6 +171,31 @@ public class GraphicalUI extends View {
         });
         //TODO RMI
     }
+
+    @Override
+    public void askSelectGameMode() {
+        StackPane gameModeRoot = new StackPane();
+        Label label = createLabel("Game \n Mode",150,10);
+        Button newGameButton = createButton("[New Game]",-70,-50);
+        Button joinGameButton = createButton("[Join Game]",-70,10);
+        Button reconnectGameButton = createButton("[Reconnect]",-70,70);
+        gameModeRoot.getChildren().addAll(label,newGameButton,joinGameButton,reconnectGameButton);
+        selectionPane.getChildren().add(gameModeRoot);
+        newGameButton.setOnAction(e -> {
+            selectionPane.getChildren().remove(gameModeRoot);
+            askCreateGame();
+        });
+        joinGameButton.setOnAction(e -> {
+            selectionPane.getChildren().remove(gameModeRoot);
+            askJoinGame();
+        });
+        reconnectGameButton.setOnAction(e -> {
+            selectionPane.getChildren().remove(gameModeRoot);
+            askReconnectGame();
+        });
+    }
+
+
     @Override
     public void setSocketClient(String ServerIP, int portNumber) throws IOException {
         super.setSocketClient(ServerIP, portNumber); // see the method in the superclass
@@ -182,12 +205,18 @@ public class GraphicalUI extends View {
         askListener.start();
     }
 
-
+    private Label createLabel(String text, int X, int Y) {
+        Label label = new Label(text);
+        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
+        label.setTranslateX(X);
+        label.setTranslateY(Y);
+        return label;
+    }
     private Button createButton(String buttonName, int X, int Y) {
         Button button = new Button(buttonName);
-        button.setStyle("-fx-background-color: transparent;-fx-text-fill: #E6DEB3;-fx-alignment: center;" +
-                "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
-                "rgba(58,33,17,100,0.2) , 10,0,0,10 );");
+        button.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                "rgba(58,33,17,100,0.2),10,0,0,10);");
         button.setTranslateX(X);
         button.setTranslateY(Y);
         return button;
@@ -198,7 +227,7 @@ public class GraphicalUI extends View {
         textField.setMaxWidth(MaxWidth);
         textField.setPromptText(promptText);
         textField.setStyle("-fx-background-color: #E6DEB3;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
                 "rgba(58,33,17,100,0.2) , 10,0,0,10 );-fx-border-color: #3A2111; -fx-border-width: 2px; " +
                 "-fx-border-radius: 5px; -fx-background-radius: 5px;");
         textField.setTranslateX(X);
@@ -280,12 +309,6 @@ public class GraphicalUI extends View {
 
     }
 
-
-
-    @Override
-    public void askSelectGameMode() {
-        //TODO
-    }
 
     @Override
     public void askNickname() {
