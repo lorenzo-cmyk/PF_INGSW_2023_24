@@ -3,36 +3,99 @@ package it.polimi.ingsw.am32.client.view.gui;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.View;
-import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
-import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GraphicalUI extends View {
-
-
-    public GraphicalUI() {
-    //TODO
-    }
-
-
-    @Override
-    public void notifyAskListener(CtoSMessage message) {
-        //TODO
-    }
-
-    @Override
-    public void notifyAskListenerLobby(CtoSLobbyMessage message) {
-        //TODO
-    }
-
+    private StackPane welcomeRoot;
+    Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
+    private final String [] ruleBookImages = {"/CODEX_RuleBook_IT/01.png","/CODEX_RuleBook_IT/02.png",
+            "/CODEX_RuleBook_IT/03.png","/CODEX_RuleBook_IT/04.png","/CODEX_RuleBook_IT/05.png",
+            "/CODEX_RuleBook_IT/06.png","/CODEX_RuleBook_IT/07.png","/CODEX_RuleBook_IT/08.png",
+            "/CODEX_RuleBook_IT/09.png","/CODEX_RuleBook_IT/10.png","/CODEX_RuleBook_IT/11.png",
+            "/CODEX_RuleBook_IT/12.png"};
 
     @Override
     public void launch() {
-        //TODO
+        Application.launch(GraphicalUIApplication.class);
     }
+    public GraphicalUI() {
+    }
+
+    public StackPane getWelcomeRoot() {
+        showWelcome();
+        return welcomeRoot;
+    }
+    @Override
+    public void showWelcome() {
+        welcomeRoot = new StackPane();
+        Button ruleButton = new Button(" Rule \n Book ");
+        ruleButton.setStyle("-fx-background-color: transparent;-fx-text-fill: #E6DEB3;-fx-alignment: center;" +
+                "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10,0,0,10 );");
+        welcomeRoot.getChildren().add(ruleButton);
+        ruleButton.setTranslateX(400);
+        ruleButton.setTranslateY(300);
+        ruleButton.setOnAction(e -> showRuleBook());
+        Image backgroundWelcomePage = new Image("/WelcomeDisplay.png");
+        BackgroundImage backgroundImg = new BackgroundImage(backgroundWelcomePage, BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
+        Background background = new Background(backgroundImg);
+        welcomeRoot.setBackground(background);
+    }
+    public void showRuleBook() {
+        StackPane ruleBookRoot = new StackPane();
+        Stage ruleBookStage = new Stage();
+        Image [] ruleBookImage = new Image[ruleBookImages.length];
+        for(int i = 0; i < ruleBookImages.length; i++) {
+            ruleBookImage[i] = new Image(ruleBookImages[i],750, 750, true, true);
+        }
+        ImageView ruleBook = new ImageView(ruleBookImage[0]);
+        Button[] buttons = getBox(ruleBook);
+        ruleBookRoot.getChildren().add(ruleBook);
+        ruleBookRoot.getChildren().add(buttons[0]);
+        ruleBookRoot.getChildren().add(buttons[1]);
+        buttons[0].setTranslateX(-325);
+        buttons[0].setTranslateY(0);
+        buttons[1].setTranslateX(325);
+        buttons[1].setTranslateY(0);
+
+        Scene scene = new Scene(ruleBookRoot, 750, 750);
+        ruleBookStage.setTitle("Rule Book");
+        ruleBookStage.setScene(scene);
+        ruleBookStage.setMaxHeight(750);
+        ruleBookStage.setMaxWidth(750);
+        ruleBookStage.show();
+    }
+
+    private Button[] getBox(ImageView ruleBook) {
+        AtomicInteger index = new AtomicInteger();
+        Button nextButton = new Button(">");
+        Button previousButton = new Button("<");
+        nextButton.setStyle("-fx-background-color: transparent;-fx-text-fill: #DBBE70;-fx-alignment: center;" +
+                "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.8) , 10,0,0,10 );");
+        previousButton.setStyle("-fx-background-color: transparent;-fx-text-fill: #DBBE70;-fx-alignment: center;" +
+                "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.8) , 10,0,0,10 );");
+        nextButton.setOnAction(e -> {
+            index.set((index.get() + 1) % ruleBookImages.length);
+            ruleBook.setImage(new Image(ruleBookImages[index.get()],750, 750, true, true));
+        });
+        previousButton.setOnAction(e -> {
+            index.set((index.get() - 1 + ruleBookImages.length) % ruleBookImages.length);
+            ruleBook.setImage(new Image(ruleBookImages[index.get()],750, 750, true, true));
+        });
+        return new Button[]{previousButton, nextButton};
+    }
+
 
     @Override
     public void showPlayersField(String playerNickname) {
@@ -90,11 +153,6 @@ public class GraphicalUI extends View {
 
     }
 
-
-    @Override
-    public void showWelcome() {
-        //TODO
-    }
 
 
     @Override
