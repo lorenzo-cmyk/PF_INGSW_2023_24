@@ -417,6 +417,15 @@ class FieldTest {
         assertThrows(InvalidPositionException.class, () -> field2.placeCardInField(testCard2, -1,3, true));
 
         assertArrayEquals(expectedArray, (field2.getAllRes()));
+
+        assertEquals(expectedRes[ObjectType.ANIMAL.getValue()], field2.getActiveRes(ObjectType.ANIMAL));
+        assertEquals(expectedRes[ObjectType.FUNGI.getValue()], field2.getActiveRes(ObjectType.FUNGI));
+        assertEquals(expectedRes[ObjectType.INSECT.getValue()], field2.getActiveRes(ObjectType.INSECT));
+        assertEquals(expectedRes[ObjectType.PLANT.getValue()], field2.getActiveRes(ObjectType.PLANT));
+        assertEquals(expectedRes[ObjectType.QUILL.getValue()], field2.getActiveRes(ObjectType.QUILL));
+        assertEquals(expectedRes[ObjectType.INKWELL.getValue()], field2.getActiveRes(ObjectType.INKWELL));
+        assertEquals(expectedRes[ObjectType.MANUSCRIPT.getValue()], field2.getActiveRes(ObjectType.MANUSCRIPT));
+
         assertEquals(5, field2.getFieldCards().size());
 
         // 2.3. checking no strange card variation and that getCardFromPosition method works
