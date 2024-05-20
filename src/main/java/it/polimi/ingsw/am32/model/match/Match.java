@@ -785,4 +785,28 @@ public class Match implements ModelInterface {
         throw new PlayerNotFoundException("Player not found in the list of players");
     }
 
+    /**
+     * Getter. Get the Kingdom of the card ready to be drawn from the resource card deck (if not empty).
+     *
+     * @return The Kingdom of the card ready to be drawn from the resource card deck. If the deck is empty, return an empty optional.
+     */
+    public Optional<Integer> getNextResourceCardKingdom() {
+        if (resourceCardsDeck.getCards().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(resourceCardsDeck.getCards().getLast().getKingdom().getValue());
+    }
+
+    /**
+     * Getter. Get the Kingdom of the card ready to be drawn from the gold card deck (if not empty).
+     *
+     * @return The Kingdom of the card ready to be drawn from the gold card deck. If the deck is empty, return an empty optional.
+     */
+    public Optional<Integer> getNextGoldCardKingdom() {
+        if (goldCardsDeck.getCards().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(goldCardsDeck.getCards().getLast().getKingdom().getValue());
+    }
+
 }
