@@ -177,6 +177,7 @@ public class GamesManager {
                 if (game.getStatus() == GameControllerStatus.GAME_ENDED) { // If the game has already finished, the player cannot reconnect
                     throw new GameAlreadyEndedException("Game has already ended, cannot reconnect now");
                 }
+                // FIXME: A player should not be able to reconnect if the game has not started yet!
 
                 // Game has not yet ended
                 try {
