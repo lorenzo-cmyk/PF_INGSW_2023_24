@@ -12,6 +12,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -108,22 +109,20 @@ public class GraphicalUI extends View {
         currentEvent = Event.CHOOSE_CONNECTION;
         selectionPane = new StackPane();
         connectionRoot = new StackPane();
+
         Image backgroundSelectionPage = new Image("/SelectionDisplay.png");
         BackgroundImage backgroundImg = new BackgroundImage(backgroundSelectionPage, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
         Background background = new Background(backgroundImg);
         selectionPane.setBackground(background);
+
         Label label = new Label("Choose Connection");
         label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
         label.setTranslateY(-50);
-        Button socketButton = new Button("[Socket]");
-        socketButton.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(58,33,17,100,0.2) , 10,0,0,10 );");
-        socketButton.setTranslateX(100);
-        Button rmiButton = new Button("[RMI]");
-        rmiButton.setStyle("-fx-text-fill:#3A2111;-fx-alignment: center;" +
-                "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(58,33,17,100,0.2) , 10,0,0,10 );");
-        rmiButton.setTranslateX(-100);
+
+        Button socketButton = createButton("[Socket]",100,0);
+
+        Button rmiButton = createButton("[RMI]",-100,0);
 
         connectionRoot.getChildren().addAll(label,socketButton,rmiButton);
 
@@ -135,34 +134,79 @@ public class GraphicalUI extends View {
         label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
         label.setTranslateY(-50);
 
-        TextField textField = new TextField();
-        textField.setPromptText("Please insert the server IP");
-        textField.setStyle("-fx-background-color: #E6DEB3;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
-                "rgba(58,33,17,100,0.2) , 10,0,0,10 );-fx-border-color: #3A2111; -fx-border-width: 2px; " +
-                "-fx-border-radius: 5px; -fx-background-radius: 5px;");
+        TextField ip = createTextField("Please enter the IP address", 40, 300, 0, 0);
 
-        Button OkButton = new Button("[OK]");
-        OkButton.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(58,33,17,100,0.2) , 10,0,0,10 );");
-        OkButton.setTranslateY(100);
+        TextField port = createTextField("Please enter the port number", 40, 300, 0, 100);
 
-        socketRoot.getChildren().addAll(OkButton,labelIP,textField);
+        Button OkButton = createButton("[OK]",0,100);
+
+        socketRoot.getChildren().addAll(OkButton,labelIP,ip,port);
 
         socketButton.setOnAction(e -> {
             selectionPane.getChildren().remove(connectionRoot);
             selectionPane.getChildren().add(socketRoot);
         });
+
         OkButton.setOnAction(e->{
-            String ServerIP = textField.getText(); // Read the player's input
-            if (!isValid.isIpValid(ServerIP)) { // Check if the IP address is valid
-                alert("Invalid IP address");
+            String ServerIP = ip.getText(); // Read the player's input
+            String ServerPort = port.getText();
+            int portNumber = 0;
+            try {
+                portNumber = Integer.parseInt(ServerPort);
+            } catch (NumberFormatException ex) {
+                createAlert("Invalid port number, please try numbers only");
+                port.clear();
+            }
+            if (!isValid.isIpValid(ServerIP)||!isValid.isPortValid(portNumber)) { // Check if the IP address is valid
+                createAlert("Invalid IP address or port number, please try again");
+                ip.clear();
+                port.clear();
+            } else {
+                try {
+                    setSocketClient(ServerIP, portNumber);
+                } catch (IOException ex) {
+                    createAlert("Connection failed, please try again");
+                    ip.clear();
+                    port.clear();
+                }
             }
         });
-        //TODO
+        //TODO RMI
+    }
+    @Override
+    public void setSocketClient(String ServerIP, int portNumber) throws IOException {
+        super.setSocketClient(ServerIP, portNumber); // see the method in the superclass
+        Thread thread = new Thread((clientNode));
+        thread.start();
+        Thread askListener = new Thread(super.askListener);
+        askListener.start();
     }
 
-    private void alert(String reason){
+
+    private Button createButton(String buttonName, int X, int Y) {
+        Button button = new Button(buttonName);
+        button.setStyle("-fx-background-color: transparent;-fx-text-fill: #E6DEB3;-fx-alignment: center;" +
+                "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                "rgba(58,33,17,100,0.2) , 10,0,0,10 );");
+        button.setTranslateX(X);
+        button.setTranslateY(Y);
+        return button;
+    }
+    private TextField createTextField(String promptText, int MaxHeight, int MaxWidth, int X, int Y) {
+        TextField textField = new TextField();
+        textField.setMaxHeight(MaxHeight);
+        textField.setMaxWidth(MaxWidth);
+        textField.setPromptText(promptText);
+        textField.setStyle("-fx-background-color: #E6DEB3;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                "rgba(58,33,17,100,0.2) , 10,0,0,10 );-fx-border-color: #3A2111; -fx-border-width: 2px; " +
+                "-fx-border-radius: 5px; -fx-background-radius: 5px;");
+        textField.setTranslateX(X);
+        textField.setTranslateY(Y);
+        return textField;
+    }
+
+    private void createAlert(String reason){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         DialogPane dialogPane = new DialogPane();
         Label label1 = new Label(reason);
