@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.client.view.gui;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.View;
+import it.polimi.ingsw.am32.message.ClientToServer.AccessGameMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -152,11 +153,7 @@ public class GraphicalUI extends View {
                 createAlert("Invalid port number");
                 port.clear();
             }
-            if (!isValid.isIpValid(ServerIP)||!isValid.isPortValid(portNumber)) { // Check if the IP address is valid
-                createAlert("Invalid IP/port number");
-                ip.clear();
-                port.clear();
-            }else {
+            if (isValid.isIpValid(ServerIP)&&isValid.isPortValid(portNumber)) { // Check if the IP address is valid
                 try {
                     setSocketClient(ServerIP, portNumber);
                     selectionPane.getChildren().remove(socketRoot);
@@ -166,6 +163,10 @@ public class GraphicalUI extends View {
                     ip.clear();
                     port.clear();
                 }
+            }else {
+                createAlert("Invalid IP/port number");
+                ip.clear();
+                port.clear();
             }
         });
         //TODO RMI
@@ -239,6 +240,43 @@ public class GraphicalUI extends View {
             }
         });
         selectionPane.getChildren().add(createGameRoot);
+    }
+
+    @Override
+    public void askJoinGame() {
+        StackPane joinGameRoot = new StackPane();
+
+        Label labelNickname = createLabel("Nickname&AccessID",-90,-80);
+
+        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+        TextField accessID = createTextField("Enter the accessID", 35, 350, -40, -30);
+
+        Button joinButton = createButton("[Join]",140,65);
+
+        joinGameRoot.getChildren().addAll(labelNickname,nickname,accessID,joinButton);
+
+        joinButton.setOnAction(e -> {
+            thisPlayerNickname = nickname.getText();
+            String ID = accessID.getText();
+            if (thisPlayerNickname.isBlank()) {
+                createAlert("Nickname cannot be left blank");
+                nickname.clear();
+            }
+            else if (thisPlayerNickname.length() > 20) {
+                createAlert("Nickname must be less than 20 characters");
+                nickname.clear();
+            }
+            else {
+                try {
+                    gameID = Integer.parseInt(ID);
+                    notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
+                } catch (NumberFormatException ex) {
+                    createAlert("Game ID must be a number");
+                    accessID.clear();
+                }
+            }
+        });
+        selectionPane.getChildren().add(joinGameRoot);
     }
 
     @Override
@@ -365,17 +403,6 @@ public class GraphicalUI extends View {
 
     @Override
     public void askNickname() {
-        //TODO
-    }
-
-    @Override
-    public void updateNewGameConfirm(int gameID, String recipientNickname) {
-
-    }
-
-
-    @Override
-    public void askJoinGame() {
         //TODO
     }
 
