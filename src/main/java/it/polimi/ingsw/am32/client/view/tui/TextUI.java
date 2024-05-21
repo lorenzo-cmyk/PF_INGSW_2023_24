@@ -540,7 +540,30 @@ public class TextUI extends View{
         showCard(chosenSecretObjectiveCard, true);
     }
 
-
+    /**
+     * This method is called by processMessage to update the all data of the players in the game when the game enters
+     * the playing phase or when the player reconnects to the game.
+     *
+     * @param playerNicknames               the nicknames of the players in the game.
+     * @param playerConnected               the connection status of the players in the game.
+     * @param playerColours                 the colours assigned to the players in the game.
+     * @param playerHand                    the hand of this player.
+     * @param playerSecretObjective         the secret objective card selected by this player.
+     * @param playerPoints                  the points of the players in the game.
+     * @param playerFields                  the fields of the players in the game.
+     * @param playerResources               the resources of the players in the game.
+     * @param gameCommonObjectives          the common objective cards of the game.
+     * @param gameCurrentResourceCards      the current visible resource cards in the game that the player can draw.
+     * @param gameCurrentGoldCards          the current visible gold cards in the game that the player can draw.
+     * @param gameResourcesDeckSize         the size of the resource deck in the game.
+     * @param gameGoldDeckSize              the size of the gold deck in the game.
+     * @param matchStatus                   the current match status of the game.
+     * @param chatHistory                   the chat history of this player in the game.
+     * @param currentPlayer                 indicates the whose turn is now.
+     * @param newAvailableFieldSpaces       the available spaces in the field of this player.
+     * @param resourceCardDeckFacingKingdom
+     * @param goldCardDeckFacingKingdom
+     */
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
                                  ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
@@ -549,9 +572,10 @@ public class TextUI extends View{
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces) {
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
-        if(currentEvent.equals(Event.RECONNECT_GAME)) {
+        if(currentEvent.equals(Event.RECONNECT_GAME)) { // once the player reconnects to the game
+            // store all the data of the game received from the server
             this.players = playerNicknames;
             this.hand = playerHand;
             this.commonObjCards = gameCommonObjectives;
@@ -563,27 +587,41 @@ public class TextUI extends View{
             this.Status = Event.getEvent(matchStatus);
             this.chatHistory = chatHistory;
             this.currentPlayer = currentPlayer;
+            this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
+            this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
+            // update the data of the players in the game: colour, online status, points, resources, field and the board.
             for (int i = 0; i < playerNicknames.size(); i++) {
                 publicInfo.put(playerNicknames.get(i), new PlayerPub(convertToColour(playerColours.get(i)),
                         playerPoints[i], new ArrayList<>(), playerResources, playerConnected.get(i)));
                 boards.put(playerNicknames.get(i), new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
                 int finalI = i;
+                // store the all cards placed in the field of the players in the game
                 playerFields.get(i).forEach(card -> {
                     publicInfo.get(playerNicknames.get(finalI)).getField().clear();
                     publicInfo.get(playerNicknames.get(finalI)).addToField(new CardPlacedView(card[2], cardImg.get(card[2]), card[0], card[1], card[3] == 1));
+                    // use the updateAfterPlacedCard method to add the card in the field of the player, update the
+                    // resources count, and the points of the player. Also, update the board view of the player with
+                    // the current available spaces in the field.
                     updateAfterPlacedCard(playerNicknames.get(finalI), searchNonObjCardById(card[2]), card[0], card[1],
                             card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);
                 });
             }
         }else {
+            // once the game enters the playing phase, the method is called to update a part of the data of the player
+            // that not yet updated in the previous phases.
             this.currentResourceCards = gameCurrentResourceCards;
             this.currentGoldCards = gameCurrentGoldCards;
             this.resourceDeckSize = gameResourcesDeckSize;
             this.goldDeckSize = gameGoldDeckSize;
+            this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
+            this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
             this.chatHistory = chatHistory;
             this.currentPlayer = currentPlayer;
-            int []card;
+            this.players = playerNicknames;
+            int [] card;
             PlayerPub playerSpecific;
+            // update the data of the players except this player: set the colour, resources, points, online status,
+            // and the field of the players after the placement of the starter card.
             for (int i = 1; i < playerNicknames.size(); i++) {
                 playerSpecific=publicInfo.get(playerNicknames.get(i));
                 playerSpecific.updateColour(convertToColour(playerColours.get(i)));
@@ -596,23 +634,39 @@ public class TextUI extends View{
             }
         }
     }
+
+    /**
+     * Once the player receives the PlayerTurnMessage from the server, the method is called by processMessage to update
+     * the currentPlayer in the game and print the message to notify the player whose turn is now, also, the method
+     * notifies players the order of the turn in the game.
+     * @param playerNickname the nickname of the player who should be able to place the card and draw card in the field.
+     */
     @Override
     public void updatePlayerTurn(String playerNickname) {
         // once received the PlayerTurnMessage from the server
+        // print the message to notify the player the order of the game and whose turn is now.
         out.println("Order of the game: " + players);
         this.currentPlayer = playerNickname;
         if (this.currentPlayer.equals(thisPlayerNickname)) {
             isMyTurn = true;
+            // if the player's turn is now, request the player to place the card in the field.
             requestPlaceCard();
         } else {
             isMyTurn = false;
             out.println("It is " + currentPlayer + "'s turn");
-            // create a new thread to get the input from the player when it is not the player's turn
+            // wake up the readInputThread to get the input from the player when it is not the player's turn. In this
+            // case, the player can insert the keyword to use the service mode of the game.
             synchronized (lock) {
                 lock.notify();
             }
         }
     }
+
+    /**
+     * A thread that reads the input from the player when it is not the player's turn, will be started when the game
+     * enters the playing phase, if the player is the current player, the thread will be waiting until the message
+     * PlayerTurnMessage from the server to update the currentPlayer in the game.
+     */
     public void readInputThread() {
         Thread service = new Thread(() -> {
             while (true) {
@@ -627,7 +681,11 @@ public class TextUI extends View{
                     }
                     isInThread = true;
                     getInput();
+                    // when the client is in the service mode, and the player's turn is now, the player need to type
+                    // something to exit from the service mode, then the thread will be returned to the waiting state.
+                    if(isMyTurn){
                     System.out.println("Exit from service mode");
+                    }
                 }
             }
         });
@@ -635,32 +693,44 @@ public class TextUI extends View{
     }
 
     //------------playing-------------
+
+    /**
+     * Use this method to request the player to place a card in the field. The player will be able to see the board
+     * before and after placing the card. Also, the player will be able to see the cards in the hand and select one
+     * card to place in the field.
+     */
     @Override
     public void requestPlaceCard() {
         currentEvent = Event.PLACE_CARD;
         out.println("Here is your field right now:");
+        // print the board view of the player before placing the card
         showBoard(thisPlayerNickname);
-        showHand(hand);
+        // print the cards in the hand of the player and request the player to select one card to place in the field.
         out.println("""
+                Here is your hand:
                 To choose the left one, type LEFT
                 To choose the middle one, type MIDDLE
                 To choose the right one, type RIGHT""");
+        showHand(hand);
+        // if the player is in the service mode, the player will be able to see the message to exit from the service mode
         if (isInThread) {
             out.println("It is your turn now, please type something to exit from the service mode,then" +
-                    "please select one card from your hand to place on the field:\");");
+                    "please select one card from your hand to place on the field:");
         }else{
             out.println("Please select one card from your hand to place on the field:");
         }
         String choice = getInput();
-        while (!choice.equals("LEFT") && !choice.equals("MIDDLE") && !choice.equals("RIGHT")) {
+        while (!choice.equals("LEFT") && !choice.equals("MIDDLE") && !choice.equals("RIGHT")) { // check the validity of the input
             logger.info("Invalid input, please select LEFT, MIDDLE or RIGHT");
             out.println("Invalid input, please select LEFT, MIDDLE or RIGHT");
             choice = getInput();
         }
         out.println("You selected the card in the " + choice + " one of your hand:");
-        indexCardPlaced = choice.equals("LEFT") ? 0 : choice.equals("MIDDLE") ? 1 : 2; // index of the card selected in hand
-        out.println("index should be replaced"+indexCardPlaced);
+        // index of the card selected in hand
+        indexCardPlaced = choice.equals("LEFT") ? 0 : choice.equals("MIDDLE") ? 1 : 2;
+        // print the card selected by the player in the hand
         showCard(hand.get(indexCardPlaced), true);
+        // ask the player if he wants to see the back side of the card before the decision to place the card
         out.println("Do you want to see the back side of the card? type[Y or N]");
         String isUp = getInput();
         while(!isUp.equals("Y") && !isUp.equals("N")) {
@@ -668,29 +738,32 @@ public class TextUI extends View{
             out.println("Invalid input, please select Y or N");
             isUp = getInput();
         }
+        // if the player wants to see the back side of the card, print the bak side of the card
         if( "Y".equals(isUp)) {
             showCard(hand.get(indexCardPlaced), false);
         }
+        // request the player to select the side of the card selected to place in the field.
        out.println("Which side do you want to place the card? type[FRONT or BACK]");
        isUp = getInput();
        while(!isUp.equals("FRONT") && !isUp.equals("BACK")) {
-       logger.info("Invalid input, please select FRONT or BACK");
-       out.println("Invalid input, please select FRONT or BACK");
-       isUp = getInput();
+           logger.info("Invalid input, please select FRONT or BACK");
+           out.println("Invalid input, please select FRONT or BACK");
+           isUp = getInput();
        }
+       // show the board again to the player before placing the card
        showBoard(thisPlayerNickname);
-         out.println("Please select one of the available positions in the board to place the card,type[x,y]");
-            String pos = getInput();
-            while( !pos.matches("-?\\d{1,3},-?\\d{1,3}")){
-                logger.info("Invalid input, please select a position in the board");
-                out.println("Invalid input, please select a position in the board, type[x,y]:");
-                pos = getInput();
-            }
-            String [] posArray = pos.split(",");
-            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(indexCardPlaced), Integer.parseInt(posArray[0]),
-                    Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
+       out.println("Please select one of the available positions in the board to place the card,type[x,y]");
+       String pos = getInput();
+       while( !pos.matches("-?\\d{1,3},-?\\d{1,3}")){ // check the validity of the input
+           logger.info("Invalid input, please select a position in the board");
+           out.println("Invalid input, please select a position in the board, type[x,y]:");
+           pos = getInput();
+       }
+       String [] posArray = pos.split(",");
+       notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(indexCardPlaced),Integer.parseInt(posArray[0]),
+               Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
     }
-
+    //TODO CHECK THE CODE FROM THE LINE 766
     @Override
     public void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates,
                                         boolean placedSide, int playerPoints, int[] playerResources,

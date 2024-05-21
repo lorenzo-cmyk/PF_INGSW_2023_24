@@ -39,6 +39,8 @@ public abstract class View implements EventHandler{
     protected ArrayList<Integer>  currentGoldCards;
     protected int resourceDeckSize;
     protected int goldDeckSize;
+    protected int resourceCardDeckFacingKingdom;
+    protected int goldCardDeckFacingKingdom;
     protected Event Status;
     protected AskListener askListener;
     protected ArrayList<int[]> availableSpaces;
@@ -182,7 +184,7 @@ public abstract class View implements EventHandler{
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces) {
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
     }
 
     public abstract void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces);

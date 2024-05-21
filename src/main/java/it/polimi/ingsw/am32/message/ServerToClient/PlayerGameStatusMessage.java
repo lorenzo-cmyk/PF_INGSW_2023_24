@@ -120,10 +120,10 @@ public class PlayerGameStatusMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-            view.updatePlayerData(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
-                    gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer, newAvailableFieldSpaces);
-        // TODO FOR RECONECTION
-        // FIXME: Update the view with the new kingdoms information.
+            view.updatePlayerData(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective,
+                    playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards,
+                    gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory,
+                    currentPlayer, newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom);
     }
 
     @Override
