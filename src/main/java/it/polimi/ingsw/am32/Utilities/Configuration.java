@@ -3,10 +3,13 @@ package it.polimi.ingsw.am32.Utilities;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am32.Server;
+import it.polimi.ingsw.am32.network.ServerNode.ServerPingTask;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,6 +37,7 @@ public class Configuration {
     private int socketReadTimeout;
     private String serverIp;
     private final ExecutorService executorService;
+    private Timer notLinkedSocketTimer;
 
 
     //---------------------------------------------------------------------------------------------
@@ -62,6 +66,7 @@ public class Configuration {
         socketReadTimeout = 100;
         serverIp = "127.0.0.1";
         executorService = Executors.newCachedThreadPool();
+        notLinkedSocketTimer = new Timer();
 
         // temporary values
 
@@ -333,5 +338,21 @@ public class Configuration {
      */
     public ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    /**
+     * Schedule the {@link ServerPingTask} to be executed repeatedly until cancellation
+     *
+     * @param serverPingTask is the {@code ServerPingTask} to be scheduled
+     */
+    public void addTimerTask(ServerPingTask serverPingTask) {
+        notLinkedSocketTimer.scheduleAtFixedRate(serverPingTask, 0, pingTimeInterval);
+    }
+
+    /**
+     * Delete all cancelled {@link ServerPingTask} from the configuration timer
+     */
+    public void purgeTimer() {
+        notLinkedSocketTimer.purge();
     }
 }

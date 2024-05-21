@@ -8,7 +8,9 @@ import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
 import it.polimi.ingsw.am32.controller.exceptions.InvalidPlayerNumberException;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.ErrorMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import it.polimi.ingsw.am32.network.exceptions.UninitializedException;
@@ -29,10 +31,11 @@ public class SKServerNode implements Runnable, NodeInterface {
     private final Logger logger;
     private final Configuration config;
     private GameController gameController;
-    private ObjectInputStream inputObtStr;
-    private ObjectOutputStream outputObtStr;
+    private final ObjectInputStream inputObtStr;
+    private final ObjectOutputStream outputObtStr;
     private final Socket socket;
     private int pingCount;
+    private final ServerPingTask notLinkedPingTask;
     private final ServerPingTask serverPingTask;
     private boolean statusIsAlive;
     private boolean destroyCalled;
@@ -102,6 +105,8 @@ public class SKServerNode implements Runnable, NodeInterface {
         statusIsAlive = true;
         destroyCalled = false;
         serverPingTask = new ServerPingTask(this);
+        notLinkedPingTask = new ServerPingTask(this);
+        config.addTimerTask(notLinkedPingTask);
     }
 
     public void run() {
@@ -145,6 +150,16 @@ public class SKServerNode implements Runnable, NodeInterface {
 
                 resetTimeCounter();
             }
+
+            if(message instanceof PingMessage && gameController == null)
+                config.getExecutorService().submit(() -> {
+                    try {
+                        uploadToClient(new PongMessage(null));
+                        logger.info("PingMessage received before StoCLobbyMessage. Sending PongMessage to client");
+                    } catch (UploadFailureException e) {
+                        logger.info("PingMessage received before StoCLobbyMessage. Failed to send PongMessage to client");
+                    }
+                });
 
             if (message instanceof CtoSMessage) {
 
@@ -229,9 +244,9 @@ public class SKServerNode implements Runnable, NodeInterface {
                     }
                 }
 
-                try {
-                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
-                } catch (Exception ignored) {}
+                notLinkedPingTask.cancel();
+                config.purgeTimer();
+                gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
 
                 logger.info("CtoSLobbyMessage received");
                 return;
@@ -279,6 +294,8 @@ public class SKServerNode implements Runnable, NodeInterface {
     @Override
     public void pingTimeOverdue() {
 
+        boolean tmpDestroy = false;
+
         synchronized (aliveLock) {
 
             if(!statusIsAlive)
@@ -286,11 +303,13 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             pingCount--;
 
-            if(pingCount <= 0)
+            if(pingCount <= 0) {
                 statusIsAlive = false;
+                tmpDestroy = true;
+            }
         }
 
-        if(!statusIsAlive)
+        if(tmpDestroy)
             destroy();
 
     }
@@ -314,9 +333,9 @@ public class SKServerNode implements Runnable, NodeInterface {
             if(destroyCalled)
                 return;
             destroyCalled = true;
+            serverPingTask.cancel();
+            notLinkedPingTask.cancel();
         }
-
-        serverPingTask.cancel();
 
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
@@ -337,7 +356,10 @@ public class SKServerNode implements Runnable, NodeInterface {
                 if(gameController != null) {
                     gameController.getTimer().purge();
                     gameController.disconnect(this);
+                    return;
                 }
+
+                config.purgeTimer();
             }
         }
     }
