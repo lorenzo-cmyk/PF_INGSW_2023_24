@@ -1033,6 +1033,7 @@ public class TextUI extends View{
                     // Input is not a valid recipient
                     if (recipient.equals("EXIT")) {
                         // Exit chat mode
+                        out.println("Exited chat mode");
                         chatMode = false;
                         return;
                     }
@@ -1057,6 +1058,7 @@ public class TextUI extends View{
                     // Loop back and ask for input again
                 }
                 else if (messageContent.equals("EXIT")) { // Abort sending message
+                    out.println("Exited chat mode");
                     chatMode = false;
                     return; // Exit chat mode
                 }
@@ -1080,6 +1082,7 @@ public class TextUI extends View{
             // Loop back up and ask user to insert another chat message
         }
     }
+
     @Override
     public void showChatHistory(List<ChatMessage> chatHistory){
         for (ChatMessage chat : chatHistory) {
