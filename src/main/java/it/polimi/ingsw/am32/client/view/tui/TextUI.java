@@ -451,7 +451,8 @@ public class TextUI extends View{
             out.println("Invalid input, please select FRONT or BACK");
             side = in.nextLine();
         }
-        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, true));
+        // If we get to this point, the player has written either FRONT or BACK
+        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side.equals("FRONT")));
     }
 
     /**
