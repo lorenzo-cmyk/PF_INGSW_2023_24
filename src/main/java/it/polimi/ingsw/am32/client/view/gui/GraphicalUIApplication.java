@@ -35,6 +35,7 @@ public class GraphicalUIApplication extends Application {
         pauseTransition.play();
 
 
+
         primaryStage.show();
     }
 

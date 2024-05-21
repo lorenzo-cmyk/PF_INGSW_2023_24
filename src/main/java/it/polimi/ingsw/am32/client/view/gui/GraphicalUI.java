@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -23,6 +24,10 @@ public class GraphicalUI extends View {
     private StackPane welcomeRoot;
     private StackPane selectionPane;
     private StackPane connectionRoot;
+    private StackPane createGameRoot;
+    private StackPane waitingRoot;
+    private  TextArea playerList;
+    TextField playerListView;
     Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String [] ruleBookImages = {"/CODEX_RuleBook_IT/01.png","/CODEX_RuleBook_IT/02.png",
             "/CODEX_RuleBook_IT/03.png","/CODEX_RuleBook_IT/04.png","/CODEX_RuleBook_IT/05.png",
@@ -197,7 +202,8 @@ public class GraphicalUI extends View {
 
     @Override
     public void askCreateGame() {
-        StackPane createGameRoot = new StackPane();
+        currentEvent = Event.CREATE_GAME;
+        createGameRoot = new StackPane();
 
         Label labelNickname = createLabel("Nickname",-90,-80);
         Label labelPlayers = createLabel("Players number",-60,30);
@@ -244,12 +250,13 @@ public class GraphicalUI extends View {
 
     @Override
     public void askJoinGame() {
+        currentEvent = Event.JOIN_GAME;
         StackPane joinGameRoot = new StackPane();
 
-        Label labelNickname = createLabel("Nickname&AccessID",-90,-80);
+        Label labelNickname = createLabel("Nickname&GameID",-80,-80);
 
         TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
-        TextField accessID = createTextField("Enter the accessID", 35, 350, -40, -30);
+        TextField accessID = createTextField("Enter the game ID", 35, 220, -60, 35);
 
         Button joinButton = createButton("[Join]",140,65);
 
@@ -277,6 +284,44 @@ public class GraphicalUI extends View {
             }
         });
         selectionPane.getChildren().add(joinGameRoot);
+    }
+
+    @Override
+    public void updateNewGameConfirm(int gameID, String recipientNickname) {
+        javafx.application.Platform.runLater(() -> {
+            selectionPane.getChildren().remove(createGameRoot);
+            waitingRoot = new StackPane();
+
+            this.gameID = gameID;
+            this.thisPlayerNickname = recipientNickname;
+            this.players.add(recipientNickname);
+            currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
+            Status = Event.LOBBY;
+
+            Label id = createLabel("ID: " + gameID, -80, -80);
+            Label waiting = createLabel("Waiting...", 130, 100);
+
+            /*playerList= new TextArea();
+            playerList.setMaxHeight(135);
+            playerList.setMaxWidth(360);
+            playerList.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                    "rgba(58,33,17,100,0.2) , 10,0,0,10 );");
+            playerList.setTranslateX(0);
+            playerList.setTranslateY(0);
+            playerList.setEditable(false);*/
+            //playerList.setText("Players:\n" + String.join("\n", players));
+            playerListView = createTextField(null, 135, 360, 0, 0);
+            playerListView.setText("Players: \n" + String.join("\n", players));
+            playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                    "rgba(58,33,17,100,0.2) , 10,0,0,10 );");
+            playerListView.setTranslateX(0);
+            playerListView.setTranslateY(0);
+            playerListView.setEditable(false);
+            waitingRoot.getChildren().addAll(id, waiting,playerListView);
+            selectionPane.getChildren().add(waitingRoot);
+        });
     }
 
     @Override
@@ -492,6 +537,14 @@ public class GraphicalUI extends View {
 
     @Override
     public void handleEvent(Event event, String message) {
-        //TODO
+        switch (event) {
+            case Event.NEW_PLAYER_JOIN: {
+                players.add(message);
+                //playerList.setText("Players:\n" + String.join("\n", players));
+                playerListView.setText("Players: \n" + String.join(",\n", players));
+                break;
+            }
+            //TODO
+        }
     }
 }
