@@ -277,7 +277,6 @@ public class TextUI extends View{
                 out.println("Invalid nickname, must be less than 20 characters");
                 continue;
             }
-
             return;
         }
     }
@@ -334,9 +333,8 @@ public class TextUI extends View{
     public void askReconnectGame() {
         currentEvent = Event.RECONNECT_GAME;
         askNickname();
-
+        out.println("Insert the game ID you want to reconnect to:");
         gameID = getInputInt();
-
         // notify the listener with the reconnect game message
         notifyAskListenerLobby(new ReconnectGameMessage(thisPlayerNickname,gameID));
     }
