@@ -456,7 +456,7 @@ public class TextUI extends View{
     }
 
     /**
-     * Once received the StarterCardConfirmationMessage from the server, the method is called by processMessage to
+     * Once received the ConfirmedStarterCardSideSelectionMessage from the server, the method is called by processMessage to
      * update the view of the player and print the message to notify the player that the starter card is selected
       * @param colour the colour of the player in the game.
      * @param cardID the ID of the starter card selected by the player and received from the server.
@@ -507,7 +507,7 @@ public class TextUI extends View{
 
 
     @Override
-    public void updatePlayerDate(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
+    public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
                                  ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
                                  int playerSecretObjective, int[] playerPoints,
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,

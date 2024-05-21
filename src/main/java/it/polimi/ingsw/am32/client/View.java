@@ -5,7 +5,6 @@ import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNode;
@@ -176,7 +175,7 @@ public abstract class View implements EventHandler{
     public void updatePlayerTurn(String playerNickname) {
     }
 
-    public void updatePlayerDate(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
+    public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
                                  ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
                                  int playerSecretObjective, int[] playerPoints,
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
