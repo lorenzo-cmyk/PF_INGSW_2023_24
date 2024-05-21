@@ -713,10 +713,11 @@ public class TextUI extends View{
         // if the player is in the service mode, the player will be able to see the message to exit from the service mode
         if (isInThread) {
             out.println("It is your turn now, please type something to exit from the service mode,then" +
-                    "please select one card from your hand to place on the field:");
+                    " please select one card from your hand to place on the field:");
         }else{
             out.println("Please select one card from your hand to place on the field:");
         }
+        isInThread = false;
         String choice = getInput();
         while (!choice.equals("LEFT") && !choice.equals("MIDDLE") && !choice.equals("RIGHT")) { // check the validity of the input
             logger.info("Invalid input, please select LEFT, MIDDLE or RIGHT");
