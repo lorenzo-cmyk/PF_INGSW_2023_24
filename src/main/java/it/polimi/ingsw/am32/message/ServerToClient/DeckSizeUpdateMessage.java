@@ -28,7 +28,7 @@ public class DeckSizeUpdateMessage implements StoCMessage {
     @Override
     public void processMessage(View view) {
         // FIXME: Update the view with the new kingdoms information.
-        view.updateDeck(resourceCardDeckSize, goldCardDeckSize, currentResourceCards, currentGoldCards);
+        view.updateDeck(resourceCardDeckSize, goldCardDeckSize, currentResourceCards, currentGoldCards,resourceCardDeckFacingKingdom ,goldCardDeckFacingKingdom );
     }
 
     @Override

@@ -434,7 +434,7 @@ public class TextUI extends View{
         }
         if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
             for (String player : players) {
-                showPoints(player);
+                showResource(player);
             }
         }
     }
@@ -763,61 +763,98 @@ public class TextUI extends View{
                Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
     }
     //TODO CHECK THE CODE FROM THE LINE 766
+
+    /**
+     * Once the player receives the PlacedCardConfirmationMessage from the server, the method is called by processMessage
+     * to store the card information, update the board of the player. If the player who placed the card is this player,
+     * print the message to notify the player that the card is placed successfully. Also, the method requests the player
+     * to draw a card from the deck.
+     * @param playerNickname the nickname of the player who placed the card in the field.
+     * @param placedCard the ID of the card placed in the field.
+     * @param placedCardCoordinates the coordinates of the card selected.
+     * @param placedSide the side of the card placed in the field.
+     * @param playerPoints the points of the player after placing the card.
+     * @param playerResources the resources of the player after placing the card.
+     * @param newAvailableFieldSpaces the available spaces in the field of the player after placing the card.
+     */
+
     @Override
     public void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates,
                                         boolean placedSide, int playerPoints, int[] playerResources,
                                         ArrayList<int[]> newAvailableFieldSpaces) {
+        // store the card placed in the field of the player and update the board of the player
         updateAfterPlacedCard(playerNickname, searchNonObjCardById(placedCard), placedCardCoordinates[0],
                 placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints);
+        // if the player who placed the card is this player, print the message to notify the player that the card is
+        // placed successfully.
         if(playerNickname.equals(thisPlayerNickname)){
             out.println("The card is placed successfully, here is your field after placing the card:");
+            // print the board of the player after placing the card in the field.
             showPlayersField(thisPlayerNickname);
+            // request the player to draw a card from the deck, if the match status is PLAYING or TERMINATING.
             if(Status.equals(Event.PLAYING)||Status.equals(Event.TERMINATING)){
                 requestDrawCard();
             }
         }
     }
 
-
+    /**
+     * Once the player receives the DrawCardMessage from the server, the method is called by processMessage to request
+     * the player to draw a card from the deck. The player will be able to see the current visible resource cards and
+     * gold cards in the game and select one card to add to the hand.
+     */
     @Override
     public void requestDrawCard() {
         currentEvent = Event.DRAW_CARD;
         out.println("Now please select one card to add to your hand:");
         out.println("""
-                To draw a resource card left one, type RESOURCE1
-                To draw a resource card right one, type RESOURCE2
-                To draw a gold card left one, type GOLD1
-                To draw a gold card right one, type GOLD2
-                To draw from the resource deck, type RESOURCE
-                To draw from the gold deck, type GOLD
+                To draw a resource card left one, type R1
+                To draw a resource card right one, type R2
+                To draw a gold card left one, type G1
+                To draw a gold card right one, type G2
+                To draw from the resource deck, type R
+                To draw from the gold deck, type G
                 """);
+        // print the cards in the deck that the player can draw from
         showDeck();
         String choice = getInput();
-        while (!choice.equals("RESOURCE1") && !choice.equals("RESOURCE2") && !choice.equals("GOLD1") &&
-                !choice.equals("GOLD2") && !choice.equals("RESOURCE") && !choice.equals("GOLD")) {
+        // check the validity of the input
+        while (!choice.equals("R1") && !choice.equals("R2") && !choice.equals("G1") &&
+                !choice.equals("G2") && !choice.equals("R") && !choice.equals("G")) {
             logger.info("Invalid input, please select a card from the list");
             out.println("Invalid input, please try again");
             choice = getInput();
         }
-        if (choice.equals("RESOURCE1") || choice.equals("RESOURCE2")) {
-            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 2, choice.equals("RESOURCE1") ?
+        // based on the choice of the player, edit the message to send to the server.
+        if (choice.equals("R1") || choice.equals("R2")) {
+            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 2, choice.equals("R1") ?
                     currentResourceCards.get(0) : currentResourceCards.get(1)));
             out.println(currentResourceCards.get(0)+currentResourceCards.get(1));
-        } else if (choice.equals("GOLD1") || choice.equals("GOLD2")) {
-            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 3, choice.equals("GOLD1") ?
+        } else if (choice.equals("G1") || choice.equals("G2")) {
+            notifyAskListener(new DrawCardMessage(thisPlayerNickname, 3, choice.equals("G1") ?
                     currentGoldCards.get(0) : currentGoldCards.get(1)));
             out.println(currentGoldCards.get(0)+currentGoldCards.get(1));
         } else {
-            notifyAskListener(new DrawCardMessage(thisPlayerNickname, choice.equals("RESOURCE") ? 0 : 1, -1));
+            notifyAskListener(new DrawCardMessage(thisPlayerNickname, choice.equals("R") ? 0 : 1, -1));
         }
     }
 
+    /**
+     * Once received the PlacedCardConfirmationMessage from the server, the method is called by processMessage to store
+     * the card information, update the board of the player.
+     *
+     * @param playerNickname the nickname of the player who placed the card in the field.
+     * @param card the card should be placed in the field.
+     * @param x the x coordinate of the card placed in the field.
+     * @param y the y coordinate of the card placed in the field.
+     * @param isUp the side of the card selected to place in the field.
+     * @param availablePos the available positions in the field after the placement of the card.
+     * @param resources the resources of the player after placing the card.
+     * @param points the points of the player after placing the card.
+     */
     @Override
     public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp,
                                       ArrayList<int[]> availablePos, int[] resources, int points) {
-        /*once received the PlacedCardConfirmationMessage from the server, the card is searched in the
-        hand/ObjectiveCards by ID and then using this method to store the card in the arraylist field, and add it in
-        the board of the player.*/
         // update the field of the player
         int num = publicInfo.get(playerNickname).getField().size();
         publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(), cardImg.get(card.getID()), x, y, isUp));
@@ -900,28 +937,70 @@ public class TextUI extends View{
         }
     }
 
+    /**
+     * Once the player receives the DrawCardConfirmationMessage from the server, the method is called by processMessage
+     * to update the hand of the player and print the message to notify the player that the card is added in the hand
+     * successfully. Also, the method prints the hand of the player after drawing the card.
+     * @param hand the hand of the player after drawing the card.
+     */
     @Override
     public void updateAfterDrawCard(ArrayList<Integer> hand) {
-        //out.println("index should be replaced"+indexCardPlaced);
-        //out.println("Hand from server"+hand);
+        // remove the card placed in the field from the hand.
         this.hand.remove(indexCardPlaced);
+        // add the card drawn from the deck to the hand of the player.
         this.hand.add(indexCardPlaced, hand.getLast());
-        //out.println("Hand after added the card from server:"+this.hand);
         out.println("The card is added in your hand successfully, here is your hand after drawing the card:");
+        // print the hand of the player after drawing the card.
         showHand(this.hand);
     }
+
+    /**
+     * Once the player receives the DeckSizeUpdateMessage from the server, the method is called by processMessage to
+     * update the deck size and the current visible resource cards and gold cards in the game. Also, the method prints
+     * the message to notify the player the situation of the deck after this turn.
+     * @param resourceDeckSize the size of the resource deck in the game.
+     * @param goldDeckSize the size of the gold deck in the game.
+     * @param currentResourceCards the current visible resource cards in the game that the player can draw.
+     * @param currentGoldCards the current visible gold cards in the game that the player can draw.
+     * @param resourceDeckFace the face of the resource deck.
+     * @param goldDeckFace the face of the gold deck.
+     */
     @Override
-    public void updateDeck(int resourceDeckSize, int goldDeckSize,int[]currentResourceCards,
-                           int[]currentGoldCards) {
+    public void updateDeck(int resourceDeckSize, int goldDeckSize, int[]currentResourceCards,
+                           int[]currentGoldCards, int resourceDeckFace, int goldDeckFace) {
         this.resourceDeckSize = resourceDeckSize;
         this.goldDeckSize = goldDeckSize;
-        this.currentResourceCards.clear();
-        this.currentGoldCards.clear();
-        this.currentResourceCards.add(currentResourceCards[0]);
-        this.currentResourceCards.add(currentResourceCards[1]);
-        this.currentGoldCards.add(currentGoldCards[0]);
-        this.currentGoldCards.add(currentGoldCards[1]);
+        // update the current visible resource cards and gold cards in the game that the player can draw.
+        // if the player drew the card from the resource deck
+        if(!this.currentResourceCards.contains(currentResourceCards[1])){
+            // player drew the left card from the resource deck
+            if(this.currentResourceCards.get(1)==currentResourceCards[0]) {
+                this.currentResourceCards.remove(0);
+                this.currentResourceCards.addFirst(currentResourceCards[1]);
+            }
+            // player drew the right card from the resource deck
+            else {
+                this.currentResourceCards.remove(1);
+                this.currentResourceCards.addLast(currentResourceCards[1]);
+            }
+        }
+        // if the player drew the card from the resource deck
+        if(!this.currentGoldCards.contains(currentGoldCards[1])){
+            // player drew the left card from the gold deck
+            if(this.currentGoldCards.get(1)==currentGoldCards[0]) {
+                this.currentGoldCards.remove(0);
+                this.currentGoldCards.addFirst(currentGoldCards[1]);
+            }
+            // player drew the right card from the gold deck
+            else {
+                this.currentGoldCards.remove(1);
+                this.currentGoldCards.addLast(currentGoldCards[1]);
+            }
+        }
+        this.resourceCardDeckFacingKingdom = resourceDeckFace;
+        this.goldCardDeckFacingKingdom = goldDeckFace;
         out.println("The situation of the deck after this turn is following:");
+        // print the deck size and the current visible resource cards and gold cards after this turn.
         showDeck();
     }
 
@@ -1033,56 +1112,68 @@ public class TextUI extends View{
 
     //-------------------View of the game-------------------
 
+    /**
+     * Print the deck size and the current visible resource cards and gold cards in the game.
+     */
     @Override
     public void showDeck() {
         out.println("Resource deck size: " + resourceDeckSize + " Gold deck size: " + goldDeckSize);
+        // print the kingdom facing of the resource deck and gold deck.
+        out.println("Resource Deck facing kingdom:"+iconArrayElement(resourceCardDeckFacingKingdom));
+        out.println("Resource Deck facing kingdom:"+iconArrayElement(goldCardDeckFacingKingdom));
         out.println("Resource cards:");
-        showObjectiveCards(currentResourceCards);
+        showObjectiveCards(currentResourceCards);// print the current visible resource cards in the game.
         out.println("Gold cards:");
-        showObjectiveCards(currentGoldCards);
-    }
-    @Override
-    public void showHelpInfo() {
-        //TODO show the help information: exit command, start chat command, view the player list command, view the
-        // game status command, view the game rule command,view the card command, view other players' field command,
-        // view the secret objective command, view the game order command, view the game ID command ecc.
-        out.println("""
-                Entering the Service Mode, please type the one of the following commands:
-                HELP:
-                EXIT:
-                QUIT:
-                ShowPlayerList:
-                ShowGameStatus:
-                ShowGameRULE:
-                ShowHand:
-                ShowCommonObjCard:
-                ShowSecretObjCard:
-                ShowPlacedCard:
-                ShowPlayerField:
-                ShowScoreBoard:
-                ShowCurrentPlayer:
-                Chat:                       
-                """);
+        showObjectiveCards(currentGoldCards);// print the current visible gold cards in the game.
     }
 
+    /**
+     * Print the list of commands that the player can use in the service mode.
+     */
+    @Override
+    public void showHelpInfo() {
+        out.println("""
+                Entering the Service Mode, please type the one of the following commands:
+                HELP: to see the list of the commands.
+                QUIT: to exit from the game.
+                Chat: to start chatting with the players in the game.
+                SP: to see the list of the players in the game.
+                SGS: to see the status of the game.
+                SR: to see the rules of the game.
+                SH: to see the cards in the hand.
+                SCO: to see the common objective cards.
+                SSO: to see the secret objective card.
+                SF: to see the field of the players.
+                SCP: to see who is the current player.
+                SGO: to see the game order.
+                SID: to see the game ID.
+                SCD: to see the deck size and the current visible cards in the game.                 
+                """);
+    }
+    /**
+     * Print list of the players in the game.
+     */
     public void showPlayerInGame() {
         out.println("The players in the game are: " + players);
     }
 
-    public void showCardSelected() {
-        // show the version details of the card selected by the player --> call printNonObjCard or printObjCard
-        out.println("The card selected is: ");
-        //TODO show the card selected by the player
-    }
-
+    /**
+     * Print the board view and the resources in the field of the given player.
+     * @param playerNickname the nickname of the player whose field should be printed.
+     */
     public void showPlayersField(String playerNickname) {
         showBoard(playerNickname);
-        showPoints(playerNickname);
+        showResource(playerNickname);
     }
 
+    /**
+     * Print the resources in the field of the player.
+     * @param playerNickname the nickname of the player whose resources should be printed.
+     */
     @Override
-    public void showPoints(String playerNickname) {
+    public void showResource(String playerNickname) {
         int[] resources = publicInfo.get(playerNickname).getResources();
+        // print the resources of the player in the field, convert the resources to the icon.
         out.println("Player " + playerNickname + " has: " + publicInfo.get(playerNickname).getPoints() + " points" +
                 "\nwith " + resources[0] + iconArrayElement(0) + resources[1] + iconArrayElement(1) + resources[2] +
                 iconArrayElement(2) + resources[3] + iconArrayElement(3) + resources[4] +
@@ -1110,7 +1201,9 @@ public class TextUI extends View{
             out.println();
         }
     }
-
+    /**
+     * Print the cards in the hand of the player.
+     */
     @Override
     public void showHand(ArrayList<Integer> hand) {
         out.println("Hand cards: ");
@@ -1122,6 +1215,10 @@ public class TextUI extends View{
         }
     }
 
+    /**
+     * Print the objective cards.
+     * @param ObjCards
+     */
     @Override
     public void showObjectiveCards(ArrayList<Integer> ObjCards) {
         ArrayList<String> card1 = cardImg.get(ObjCards.get(0));
@@ -1130,7 +1227,9 @@ public class TextUI extends View{
             out.println(card1.get(i) + "  " + card2.get(i));
         }
     }
-
+    /**
+     * Print a card based on the ID of the card and the side of the card.
+     */
     @Override
     public void showCard(int ID, boolean isUp) {
         cardImg.get(ID);
@@ -1146,41 +1245,37 @@ public class TextUI extends View{
             }
         }
     }
+
+    /**
+     * Print at the end of the match the final points of the players, the secret objective card of the players, and the
+     * points gained from the objective card. Also, the method prints the winners of the match.
+     * @param players the nicknames of the players in the game.
+     * @param points the final points of the players in the game.
+     * @param secrets the secret objective card of the players.
+     * @param pointsGainedFromObj the points gained from the objective card of the players.
+     * @param winners the winners of the match.
+     */
     @Override
     public void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets,
-                                 ArrayList<Integer> pointsGainedFromSecrets, ArrayList<String> winners) {
+                                 ArrayList<Integer> pointsGainedFromObj, ArrayList<String> winners) {
         out.println("The match is ended !!!");
         out.println("The winners of the match are: "+winners);
         out.println("The final points of the players are following:");
+        // print the final points of the players, the secret objective card of the players, and the points gained from the
+        // objective card of the players.
         for(int i=0; i<players.size(); i++) {
             out.println("Player " + players.get(i) + " has total points: " + points.get(i)+" with "+
-                    pointsGainedFromSecrets.get(i)+ " points gained from this secret objective card:");
+                    pointsGainedFromObj.get(i)+ " points gained from the objective card.");
+            out.println("The secret objective card of the player is:");
             showCard(secrets.get(i), true);
         }
     }
 
     //-------------------Card Factory-------------------
-
     /**
-     * @param ID
-     * @return
-     */
-    private ObjectiveCardFactory searchObjCardById(int ID) {
-        try {
-            for (ObjectiveCardFactory objectiveCard : objectiveCards) {
-                if (objectiveCard.getID() == ID) {
-                    return objectiveCard;
-                }
-            }
-        } catch (RuntimeException e) {
-            logger.error("The card is not found");
-        }
-        return null;
-    }
-
-    /**
-     * @param ID
-     * @return
+     * Search the card description based on the ID of the card.
+     * @param ID the ID of the card.
+     * @return the card description.
      */
     private NonObjCardFactory searchNonObjCardById(int ID) {
         try {
@@ -1195,6 +1290,11 @@ public class TextUI extends View{
         return null;
     }
 
+    /**
+     * Set the image of the card based on the card description, the view of the card in TUI. Store the image of the card
+     * in the hashmap with the ID of the card as the key.
+     * @return hashmap with the ID of the card as the key and the image of the card as the value.
+     */
     @Override
     public HashMap<Integer, ArrayList<String>> setImg() {
         HashMap<Integer, ArrayList<String>> Img = new HashMap<>();
@@ -1515,7 +1615,11 @@ public class TextUI extends View{
         limits[2] = Math.max(limits[2], posY + 1);
         limits[3] = Math.min(limits[3], posY - 1);
     }
-
+    /**
+     * Used method to handle the failure messages received from the server and to ask the user to try again.
+     * @param event the event that failed.
+     * @param reason the reason of the failure.
+     */
     @Override
     public void handleFailureCase(Event event,String reason){
         out.println(reason);
@@ -1538,7 +1642,11 @@ public class TextUI extends View{
             }
         }
     }
-
+    /**
+     * Used method to print the message to notify the player when is necessary.
+     * @param event the event that should be notified.
+     * @param nickname the nickname of player, will be used in the message.
+     */
     @Override
     public void handleEvent(Event event,String nickname) { //FIXME IT IS NECESSARY TO IMPLEMENT THIS METHOD in TUI?
         switch (event) {
@@ -1568,6 +1676,9 @@ public class TextUI extends View{
         }
     }
 
+    /**
+     * Use this method to clear the console screen.
+     */
     private void clearCMD() {
         try {
             if (System.getProperty("os.name").contains("Windows"))
@@ -1581,6 +1692,11 @@ public class TextUI extends View{
         System.out.flush();
     }
 
+    /**
+     * Colour the string based on the integer received.
+     * @param colour indicates the colour of the string.
+     * @return the string “colour” coloured.
+     */
     public String convertToColour(int colour) {
         switch (colour) {
             case 0 -> {
@@ -1604,15 +1720,19 @@ public class TextUI extends View{
         }
     }
 
+    /**
+     * Method used to get the input from the user and handle the commands that the user can use to interact with the
+     * game in the service mode.
+     * @return the input from the user.
+     */
     public synchronized String getInput() {
         String input = in.nextLine();
         switch (input) {
             case "HELP" -> showHelpInfo();
             case "QUIT" -> System.exit(0);
-            case "ShowPlayerList" -> showPlayerInGame();
+            case "SP" -> showPlayerInGame();
             case "ShowGameStatus" -> out.println("The match status is: " + Status);
             case "ShowGameRULE" -> out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");
-            case "ShowHand" -> showCardSelected();
             case "ShowCommonObjCard" -> showObjectiveCards(commonObjCards);
             case "ShowSecretObjCard" -> showCard(secretObjCardSelected, true);
             case "ShowPlacedCard" -> {
@@ -1635,7 +1755,7 @@ public class TextUI extends View{
             case "ShowScoreBoard" -> {
                 out.println("The players have the following points:");
                 for (String player : players) {
-                    showPoints(player);
+                    showResource(player);
                 }
             }
             case "ShowCurrentPlayer" -> {
@@ -1648,7 +1768,7 @@ public class TextUI extends View{
 
     /**
      * Loops until the user enters a valid single integer.
-     * Inputs such as "string 5", "4 string", "string" are all invalid.
+     * Inputs such as “string 5”, “4 string”, “string” are all invalid.
      *
      * @return Integer input from the user
      */
