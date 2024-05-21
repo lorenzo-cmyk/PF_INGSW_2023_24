@@ -33,7 +33,7 @@ public abstract class View implements EventHandler{
     protected Event currentEvent; //TODO: not sure if this is useful
     protected int indexCardPlaced=0;
     protected ArrayList<Integer> commonObjCards;
-    protected int[] secretObjCards;
+    protected ArrayList<Integer> secretObjCards;
     protected int secretObjCardSelected;
     protected ArrayList<Integer> hand;
     protected ArrayList<Integer> currentResourceCards;

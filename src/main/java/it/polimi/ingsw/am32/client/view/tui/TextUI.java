@@ -351,7 +351,7 @@ public class TextUI extends View{
     public void updateNewGameConfirm(int gameID, String recipientNickname) {
         this.gameID = gameID;
         this.thisPlayerNickname = recipientNickname;
-        this.players.add(recipientNickname);
+        this.players.add(recipientNickname); // add the player who created the game in the list of players
         handleEvent(Event.GAME_CREATED,null); // print the message to notify the player that the game is created correctly
         currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
         Status = Event.LOBBY;
@@ -377,11 +377,15 @@ public class TextUI extends View{
      */
     @Override
     public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
+        // get the coordinates of the card from player's field should be removed
         int x = publicInfo.get(playerNickname).getField().getLast().x();
         int y = publicInfo.get(playerNickname).getField().getLast().y();
+        // get the player's board
         String[][]board = boards.get(playerNickname).getBoard();
+        // conversion of the coordinates of the card in the index of the matrix
         int posX = -2 * y + 80;
         int posY = 2 * x + 80;
+        // reset the space occupied by the card in the board
         board[posX][posY] = BLANK; //TODO CHECK PRINT WITH THE TEMPORARY
         board[posX - 1][posY] = BLANK;
         board[posX + 1][posY] = BLANK;
@@ -391,7 +395,9 @@ public class TextUI extends View{
         board[posX + 1][posY + 1] = BLANK;
         board[posX - 1][posY - 1] = BLANK;
         board[posX + 1][posY - 1] = BLANK;
+        //remove the card from the array list of the player's field
         publicInfo.get(playerNickname).getField().removeLast();
+        // update the points and the resources of the player after the rollback
         publicInfo.get(playerNickname).updatePoints(playerPoints);
         publicInfo.get(playerNickname).updateResources(playerResources);
     }
@@ -416,17 +422,19 @@ public class TextUI extends View{
      * Once the player receives the MatchStatus message from the server, the method is called by processMessage to
      * update the match status of the player, and print the message to notify the player of the current match status.
      * And if the match status is TERMINATING, the method is called to show the points of all players in the game.
+     * One time the match status is PLAYING, the method is called to start the readInputThread to get the input from
+     * the player when it is not the player's turn.
      * @param matchStatus the current match status received from the server
      */
     @Override
     public void updateMatchStatus(int matchStatus) {
-        // once received the MatchStatusMessage from the server
-        this.Status = Event.getEvent(matchStatus);
+        // once received the MatchStatusMessage from the server.
+        this.Status = Event.getEvent(matchStatus); // update the match status of the player.
         out.println("The match status is: " + Status);
-        if(Status.equals(Event.PLAYING)){
+        if(Status.equals(Event.PLAYING)){ // if the match status is PLAYING start the readInputThread.
             readInputThread();
         }
-        if(Status.equals(Event.TERMINATING)){
+        if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
             for (String player : players) {
                 showPoints(player);
             }
@@ -442,22 +450,25 @@ public class TextUI extends View{
     @Override
     public void requestSelectStarterCardSide(int ID) {
         out.println("The starter card received is following");
+        // print the front and back side of the card using the showCard method
         showCard(ID, true);
         showCard(ID, false);
+        // request the player to select the side of the card they want to use
         out.println("Please select the side of the card you want to use, type[FRONT or BACK]:");
         String side = in.nextLine();
-        while (!side.equals("FRONT") && !side.equals("BACK")) {
+        while (!side.equals("FRONT") && !side.equals("BACK")) { // check the validity of the input
             logger.info("Invalid input, please select FRONT or BACK");
             out.println("Invalid input, please select FRONT or BACK");
             side = in.nextLine();
         }
+        // notify the listener with the selected starter card side message
         notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, true));
     }
 
     /**
      * Once received the StarterCardConfirmationMessage from the server, the method is called by processMessage to
      * update the view of the player and print the message to notify the player that the starter card is selected
-      * @param colour the colour of the player in the game.
+     * @param colour the colour of the player in the game.
      * @param cardID the ID of the starter card selected by the player and received from the server.
      * @param isUp indicates the side of the card selected by the player to be placed.
      * @param availablePos the available positions in the field after the placement of the starter card.
@@ -466,41 +477,66 @@ public class TextUI extends View{
     @Override
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos,
                                          int[] resources) {
+        // receive the colour of the player in the game and update the data of the player
         publicInfo.get(thisPlayerNickname).updateColour(convertToColour(colour));
+        // notify the player the colour received from the server
         out.println("Your colour of this game is: " + convertToColour(colour));
+        // update the available spaces in the field after the placement of the starter card
         availableSpaces = availablePos;
+        // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
         updateAfterPlacedCard(thisPlayerNickname, searchNonObjCardById(cardID), 0, 0, isUp, availablePos,
                 resources, 0);
         out.println("Your field after placing the starter card is following:");
+        // print the board of the player after the placement of the starter card with the current resources count
         showPlayersField(thisPlayerNickname);
     }
 
+    /**
+     * Once the player receives the AssignedSecretObjectiveCardMessage from the server, the method is called by
+     * processMessage to request the player to select the secret objective card they want to use. The player will be
+     * able to see the front and back side of the card and select the card they want to use. Also, the player will be
+     * able to see the common objective cards and three cards received from the server with this message.
+     * @param secrets the secret objective cards received from the server and assigned to the player.
+     * @param common the common objective cards of the game received from the server.
+     * @param hand the three cards received from the server and should be stored in the player's hand.
+     */
     @Override
     public void requestSelectSecretObjCard(ArrayList<Integer> secrets,ArrayList<Integer> common,ArrayList<Integer> hand) {
-        // once received the AssignedSecretObjectiveCardMessage from the server
+        // once received the AssignedSecretObjectiveCardMessage from the server.
         currentEvent = Event.SELECT_SECRET_OBJ_CARD;
-        out.println("You received 3 cards(resources/gold cards), 2 card as a common objective card of the game:");
+        // save the three cards, the common objective cards of the game and the secret objective cards received from the server.
         this.hand = hand;
-        out.println("Your common objective cards for this game are following:");
         this.commonObjCards = common;
+        this.secretObjCards = secrets;
+
+        out.println("You received 3 cards(resources/gold cards), 2 card as a common objective card of the game:");
         showHand(hand);
+        out.println("Your common objective cards for this game are following:");
+        // print the common objectives cards of the game and the three cards received from the server using the show methods.
         showObjectiveCards(common);
+        // request the player to select the secret objective card they want to use and print the secret objective cards.
         out.println("Please select one of the objective cards in following to be your secret objective card type[LEFT or RIGHT]:");
         showObjectiveCards(secrets);
         String cardID = in.nextLine();
-        while (!cardID.equals("LEFT") && !cardID.equals("RIGHT")) {
+        while (!cardID.equals("LEFT") && !cardID.equals("RIGHT")) { // check the validity of the input
             logger.info("Invalid input, please select a card from the list");
             out.println("Invalid input, please select a card from the list, type[LEFT or RIGHT]");
             cardID = in.nextLine();
         }
+        // notify the listener with the selected secret objective card message
         notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname,cardID.equals("LEFT") ? secrets.get(0) : secrets.get(1)));
     }
-
+    /**
+     * Once received the SecretObjCardConfirmationMessage from the server, the method is called by processMessage to
+     * update the view of the player and print the message to notify the player that the secret objective card is selected
+     * @param chosenSecretObjectiveCard the ID of the secret objective card selected by the player.
+     */
     @Override
     public void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard) {
-        // once received the SecretObjCardConfirmationMessage from the server
+        // store the secret objective card selected by the player.
         secretObjCardSelected = chosenSecretObjectiveCard;
         out.println("The secret objective card is selected successfully, here is your secret objective card:");
+        //
         showCard(chosenSecretObjectiveCard, true);
     }
 
