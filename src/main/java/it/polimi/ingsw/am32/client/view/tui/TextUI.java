@@ -924,46 +924,81 @@ public class TextUI extends View{
         out.println("The situation of the deck after this turn is following:");
         showDeck();
     }
+
+    /**
+     * Method called when player opens chat from getInput method.
+     * Enables the user to select a player to chat with, or chat with all players.
+     * The user can also exit the chat.
+     */
     @Override
     public void startChatting() {
-        chatMode = true;
+        chatMode = true; // Flag used to indicate that the player is in chat mode
+        // When in chat mode, incoming chat messages will be printed out
+
         out.println("You can start chatting now, your chat history is following:");
         if (chatHistory.isEmpty()) {
             out.println("No chat history yet");
         } else {
-            showChatHistory(chatHistory);
+            showChatHistory(chatHistory); // Print out chat history
         }
-        out.println("Please the nickname of the player you want to chat with, type[ALL or specific player nickname] or " +
-                "type [EXIT to exit the chat]:");
-        out.println("The players in the game are: " + players);
-        String recipient = in.nextLine();
-        while(true){
-            if (!players.contains(recipient) && !recipient.equals("ALL")) {
-                if(recipient.equals("EXIT")){
-                    chatMode = false;
-                    return;
+
+        while (true) { // Keep asking for input until the player exits chat mode
+            // Enter the recipient
+            out.println("Enter the nickname of the player you want to chat with, type [ALL or specific player nickname] or " +
+                    "type [EXIT to exit the chat]:");
+            out.println("The players in the game are: " + players); // Print out all players in the game
+
+            String recipient = in.nextLine();
+            while (true) { // Enter recipient loop
+                if (!players.contains(recipient) && !recipient.equals("ALL")) {
+                    // Input is not a valid recipient
+                    if (recipient.equals("EXIT")) {
+                        // Exit chat mode
+                        chatMode = false;
+                        return;
+                    }
+                    out.println("Invalid input, please select a player from the list or type ALL");
+                    recipient = in.nextLine();
                 }
-                out.println("Invalid input, please select a player from the list or type ALL");
-                recipient = in.nextLine();
-            }else break;
-        }
-        out.println("Please type your message or type[EXIT to exit the chat]:");
-        String messageContent = in.nextLine();
-        while(true){
-            if(messageContent.equals("EXIT")){
-                chatMode = false;
-                return;
+                else {
+                    // If we get to this point, the user will have entered a valid recipient (either a player nickname or "ALL")
+                    break; // Exit the "enter recipient" loop
+                }
             }
-            if (recipient.equals("ALL")) {
+            // A valid recipient has been selected
+
+            // Enter the message content
+            out.println("Please type the message to send or type [EXIT to exit the chat]:");
+
+            String messageContent = in.nextLine();
+            while (true) { // Enter message content loop
+                if (messageContent.isEmpty() || messageContent.isBlank()) { // Blank message inserted
+                    out.println("Invalid input, please type a message or type [EXIT to exit the chat]");
+                    messageContent = in.nextLine();
+                    // Loop back and ask for input again
+                }
+                else if (messageContent.equals("EXIT")) { // Abort sending message
+                    chatMode = false;
+                    return; // Exit chat mode
+                }
+                else { // A valid message has been inputted
+                    break; // Exit the "enter message" loop
+                }
+            }
+            // Valid message contents, and message recipient have been inputted
+
+            // Send message
+            if (recipient.equals("ALL")) { // Send message in broadcast
                 ChatMessage message = new ChatMessage(thisPlayerNickname, "ALL", true, messageContent);
-                chatHistory.add(message);
+                chatHistory.add(message); // FIXME Is this needed?
                 notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, true, messageContent));
-            } else {
+            } else { // Send direct message
                 ChatMessage message = new ChatMessage(thisPlayerNickname, recipient, false, messageContent);
-                chatHistory.add(message);
-                notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient,  false, messageContent));
+                chatHistory.add(message); // FIXME Is this needed?
+                notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, false, messageContent));
             }
-            messageContent = in.nextLine();
+
+            // Loop back up and ask user to insert another chat message
         }
     }
     @Override
