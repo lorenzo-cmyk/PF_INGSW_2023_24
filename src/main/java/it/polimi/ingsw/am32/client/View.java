@@ -122,7 +122,7 @@ public abstract class View implements EventHandler{
     public abstract void updateAfterDrawCard(ArrayList<Integer> hand);
 
     public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards,
-                                    int[] currentGoldCards);
+                                    int[] currentGoldCards, int resourceDeckFace, int goldDeckFace);
 
     public abstract void handleFailureCase(Event event, String reason);
 
@@ -161,7 +161,7 @@ public abstract class View implements EventHandler{
 
     public abstract void showPlayersField(String playerNickname);
 
-    public abstract void showPoints(String playerNickname);
+    public abstract void showResource(String playerNickname);
 
     public abstract void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
 

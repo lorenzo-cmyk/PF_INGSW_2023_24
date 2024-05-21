@@ -6,7 +6,6 @@ import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +41,7 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void showPoints(String playerNickname) {
+    public void showResource(String playerNickname) {
 
     }
 
@@ -178,7 +177,7 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards) {
+    public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards, int resourceDeckFace, int goldDeckFace) {
 
     }
 
