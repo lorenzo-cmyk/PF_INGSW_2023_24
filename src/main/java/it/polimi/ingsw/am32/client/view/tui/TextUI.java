@@ -941,14 +941,16 @@ public class TextUI extends View{
         /* if player is the owner of this UI, store the available positions in the board of the player, and update the
         board limits. In this way, the player can see the available positions for the next turn of the placement.*/
         if (playerNickname.equals(thisPlayerNickname)) {
-            availableSpaces.removeIf(pos -> pos[0] == x && pos[1] == y); //TODO check if exists another way to do this
-            for(int[] pos : availableSpaces){ // delete the old available positions in the board.
-                posX = -2 * pos[1] + 80;
-                posY = 2 * pos[0] + 80;
-                updateBoardViewLimits(posX, posY, limits);
-                board[posX][posY] = "   ";
-                board[posX][posY - 1] = "   ";
-                board[posX][posY + 1] = "   ";
+            if(!currentEvent.equals(Event.RECONNECT_GAME)) {
+                availableSpaces.removeIf(pos -> pos[0] == x && pos[1] == y); //TODO check if exists another way to do this
+                for (int[] pos : availableSpaces) { // delete the old available positions in the board.
+                    posX = -2 * pos[1] + 80;
+                    posY = 2 * pos[0] + 80;
+                    updateBoardViewLimits(posX, posY, limits);
+                    board[posX][posY] = "   ";
+                    board[posX][posY - 1] = "   ";
+                    board[posX][posY + 1] = "   ";
+                }
             }
             availableSpaces = availablePos; // update the available positions for the next turn of the placement.
             for (int[] pos : availablePos) {
