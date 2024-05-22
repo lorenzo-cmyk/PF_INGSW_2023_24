@@ -17,7 +17,10 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
     public RMIClientAcceptor() throws RemoteException {}
 
     @Override
-    public GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message) throws RemoteException, GameAlreadyStartedException, FullLobbyException, InvalidPlayerNumberException, DuplicateNicknameException, GameNotFoundException, GameAlreadyEndedException, PlayerNotFoundException, PlayerAlreadyConnectedException {
+    public GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message) throws RemoteException,
+            GameAlreadyStartedException, FullLobbyException, InvalidPlayerNumberException, DuplicateNicknameException,
+            GameNotFoundException, GameAlreadyEndedException, PlayerNotFoundException, PlayerAlreadyConnectedException,
+            GameNotYetStartedException {
 
         RMIServerNode rmiServerNode = new RMIServerNode(node);
 
@@ -25,7 +28,8 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
         try {
             gameController = message.elaborateMessage(rmiServerNode);
         } catch (DuplicateNicknameException | InvalidPlayerNumberException | GameAlreadyStartedException |
-                 FullLobbyException | GameNotFoundException | GameAlreadyEndedException | PlayerNotFoundException | PlayerAlreadyConnectedException e) {
+                 GameNotYetStartedException | FullLobbyException | GameNotFoundException | GameAlreadyEndedException |
+                 PlayerNotFoundException | PlayerAlreadyConnectedException e) {
             rmiServerNode.destroy();
             throw e;
         }

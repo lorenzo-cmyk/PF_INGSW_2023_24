@@ -50,7 +50,7 @@ class MatchSimulationTest {
                 assertDoesNotThrow(()->myMatch.addPlayer("Carlo"));
                 assertDoesNotThrow(()->myMatch.addPlayer("Daniel"));
                 break;
-        } LOGGER.info("Generated players");
+        } LOGGER.info("Generated players: " + myMatch.getPlayersNicknames());
 
         // Preparation phase
         myMatch.enterPreparationPhase(); LOGGER.info("Entered preparation phase");
@@ -223,6 +223,16 @@ class MatchSimulationTest {
 
         ArrayList<String> winners = myMatch.getWinners(); logGameState("Calculated winners");
         LOGGER.info("The winner is : " + winners);
+        // For each player in the match, log the points gained from the objectives
+        for (Player player : myMatch.getPlayers()) {
+            try {
+                LOGGER.info("Player: " + player.getNickname() + " has gained " + myMatch.getPlayerPoints(player.getNickname()) +
+                        " points in total." + " Has gained " + myMatch.getPointsGainedFromObjectives(player.getNickname()) + " points from objectives.");
+            } catch (PlayerNotFoundException e) {
+                fail();
+            }
+        }
+        LOGGER.info("-------------------- Game simulation ended --------------------");
     }
 
     /**
@@ -254,9 +264,13 @@ class MatchSimulationTest {
             LOGGER.info("Current gold cards: " + myMatch.getCurrentGoldCards());
 
             // Log how many cards are in the resource deck
-            LOGGER.info("Resource deck size: " + myMatch.getResourceCardsDeck().size());
+            LOGGER.info("Resource deck size: " + myMatch.getResourceCardDeckSize());
+            // Log the kingdom of the card facing up in the resource deck
+            LOGGER.info("Resource deck kingdom: " + myMatch.getNextResourceCardKingdom().orElse(-1));
             // Log how many cards are in the gold deck
-            LOGGER.info("Gold deck size: " + myMatch.getGoldCardsDeck().size());
+            LOGGER.info("Gold deck size: " + myMatch.getGoldCardDeckSize());
+            // Log the kingdom of the card facing up in the gold deck
+            LOGGER.info("Gold deck kingdom: " + myMatch.getNextGoldCardKingdom().orElse(-1));
 
             // Log the players
             for (Player player : myMatch.getPlayers()) {
@@ -265,6 +279,7 @@ class MatchSimulationTest {
                 LOGGER.info("Player's colour: " + myMatch.getPlayerColour(player.getNickname()));
                 LOGGER.info("Player's initial cards: " + myMatch.getInitialCardPlayer(player.getNickname()));
                 LOGGER.info("Player's secret objectives: " + myMatch.getSecretObjectiveCardsPlayer(player.getNickname()));
+                LOGGER.info("Player's selected secret objective: " + myMatch.getPlayerSecretObjective(player.getNickname()));
                 LOGGER.info("Player's resources: " + Arrays.toString(myMatch.getPlayerResources(player.getNickname())));
                 LOGGER.info("Player's hand: " + myMatch.getPlayerHand(player.getNickname()));
                 LOGGER.info("Player's points: " + myMatch.getPlayerPoints(player.getNickname()));
@@ -272,10 +287,15 @@ class MatchSimulationTest {
                 for (int[] subarray : myMatch.getPlayerField(player.getNickname())) {
                     LOGGER.info("\t" + Arrays.toString(subarray));
                 }
+                LOGGER.info("Player's available spaces: ");
+                for (int[] subarray : myMatch.getAvailableSpacesPlayer(player.getNickname())) {
+                    LOGGER.info("\t" + Arrays.toString(subarray));
+                }
             }
             LOGGER.info("=====================================");
         } catch (Exception e) {
             LOGGER.fatal(e.getMessage());
+            fail();
         }
     }
 }

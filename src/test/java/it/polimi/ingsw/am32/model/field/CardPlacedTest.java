@@ -52,4 +52,30 @@ class CardPlacedTest {
 
         assertEquals(testCardPlaced, testCardPlaced2);
     }
+
+    @DisplayName("hashCode should return the hash of the object")
+    @Test
+    void testHashCode() {
+
+        // Build a NonObjectiveCard
+
+        int[] permRes = new int[]{0, 0, 0, 0};
+        int[] conditionCount = new int[]{0, 0, 0, 0};
+        boolean isUp = true;
+        int x = 0, y = 0;
+
+        NonObjectiveCard testCard = new NonObjectiveCard(0, 0, null, CornerType.EMPTY,
+                CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY,
+                CornerType.EMPTY, CornerType.EMPTY, permRes, conditionCount, ObjectType.ANIMAL);
+
+        // Build two CardPlaced objects
+
+        CardPlaced testCardPlaced = new CardPlaced(testCard, x, y, isUp);
+
+        CardPlaced testCardPlaced2 = new CardPlaced(testCard, x, y, isUp);
+
+        // Check if the hashCodes are the same
+
+        assertEquals(testCardPlaced.hashCode(), testCardPlaced2.hashCode());
+    }
 }

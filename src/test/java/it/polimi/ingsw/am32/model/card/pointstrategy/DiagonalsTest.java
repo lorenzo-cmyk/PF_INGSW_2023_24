@@ -18,7 +18,6 @@ class DiagonalsTest {
     int[] initialPermRes = {0, 0, 0, 0};
     int[] initialConditionCount = {0, 0, 0, 0};
 
-
     NonObjectiveCard initialNonObjCard = new NonObjectiveCard(initialId, initialValue, initialPointStrategy, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, CornerType.EMPTY, initialPermRes, initialConditionCount, null);
 
     Field f = new Field(initialNonObjCard, true); // Create a new field with face-up initial card
@@ -36,6 +35,7 @@ class DiagonalsTest {
         Diagonals strategy = new Diagonals(ObjectType.FUNGI,true);
         assertEquals(0, strategy.calculateOccurrences(f, 0, 0));
     }
+
     //---There are less than three cards in the field---
     @DisplayName("Strategy called on field with 1 card which has Kingdom requested by given card should return 0")
     @Test
@@ -138,6 +138,7 @@ class DiagonalsTest {
         }
         assertEquals(0, strategy.calculateOccurrences(f, 0, 0));
     }
+
     //---There are at least three cards on the field---
     @DisplayName("Strategy called on field with 3 cards of required kingdom placed in correct orientation should return 1")
     @Test
@@ -164,6 +165,7 @@ class DiagonalsTest {
         }
         assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
+
     @DisplayName("Strategy called on field with 3 cards of required kingdom placed in correct orientation should return 1")
     @Test
     void occurrencesOnFieldWithThreeCardsTrueKingdomCorrectOrientationLeftToRightShouldBeOne() {
@@ -189,6 +191,7 @@ class DiagonalsTest {
         }
         assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
+
     @DisplayName("Strategy called on field with 3 cards of different Kingdom from the request should return 0")
     @Test
     void occurrencesOnFieldWithThreeCardsFalseKingdomShouldBeZero() {
@@ -213,6 +216,7 @@ class DiagonalsTest {
         }
         assertEquals(0, strategy.calculateOccurrences(f, 0, 0));
     }
+
     @DisplayName("Strategy called on field with 3 cards of required kingdom placed in wrong orientation should return 0")
     @Test
     void occurrencesOnFieldWithThreeCardsTrueKingdomWrongOrientationShouldBeZero() {
@@ -331,6 +335,7 @@ class DiagonalsTest {
         }
         assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
+
     @DisplayName("Strategy called on field with 6 cards of required kingdom placed in almost correct orientation should return 1")
     @Test
     void occurrencesOnFieldWithSixCardsTrueKingdomAlmostCorrectOrientationShouldBeOne() {
@@ -374,6 +379,7 @@ class DiagonalsTest {
         }
         assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
+
     @DisplayName("Strategy called on field with 6 cards of required kingdom placed in correct orientation should return 2")
     @Test
     void occurrencesOnFieldWithSixCardsKingdomRequiredCorrectOrientationShouldBeTwo() {
@@ -415,6 +421,13 @@ class DiagonalsTest {
             fail();
         }
         assertEquals(2, strategy.calculateOccurrences(f, 0, 0));
+    }
+
+    @DisplayName("Getter for type should return the type of the resource (ObjectType) that the card requires")
+    @Test
+    void getTypeShouldReturnTypeOfResource() {
+        Diagonals strategy = new Diagonals(ObjectType.FUNGI,true);
+        assertEquals(ObjectType.FUNGI, strategy.getType());
     }
 
 }

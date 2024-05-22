@@ -233,6 +233,14 @@ public class SKServerNode implements Runnable, NodeInterface {
                     } catch (UploadFailureException ex) {
                         logger.info("Game already ended. Failed to send ErrorMessage to client");
                     }
+                } catch (GameNotYetStartedException e) {
+                    try {
+                        uploadToClient(new ErrorMessage("Error: Game has not yet started, cannot reconnect now." +
+                                " Try accessing the game instead.", "PLAYER"));
+                        logger.info("Game not yet started. Sending ErrorMessage to client");
+                    } catch (UploadFailureException ex) {
+                        logger.info("Game not yet started. Failed to send ErrorMessage to client");
+                    }
                 } catch (PlayerNotFoundException e) {
                     try {
                         uploadToClient(new ErrorMessage("Error: Player not found", "PLAYER"));

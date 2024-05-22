@@ -86,6 +86,7 @@ class CountResourceTest {
         }
         assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
+
     @DisplayName("Strategy called on the field with cards satisfied the objects requirements of the given card for once should return 1")
     @Test
     void occurrencesOnFieldWithOneObjectsRequirementsSatisfiedForOnceShouldBeOne() {
@@ -105,6 +106,7 @@ class CountResourceTest {
         }
         assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
+
     @DisplayName("Strategy called on the field with cards satisfied the objects requirements of the given card for once should return 1")
     @Test
     void occurrencesOnFieldWithTwoObjectsRequirementsSatisfiedForOnceShouldBeOne()  {
@@ -124,6 +126,7 @@ class CountResourceTest {
         }
         assertEquals(1, strategy.calculateOccurrences(f, 0, 0));
     }
+
     @DisplayName("Strategy called on field with cards satisfied the requirements of the given card for twice should return 2")
     @Test
     void occurrencesOnFieldWithRequirementsSatisfiedForTwiceShouldBeTwo() {
@@ -149,6 +152,20 @@ class CountResourceTest {
         assertEquals(2, strategy.calculateOccurrences(f, 0, 0));
     }
 
+    @DisplayName("Getter for type should return the type of the resource (ObjectType) that the card requires")
+    @Test
+    void getTypeShouldReturnTheTypeOfTheResource() {
+        ObjectType type = ObjectType.PLANT;
+        CountResource strategy = new CountResource(type, 3);
+        assertEquals(type, strategy.getType());
+    }
+
+    @DisplayName("Getter for count should return the number of resources (ObjectType) required by the card")
+    @Test
+    void getCountShouldReturnTheNumberOfResources() {
+        int count = 3;
+        CountResource strategy = new CountResource(ObjectType.PLANT, count);
+        assertEquals(count, strategy.getCount());
+    }
+
 }
-
-
