@@ -87,32 +87,32 @@ public class TextUI extends View{
         showWelcome();
         chooseConnection();
         askSelectGameMode();
-            boolean isEnd = false;
-            while (!isEnd) { // Da trovare un modo migliore del loop
-                switch (Status) {
-                    case PREPARATION -> {
-                        if(currentEvent.equals(Event.SELECT_STARTER_CARD_SIDE)) {
-                            requestSelectStarterCardSide(startCard);
-                        }else if(currentEvent.equals(Event.SELECT_SECRET_OBJ_CARD)){
-                            requestSelectSecretObjectiveCard();
+
+        boolean isEnd = false;
+        while (!isEnd) { // Da trovare un modo migliore del loop
+            switch (Status) {
+                case PREPARATION -> {
+                    if(currentEvent.equals(Event.SELECT_STARTER_CARD_SIDE)) {
+                        requestSelectStarterCardSide(startCard);
+                    }else if(currentEvent.equals(Event.SELECT_SECRET_OBJ_CARD)){
+                        requestSelectSecretObjectiveCard();
+                    }
+                }
+                case PLAYING, TERMINATING -> { // TODO Double check what to do when terminating
+                    switch (currentEvent) {
+                        case PLACE_CARD -> requestPlaceCard();
+                        case DRAW_CARD -> requestDrawCard();
                         }
                     }
-                    case PLAYING -> {
-                        switch (currentEvent) {
-                            case PLACE_CARD -> requestPlaceCard();
-                            case DRAW_CARD -> requestDrawCard();
-                            }
-                        }// STESSA COSA PER TERMINATING
-                    //TOD0
-                    case LAST_TURN -> {
-                        if (currentEvent.equals(Event.PLACE_CARD)) {
-                            requestPlaceCard();
-                        }
+                case LAST_TURN -> {
+                    if (currentEvent.equals(Event.PLACE_CARD)) {
+                        requestPlaceCard();
                     }
-                    case TERMINATED -> isEnd = true;
-                            }
-                        }
-                    }
+                }
+                case TERMINATED -> isEnd = true;
+            }
+        }
+    }
 
 
 

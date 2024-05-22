@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am32.client;
 
+/**
+ * Enumeration of the possible events that can occur during the game.
+ */
 public enum Event {
     LOBBY(0),
     PREPARATION(1),
@@ -26,15 +29,37 @@ public enum Event {
     PLACE_CARD(22),
     PLACE_CARD_FAILURE (23),
     DRAW_CARD(24),
-    PLAYER_RECONNECTED(25), DRAW_CARD_FAILURE(26), WELCOME(27), SELECTED_STARTER_CARD_SIDE(28), SELECTED_SECRET_OBJ_CARD(29), CARD_PLACED(30), CARD_DRAWN(31);
+    PLAYER_RECONNECTED(25),
+    DRAW_CARD_FAILURE(26),
+    WELCOME(27),
+    SELECTED_STARTER_CARD_SIDE(28),
+    SELECTED_SECRET_OBJ_CARD(29),
+    CARD_PLACED(30),
+    CARD_DRAWN(31);
+
     private final int value;
 
+    /**
+     * Constructor for the Event enum.
+     * @param value The integer value associated with the event.
+     */
     Event(int value) {
         this.value = value;
     }
+
+    /**
+     * Gets the integer value associated with the event.
+     * @return The integer value of the event.
+     */
     public int getValue() {
         return value;
     }
+
+    /**
+     * Gets the event associated with the given integer value.
+     * @param value The integer value of the event.
+     * @return The event associated with the given integer value.
+     */
     public static Event getEvent(int value) {
         for (Event event : Event.values()) {
             if (event.getValue() == value) {
