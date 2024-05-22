@@ -24,12 +24,13 @@ import java.util.List;
 public abstract class View implements EventHandler{
     protected ClientNodeInterface clientNode;
     protected String thisPlayerNickname;
+    protected int startCard;
     protected int gameID; //save the game ID received from the NewGameConfirmationMessage or AccessGameConfirmMessage.
     protected int playerNum; //number of players connected to the game, if the player is disconnected, the number will
                              // decrease.
     protected ArrayList<String> players; //save and update the players in the game.
     protected String currentPlayer; //save and update the current player by receiving the message from the server.
-    protected Event currentEvent; //TODO: not sure if this is useful
+    protected volatile Event currentEvent; //TODO: not sure if this is useful
     protected int indexCardPlaced=0;
     protected ArrayList<Integer> commonObjCards;
     protected ArrayList<Integer> secretObjCards;
@@ -41,7 +42,7 @@ public abstract class View implements EventHandler{
     protected int goldDeckSize;
     protected int resourceCardDeckFacingKingdom;
     protected int goldCardDeckFacingKingdom;
-    protected Event Status;
+    protected volatile Event Status = Event.WELCOME;
     protected AskListener askListener;
     protected ArrayList<int[]> availableSpaces;
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
@@ -135,6 +136,8 @@ public abstract class View implements EventHandler{
     //-------------------Game start-----------------------
 
 
+    public abstract void requestSelectSecretObjectiveCard();
+
     public abstract void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard);
     
 
@@ -163,7 +166,7 @@ public abstract class View implements EventHandler{
 
     public abstract void showResource(String playerNickname);
 
-    public abstract void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
+    public abstract void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
 
     public abstract void showHand(ArrayList<Integer> hand);
 
@@ -196,6 +199,10 @@ public abstract class View implements EventHandler{
     public abstract void showChatHistory(List<ChatMessage> chatHistory);
 
     public abstract void updateChat(String recipientString, String senderNickname, String content);
+
+    public void setStarterCard(int cardId) {
+        startCard=cardId;
+    }
 }
 
 

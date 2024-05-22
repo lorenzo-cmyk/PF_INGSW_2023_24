@@ -87,7 +87,34 @@ public class TextUI extends View{
         showWelcome();
         chooseConnection();
         askSelectGameMode();
-    }
+            boolean isEnd = false;
+            while (!isEnd) { // Da trovare un modo migliore del loop
+                switch (Status) {
+                    case PREPARATION -> {
+                        if(currentEvent.equals(Event.SELECT_STARTER_CARD_SIDE)) {
+                            requestSelectStarterCardSide(startCard);
+                        }else if(currentEvent.equals(Event.SELECT_SECRET_OBJ_CARD)){
+                            requestSelectSecretObjectiveCard();
+                        }
+                    }
+                    case PLAYING -> {
+                        switch (currentEvent) {
+                            case PLACE_CARD -> requestPlaceCard();
+                            case DRAW_CARD -> requestDrawCard();
+                            }
+                        }// STESSA COSA PER TERMINATING
+                    //TOD0
+                    case LAST_TURN -> {
+                        if (currentEvent.equals(Event.PLACE_CARD)) {
+                            requestPlaceCard();
+                        }
+                    }
+                    case TERMINATED -> isEnd = true;
+                            }
+                        }
+                    }
+
+
 
     //-------------------Connection-------------------
 
@@ -290,7 +317,6 @@ public class TextUI extends View{
      */
     @Override
     public void askCreateGame() {
-        currentEvent = Event.CREATE_GAME;
         askNickname(); // Ask the player to insert his nickname
 
         out.println("Insert the number of players you want to play with, type[2, 3 or 4]:");
@@ -315,7 +341,6 @@ public class TextUI extends View{
      */
     @Override
     public void askJoinGame() {
-        currentEvent = Event.JOIN_GAME;
         askNickname(); // Ask the player to insert his nickname
 
         out.println("Insert the Access ID of the game you want to join:");
@@ -461,6 +486,7 @@ public class TextUI extends View{
         }
         // If we get to this point, the player has written either FRONT or BACK
         notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side.equals("FRONT")));
+        currentEvent = Event.SELECTED_STARTER_CARD_SIDE;
     }
 
     /**
@@ -499,7 +525,7 @@ public class TextUI extends View{
      * @param hand the three cards received from the server and should be stored in the player's hand.
      */
     @Override
-    public void requestSelectSecretObjCard(ArrayList<Integer> secrets,ArrayList<Integer> common,ArrayList<Integer> hand) {
+    public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
         // once received the AssignedSecretObjectiveCardMessage from the server.
         currentEvent = Event.SELECT_SECRET_OBJ_CARD;
         // save the three cards, the common objective cards of the game and the secret objective cards received from the server.
@@ -512,9 +538,12 @@ public class TextUI extends View{
         out.println("Your common objective cards for this game are following:");
         // print the common objectives cards of the game and the three cards received from the server using the show methods.
         showObjectiveCards(common);
+    }
+    @Override
+    public void requestSelectSecretObjectiveCard() {
         // request the player to select the secret objective card they want to use and print the secret objective cards.
         out.println("Please select one of the objective cards in following to be your secret objective card type[LEFT or RIGHT]:");
-        showObjectiveCards(secrets);
+        showObjectiveCards(secretObjCards);
         String cardID = in.nextLine();
         while (!cardID.equals("LEFT") && !cardID.equals("RIGHT")) { // check the validity of the input
             logger.info("Invalid input, please select a card from the list");
@@ -522,7 +551,8 @@ public class TextUI extends View{
             cardID = in.nextLine();
         }
         // notify the listener with the selected secret objective card message
-        notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname,cardID.equals("LEFT") ? secrets.get(0) : secrets.get(1)));
+        notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname,cardID.equals("LEFT") ? secretObjCards.get(0) : secretObjCards.get(1)));
+        currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
     }
     /**
      * Once received the SecretObjCardConfirmationMessage from the server, the method is called by processMessage to
@@ -648,7 +678,7 @@ public class TextUI extends View{
         if (this.currentPlayer.equals(thisPlayerNickname)) {
             isMyTurn = true;
             // if the player's turn is now, request the player to place the card in the field.
-            requestPlaceCard();
+            currentEvent = Event.PLACE_CARD;
         } else {
             isMyTurn = false;
             out.println("It is " + currentPlayer + "'s turn");
@@ -699,7 +729,6 @@ public class TextUI extends View{
      */
     @Override
     public void requestPlaceCard() {
-        currentEvent = Event.PLACE_CARD;
         out.println("Here is your field right now:");
         // print the board view of the player before placing the card
         showBoard(thisPlayerNickname);
@@ -761,6 +790,7 @@ public class TextUI extends View{
        String [] posArray = pos.split(",");
        notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(indexCardPlaced),Integer.parseInt(posArray[0]),
                Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
+       currentEvent = Event.CARD_PLACED;
     }
     //TODO CHECK THE CODE FROM THE LINE 766
 
@@ -791,10 +821,7 @@ public class TextUI extends View{
             out.println("The card is placed successfully, here is your field after placing the card:");
             // print the board of the player after placing the card in the field.
             showPlayersField(thisPlayerNickname);
-            // request the player to draw a card from the deck, if the match status is PLAYING or TERMINATING.
-            if(Status.equals(Event.PLAYING)||Status.equals(Event.TERMINATING)){
-                requestDrawCard();
-            }
+            currentEvent=Event.DRAW_CARD;
         }
     }
 
@@ -805,7 +832,6 @@ public class TextUI extends View{
      */
     @Override
     public void requestDrawCard() {
-        currentEvent = Event.DRAW_CARD;
         out.println("Now please select one card to add to your hand:");
         out.println("""
                 To draw a resource card left one, type R1
@@ -837,6 +863,7 @@ public class TextUI extends View{
         } else {
             notifyAskListener(new DrawCardMessage(thisPlayerNickname, choice.equals("R") ? 0 : 1, -1));
         }
+        currentEvent = Event.CARD_DRAWN;
     }
 
     /**
@@ -1041,7 +1068,7 @@ public class TextUI extends View{
                     recipient = in.nextLine();
                 }
                 else {
-                    // If we get to this point, the user will have entered a valid recipient (either a player nickname or "ALL")
+                    // If we get to this point, the user will have entered a valid recipient (either a player nickname or “ALL”)
                     break; // Exit the "enter recipient" loop
                 }
             }
@@ -1063,7 +1090,7 @@ public class TextUI extends View{
                     return; // Exit chat mode
                 }
                 else { // A valid message has been inputted
-                    break; // Exit the "enter message" loop
+                    break; // Exit the “enter message” loop
                 }
             }
             // Valid message contents, and message recipient have been inputted
@@ -1107,11 +1134,6 @@ public class TextUI extends View{
             showChatHistory(this.chatHistory);
         }
     }
-    //-------------------Last turn-------------------
-
-
-    //-------------------Game end-------------------
-
 
     //-------------------View of the game-------------------
 
@@ -1123,7 +1145,7 @@ public class TextUI extends View{
         out.println("Resource deck size: " + resourceDeckSize + " Gold deck size: " + goldDeckSize);
         // print the kingdom facing of the resource deck and gold deck.
         out.println("Resource Deck facing kingdom:"+iconArrayElement(resourceCardDeckFacingKingdom));
-        out.println("Resource Deck facing kingdom:"+iconArrayElement(goldCardDeckFacingKingdom));
+        out.println("Gold Deck facing kingdom:"+iconArrayElement(goldCardDeckFacingKingdom));
         out.println("Resource cards:");
         showObjectiveCards(currentResourceCards);// print the current visible resource cards in the game.
         out.println("Gold cards:");
@@ -1643,6 +1665,10 @@ public class TextUI extends View{
                 out.println("Please try again:");
                 askReconnectGame();
             }
+            case PLACE_CARD_FAILURE -> { // Place card failure
+                out.println("Please try again:");
+                currentEvent = Event.PLACE_CARD;
+            }
         }
     }
     /**
@@ -1682,7 +1708,7 @@ public class TextUI extends View{
     /**
      * Use this method to clear the console screen.
      */
-    private void clearCMD() {
+    private void clearCMD() { //TODO: ADDED THIS METHOD TO CLEAR THE SCREEN
         try {
             if (System.getProperty("os.name").contains("Windows"))
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
@@ -1730,7 +1756,7 @@ public class TextUI extends View{
      */
     public synchronized String getInput() {
         String input = in.nextLine();
-        switch (input) {
+        switch (input) { // TODO COMPLETE THE COMMANDS
             case "HELP" -> showHelpInfo();
             case "QUIT" -> System.exit(0);
             case "SP" -> showPlayerInGame();

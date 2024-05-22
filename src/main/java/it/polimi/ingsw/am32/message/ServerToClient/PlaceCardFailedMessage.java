@@ -14,6 +14,7 @@ public class PlaceCardFailedMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
+        view.setCurrentEvent(Event.PLACE_CARD_FAILURE);
         view.handleFailureCase(Event.PLACE_CARD_FAILURE,reason);
     }
 

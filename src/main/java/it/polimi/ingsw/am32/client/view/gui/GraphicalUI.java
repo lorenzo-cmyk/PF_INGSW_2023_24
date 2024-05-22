@@ -46,7 +46,7 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
+    public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
 
     }
 
@@ -198,6 +198,11 @@ public class GraphicalUI extends View {
 
     @Override
     public void showHelpInfo() {
+
+    }
+
+    @Override
+    public void requestSelectSecretObjectiveCard() {
 
     }
 
