@@ -11,5 +11,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RMIClientAcceptorInt extends Remote {
-    GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message) throws RemoteException, GameAlreadyStartedException, FullLobbyException, InvalidPlayerNumberException, DuplicateNicknameException, GameNotFoundException, GameAlreadyEndedException, PlayerNotFoundException, PlayerAlreadyConnectedException;
+    GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message) throws RemoteException,
+            GameAlreadyStartedException, FullLobbyException, InvalidPlayerNumberException, DuplicateNicknameException,
+            GameNotFoundException, GameAlreadyEndedException, PlayerNotFoundException, PlayerAlreadyConnectedException,
+            GameNotYetStartedException;
 }

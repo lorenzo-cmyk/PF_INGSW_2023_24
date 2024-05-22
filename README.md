@@ -47,3 +47,11 @@ Group members:
 | Multiple Matches             | ☑️     | N/A            |
 | Resilience to Disconnections | 🕑     | Working on it! |
 | Chat                         | ☑️     | N/A            |
+
+## Code Coverage
+
+| Package     | Role                 | Coverage (%Methods) | Coverage (%Line) | Testing Status |
+|-------------|----------------------|---------------------|------------------|----------------|
+| .model      | Game Model           | 100%                | 97%              | Completed ☑️   |
+| .chat       | Chat Model           | 100%                | 100%             | Completed ☑️   |
+| .controller | Game+Chat Controller | 90%                 | 63%              | Ongoing 🕑     |

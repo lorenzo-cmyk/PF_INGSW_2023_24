@@ -85,4 +85,12 @@ class NonObjectiveCardDeckTest {
     void getDeckTypeReturnsCorrectDeckType() {
         assertEquals(DeckType.RESOURCE, nonObjectiveCardDeck.getDeckType());
     }
+
+    @DisplayName("Getter getCards should return the ArrayList of cards")
+    @Test
+    void getCardsReturnsArrayListOfCards() {
+        ArrayList<NonObjectiveCard> cards = new ArrayList<>();
+        cards.add(nonObjectiveCard);
+        assertEquals(cards, nonObjectiveCardDeck.getCards());
+    }
 }
