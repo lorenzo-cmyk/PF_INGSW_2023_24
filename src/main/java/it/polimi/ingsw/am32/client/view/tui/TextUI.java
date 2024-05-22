@@ -342,6 +342,7 @@ public class TextUI extends View{
      */
     @Override
     public void askJoinGame() {
+        currentEvent = Event.JOIN_GAME;
         askNickname(); // Ask the player to insert his nickname
 
         out.println("Insert the Access ID of the game you want to join:");
