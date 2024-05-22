@@ -601,6 +601,7 @@ public class TextUI extends View{
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
         if(currentEvent.equals(Event.RECONNECT_GAME)) { // once the player reconnects to the game
             // store all the data of the game received from the server
+
             this.players = playerNicknames;
             this.hand = playerHand;
             this.commonObjCards = gameCommonObjectives;
@@ -630,6 +631,29 @@ public class TextUI extends View{
                     updateAfterPlacedCard(playerNicknames.get(finalI), searchNonObjCardById(card[2]), card[0], card[1],
                             card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);
                 });
+                // Reconnection of the player from the playing phase
+                out.println("The match status is: " + Status);
+                readInputThread(); // for the player to get the input from the player when it is not the player's turn.
+                if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
+                    for (String player : players) {
+                        showResource(player);
+                    }
+                }
+                out.println("Order of the game: " + players);
+                if (this.currentPlayer.equals(thisPlayerNickname)) {
+                    isMyTurn = true;
+                    // if the player's turn is now, request the player to place the card in the field.
+                    currentEvent = Event.PLACE_CARD;
+                } else {
+                    currentEvent = Event.WAITING_FOR_TURN;
+                    isMyTurn = false;
+                    out.println("It is " + currentPlayer + "'s turn");
+                    // wake up the readInputThread to get the input from the player when it is not the player's turn. In this
+                    // case, the player can insert the keyword to use the service mode of the game.
+                    synchronized (lock) {
+                        lock.notify();
+                    }
+                }
             }
         }else {
             // once the game enters the playing phase, the method is called to update a part of the data of the player
@@ -790,7 +814,6 @@ public class TextUI extends View{
                Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
        currentEvent = Event.CARD_PLACED;
     }
-    //TODO CHECK THE CODE FROM THE LINE 766
 
     /**
      * Once the player receives the PlacedCardConfirmationMessage from the server, the method is called by processMessage
