@@ -484,6 +484,7 @@ public class TextUI extends View{
         }
         // If we get to this point, the player has written either FRONT or BACK
         notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side.equals("FRONT")));
+        out.println("Please wait for the other players to select the side of the starter card");
         currentEvent = Event.SELECTED_STARTER_CARD_SIDE;
     }
 
@@ -549,6 +550,7 @@ public class TextUI extends View{
         }
         // notify the listener with the selected secret objective card message
         notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname,cardID.equals("LEFT") ? secretObjCards.get(0) : secretObjCards.get(1)));
+        out.println("Please wait for the other players to select the secret objective card");
         currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
     }
     /**
@@ -561,7 +563,7 @@ public class TextUI extends View{
         // store the secret objective card selected by the player.
         secretObjCardSelected = chosenSecretObjectiveCard;
         out.println("The secret objective card is selected successfully, here is your secret objective card:");
-        //
+        // print the secret objective card selected by the player using the showCard method.
         showCard(chosenSecretObjectiveCard, true);
     }
 
@@ -586,8 +588,8 @@ public class TextUI extends View{
      * @param chatHistory                   the chat history of this player in the game.
      * @param currentPlayer                 indicates the whose turn is now.
      * @param newAvailableFieldSpaces       the available spaces in the field of this player.
-     * @param resourceCardDeckFacingKingdom
-     * @param goldCardDeckFacingKingdom
+     * @param resourceCardDeckFacingKingdom the type of kingdom of the first card in the resource deck.
+     * @param goldCardDeckFacingKingdom    the type of kingdom of the first card in the gold deck.
      */
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
@@ -729,12 +731,13 @@ public class TextUI extends View{
                             return;
                         }
                     }
+                    out.println("You are in the service mode, you can type HELP to see the available commands");
                     isInThread = true;
                     getInput();
                     // when the client is in the service mode, and the player's turn is now, the player need to type
                     // something to exit from the service mode, then the thread will be returned to the waiting state.
                     if(isMyTurn){
-                    System.out.println("Exit from service mode");
+                    out.println("Exit from service mode");
                     }
                 }
             }
@@ -1121,11 +1124,11 @@ public class TextUI extends View{
             // Send message
             if (recipient.equals("ALL")) { // Send message in broadcast
                 ChatMessage message = new ChatMessage(thisPlayerNickname, "ALL", true, messageContent);
-                chatHistory.add(message); // FIXME Is this needed?
+                chatHistory.add(message); // FIXME Is this needed? RESOLVED: Yes, it is needed, because in the chat history, the player should be able to see the messages that he sent.
                 notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, true, messageContent));
             } else { // Send direct message
                 ChatMessage message = new ChatMessage(thisPlayerNickname, recipient, false, messageContent);
-                chatHistory.add(message); // FIXME Is this needed?
+                chatHistory.add(message); // FIXME Is this needed? RESOLVED: Yes, it is needed, because in the chat history, the player should be able to see the messages that he sent.
                 notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, false, messageContent));
             }
 
@@ -1133,6 +1136,9 @@ public class TextUI extends View{
         }
     }
 
+    /**
+     * Method to print out the chat history of the player.
+     */
     @Override
     public void showChatHistory(List<ChatMessage> chatHistory){
         for (ChatMessage chat : chatHistory) {
@@ -1148,6 +1154,14 @@ public class TextUI extends View{
             }
         }
     }
+
+    /**
+     * Method used to update the chat history of the player when a new message is received, add the message to the chat
+     * history and print the chat history if the player is in the chat mode.
+     * @param recipientString the nickname of the recipient of the message.
+     * @param senderNickname the nickname of the sender of the message.
+     * @param content the content of the message.
+     */
     @Override
     public void updateChat(String recipientString, String senderNickname, String content){
         ChatMessage message = new ChatMessage(senderNickname, recipientString,false, content);
@@ -1181,7 +1195,7 @@ public class TextUI extends View{
     @Override
     public void showHelpInfo() {
         out.println("""
-                Entering the Service Mode, please type the one of the following commands:
+                Available commands in the service mode:
                 HELP: to see the list of the commands.
                 QUIT: to exit from the game.
                 Chat: to start chatting with the players in the game.
