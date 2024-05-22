@@ -1667,6 +1667,18 @@ public class TextUI extends View{
                 out.println("Please try again:");
                 currentEvent = Event.PLACE_CARD;
             }
+            case DRAW_CARD_FAILURE -> { // Draw card failure
+                out.println("Please try again:");
+                currentEvent = Event.DRAW_CARD;
+            }
+            case SELECT_SECRET_OBJ_CARD_FAILURE -> { // Select secret objective card failure
+                out.println("Please try again:");
+                currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
+            }
+            case SELECT_STARTER_CARD_SIDE_FAILURE -> { // Select starter card side failure
+                out.println("Please try again:");
+                currentEvent = Event.SELECT_STARTER_CARD_SIDE;
+            }
         }
     }
     /**
