@@ -1170,7 +1170,7 @@ public class TextUI extends View{
                 SCP: to see who is the current player.
                 SGO: to see the game order.
                 SID: to see the game ID.
-                SCD: to see the deck size and the current visible cards in the game.                 
+                SCD: to see the deck size and the current visible cards in the game.                
                 """);
     }
     /**
@@ -1757,41 +1757,29 @@ public class TextUI extends View{
      */
     public synchronized String getInput() {
         String input = in.nextLine();
-        switch (input) { // TODO COMPLETE THE COMMANDS
+        switch (input) {
             case "HELP" -> showHelpInfo();
             case "QUIT" -> System.exit(0);
+            case "Chat" -> startChatting();
             case "SP" -> showPlayerInGame();
-            case "ShowGameStatus" -> out.println("The match status is: " + Status);
-            case "ShowGameRULE" -> out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");
-            case "ShowCommonObjCard" -> showObjectiveCards(commonObjCards);
-            case "ShowSecretObjCard" -> showCard(secretObjCardSelected, true);
-            case "ShowPlacedCard" -> {
-                out.println("Which card place in the field, you want to see?");
-                /*String card = getInput();
-                CardPlacedView cardPlaced = publicInfo.get(thisPlayerNickname).getField().get(Integer.parseInt(card));
-                showCard(cardPlaced.ID(),cardPlaced.side());*/
-            }
-            case "ShowPlayerField" -> {
+            case "SGS" -> out.println("The match status is: " + Status);
+            case "SR" -> out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");
+            case "SH" -> showHand(hand);
+            case "SCO" -> showObjectiveCards(commonObjCards);
+            case "SSO" -> showCard(secretObjCardSelected, true);
+            case "SF" -> {
                 out.println("Whose field do you want to see?");
-                in.nextLine();
                 String Nickname = in.nextLine();
                 while (!players.contains(Nickname)) {
                     out.println("Invalid nickname, can't find the player, please try again");
-                    in.nextLine();
                     Nickname = in.nextLine();
                 }
                 showPlayersField(Nickname);
             }
-            case "ShowScoreBoard" -> {
-                out.println("The players have the following points:");
-                for (String player : players) {
-                    showResource(player);
-                }
-            }
-            case "ShowCurrentPlayer" -> {
-                out.println("Is " + currentPlayer + "'s turn.");
-            }
-            case "Chat" -> startChatting();
+            case "SCP" -> out.println("Is " + currentPlayer + "'s turn.");
+            case "SGO" -> out.println("The game order is: " + players);
+            case "SID" -> out.println("The game ID is: " + gameID);
+            case "SCD" -> showDeck();
         }
         return input;
     }
