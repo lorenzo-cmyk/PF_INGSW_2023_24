@@ -35,7 +35,8 @@ public enum Event {
     SELECTED_STARTER_CARD_SIDE(28),
     SELECTED_SECRET_OBJ_CARD(29),
     CARD_PLACED(30),
-    CARD_DRAWN(31);
+    CARD_DRAWN(31),
+    WAITING_FOR_TURN(32);
 
     private final int value;
 

@@ -42,7 +42,7 @@ public abstract class View implements EventHandler{
     protected int goldDeckSize;
     protected int resourceCardDeckFacingKingdom;
     protected int goldCardDeckFacingKingdom;
-    protected volatile Event Status = Event.WELCOME;
+    protected volatile Event Status;
     protected AskListener askListener;
     protected ArrayList<int[]> availableSpaces;
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
@@ -153,7 +153,7 @@ public abstract class View implements EventHandler{
     public void notifyAskListenerLobby(CtoSLobbyMessage message){
         askListener.addMessage(message);
     }
-    public void setCurrentEvent(Event event){
+    public void updateCurrentEvent(Event event){
         this.currentEvent = event;
     }
 
@@ -202,6 +202,9 @@ public abstract class View implements EventHandler{
 
     public void setStarterCard(int cardId) {
         startCard=cardId;
+    }
+
+    public void updateStatus(Event event) {
     }
 }
 

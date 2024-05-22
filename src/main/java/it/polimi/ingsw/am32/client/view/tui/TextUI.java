@@ -259,8 +259,8 @@ public class TextUI extends View{
      */
     @Override
     public void askSelectGameMode() {
+        Status = Event.WELCOME;
         currentEvent = Event.SELECT_GAME_MODE;
-
         out.println("""
                 Menu:
                 1. Create new game
@@ -317,6 +317,7 @@ public class TextUI extends View{
      */
     @Override
     public void askCreateGame() {
+        currentEvent = Event.CREATE_GAME; // Update the state of the client
         askNickname(); // Ask the player to insert his nickname
 
         out.println("Insert the number of players you want to play with, type[2, 3 or 4]:");
@@ -375,9 +376,6 @@ public class TextUI extends View{
         this.gameID = gameID;
         this.thisPlayerNickname = recipientNickname;
         this.players.add(recipientNickname); // add the player who created the game in the list of players
-        handleEvent(Event.GAME_CREATED,null); // print the message to notify the player that the game is created correctly
-        currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
-        Status = Event.LOBBY;
     }
     /**
      * Once the player receives the LobbyPlayerList message from the server, the method is called by
@@ -433,7 +431,6 @@ public class TextUI extends View{
      */
     @Override
     public void setUpPlayersData() {
-        handleEvent(Event.GAME_START,null);  // notify the player that the game is started
         for (String player : players) {
             // set up the data of the players and initialize the board of the players
             publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
@@ -527,7 +524,6 @@ public class TextUI extends View{
     @Override
     public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
         // once received the AssignedSecretObjectiveCardMessage from the server.
-        currentEvent = Event.SELECT_SECRET_OBJ_CARD;
         // save the three cards, the common objective cards of the game and the secret objective cards received from the server.
         this.hand = hand;
         this.commonObjCards = common;
@@ -680,6 +676,7 @@ public class TextUI extends View{
             // if the player's turn is now, request the player to place the card in the field.
             currentEvent = Event.PLACE_CARD;
         } else {
+            currentEvent = Event.WAITING_FOR_TURN;
             isMyTurn = false;
             out.println("It is " + currentPlayer + "'s turn");
             // wake up the readInputThread to get the input from the player when it is not the player's turn. In this
@@ -1694,9 +1691,12 @@ public class TextUI extends View{
                 out.println("YEAH!!! Let's start the game!");
             }
             case GAME_RECONNECTED -> out.println("Reconnected to the game successfully");
+
             case PLAYER_DISCONNECTED-> {
                 out.println("Player "+nickname+" exit from the game");
-                publicInfo.get(nickname).updateOnline(false);
+                if(!Status.equals(Event.LOBBY)){
+                    publicInfo.get(nickname).updateOnline(false);
+                }
             }
             case PLAYER_RECONNECTED -> {
                 out.println("Player "+nickname+" reconnected to the game");

@@ -22,7 +22,7 @@ public class AssignedSecretObjectiveCardMessage implements StoCMessage {
     @Override
     public void processMessage(View view) {
         view.setCardsReceived(assignedSecretObjectiveCards, chosenCommonObjectiveCards, playerHand);
-        view.setCurrentEvent(Event.SELECT_SECRET_OBJ_CARD);
+        view.updateCurrentEvent(Event.SELECT_SECRET_OBJ_CARD);
     }
 
     @Override

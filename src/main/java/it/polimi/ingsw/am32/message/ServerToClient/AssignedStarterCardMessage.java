@@ -15,7 +15,7 @@ public class AssignedStarterCardMessage implements StoCMessage {
     @Override
     public void processMessage(View view) {
         view.setStarterCard(cardId); // store the starter card
-        view.setCurrentEvent(Event.SELECT_STARTER_CARD_SIDE);// set the current event
+        view.updateCurrentEvent(Event.SELECT_STARTER_CARD_SIDE);// set the current event
     }
 
     @Override
