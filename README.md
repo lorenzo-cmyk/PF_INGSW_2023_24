@@ -54,4 +54,4 @@ Group members:
 |-------------|----------------------|---------------------|------------------|----------------|
 | .model      | Game Model           | 100%                | 97%              | Completed ☑️   |
 | .chat       | Chat Model           | 100%                | 100%             | Completed ☑️   |
-| .controller | Game+Chat Controller | 80%                 | 56%              | Ongoing 🕑     |
+| .controller | Game+Chat Controller | 90%                 | 63%              | Ongoing 🕑     |
