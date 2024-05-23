@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32;
 
 import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.Utilities.CriticalExceptionHandler;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.ClientAcceptor.SKClientAcceptor;
 import it.polimi.ingsw.am32.network.ServerNode.RMIServerNode;
@@ -58,6 +59,7 @@ public class Server {
      * @param args usual startup arguments
      */
     public static void main(String[] args){
+        Thread.setDefaultUncaughtExceptionHandler(new CriticalExceptionHandler());
         new Server(args).start();
     }
 
