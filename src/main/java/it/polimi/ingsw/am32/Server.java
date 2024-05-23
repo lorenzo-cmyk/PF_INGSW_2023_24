@@ -89,7 +89,7 @@ public class Server {
     public void start() {
         startSocketServer();
         startRMIServer();
-        logger.info("Networking stack started. Server is now ready to accept connections.");
+        logger.info("Networking stack started. Server is now ready to accept connections");
     }
 
     /**
