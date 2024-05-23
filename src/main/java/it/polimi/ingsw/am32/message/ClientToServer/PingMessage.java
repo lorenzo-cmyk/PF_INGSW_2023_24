@@ -20,4 +20,11 @@ public class PingMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.pongPlayer(senderNickname);
     }
+
+    @Override
+    public String toString() {
+        return "PingMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                '}' + "\n";
+    }
 }

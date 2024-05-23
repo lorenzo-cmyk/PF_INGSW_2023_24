@@ -24,4 +24,11 @@ public class RequestGameStatusMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.sendGameStatus(senderNickname);
     }
+
+    @Override
+    public String toString() {
+        return "RequestGameStatusMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                '}' + "\n";
+    }
 }

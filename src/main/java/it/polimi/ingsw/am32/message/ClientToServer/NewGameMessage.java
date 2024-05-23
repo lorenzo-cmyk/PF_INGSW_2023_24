@@ -41,4 +41,12 @@ public class NewGameMessage implements CtoSLobbyMessage {
     public GameController elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException {
         return GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
     }
+
+    @Override
+    public String toString() {
+        return "NewGameMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", playerNum=" + playerNum +
+                '}' + "\n";
+    }
 }

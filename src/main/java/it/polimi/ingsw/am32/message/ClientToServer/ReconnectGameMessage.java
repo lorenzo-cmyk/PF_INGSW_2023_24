@@ -24,4 +24,12 @@ public class ReconnectGameMessage implements CtoSLobbyMessage {
     {
         return GamesManager.getInstance().reconnectToGame(senderNickname, matchId, nodeInterface);
     }
+
+    @Override
+    public String toString() {
+        return "ReconnectGameMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", matchId=" + matchId +
+                '}' + "\n";
+    }
 }

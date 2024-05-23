@@ -17,4 +17,5 @@ public interface CtoSLobbyMessage extends Serializable {
             GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException,
             GameAlreadyEndedException, PlayerNotFoundException, PlayerAlreadyConnectedException,
             GameNotYetStartedException;
+    String toString(); // Used for debugging purposes
 }

@@ -40,4 +40,14 @@ public class InboundChatMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.submitChatMessage(new ChatMessage(senderNickname, recipientNickname, multicastFlag, content));
     }
+
+    @Override
+    public String toString() {
+        return "InboundChatMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", recipientNickname='" + recipientNickname + '\'' +
+                ", multicastFlag=" + multicastFlag +
+                ", content='" + content + '\'' +
+                '}' + "\n";
+    }
 }
