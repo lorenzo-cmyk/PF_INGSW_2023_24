@@ -15,7 +15,7 @@ class PlayerQuadrupleTest {
         public void uploadToClient(StoCMessage message) {}
         public void pingTimeOverdue() {}
         public void resetTimeCounter() {}
-        public void setGameController(GameController gameController) {}
+
         // Fake Constructor
         public NodeInterfaceStub() {}
     }
