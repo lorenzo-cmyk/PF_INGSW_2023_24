@@ -26,7 +26,7 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
             GameNotFoundException, GameAlreadyEndedException, PlayerNotFoundException, PlayerAlreadyConnectedException,
             GameNotYetStartedException {
 
-        logger.debug("Received a CtoSLobbyMessage from a RMI client: {}", message.toString());
+        logger.info("Received a CtoSLobbyMessage from a RMI client: {}", message.toString());
 
         RMIServerNode rmiServerNode = new RMIServerNode(node);
 
@@ -43,6 +43,7 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
 
         rmiServerNode.setGameController(gameController);
 
+        logger.info("RMIServerNode successfully created and added to the GameController ID {}", gameController.getId());
         return new GameTuple(rmiServerNode, gameController.getId());
     }
 }

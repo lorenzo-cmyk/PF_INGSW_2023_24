@@ -22,17 +22,17 @@ public class SKClientAcceptor implements Runnable {
         try {
             serverSocket = new ServerSocket(Configuration.getInstance().getSocketPort());
         } catch (IOException e) {
-            logger.fatal("Socket communications not available. ServerSocket initialization failed.");
+            logger.fatal("Socket communications not available. ServerSocket initialization failed");
             return;
         }
 
-        logger.debug("Server Socket initialized.");
+        logger.debug("Server Socket Thread initialized successfully");
 
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
                 executorService.submit(new SKServerNode(socket));
-                logger.info("Accepted connection from: {}", socket.getRemoteSocketAddress());
+                logger.info("Accepted connection from: {}. SKServerNode created successfully", socket.getRemoteSocketAddress());
 
             } catch (IOException e) {
                 logger.error("Connection accept failed: {}", e.getMessage());
