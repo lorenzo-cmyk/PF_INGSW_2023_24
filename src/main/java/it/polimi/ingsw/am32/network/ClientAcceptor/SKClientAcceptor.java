@@ -13,11 +13,7 @@ import java.util.concurrent.ExecutorService;
 
 public class SKClientAcceptor implements Runnable {
 
-    private final Logger logger;
-
-    public SKClientAcceptor() {
-        this.logger = LogManager.getLogger("SKClientAcceptor");
-    }
+    private static final Logger logger = LogManager.getLogger(SKClientAcceptor.class);
 
     public void run() {
 
@@ -26,11 +22,11 @@ public class SKClientAcceptor implements Runnable {
         try {
             serverSocket = new ServerSocket(Configuration.getInstance().getSocketPort());
         } catch (IOException e) {
-            logger.error("Socket communications not available. ServerSocket initialization failed.");
+            logger.fatal("Socket communications not available. ServerSocket initialization failed.");
             return;
         }
 
-        logger.info("Server Socket initialized.");
+        logger.debug("Server Socket initialized.");
 
         while (true) {
             try {
