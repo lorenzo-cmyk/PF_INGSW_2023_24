@@ -86,7 +86,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
                     return;
                 }
                 else if (connectionNode == null) { // Player was disconnected, and the server node destroyed
-                    return;
+                    return; // WARNING: This should never happen, as the connection node should never be null.
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -100,7 +100,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
             try {
                 connectionNode.uploadToClient(message);
                 messageQueue.removeFirst(); // Remove the delivered message from the queue
-            } catch (UploadFailureException e) { // FIXME When does this actually happen?
+            } catch (UploadFailureException e) {
                 // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
                 try {
                     wait();
@@ -108,10 +108,11 @@ public class VirtualView implements VirtualViewInterface, Runnable {
                         return; // Probably not necessary, but it's here for clarity.
                     }
                     else if (connectionNode == null) { // Player was disconnected, and the server node destroyed
-                        return;
+                        return; // WARNING: This should never happen, as the connection node should never be null.
                     }
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
+                    return;
                 }
             }
         }

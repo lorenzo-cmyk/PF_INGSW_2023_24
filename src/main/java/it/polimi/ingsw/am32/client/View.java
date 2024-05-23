@@ -6,7 +6,6 @@ import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNode;
@@ -27,22 +26,25 @@ public abstract class View implements EventHandler{
     protected final IsValid isValid = new IsValid();
     protected ClientNodeInterface clientNode;
     protected String thisPlayerNickname;
+    protected int startCard;
     protected int gameID; //save the game ID received from the NewGameConfirmationMessage or AccessGameConfirmMessage.
     protected int playerNum; //number of players connected to the game, if the player is disconnected, the number will
                              // decrease.
     protected ArrayList<String> players; //save and update the players in the game.
     protected String currentPlayer; //save and update the current player by receiving the message from the server.
-    protected Event currentEvent; //TODO: not sure if this is useful
+    protected volatile Event currentEvent; //TODO: not sure if this is useful
     protected int indexCardPlaced=0;
     protected ArrayList<Integer> commonObjCards;
-    protected int[] secretObjCards;
+    protected ArrayList<Integer> secretObjCards;
     protected int secretObjCardSelected;
     protected ArrayList<Integer> hand;
     protected ArrayList<Integer> currentResourceCards;
     protected ArrayList<Integer>  currentGoldCards;
     protected int resourceDeckSize;
     protected int goldDeckSize;
-    protected Event Status;
+    protected int resourceCardDeckFacingKingdom;
+    protected int goldCardDeckFacingKingdom;
+    protected volatile Event Status;
     protected AskListener askListener;
     protected ArrayList<int[]> availableSpaces;
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
@@ -51,7 +53,8 @@ public abstract class View implements EventHandler{
     protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
     protected List<ChatMessage>chatHistory;
     protected boolean chatMode = false;
-    protected volatile boolean isMyTurn = false;
+    protected volatile boolean isMyTurn = true;
+    protected volatile boolean isInThread = false;
     public View() {
         this.playerNum = 0;
         this.currentPlayer = null;
@@ -122,7 +125,7 @@ public abstract class View implements EventHandler{
     public abstract void updateAfterDrawCard(ArrayList<Integer> hand);
 
     public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards,
-                                    int[] currentGoldCards);
+                                    int[] currentGoldCards, int resourceDeckFace, int goldDeckFace);
 
     public abstract void handleFailureCase(Event event, String reason);
 
@@ -134,6 +137,8 @@ public abstract class View implements EventHandler{
 
     //-------------------Game start-----------------------
 
+
+    public abstract void requestSelectSecretObjectiveCard();
 
     public abstract void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard);
     
@@ -148,9 +153,9 @@ public abstract class View implements EventHandler{
         askListener.addMessage(message);
     }
     public void notifyAskListenerLobby(CtoSLobbyMessage message){
-        askListener.addLobbyMessage(message);
+        askListener.addMessage(message);
     }
-    public void setCurrentEvent(Event event){
+    public void updateCurrentEvent(Event event){
         this.currentEvent = event;
     }
 
@@ -161,9 +166,9 @@ public abstract class View implements EventHandler{
 
     public abstract void showPlayersField(String playerNickname);
 
-    public abstract void showPoints(String playerNickname);
+    public abstract void showResource(String playerNickname);
 
-    public abstract void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
+    public abstract void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
 
     public abstract void showHand(ArrayList<Integer> hand);
 
@@ -177,14 +182,14 @@ public abstract class View implements EventHandler{
     public void updatePlayerTurn(String playerNickname) {
     }
 
-    public void updatePlayerDate(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
+    public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
                                  ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
                                  int playerSecretObjective, int[] playerPoints,
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces) {
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
     }
 
     public abstract void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces);
@@ -193,7 +198,16 @@ public abstract class View implements EventHandler{
 
     public abstract void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources);
 
+    public abstract void showChatHistory(List<ChatMessage> chatHistory);
+
     public abstract void updateChat(String recipientString, String senderNickname, String content);
+
+    public void setStarterCard(int cardId) {
+        startCard=cardId;
+    }
+
+    public void updateStatus(Event event) {
+    }
 }
 
 

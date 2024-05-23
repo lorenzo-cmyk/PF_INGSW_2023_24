@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
+import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.View;
@@ -14,11 +15,14 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
 public class GraphicalUI extends View {
     private StackPane welcomeRoot;
@@ -395,12 +399,12 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void showPoints(String playerNickname) {
+    public void showResource(String playerNickname) {
 
     }
 
     @Override
-    public void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
+    public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
 
     }
 
@@ -437,6 +441,11 @@ public class GraphicalUI extends View {
 
     @Override
     public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
+
+    }
+
+    @Override
+    public void showChatHistory(List<ChatMessage> chatHistory) {
 
     }
 
@@ -494,7 +503,7 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards) {
+    public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards, int resourceDeckFace, int goldDeckFace) {
 
     }
 
@@ -515,6 +524,11 @@ public class GraphicalUI extends View {
 
     @Override
     public void showHelpInfo() {
+
+    }
+
+    @Override
+    public void requestSelectSecretObjectiveCard() {
 
     }
 
