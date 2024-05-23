@@ -75,6 +75,7 @@ public class Server {
      * @param args are the parameters to be used for the {@code Configuration} class
      */
     public Server(String[] args) {
+        logger.debug("Creating the Configuration instance");
         Configuration.createInstance(args);
     }
 
@@ -86,11 +87,9 @@ public class Server {
      * {@link RMIClientAcceptor} used for handling new connections
      */
     public void start() {
-        logger.debug("Starting the Socket listener");
         startSocketServer();
-        logger.debug("Starting the RMI listener");
         startRMIServer();
-        logger.info("The server is ready to accept connections");
+        logger.info("Networking stack started. Server is now ready to accept connections.");
     }
 
     /**
@@ -99,6 +98,7 @@ public class Server {
      * Create an instance of {@link SKClientAcceptor} and submit it to the server {@link java.util.concurrent.ExecutorService}
      */
     private void startSocketServer() {
+        logger.debug("Starting the Socket listener");
         Configuration.getInstance().getExecutorService().submit(new SKClientAcceptor());
     }
 
@@ -108,6 +108,7 @@ public class Server {
      * Create the RMI {@link Registry} and an instance of {@link RMIClientAcceptor}, finally bind the latter to the former
      */
     private void startRMIServer() {
+        logger.debug("Starting the RMI listener");
         try {
             System.setProperty("java.rmi.server.hostname", Configuration.getInstance().getServerIp());
             Registry registry = LocateRegistry.createRegistry(Configuration.getInstance().getRmiPort());
