@@ -12,11 +12,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
-import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,7 +89,6 @@ public class GraphicalUI extends View {
         ruleBookStage.show();
 
     }
-
     private Button[] getBox(ImageView ruleBook) {
         AtomicInteger index = new AtomicInteger();
         Button nextButton = new Button(">");
@@ -112,68 +108,61 @@ public class GraphicalUI extends View {
         return new Button[]{previousButton, nextButton};
     }
 
-
     @Override
     public void chooseConnection() {
         currentEvent = Event.CHOOSE_CONNECTION;
         selectionPane = new StackPane();
         connectionRoot = new StackPane();
 
+        // set the background image of the selection page
         Image backgroundSelectionPage = new Image("/SelectionDisplay.png");
         BackgroundImage backgroundImg = new BackgroundImage(backgroundSelectionPage, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
         Background background = new Background(backgroundImg);
         selectionPane.setBackground(background);
 
-        Label label = createLabel("Connection",-80,-70);
-
-        Button socketButton = createButton("[Socket]",100,0);
-
-        Button rmiButton = createButton("[RMI]",-100,0);
-
+        // create the connection root
+        Label label = createLabel("Connection",-80,-70); // add the title of the connection root
+        Button socketButton = createButton("[Socket]",100,0); // create the button to choose the socket connection
+        Button rmiButton = createButton("[RMI]",-100,0); // create the button to choose the RMI connection
         connectionRoot.getChildren().addAll(label,socketButton,rmiButton);
 
+        // add the connection root to the selection pane in this way set the choose connection page for the player
         selectionPane.getChildren().add(connectionRoot);
 
+        // create the socket connection root
         StackPane socketRoot = new StackPane();
+        Label labelIP = createLabel("Socket",-80,-80); // add the title
+        TextField ip = createTextField("Enter the IP", 35, 250, -50, -30); // create the text field asks the player to enter the IP address
+        TextField port = createTextField("Enter the port", 35, 250, -50, 50); // create the text field asks the player to enter the port number
+        Button OkButton = createButton("[OK]",160,0); // create the button Ok to confirm the input.
+        socketRoot.getChildren().addAll(OkButton,labelIP,ip,port); // the view when the player choose the socket connection
 
-        Label labelIP = createLabel("Socket",-80,-80);
-
-        TextField ip = createTextField("Enter the IP", 35, 250, -50, -30);
-
-        TextField port = createTextField("Enter the port", 35, 250, -50, 50);
-
-        Button OkButton = createButton("[OK]",160,0);
-
-        socketRoot.getChildren().addAll(OkButton,labelIP,ip,port);
-
+        // set the action of the buttons
         socketButton.setOnAction(e -> {
-            selectionPane.getChildren().remove(connectionRoot);
-            selectionPane.getChildren().add(socketRoot);
+            selectionPane.getChildren().remove(connectionRoot); // exit from the choose connection page
+            selectionPane.getChildren().add(socketRoot); // enter the socket connection page
         });
 
         OkButton.setOnAction(e->{
-            String ServerIP = ip.getText(); // Read the player's input
+            String ServerIP = ip.getText(); // Read the player's input and save it the server IP address
             String ServerPort = port.getText();
-            int portNumber = 0;
             try {
-                portNumber = Integer.parseInt(ServerPort);
-            } catch (NumberFormatException ex) {
-                createAlert("Invalid port number");
-                port.clear();
-            }
-            if (isValid.isIpValid(ServerIP)&&isValid.isPortValid(portNumber)) { // Check if the IP address is valid
-                try {
+                int portNumber = Integer.parseInt(ServerPort);
+                if (isValid.isIpValid(ServerIP)&&isValid.isPortValid(portNumber)) { // Check if the IP address is valid
                     setSocketClient(ServerIP, portNumber);
                     selectionPane.getChildren().remove(socketRoot);
                     askSelectGameMode();
-                } catch (IOException ex) {
-                    createAlert("Connection failed");
+                }else {
+                    createAlert("Invalid IP/port number");
                     ip.clear();
                     port.clear();
                 }
-            }else {
-                createAlert("Invalid IP/port number");
+            } catch (NumberFormatException ex) {
+                createAlert("Invalid port number");
+                port.clear();
+            } catch (IOException ex) {
+                createAlert("Connection failed");
                 ip.clear();
                 port.clear();
             }
@@ -221,15 +210,9 @@ public class GraphicalUI extends View {
 
         createGameRoot.getChildren().addAll(labelNickname,labelPlayers,nickname,twoButton,threeButton3,fourButton,createButton);
 
-        twoButton.setOnAction(e->{
-            playerNum = 2;
-        });
-        threeButton3.setOnAction(e->{
-            playerNum = 3;
-        });
-        fourButton.setOnAction(e->{
-            playerNum = 4;
-        });
+        twoButton.setOnAction(e-> playerNum = 2);
+        threeButton3.setOnAction(e-> playerNum = 3);
+        fourButton.setOnAction(e-> playerNum = 4);
         createButton.setOnAction(e -> {
             thisPlayerNickname = nickname.getText();
             if (thisPlayerNickname.isBlank()) {
@@ -309,7 +292,7 @@ public class GraphicalUI extends View {
             playerList.setMaxHeight(135);
             playerList.setMaxWidth(360);
             playerList.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow(gaussian ," +
                     "rgba(58,33,17,100,0.2) , 10,0,0,10 );");
             playerList.setTranslateX(0);
             playerList.setTranslateY(0);
