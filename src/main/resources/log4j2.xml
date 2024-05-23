@@ -30,7 +30,8 @@
     <Logger name="TUILogger" level="info" additivity="false">
         <AppenderRef ref="TUILoggerFile"/>
     </Logger>
-    <Root level="WARN">
+    <Root level="debug">
+        <AppenderRef ref="Console"/>
     </Root>
 </Loggers>
 </Configuration>
