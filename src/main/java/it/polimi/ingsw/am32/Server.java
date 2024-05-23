@@ -118,11 +118,11 @@ public class Server {
             logger.debug("RMI Client Acceptor created");
 
         } catch (RemoteException e) {
-            logger.fatal("RMI communications not available. RMI Client Acceptor creation failed");
+            logger.fatal("RMI communications not available. RMI Client Acceptor creation failed", e);
         } catch (AlreadyBoundException e) {
-            logger.fatal("RMI communications not available. RMI Client Acceptor binding failed");
+            logger.fatal("RMI communications not available. RMI Client Acceptor binding failed", e);
         } catch (Exception e) {
-            logger.fatal("RMI communications not available. Not listed error: {}", e.getMessage());
+            logger.fatal("RMI communications not available. Not listed error", e);
         }
     }
 }
