@@ -48,7 +48,7 @@ public class Server {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
-    private final Logger logger;
+    private static final Logger logger = LogManager.getLogger(Server.class);
 
     //---------------------------------------------------------------------------------------------
     // Static Main
@@ -59,6 +59,7 @@ public class Server {
      * @param args usual startup arguments
      */
     public static void main(String[] args){
+        logger.info("The server is now starting");
         Thread.setDefaultUncaughtExceptionHandler(new CriticalExceptionHandler());
         new Server(args).start();
     }
@@ -75,7 +76,6 @@ public class Server {
      */
     public Server(String[] args) {
         Configuration.createInstance(args);
-        logger = LogManager.getLogger("Server");
     }
 
     //---------------------------------------------------------------------------------------------
@@ -86,9 +86,11 @@ public class Server {
      * {@link RMIClientAcceptor} used for handling new connections
      */
     public void start() {
+        logger.debug("Starting the Socket listener");
         startSocketServer();
+        logger.debug("Starting the RMI listener");
         startRMIServer();
-        logger.info("Server started");
+        logger.info("The server is ready to accept connections");
     }
 
     /**
@@ -112,14 +114,14 @@ public class Server {
             //FIXME problema se registro esiste gia
             RMIClientAcceptor rmiClientAcceptor = new RMIClientAcceptor();
             registry.bind("Server-CodexNaturalis", rmiClientAcceptor);
-            logger.info("RMI Client Acceptor created");
+            logger.debug("RMI Client Acceptor created");
 
         } catch (RemoteException e) {
-            logger.error("RMI communications not available. RMI Client Acceptor creation failed");
+            logger.fatal("RMI communications not available. RMI Client Acceptor creation failed");
         } catch (AlreadyBoundException e) {
-            logger.error("RMI communications not available. RMI Client Acceptor binding failed");
+            logger.fatal("RMI communications not available. RMI Client Acceptor binding failed");
         } catch (Exception e) {
-            logger.error("RMI communications not available. Not listed error: {}", e.getMessage());
+            logger.fatal("RMI communications not available. Not listed error: {}", e.getMessage());
         }
     }
 }
