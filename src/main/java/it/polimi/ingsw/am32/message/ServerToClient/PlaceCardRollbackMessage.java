@@ -29,13 +29,14 @@ public class PlaceCardRollbackMessage implements StoCMessage{
         return recipientNickname;
     }
 
+    @Override
     public String toString() {
-        return "PlaceCardRollbackMessage{" +
+        return "PlaceCardRollbackMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", playerNickname='" + playerNickname + '\'' +
                 ", removedCard=" + removedCard +
                 ", playerPoints=" + playerPoints +
                 ", playerResources=" + Arrays.toString(playerResources) +
-                '}';
+                '}' + "\n";
     }
 }

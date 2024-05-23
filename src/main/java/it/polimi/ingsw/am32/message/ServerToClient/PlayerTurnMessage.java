@@ -21,10 +21,11 @@ public class PlayerTurnMessage implements StoCMessage {
         return recipientNickname;
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "playerNickname: " + playerNickname + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "PlayerTurnMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", playerNickname='" + playerNickname + '\'' +
+                '}' + "\n";
     }
 }

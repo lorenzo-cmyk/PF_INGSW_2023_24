@@ -21,7 +21,7 @@ public class ReconnectGameConfirmMessage implements StoCMessage {
 
     @Override
     public String toString() {
-        return "ReconnectGameConfirmMessage{" +
+        return "ReconnectGameConfirmMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 '}' + "\n";
     }

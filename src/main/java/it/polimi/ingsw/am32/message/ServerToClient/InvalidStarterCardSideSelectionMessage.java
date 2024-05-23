@@ -24,11 +24,12 @@ public class InvalidStarterCardSideSelectionMessage implements StoCMessage {
 
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "reason: " + reason + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "InvalidStarterCardSideSelectionMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", reason='" + reason + '\'' +
+                '}' + "\n";
     }
 
 }

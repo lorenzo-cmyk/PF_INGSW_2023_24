@@ -41,8 +41,9 @@ public class PlaceCardConfirmationMessage implements StoCMessage {
         return recipientNickname;
     }
 
+    @Override
     public String toString(){
-        return "PlaceCardConfirmationMessage{" +
+        return "PlaceCardConfirmationMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", playerNickname='" + playerNickname + '\'' +
                 ", placedCard=" + placedCard +

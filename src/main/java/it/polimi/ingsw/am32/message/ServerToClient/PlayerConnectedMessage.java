@@ -21,11 +21,12 @@ public class PlayerConnectedMessage implements StoCMessage {
         return recipientNickname;
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "connectedNickname: " + connectedNickname + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "PlayerConnectedMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", connectedNickname='" + connectedNickname + '\'' +
+                '}' + "\n";
     }
 }
 

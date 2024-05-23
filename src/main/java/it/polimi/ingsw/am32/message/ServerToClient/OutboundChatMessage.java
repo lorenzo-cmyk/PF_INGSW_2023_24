@@ -23,11 +23,12 @@ public class OutboundChatMessage implements StoCMessage {
         return recipientString;
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientString: " + recipientString + "\n";
-        myString += "senderNickname: " + senderNickname + "\n";
-        myString += "content: " + content + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "OutboundChatMessage:{" +
+                "recipientString='" + recipientString + '\'' +
+                ", senderNickname='" + senderNickname + '\'' +
+                ", content='" + content + '\'' +
+                '}' + "\n";
     }
 }

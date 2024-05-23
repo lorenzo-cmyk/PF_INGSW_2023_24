@@ -29,10 +29,13 @@ public class ResponsePlayerFieldMessage implements StoCMessage {
         return recipientNickname;
     }
 
-    public String toString(){
-        return "recipientNickname: " + recipientNickname + "\n" +
-                "playerNickname: " + playerNickname + "\n" +
-                "playerField: [" + playerField.stream().map(Arrays::toString).collect(Collectors.joining(", ")) + "]\n" +
-                "playerResources: " + Arrays.toString(playerResources) + "\n";
+    @Override
+    public String toString() {
+        return "ResponsePlayerFieldMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", playerNickname='" + playerNickname + '\'' +
+                ", playerField=" + playerField.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
+                ", playerResources=" + Arrays.toString(playerResources) +
+                '}' + "\n";
     }
 }

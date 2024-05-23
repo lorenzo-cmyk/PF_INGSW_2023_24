@@ -132,6 +132,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
         return recipientNickname;
     }
 
+    @Override
     public String toString(){
         String playerFieldsAsString = playerFields.stream()
             .map(innerList -> innerList.stream()
@@ -139,7 +140,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 .collect(Collectors.joining(", ", "[", "]")))
             .collect(Collectors.joining(", ", "[", "]"));
 
-        return "PlayerGameStatusMessage{" +
+        return "PlayerGameStatusMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", playerNicknames=" + playerNicknames +
                 ", playerConnected=" + playerConnected.toString() +

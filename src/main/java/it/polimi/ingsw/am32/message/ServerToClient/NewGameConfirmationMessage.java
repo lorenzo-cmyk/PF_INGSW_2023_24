@@ -21,10 +21,11 @@ public class NewGameConfirmationMessage implements StoCMessage {
         return recipientNickname;
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "matchId: " + matchId + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "NewGameConfirmationMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", matchId=" + matchId +
+                '}' + "\n";
     }
 }

@@ -24,10 +24,11 @@ public class InvalidSelectedSecretObjectiveCardMessage implements StoCMessage {
 
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "reason: " + reason + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "InvalidSelectedSecretObjectiveCardMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", reason='" + reason + '\'' +
+                '}' + "\n";
     }
 }
