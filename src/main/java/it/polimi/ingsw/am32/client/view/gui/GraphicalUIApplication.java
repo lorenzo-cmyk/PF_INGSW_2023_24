@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.client.view.gui;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -10,16 +11,17 @@ import java.io.IOException;
 
 
 public class GraphicalUIApplication extends Application {
-    private GraphicalUI graphicalUI;
-    String[] ImagesNames={}; //TODO
+    private final GraphicalUI graphicalUI;
+    private Stage primaryStage;
+    public GraphicalUIApplication(){
+        this.graphicalUI = new GraphicalUI();
+        this.graphicalUI.setApp(this);
+    }
     @Override
     public void start(Stage primaryStage) throws IOException {
+        this.primaryStage = primaryStage;
         primaryStage.setTitle("Codex Naturalis");
-        primaryStage.setMaxHeight(750);
-        primaryStage.setMinHeight(750);
-        primaryStage.setMinWidth(975);
-        primaryStage.setMaxWidth(975);
-        graphicalUI = new GraphicalUI();
+        changeStageDimensions(primaryStage, 750, 750, 975, 975);
         primaryStage.setScene(new Scene(graphicalUI.getWelcomeRoot(), 975, 750));
         PauseTransition pauseTransition = new PauseTransition(Duration.seconds(3));
         pauseTransition.setOnFinished(e -> {
@@ -31,8 +33,13 @@ public class GraphicalUIApplication extends Application {
 
         primaryStage.show();
     }
-
-    public static void main(String[] args) {
-        launch();
+    public void changeStageDimensions(Stage stage,int MAXHigh, int MINHigh, int MAXWidth, int MINWidth) {
+        stage.setMaxHeight(MAXHigh);
+        stage.setMinHeight(MINHigh);
+        stage.setMinWidth(MINWidth);
+        stage.setMaxWidth(MAXWidth);
+    }
+    public void updateScene(Parent parent, int x, int y) {
+        primaryStage.setScene(new Scene(parent, x, y));
     }
 }

@@ -3,10 +3,13 @@ package it.polimi.ingsw.am32.client.view.gui;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
+import it.polimi.ingsw.am32.client.PlayerPub;
 import it.polimi.ingsw.am32.client.View;
+import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import it.polimi.ingsw.am32.message.ClientToServer.AccessGameMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
 import javafx.application.Application;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -22,13 +25,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 
 public class GraphicalUI extends View {
+    private GraphicalUIApplication app;
+    private StackPane preparationPhase;
     private StackPane welcomeRoot;
     private StackPane selectionPane;
     private StackPane connectionRoot;
     private StackPane createGameRoot;
     private StackPane waitingRoot;
     private  TextArea playerList;
-    TextField playerListView;
+    private TextField playerListView;
+    private Label matchStatus;
     Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String [] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -40,6 +46,10 @@ public class GraphicalUI extends View {
         Application.launch(GraphicalUIApplication.class);
     }
     public GraphicalUI() {
+        super();
+    }
+    public void setApp(GraphicalUIApplication app) {
+        this.app = app;
     }
     public StackPane getWelcomeRoot() {
         showWelcome();
@@ -319,6 +329,27 @@ public class GraphicalUI extends View {
         askListener.start();
     }
 
+    @Override
+    public void setUpPlayersData() {
+        for (String player : players) {
+            // set up the data of the players and initialize the board of the players
+            publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
+                    true));
+            //TODO initialize the board of the players
+        }
+    }
+    private void setPreparationPhaseView(){
+        preparationPhase = new StackPane();
+        preparationPhase.setBackground(new Background(new BackgroundImage(new Image("/PreparationDisplay.png"), BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false))));
+        app.updateScene(preparationPhase, 975, 925);
+    }
+
+
+
+
+
+    // Methods to create the components of the GUI
     private Label createLabel(String text, int X, int Y) {
         Label label = new Label(text);
         label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
@@ -451,17 +482,21 @@ public class GraphicalUI extends View {
 
     @Override
     public void updatePlayerList(ArrayList<String> players) {
-        
+        this.players = players;
+        //playerList.setText("Players:\n" + String.join("\n", players));
+        playerListView.setText("Players: \n" + String.join(",\n", players));
     }
 
-    @Override
-    public void setUpPlayersData() {
-
-    }
 
     @Override
     public void updateMatchStatus(int matchStatus) {
-
+        this.Status = Event.getEvent(matchStatus); // update the match status of the player.
+        this.matchStatus.setText("Status: " + Status);
+        if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
+            for (String player : players) {
+                showResource(player);
+            }
+        }
     }
 
     @Override
@@ -535,10 +570,17 @@ public class GraphicalUI extends View {
     public void handleEvent(Event event, String message) {
         switch (event) {
             case Event.NEW_PLAYER_JOIN: {
-                players.add(message);
-                //playerList.setText("Players:\n" + String.join("\n", players));
-                playerListView.setText("Players: \n" + String.join(",\n", players));
+                this.players.add(message);
+                Label player = new Label("Player " + message+" joined the lobby");
+                selectionPane.getChildren().add(player);
                 break;
+            }
+            case Event.GAME_START: {
+                /*PreparationPhase = new StackPane();
+                PreparationPhase.setBackground(new Background(new BackgroundImage(new Image("/PreparationPhase.png"), BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false))));
+                app.updateScene(PreparationPhase, 975, 925);*/
+
             }
             //TODO
         }
