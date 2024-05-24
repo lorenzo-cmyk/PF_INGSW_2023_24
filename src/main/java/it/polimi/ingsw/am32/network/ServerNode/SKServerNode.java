@@ -61,7 +61,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                     socket.close();
             } catch (IOException ignored) {}
 
-            logger.error("InputTimeout Error: {}\nSocket Closed", e.getMessage());
+            logger.error("InputTimeout Error: {} . Socket Closed", e.getMessage());
 
             throw new UninitializedException();
         }
@@ -75,7 +75,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                     socket.close();
             } catch (IOException ignored) {}
 
-            logger.error("Could not open input stream: {}\nSocket Closed", e.getMessage());
+            logger.error("Could not open input stream: {} . Socket Closed", e.getMessage());
 
             throw new UninitializedException();
         }
@@ -94,7 +94,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                     socket.close();
             } catch (IOException ignored) {}
 
-            logger.error("Could not open output stream: {}\nSocket Closed", e.getMessage());
+            logger.error("Could not open output stream: {} . Socket Closed", e.getMessage());
 
             throw new UninitializedException();
         }
@@ -123,7 +123,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             destroy();
 
             logger.error("Critical ObjectInputStream error while reading: {}" +
-                    "\nSocket Closed", e.getMessage()); //TODO risolvere meglio gli errori
+                    " . Socket Closed", e.getMessage()); //TODO risolvere meglio gli errori
         } catch (NodeClosedException e) {
             return;
         }
@@ -135,7 +135,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         try {
             message = inputObtStr.readObject();
-            logger.debug("Message object received from socket stream: {}", message.getClass().getName());
+            logger.debug("Object received from socket stream: {}", message.getClass().getName());
         } catch (SocketTimeoutException e) {
             return;
         }
@@ -172,10 +172,14 @@ public class SKServerNode implements Runnable, NodeInterface {
                     return;
                 }
 
-                ((CtoSMessage) message).elaborateMessage(gameController);
-
-                logger.info("Elaborated CtoSMessage received: {}", message.toString());
-                return;
+                try {
+                    ((CtoSMessage) message).elaborateMessage(gameController);
+                    logger.info("Elaborated CtoSMessage received: {}", message.toString());
+                    return;
+                } catch (Exception e) {
+                    logger.fatal("Error while elaborating CtoSMessage: ", e);
+                    throw e;
+                }
             }
 
             if (message instanceof CtoSLobbyMessage) {
@@ -273,6 +277,9 @@ public class SKServerNode implements Runnable, NodeInterface {
                     } catch (UploadFailureException ex) {
                         logger.error("Player already connected. Failed to send ErrorMessage to client");
                     }
+                } catch (Exception e) {
+                    logger.fatal("Error while elaborating CtoSLobbyMessage: ", e);
+                    throw e;
                 }
 
                 notLinkedPingTask.cancel();

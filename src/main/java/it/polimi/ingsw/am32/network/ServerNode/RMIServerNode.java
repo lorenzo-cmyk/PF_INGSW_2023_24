@@ -53,8 +53,16 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                 resetTimeCounter();
             }
 
-            message.elaborateMessage(gameController);
-            logger.info("RMI CtoSMessage received and elaborated successfully: {}", message.toString());
+            // We can't risk to lose the observability of potential RuntimeExceptions thrown by GameController and Model
+            // The server will not crash if such exceptions are thrown, thanks to how the threads are managed, but
+            // we need to log them to understand what went wrong and fix it.
+            try{
+                message.elaborateMessage(gameController);
+                logger.info("RMI CtoSMessage received and elaborated successfully: {}", message.toString());
+            } catch (Exception e) {
+                logger.fatal("An error occurred while processing RMI CtoSMessage:", e);
+                throw e;
+            }
         }
     }
 

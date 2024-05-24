@@ -37,7 +37,14 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
                  GameNotYetStartedException | FullLobbyException | GameNotFoundException | GameAlreadyEndedException |
                  PlayerNotFoundException | PlayerAlreadyConnectedException e) {
             rmiServerNode.destroy();
-            logger.error("GameController creation failed: {}", e.getMessage());
+            logger.error("GameController access failed: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            // We can't lose the visibility of the RuntimeExceptions that are thrown by the elaboration of the message.
+            // The Server will not crash because how the thread is managed, but we need to know what happened to fix it in the future.
+            // Do not remove this catch block. Remove the throws clause if needed but keep the logger.
+            rmiServerNode.destroy();
+            logger.fatal("GameController access failed due to a critical exception: {}", e.getMessage());
             throw e;
         }
 
