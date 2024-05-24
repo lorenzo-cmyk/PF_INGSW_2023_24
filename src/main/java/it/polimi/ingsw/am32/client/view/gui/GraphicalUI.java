@@ -30,11 +30,10 @@ public class GraphicalUI extends View {
     private  TextArea playerList;
     TextField playerListView;
     Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
-    private final String [] ruleBookImages = {"/CODEX_RuleBook_IT/01.png","/CODEX_RuleBook_IT/02.png",
-            "/CODEX_RuleBook_IT/03.png","/CODEX_RuleBook_IT/04.png","/CODEX_RuleBook_IT/05.png",
-            "/CODEX_RuleBook_IT/06.png","/CODEX_RuleBook_IT/07.png","/CODEX_RuleBook_IT/08.png",
-            "/CODEX_RuleBook_IT/09.png","/CODEX_RuleBook_IT/10.png","/CODEX_RuleBook_IT/11.png",
-            "/CODEX_RuleBook_IT/12.png"};
+    private final String [] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
+            "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
+            "/codex_rulebook_it_08.png", "/codex_rulebook_it_09.png", "/codex_rulebook_it_10.png", "/codex_rulebook_it_11.png",
+            "/codex_rulebook_it_12.png"};
 
     @Override
     public void launch() {
