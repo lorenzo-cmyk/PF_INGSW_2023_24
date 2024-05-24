@@ -27,6 +27,6 @@ public class PlaceCardFailedMessage implements StoCMessage {
         return "PlaceCardFailedMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", reason='" + reason + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

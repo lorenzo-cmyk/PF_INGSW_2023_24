@@ -42,6 +42,6 @@ public class MatchWinnersMessage implements StoCMessage {
                 ", secrets=" + secrets.toString() +
                 ", pointsGainedFromSecrets=" + pointsGainedFromSecrets.toString() +
                 ", winners=" + winners.toString() +
-                '}' + "\n";
+                '}';
     }
 }

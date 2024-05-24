@@ -52,6 +52,6 @@ public class PlaceCardConfirmationMessage implements StoCMessage {
                 ", playerPoints=" + playerPoints +
                 ", playerResources=" + Arrays.toString(playerResources) +
                 ", newAvailableFieldSpaces=[" + newAvailableFieldSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
-                "]}" + "\n";
+                "]}";
     }
 }

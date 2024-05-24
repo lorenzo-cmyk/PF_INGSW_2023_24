@@ -26,6 +26,6 @@ public class PlayerDisconnectMessage implements StoCMessage {
         return "PlayerDisconnectMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", disconnectedNickname='" + disconnectedNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

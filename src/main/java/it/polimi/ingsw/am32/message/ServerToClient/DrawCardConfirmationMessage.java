@@ -28,6 +28,6 @@ public class DrawCardConfirmationMessage implements StoCMessage {
         return "DrawCardConfirmationMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", playerHand=" + playerHand.toString() +
-                '}' + "\n";
+                '}';
     }
 }

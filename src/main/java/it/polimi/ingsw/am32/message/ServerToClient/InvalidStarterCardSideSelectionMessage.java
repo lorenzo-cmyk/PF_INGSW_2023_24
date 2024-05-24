@@ -29,7 +29,7 @@ public class InvalidStarterCardSideSelectionMessage implements StoCMessage {
         return "InvalidStarterCardSideSelectionMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", reason='" + reason + '\'' +
-                '}' + "\n";
+                '}';
     }
 
 }

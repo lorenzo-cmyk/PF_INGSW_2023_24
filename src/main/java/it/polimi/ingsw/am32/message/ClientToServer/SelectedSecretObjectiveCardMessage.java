@@ -34,6 +34,6 @@ public class SelectedSecretObjectiveCardMessage implements CtoSMessage {
         return "SelectedSecretObjectiveCardMessage:{" +
                 "senderNickname='" + senderNickname + '\'' +
                 ", cardId=" + cardId +
-                '}' + "\n";
+                '}';
     }
 }

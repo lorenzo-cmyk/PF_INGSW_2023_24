@@ -53,6 +53,6 @@ public class PlaceCardMessage implements CtoSMessage {
                 ", row=" + row +
                 ", column=" + column +
                 ", isUp=" + isUp +
-                '}' + "\n";
+                '}';
     }
 }

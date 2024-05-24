@@ -26,6 +26,6 @@ public class NegativeResponsePlayerFieldMessage implements StoCMessage{
         return "NegativeResponsePlayerFieldMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", playerNickname='" + playerNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

@@ -46,6 +46,6 @@ public class DeckSizeUpdateMessage implements StoCMessage {
                 ", goldCardDeckFacingKingdom=" + goldCardDeckFacingKingdom +
                 ", currentResourceCards=" + Arrays.toString(currentResourceCards) +
                 ", currentGoldCards=" + Arrays.toString(currentGoldCards) +
-                '}' + "\n";
+                '}';
     }
 }

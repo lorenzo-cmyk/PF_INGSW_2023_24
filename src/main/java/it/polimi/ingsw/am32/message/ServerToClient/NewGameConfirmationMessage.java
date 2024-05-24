@@ -26,6 +26,6 @@ public class NewGameConfirmationMessage implements StoCMessage {
         return "NewGameConfirmationMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", matchId=" + matchId +
-                '}' + "\n";
+                '}';
     }
 }

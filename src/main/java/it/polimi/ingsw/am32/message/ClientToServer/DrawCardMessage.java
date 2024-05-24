@@ -41,6 +41,6 @@ public class DrawCardMessage implements CtoSMessage {
                 "senderNickname='" + senderNickname + '\'' +
                 ", deckType=" + deckType +
                 ", cardId=" + cardId +
-                '}' + "\n";
+                '}';
     }
 }

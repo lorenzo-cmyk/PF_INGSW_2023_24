@@ -35,6 +35,6 @@ public class AssignedSecretObjectiveCardMessage implements StoCMessage {
                 ", assignedSecretObjectiveCards=" + assignedSecretObjectiveCards.toString() +
                 ", chosenCommonObjectiveCards=" + chosenCommonObjectiveCards.toString() +
                 ", playerHand=" + playerHand.toString() +
-                '}' + "\n";
+                '}';
     }
 }

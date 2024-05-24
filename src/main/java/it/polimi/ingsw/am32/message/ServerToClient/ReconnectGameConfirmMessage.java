@@ -23,6 +23,6 @@ public class ReconnectGameConfirmMessage implements StoCMessage {
     public String toString() {
         return "ReconnectGameConfirmMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

@@ -161,6 +161,6 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 ", chatHistory=" + chatHistory.stream().map(ChatMessage::toString).toList() +
                 ", currentPlayer='" + currentPlayer + '\'' +
                 ", newAvailableFieldSpaces=[" + newAvailableFieldSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
-                "]}" + "\n";
+                "]}";
     }
 }

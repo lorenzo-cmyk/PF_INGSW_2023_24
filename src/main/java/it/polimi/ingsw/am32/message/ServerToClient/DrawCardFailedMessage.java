@@ -26,6 +26,6 @@ public class DrawCardFailedMessage implements StoCMessage {
         return "DrawCardFailedMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", reason='" + reason + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

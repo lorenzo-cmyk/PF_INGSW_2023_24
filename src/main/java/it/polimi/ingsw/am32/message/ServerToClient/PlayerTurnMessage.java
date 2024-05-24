@@ -26,6 +26,6 @@ public class PlayerTurnMessage implements StoCMessage {
         return "PlayerTurnMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", playerNickname='" + playerNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

@@ -30,6 +30,6 @@ public class ReconnectGameMessage implements CtoSLobbyMessage {
         return "ReconnectGameMessage:{" +
                 "senderNickname='" + senderNickname + '\'' +
                 ", matchId=" + matchId +
-                '}' + "\n";
+                '}';
     }
 }

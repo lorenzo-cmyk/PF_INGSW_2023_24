@@ -48,6 +48,6 @@ public class InboundChatMessage implements CtoSMessage {
                 ", recipientNickname='" + recipientNickname + '\'' +
                 ", multicastFlag=" + multicastFlag +
                 ", content='" + content + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

@@ -29,6 +29,6 @@ public class InvalidSelectedSecretObjectiveCardMessage implements StoCMessage {
         return "InvalidSelectedSecretObjectiveCardMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", reason='" + reason + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

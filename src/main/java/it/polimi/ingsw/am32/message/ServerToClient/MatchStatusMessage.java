@@ -26,6 +26,6 @@ public class MatchStatusMessage implements StoCMessage {
         return "MatchStatusMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", matchStatus=" + matchStatus +
-                '}' + "\n";
+                '}';
     }
 }

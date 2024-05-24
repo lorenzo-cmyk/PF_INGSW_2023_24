@@ -29,6 +29,6 @@ public class RequestGameStatusMessage implements CtoSMessage {
     public String toString() {
         return "RequestGameStatusMessage:{" +
                 "senderNickname='" + senderNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

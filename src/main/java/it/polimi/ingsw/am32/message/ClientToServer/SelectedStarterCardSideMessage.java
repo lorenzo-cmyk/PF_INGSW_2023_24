@@ -34,6 +34,6 @@ public class SelectedStarterCardSideMessage implements CtoSMessage {
         return "SelectedStarterCardSideMessage:{" +
                 "senderNickname='" + senderNickname + '\'' +
                 ", isUp=" + isUp +
-                '}' + "\n";
+                '}';
     }
 }

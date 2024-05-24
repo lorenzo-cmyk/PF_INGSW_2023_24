@@ -25,6 +25,6 @@ public class ConfirmSelectedSecretObjectiveCardMessage implements StoCMessage {
         return "ConfirmSelectedSecretObjectiveCardMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", chosenSecretObjectiveCard=" + chosenSecretObjectiveCard +
-                '}' + "\n";
+                '}';
     }
 }

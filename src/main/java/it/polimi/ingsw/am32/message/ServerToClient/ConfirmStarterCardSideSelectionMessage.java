@@ -43,6 +43,6 @@ public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
                 ", availableSpaces=[" + availableSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
                 "], playerResources=" + Arrays.toString(playerResources) +
                 ", playerColour=" + playerColour +
-                '}' + "\n";
+                '}';
     }
 }

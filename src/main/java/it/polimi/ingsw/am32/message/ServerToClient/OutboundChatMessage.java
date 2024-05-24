@@ -29,6 +29,6 @@ public class OutboundChatMessage implements StoCMessage {
                 "recipientString='" + recipientString + '\'' +
                 ", senderNickname='" + senderNickname + '\'' +
                 ", content='" + content + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

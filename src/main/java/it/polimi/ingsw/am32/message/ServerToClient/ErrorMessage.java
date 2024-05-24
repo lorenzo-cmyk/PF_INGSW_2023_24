@@ -26,6 +26,6 @@ public class ErrorMessage implements StoCMessage{
         return "ErrorMessage:{" +
                 "message='" + message + '\'' +
                 ", recipientNickname='" + recipientNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

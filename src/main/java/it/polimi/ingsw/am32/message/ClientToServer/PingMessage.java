@@ -25,6 +25,6 @@ public class PingMessage implements CtoSMessage {
     public String toString() {
         return "PingMessage:{" +
                 "senderNickname='" + senderNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

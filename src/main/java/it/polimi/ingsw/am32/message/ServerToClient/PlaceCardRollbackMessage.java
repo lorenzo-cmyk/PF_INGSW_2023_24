@@ -37,6 +37,6 @@ public class PlaceCardRollbackMessage implements StoCMessage{
                 ", removedCard=" + removedCard +
                 ", playerPoints=" + playerPoints +
                 ", playerResources=" + Arrays.toString(playerResources) +
-                '}' + "\n";
+                '}';
     }
 }

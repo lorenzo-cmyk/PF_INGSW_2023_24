@@ -36,6 +36,6 @@ public class RequestPlayerFieldMessage implements CtoSMessage {
         return "RequestPlayerFieldMessage:{" +
                 "senderNickname='" + senderNickname + '\'' +
                 ", playerNickname='" + playerNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

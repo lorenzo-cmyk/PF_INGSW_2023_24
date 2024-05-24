@@ -24,6 +24,6 @@ public class GameStartedMessage implements StoCMessage {
     public String toString() {
         return "GameStartedMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

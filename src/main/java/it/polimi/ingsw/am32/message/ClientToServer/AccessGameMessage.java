@@ -46,6 +46,6 @@ public class AccessGameMessage implements CtoSLobbyMessage {
         return "AccessGameMessage:{" +
                 "matchId=" + matchId +
                 ", senderNickname='" + senderNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

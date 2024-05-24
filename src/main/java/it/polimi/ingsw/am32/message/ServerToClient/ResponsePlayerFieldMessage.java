@@ -36,6 +36,6 @@ public class ResponsePlayerFieldMessage implements StoCMessage {
                 ", playerNickname='" + playerNickname + '\'' +
                 ", playerField=" + playerField.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
                 ", playerResources=" + Arrays.toString(playerResources) +
-                '}' + "\n";
+                '}';
     }
 }

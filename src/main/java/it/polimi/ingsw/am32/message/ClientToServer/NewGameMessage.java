@@ -47,6 +47,6 @@ public class NewGameMessage implements CtoSLobbyMessage {
         return "NewGameMessage:{" +
                 "senderNickname='" + senderNickname + '\'' +
                 ", playerNum=" + playerNum +
-                '}' + "\n";
+                '}';
     }
 }

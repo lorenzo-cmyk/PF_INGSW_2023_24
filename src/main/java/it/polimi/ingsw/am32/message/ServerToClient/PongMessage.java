@@ -23,6 +23,6 @@ public class PongMessage implements StoCMessage {
     public String toString() {
         return "PongMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

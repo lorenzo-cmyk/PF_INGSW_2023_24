@@ -26,7 +26,7 @@ public class PlayerConnectedMessage implements StoCMessage {
         return "PlayerConnectedMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", connectedNickname='" + connectedNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }
 

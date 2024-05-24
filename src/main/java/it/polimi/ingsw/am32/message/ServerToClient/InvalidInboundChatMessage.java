@@ -27,6 +27,6 @@ public class InvalidInboundChatMessage implements StoCMessage {
         return "InvalidInboundChatMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", reason='" + reason + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

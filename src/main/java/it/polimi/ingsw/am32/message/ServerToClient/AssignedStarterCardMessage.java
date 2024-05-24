@@ -28,6 +28,6 @@ public class AssignedStarterCardMessage implements StoCMessage {
         return "AssignedStarterCardMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", cardId=" + cardId +
-                '}' + "\n";
+                '}';
     }
 }
