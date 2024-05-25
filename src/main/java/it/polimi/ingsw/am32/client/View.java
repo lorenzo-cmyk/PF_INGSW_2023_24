@@ -206,8 +206,6 @@ public abstract class View implements EventHandler{
         startCard=cardId;
     }
 
-    public void updateStatus(Event event) {
-    }
 }
 
 

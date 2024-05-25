@@ -5,18 +5,22 @@ import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.PlayerPub;
 import it.polimi.ingsw.am32.client.View;
-import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import it.polimi.ingsw.am32.message.ClientToServer.AccessGameMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,13 +30,11 @@ import java.util.List;
 
 public class GraphicalUI extends View {
     private GraphicalUIApplication app;
-    private StackPane preparationPhase;
+    private StackPane masterPane;
     private StackPane welcomeRoot;
     private StackPane selectionPane;
     private StackPane connectionRoot;
-    private StackPane createGameRoot;
     private StackPane waitingRoot;
-    private  TextArea playerList;
     private TextField playerListView;
     private Label matchStatus;
     Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
@@ -205,7 +207,7 @@ public class GraphicalUI extends View {
     @Override
     public void askCreateGame() {
         currentEvent = Event.CREATE_GAME;
-        createGameRoot = new StackPane();
+        StackPane createGameRoot = new StackPane();
 
         Label labelNickname = createLabel("Nickname",-90,-80);
         Label labelPlayers = createLabel("Players number",-60,30);
@@ -284,8 +286,8 @@ public class GraphicalUI extends View {
 
     @Override
     public void updateNewGameConfirm(int gameID, String recipientNickname) {
-        javafx.application.Platform.runLater(() -> {
-            selectionPane.getChildren().remove(createGameRoot);
+        Platform.runLater(() -> {
+            selectionPane.getChildren().removeLast();
             waitingRoot = new StackPane();
 
             this.gameID = gameID;
@@ -297,25 +299,14 @@ public class GraphicalUI extends View {
             Label id = createLabel("ID: " + gameID, -80, -80);
             Label waiting = createLabel("Waiting...", 130, 100);
 
-            /*playerList= new TextArea();
-            playerList.setMaxHeight(135);
-            playerList.setMaxWidth(360);
-            playerList.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow(gaussian ," +
-                    "rgba(58,33,17,100,0.2) , 10,0,0,10 );");
-            playerList.setTranslateX(0);
-            playerList.setTranslateY(0);
-            playerList.setEditable(false);*/
-            //playerList.setText("Players:\n" + String.join("\n", players));
             playerListView = createTextField(null, 135, 360, 0, 0);
             playerListView.setText("Players: \n" + String.join("\n", players));
             playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
-                    "rgba(58,33,17,100,0.2) , 10,0,0,10 );");
+                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
             playerListView.setTranslateX(0);
             playerListView.setTranslateY(0);
             playerListView.setEditable(false);
-            waitingRoot.getChildren().addAll(id, waiting,playerListView);
+            waitingRoot.getChildren().addAll(id, waiting, playerListView);
             selectionPane.getChildren().add(waitingRoot);
         });
     }
@@ -331,18 +322,59 @@ public class GraphicalUI extends View {
 
     @Override
     public void setUpPlayersData() {
+        if(this.matchStatus == null){
+            this.matchStatus = createLabel(String.valueOf(Status),-80,-80);
+        }
         for (String player : players) {
             // set up the data of the players and initialize the board of the players
             publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
                     true));
-            //TODO initialize the board of the players
+
         }
     }
-    private void setPreparationPhaseView(){
-        preparationPhase = new StackPane();
-        preparationPhase.setBackground(new Background(new BackgroundImage(new Image("/PreparationDisplay.png"), BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false))));
-        app.updateScene(preparationPhase, 975, 925);
+
+    @Override
+    public void updatePlayerList(ArrayList<String> players) {
+        this.players = players;
+        //playerList.setText("Players:\n" + String.join("\n", players));
+        if(playerListView==null){
+            playerListView = createTextField(null, 135, 360, 0, 0);
+            playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
+            playerListView.setTranslateX(0);
+            playerListView.setTranslateY(0);
+            playerListView.setEditable(false);
+        }
+        playerListView.setText("Players: \n" + String.join(",\n", players));
+    }
+
+
+    @Override
+    public void updateMatchStatus(int matchStatus) {
+        this.Status = Event.getEvent(matchStatus); // update the match status of the player.
+        this.matchStatus.setText(String.valueOf(Status));
+        if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
+            for (String player : players) {
+                showResource(player);
+            }
+        }
+    }
+    private void setGameView(){
+        masterPane = new StackPane();
+        masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
+        Label labelID = createLabel("ID: " + gameID, -80, -80);
+        HBox StatusBox = new HBox();
+        Label statusTitle= createLabel("Status ", -80, -80);
+        StatusBox.getChildren().addAll(statusTitle,matchStatus);
+        Label labelPlayerOrder = createLabel("Order: " + players, -80, -80);
+        HBox topLine = new HBox();
+        topLine.setSpacing(30);
+        topLine.getChildren().addAll(labelID,StatusBox,labelPlayerOrder);
+
+        Platform.runLater( ()->{
+                app.updateScene(masterPane);
+            app.getPrimaryStage().setFullScreen(true);
+        });
     }
 
 
@@ -350,6 +382,10 @@ public class GraphicalUI extends View {
 
 
     // Methods to create the components of the GUI
+    private Group createPlayerInfoPanel() {
+        return null;
+    }
+
     private Label createLabel(String text, int X, int Y) {
         Label label = new Label(text);
         label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
@@ -480,24 +516,6 @@ public class GraphicalUI extends View {
     }
 
 
-    @Override
-    public void updatePlayerList(ArrayList<String> players) {
-        this.players = players;
-        //playerList.setText("Players:\n" + String.join("\n", players));
-        playerListView.setText("Players: \n" + String.join(",\n", players));
-    }
-
-
-    @Override
-    public void updateMatchStatus(int matchStatus) {
-        this.Status = Event.getEvent(matchStatus); // update the match status of the player.
-        this.matchStatus.setText("Status: " + Status);
-        if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
-            for (String player : players) {
-                showResource(player);
-            }
-        }
-    }
 
     @Override
     public void requestSelectStarterCardSide(int ID) {
@@ -569,18 +587,42 @@ public class GraphicalUI extends View {
     @Override
     public void handleEvent(Event event, String message) {
         switch (event) {
-            case Event.NEW_PLAYER_JOIN: {
+            case Event.NEW_PLAYER_JOIN ->{
                 this.players.add(message);
-                Label player = new Label("Player " + message+" joined the lobby");
-                selectionPane.getChildren().add(player);
-                break;
+                Label player = createLabel("Player " + message+" joined the lobby",20,20);
+                Platform.runLater(()->
+                {
+                    selectionPane.getChildren().add(player);
+                    PauseTransition pause = new PauseTransition(Duration.seconds(5));
+                    pause.setOnFinished(e -> {
+                        selectionPane.getChildren().remove(player);
+                    });
+                });
             }
-            case Event.GAME_START: {
-                /*PreparationPhase = new StackPane();
-                PreparationPhase.setBackground(new Background(new BackgroundImage(new Image("/PreparationPhase.png"), BackgroundRepeat.NO_REPEAT,
-                        BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false))));
-                app.updateScene(PreparationPhase, 975, 925);*/
+            case Event.GAME_START->{
+                setGameView();
+            }
+            case Event.GAME_JOINED->{
+                Platform.runLater(()->
+                {   selectionPane.getChildren().removeLast();
+                    waitingRoot = new StackPane();
+                    this.players.add(thisPlayerNickname);
+                    currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
+                    Status = Event.LOBBY;
 
+                    Label id = createLabel("ID: " + gameID, -80, -80);
+                    Label waiting = createLabel("Waiting...", 130, 100);
+
+                    playerListView = createTextField(null, 135, 360, 0, 0);
+                    playerListView.setText("Players: \n" + String.join("\n", players));
+                    playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                            "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
+                    playerListView.setTranslateX(0);
+                    playerListView.setTranslateY(0);
+                    playerListView.setEditable(false);
+                    waitingRoot.getChildren().addAll(id, waiting, playerListView);
+                    selectionPane.getChildren().add(waitingRoot);
+                    });
             }
             //TODO
         }

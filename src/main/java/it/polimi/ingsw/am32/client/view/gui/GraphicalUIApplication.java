@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.client.view.gui;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -21,15 +22,17 @@ public class GraphicalUIApplication extends Application {
     public void start(Stage primaryStage) throws IOException {
         this.primaryStage = primaryStage;
         primaryStage.setTitle("Codex Naturalis");
-        changeStageDimensions(primaryStage, 750, 750, 975, 975);
+        primaryStage.setMinHeight(750);
+        primaryStage.setMinWidth(975);
         primaryStage.setScene(new Scene(graphicalUI.getWelcomeRoot(), 975, 750));
-        PauseTransition pauseTransition = new PauseTransition(Duration.seconds(3));
-        pauseTransition.setOnFinished(e -> {
-            primaryStage.setScene(new Scene(graphicalUI.getSelectionRoot(), 975, 750));
-        }); //FIXME WHY AFTER 3 SECONDS THE NEW BACKGROUND IS NOT CENTERED ANYMORE?
-        pauseTransition.play();
+        primaryStage.setScene(new Scene(graphicalUI.getSelectionRoot(), 975, 750));
+         //FIXME WHY AFTER 3 SECONDS THE NEW BACKGROUND IS NOT CENTERED ANYMORE?
 
 
+        primaryStage.setOnCloseRequest(e -> {
+            Platform.exit();
+            System.exit(0);
+        });
 
         primaryStage.show();
     }
@@ -39,7 +42,11 @@ public class GraphicalUIApplication extends Application {
         stage.setMinWidth(MINWidth);
         stage.setMaxWidth(MAXWidth);
     }
-    public void updateScene(Parent parent, int x, int y) {
-        primaryStage.setScene(new Scene(parent, x, y));
+    public void updateScene(Parent parent) {
+        primaryStage.setScene(new Scene(parent));
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
     }
 }

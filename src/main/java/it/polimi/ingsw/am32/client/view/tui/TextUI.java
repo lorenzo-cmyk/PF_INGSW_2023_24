@@ -375,6 +375,7 @@ public class TextUI extends View{
     @Override
     public void updateNewGameConfirm(int gameID, String recipientNickname) {
         this.gameID = gameID;
+        this.Status = Event.LOBBY;
         this.thisPlayerNickname = recipientNickname;
         this.players.add(recipientNickname); // add the player who created the game in the list of players
     }

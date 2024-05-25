@@ -17,7 +17,6 @@ public class NewGameConfirmationMessage implements StoCMessage {
         view.updateNewGameConfirm(matchId, recipientNickname);
         view.handleEvent(Event.GAME_CREATED,null); // print the message to notify the player that the game is created correctly
         view.updateCurrentEvent(Event.WAITING_FOR_START); // enter the waiting for start event
-        view.updateStatus(Event.LOBBY);
     }
 
     @Override
