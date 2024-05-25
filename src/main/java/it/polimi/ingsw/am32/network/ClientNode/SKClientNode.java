@@ -9,6 +9,7 @@ import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Timer;
 
 public class SKClientNode implements ClientNodeInterface, Runnable {
     private View view;
@@ -19,6 +20,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     private ObjectInputStream socketIn;
     private String nickname;
     private ClientPingTask clientPingTask;
+    private Timer timer;
 
     public SKClientNode(View view, String ip, int port, String nickname) {
         this.view = view;
@@ -26,6 +28,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         this.port = port;
         this.nickname = nickname;
         clientPingTask = new ClientPingTask(this);
+        timer = new Timer();
     }
 
     public SKClientNode(View view) {
