@@ -5,35 +5,47 @@ import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
+import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Timer;
 
 public class SKClientNode implements ClientNodeInterface, Runnable {
+
+    private final Logger logger;
     private View view;
     private Socket socket;
     private String ip;
     private int port;
-    private ObjectOutputStream socketOut;
-    private ObjectInputStream socketIn;
+    private ObjectOutputStream outputObtStr;
+    private ObjectInputStream inputObtStr;
     private String nickname;
     private ClientPingTask clientPingTask;
     private Timer timer;
+    private int pongCount;
+    private boolean statusIsAlive;
+    private final Object aliveLock;
+    private final Object ctoSProcessingLock;
+    private final Object stoCProcessingLock;
 
-    public SKClientNode(View view, String ip, int port, String nickname) {
+    public SKClientNode(View view, String ip, int port) {
         this.view = view;
         this.ip = ip;
         this.port = port;
-        this.nickname = nickname;
         clientPingTask = new ClientPingTask(this);
         timer = new Timer();
+        aliveLock = new Object();
+        ctoSProcessingLock = new Object();
+        stoCProcessingLock = new Object();
+        statusIsAlive = false;
+        pongCount = 3; // todo fare un config??
+        logger = LogManager.getLogger("SKClientNode");
     }
 
-    public SKClientNode(View view) {
-        this.view = view;
-    }
 
     public void run() {
         // Listen for incoming messages
@@ -66,7 +78,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         }
 
         try {
-            socketOut.writeObject(message);
+            outputObtStr.writeObject(message);
         } catch (IOException e) {
             throw new UploadFailureException();
         }
@@ -79,24 +91,39 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         }
 
         try {
-            socketOut.writeObject(message);
+            outputObtStr.writeObject(message);
         } catch (IOException e) {
             throw new UploadFailureException();
         }
     }
 
-    public void startConnection(String ip, int port) throws IOException {
-        this.socket = new Socket(ip, port);
-        System.out.println("Socket Client Acceptor created");
-        this.socketOut = new ObjectOutputStream(socket.getOutputStream());
-        this.socketIn = new ObjectInputStream(socket.getInputStream());
+    private void reconnect() {
 
+    }
+
+    public void startConnection(){
+
+        // TODO da fare/controllare
+        new Thread(this).start();
     }
 
     @Override
     public void pingTimeOverdue() {
         try {
             uploadToServer(new PingMessage(nickname));
+
+            // diminuzione pongCount
         } catch (UploadFailureException ignored) {}
+    }
+
+    public void resetTimeCounter() {
+
+        synchronized (aliveLock) {
+
+            if (!statusIsAlive)
+                return;
+
+            pongCount = 3; // TODO modificare se si aggiunge config
+        }
     }
 }

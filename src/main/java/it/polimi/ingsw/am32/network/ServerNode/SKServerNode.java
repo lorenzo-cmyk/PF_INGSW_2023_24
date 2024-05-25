@@ -49,7 +49,7 @@ public class SKServerNode implements Runnable, NodeInterface {
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
 
-        this.logger = LogManager.getLogger("SkServerNode");
+        this.logger = LogManager.getLogger("SKServerNode");
 
         try {
             socket.setSoTimeout(config.getSocketReadTimeout());

@@ -78,9 +78,9 @@ public abstract class View implements EventHandler{
     public abstract void chooseConnection();
 
     public void setSocketClient(String ServerIP, int port) throws IOException {
-        SKClientNode clientNode = new SKClientNode(this);
+        SKClientNode clientNode = new SKClientNode(this, ServerIP, port);
         this.clientNode = clientNode;
-        clientNode.startConnection(ServerIP,port);
+        clientNode.startConnection();
         this.askListener = new  AskListener(clientNode);
         //TODO verify if this is correct
     }
