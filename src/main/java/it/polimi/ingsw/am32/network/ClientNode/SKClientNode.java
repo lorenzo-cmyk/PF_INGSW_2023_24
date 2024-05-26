@@ -78,27 +78,31 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     @Override
     public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
-        if (socket.isClosed()) {
-            throw new UploadFailureException();
-        }
 
-        try {
-            outputObtStr.writeObject(message);
-        } catch (IOException e) {
-            throw new UploadFailureException();
+        boolean toSend = true;
+
+        while (toSend) {
+            try {
+                outputObtStr.writeObject(message);
+                toSend = false;
+            } catch (IOException e) {
+                checkConnection();
+            }
         }
     }
 
     @Override
     public void uploadToServer(CtoSMessage message) throws UploadFailureException {
-        if (socket.isClosed()) {
-            throw new UploadFailureException();
-        }
 
-        try {
-            outputObtStr.writeObject(message);
-        } catch (IOException e) {
-            throw new UploadFailureException();
+        boolean toSend = true;
+
+        while (toSend) {
+            try {
+                outputObtStr.writeObject(message);
+                toSend = false;
+            } catch (IOException e) {
+                checkConnection();
+            }
         }
     }
 
