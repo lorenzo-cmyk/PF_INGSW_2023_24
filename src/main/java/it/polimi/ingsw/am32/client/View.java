@@ -146,7 +146,7 @@ public abstract class View implements EventHandler{
     public abstract void requestPlaceCard();
 
 
-    public abstract void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y,
+    public abstract void updateAfterPlacedCard(String playerNickname, int cardID, int x, int y,
                                                boolean isUp, ArrayList<int[]> availablePos, int[] resources,
                                                int points);
     public void notifyAskListener(CtoSMessage message){
@@ -202,9 +202,7 @@ public abstract class View implements EventHandler{
 
     public abstract void updateChat(String recipientString, String senderNickname, String content);
 
-    public void setStarterCard(int cardId) {
-        startCard=cardId;
-    }
+    public abstract void setStarterCard(int cardId);
 
 }
 

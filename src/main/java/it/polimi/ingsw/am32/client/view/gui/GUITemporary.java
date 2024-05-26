@@ -208,8 +208,19 @@ public class GUITemporary extends Application {
         bottomLine.translateXProperty().bind(preparationPhase.widthProperty().subtract(bottomLine.widthProperty().add(20)));
         bottomLine.translateYProperty().bind(preparationPhase.heightProperty().subtract(bottomLine.heightProperty().add(20)));
         preparationPhase.getChildren().addAll(board,deckArea,bottomLine,chatArea.getChatArea(),notice);
-        primaryStage.setScene(new Scene(preparationPhase));
 
+        VBox selectionArea = new VBox(); // Area containing everything
+        Label promptLabel = new Label("choose a secret objective card"); // Text label promping user to pick card
+        HBox cardPairArea = new HBox(); // Area at the bottom, containing the 2 cards to choose from
+
+        ImageView firstCard = new ImageView(new Image("codex_rulebook_it_08.png"));
+        ImageView secondCard = new ImageView(new Image("codex_rulebook_it_09.png"));
+
+        selectionArea.getChildren().addAll(promptLabel, cardPairArea);
+        cardPairArea.getChildren().addAll(firstCard, secondCard);
+
+
+        primaryStage.setScene(new Scene(preparationPhase));
         primaryStage.show();
     }
     private Label createLabel(String text) {

@@ -508,7 +508,7 @@ public class TextUI extends View{
         // update the available spaces in the field after the placement of the starter card
         availableSpaces = availablePos;
         // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
-        updateAfterPlacedCard(thisPlayerNickname, searchNonObjCardById(cardID), 0, 0, isUp, availablePos,
+        updateAfterPlacedCard(thisPlayerNickname, cardID, 0, 0, isUp, availablePos,
                 resources, 0);
         out.println("Your field after placing the starter card is following:");
         // print the board of the player after the placement of the starter card with the current resources count
@@ -537,6 +537,10 @@ public class TextUI extends View{
         out.println("Your common objective cards for this game are following:");
         // print the common objectives cards of the game and the three cards received from the server using the show methods.
         showObjectiveCards(common);
+    }
+    @Override
+    public void setStarterCard(int cardId) {
+        startCard = cardId;
     }
     @Override
     public void requestSelectSecretObjectiveCard() {
@@ -631,7 +635,7 @@ public class TextUI extends View{
                     // use the updateAfterPlacedCard method to add the card in the field of the player, update the
                     // resources count, and the points of the player. Also, update the board view of the player with
                     // the current available spaces in the field.
-                    updateAfterPlacedCard(playerNicknames.get(finalI), searchNonObjCardById(card[2]), card[0], card[1],
+                    updateAfterPlacedCard(playerNicknames.get(finalI), card[2], card[0], card[1],
                             card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);
                 });
                 // Reconnection of the player from the playing phase
@@ -681,7 +685,7 @@ public class TextUI extends View{
                 card=playerFields.get(i).get(0);
                 playerSpecific.addToField(new CardPlacedView(card[2], cardImg.get(card[2]),
                         card[0], card[1], card[3] == 1));
-                updateAfterPlacedCard(playerNicknames.get(i), searchNonObjCardById(card[2]), card[0], card[1],
+                updateAfterPlacedCard(playerNicknames.get(i), card[2], card[0], card[1],
                         card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[i]);
             }
         }
@@ -838,7 +842,7 @@ public class TextUI extends View{
                                         boolean placedSide, int playerPoints, int[] playerResources,
                                         ArrayList<int[]> newAvailableFieldSpaces) {
         // store the card placed in the field of the player and update the board of the player
-        updateAfterPlacedCard(playerNickname, searchNonObjCardById(placedCard), placedCardCoordinates[0],
+        updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0],
                 placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints);
         // if the player who placed the card is this player, print the message to notify the player that the card is
         // placed successfully.
@@ -896,20 +900,21 @@ public class TextUI extends View{
      * the card information, update the board of the player.
      *
      * @param playerNickname the nickname of the player who placed the card in the field.
-     * @param card the card should be placed in the field.
-     * @param x the x coordinate of the card placed in the field.
-     * @param y the y coordinate of the card placed in the field.
-     * @param isUp the side of the card selected to place in the field.
-     * @param availablePos the available positions in the field after the placement of the card.
-     * @param resources the resources of the player after placing the card.
-     * @param points the points of the player after placing the card.
+     * @param cardID         the card should be placed in the field.
+     * @param x              the x coordinate of the card placed in the field.
+     * @param y              the y coordinate of the card placed in the field.
+     * @param isUp           the side of the card selected to place in the field.
+     * @param availablePos   the available positions in the field after the placement of the card.
+     * @param resources      the resources of the player after placing the card.
+     * @param points         the points of the player after placing the card.
      */
     @Override
-    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp,
+    public void updateAfterPlacedCard(String playerNickname, int cardID, int x, int y, boolean isUp,
                                       ArrayList<int[]> availablePos, int[] resources, int points) {
+        NonObjCardFactory card = searchNonObjCardById(cardID);
         // update the field of the player
         int num = publicInfo.get(playerNickname).getField().size();
-        publicInfo.get(playerNickname).addToField(new CardPlacedView(card.getID(), cardImg.get(card.getID()), x, y, isUp));
+        publicInfo.get(playerNickname).addToField(new CardPlacedView(cardID, cardImg.get(cardID), x, y, isUp));
         publicInfo.get(playerNickname).updateResources(resources); // update the resources
         publicInfo.get(playerNickname).updatePoints(points); // update the points
         // represents the sequence of the card placed in the field.
@@ -1666,7 +1671,7 @@ public class TextUI extends View{
 
     /**
      * Used method to update the dimensions of the board view of the player after placing a card on the board. The
-     * method is called by the {@link #updateAfterPlacedCard} method.
+     * method is called by the {@link View#updateAfterPlacedCard} method.
      *
      * @param posX   the x coordinate of the card placed.
      * @param posY   the y coordinate of the card placed.

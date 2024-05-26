@@ -1,10 +1,8 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
 import it.polimi.ingsw.am32.chat.ChatMessage;
-import it.polimi.ingsw.am32.client.Event;
-import it.polimi.ingsw.am32.client.NonObjCardFactory;
-import it.polimi.ingsw.am32.client.PlayerPub;
-import it.polimi.ingsw.am32.client.View;
+import it.polimi.ingsw.am32.client.*;
+import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import it.polimi.ingsw.am32.message.ClientToServer.AccessGameMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
 import javafx.animation.PauseTransition;
@@ -12,6 +10,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -31,7 +30,7 @@ import java.util.List;
 
 public class GraphicalUI extends View {
     private GraphicalUIApplication app;
-    private StackPane masterPane;
+    private Pane masterPane;
     private StackPane welcomeRoot;
     private StackPane selectionPane;
     private StackPane connectionRoot;
@@ -42,6 +41,7 @@ public class GraphicalUI extends View {
     private ImageView [] labelPlayerOrder;
     private HashMap<String, PlayerPubView> playerViews = new HashMap<>();
     private HashMap<String,Image> imagesMap = new HashMap<>();
+    private HashMap<String,StackPane> playerField = new HashMap<>();
     private ChatArea chatArea;
     private ImageView[] handView;
     private ImageView[] resourceDeckView;
@@ -387,9 +387,9 @@ public class GraphicalUI extends View {
         imagesMap.put("QUILL", new Image("kingdom_quill.png", 20, 20, true, false));
         imagesMap.put("INKWELL", new Image("kingdom_inkwell.png", 20, 20, true, false));
         imagesMap.put("MANUSCRIPT", new Image("kingdom_manuscript.png", 20, 20, true, false));
-
+        imagesMap.put("AVAILABLESPACE", new Image("availableSpace.png", 120, 80, true, true));
         // set the master pane
-        masterPane = new StackPane();
+        masterPane = new Pane();
         masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
 
         // set the player info panel
@@ -679,6 +679,12 @@ public class GraphicalUI extends View {
 
     }
 
+    @Override
+    public void setStarterCard(int cardId) {
+        startCard= cardId;
+        requestSelectStarterCardSide(cardId);
+    }
+
 
     @Override
     public void askNickname() {
@@ -695,14 +701,32 @@ public class GraphicalUI extends View {
 
     @Override
     public void requestSelectStarterCardSide(int ID) {
+        Label requestLabel = createLabelMasterPane("choose your Starter card's side",20);
+
+
 
     }
 
     @Override
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
+        if(isUp)
+            boardReal.getChildren().add(new ImageView(new Image("/cards_0"+cardID+".png", 120, 80, true, false)));
+        else
+            boardReal.getChildren().add(new ImageView(new Image("/cards_back_0"+cardID+".png", 120, 80, true, false)));
+        String colourReceived = convertToColour(colour);
+        publicInfo.get(thisPlayerNickname).updateColour(colourReceived);
+        // notify the player the colour received from the server
+        VBox colourBox = new VBox();
+        colourBox.getChildren().add(new ImageView(imagesMap.get(colourReceived)));
+        Label createedLabel = createLabelMasterPane("Your colour of this game is "+colourReceived,20);
+        // update the available spaces in the field after the placement of the starter card
+        availableSpaces = availablePos;
+        // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
+        updateAfterPlacedCard(thisPlayerNickname, cardID, 0, 0, isUp, availablePos,
+                resources, 0);
+        // print the board of the player after the placement of the starter card with the current resources count
 
     }
-
     @Override
     public void requestDrawCard() {
 
@@ -751,12 +775,62 @@ public class GraphicalUI extends View {
 
     @Override
     public void requestPlaceCard() {
+        int posX;
+        int posY;
+        for (int[] pos : availableSpaces) {
+                posX = pos[0]*95;
+                posY = pos[1]*(-50);
+                ImageView availableSpace = new ImageView(imagesMap.get("AVAILABLESPACE"));
+                availableSpace.setTranslateX(posX);
+                availableSpace.setTranslateY(posY);
+                availableSpace.setEffect(new DropShadow(20, Color.BLACK));
+                playerField.get(thisPlayerNickname).getChildren().add(availableSpace);
+            }
+        //TODO
+        }
 
-    }
 
     @Override
-    public void updateAfterPlacedCard(String playerNickname, NonObjCardFactory card, int x, int y, boolean isUp, ArrayList<int[]> availablePos, int[] resources, int points) {
+    public void updateAfterPlacedCard(String playerNickname, int cardID, int x, int y, boolean isUp, ArrayList<int[]> availablePos, int[] resources, int points) {
+        // update the field of the player
+        publicInfo.get(playerNickname).addToField(new CardPlacedView(cardID, null, x, y, isUp));
+        publicInfo.get(playerNickname).updateResources(resources); // update the resources
+        publicInfo.get(playerNickname).updatePoints(points); // update the points
+        // update the view
+        playerViews.get(playerNickname).setPoints(points);
+        playerViews.get(playerNickname).setResourceLabels(resources);
+        // represents the sequence of the card placed in the field.
+        int posX = x*95;
+        int posY = y*(-50);
+        StackPane playerBoard=playerField.get(playerNickname);
+        if (playerNickname.equals(thisPlayerNickname)) {
+            if (!currentEvent.equals(Event.RECONNECT_GAME)) {
+                for (int i = 0; i < availableSpaces.size(); i++) {
+                    playerBoard.getChildren().removeLast();
+                }
+            }
+        }
+        availableSpaces = availablePos;
+        ImageView cardImage;
+        if(isUp) {
+            if(cardID>=10){
+                cardImage = new ImageView(new Image("/cards_front_0"+cardID+".png", 120, 80, true, false));
+            }
+            else{
+                cardImage = new ImageView(new Image("/cards_front_00"+cardID+".png", 120, 80, true, false));
+            }
 
+        }
+        else {
+            if (cardID >= 10) {
+                cardImage = new ImageView(new Image("/cards_back_0" + cardID + ".png", 120, 80, true, false));
+            } else {
+                cardImage = new ImageView(new Image("/cards_back_00" + cardID + ".png", 120, 80, true, false));
+            }
+        }
+        cardImage.setTranslateX(posX);
+        cardImage.setTranslateY(posY);
+        playerBoard.getChildren().add(cardImage);
     }
 
 
@@ -801,6 +875,28 @@ public class GraphicalUI extends View {
                     });
             }
             //TODO
+        }
+    }
+    public String convertToColour(int colour) {
+        switch (colour) {
+            case 0 -> {
+                return  "RED";
+            }
+            case 1 -> {
+                return  "GREEN";
+            }
+            case 2 -> {
+                return "BLUE";
+            }
+            case 3 -> {
+                return "YELLOW";
+            }
+            case 4 -> {
+                return  "BLACK" ;
+            }
+            default -> {
+                return null;
+            }
         }
     }
 }
