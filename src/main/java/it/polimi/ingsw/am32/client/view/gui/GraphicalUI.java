@@ -37,7 +37,11 @@ public class GraphicalUI extends View {
     private StackPane waitingRoot;
     private TextField playerListView;
     private Label matchStatus;
-    Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
+    private HBox playerOrder;
+    private ImageView [] labelPlayerOrder;
+    private HashMap<String, PlayerPubView> playerViews = new HashMap<>();
+    private HashMap<String,Image> imagesMap = new HashMap<>();
+    private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String [] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
             "/codex_rulebook_it_08.png", "/codex_rulebook_it_09.png", "/codex_rulebook_it_10.png", "/codex_rulebook_it_11.png",
@@ -323,7 +327,7 @@ public class GraphicalUI extends View {
     @Override
     public void setUpPlayersData() {
         if(this.matchStatus == null){
-            this.matchStatus = createLabel(String.valueOf(Status),-80,-80);
+            this.matchStatus = createLabelMasterPane(String.valueOf(Status),20);
         }
         for (String player : players) {
             // set up the data of the players and initialize the board of the players
@@ -352,7 +356,7 @@ public class GraphicalUI extends View {
     @Override
     public void updateMatchStatus(int matchStatus) {
         this.Status = Event.getEvent(matchStatus); // update the match status of the player.
-        this.matchStatus.setText(String.valueOf(Status));
+        Platform.runLater(()->this.matchStatus.setText(String.valueOf(Status)));
         if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
             for (String player : players) {
                 showResource(player);
@@ -360,19 +364,82 @@ public class GraphicalUI extends View {
         }
     }
     private void setGameView(){
+        imagesMap.put("BLUE", new Image("/CODEX_pion_bleu.png", 20, 20, true, false));
+        imagesMap.put("YELLOW", new Image("/CODEX_pion_jaune.png", 20, 20, true, false));
+        imagesMap.put("BLACK", new Image("/CODEX_pion_noir.png", 20, 20, true, false));
+        imagesMap.put("RED", new Image("/CODEX_pion_rouge.png", 20, 20, true, false));
+        imagesMap.put("GREEN", new Image("CODEX_pion_vert.png", 20, 20, true, false));
+        imagesMap.put("PLANT", new Image("kingdom_plant.png", 20, 20, true, false));
+        imagesMap.put("FUNGI", new Image("kingdom_fungi.png", 20, 20, true, false));
+        imagesMap.put("ANIMAL", new Image("kingdom_animal.png", 20, 20, true, false));
+        imagesMap.put("INSECT", new Image("kingdom_insect.png", 20, 20, true, false));
+        imagesMap.put("QUILL", new Image("kingdom_quill.png", 20, 20, true, false));
+        imagesMap.put("INKWELL", new Image("kingdom_inkwell.png", 20, 20, true, false));
+        imagesMap.put("MANUSCRIPT", new Image("kingdom_manuscript.png", 20, 20, true, false));
+
         masterPane = new StackPane();
         masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
-        Label labelID = createLabel("ID: " + gameID, -80, -80);
-        HBox StatusBox = new HBox();
-        Label statusTitle= createLabel("Status ", -80, -80);
-        StatusBox.getChildren().addAll(statusTitle,matchStatus);
-        Label labelPlayerOrder = createLabel("Order: " + players, -80, -80);
-        HBox topLine = new HBox();
-        topLine.setSpacing(30);
-        topLine.getChildren().addAll(labelID,StatusBox,labelPlayerOrder);
+        VBox playerInfoPanel = new VBox();
+        for (String player : publicInfo.keySet()) {
+            Label nickNameLabel = createLabelMasterPane(player, 20);
+            ImageView colour = new ImageView(imagesMap.get("BLACK"));
+            Label points = createLabelMasterPane("0", 20);
+            Label[] resourceLabels = new Label[]{
+                    createLabelMasterPane("0", 20),
+                    createLabelMasterPane("0", 20),
+                    createLabelMasterPane("0", 20),
+                    createLabelMasterPane("0", 20),
+                    createLabelMasterPane("0", 20),
+                    createLabelMasterPane("0", 20),
+                    createLabelMasterPane("0", 20)};
+            PlayerPubView playerPubView = new PlayerPubView(nickNameLabel, colour, points, resourceLabels);
+            playerViews.put(player, playerPubView);
+            HBox playerInfo = new HBox();
+            playerInfo.setSpacing(10);
+            playerInfo.setMaxWidth(300);
+            playerInfo.setMinWidth(300);
+            playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname());
 
-        Platform.runLater( ()->{
-                app.updateScene(masterPane);
+            HBox playerResource = new HBox();
+            playerResource.setSpacing(10);
+            playerResource.getChildren().addAll(
+                    new ImageView(imagesMap.get("PLANT")), playerPubView.getResourceLabels()[0],
+                    new ImageView(imagesMap.get("FUNGI")), playerPubView.getResourceLabels()[1],
+                    new ImageView(imagesMap.get("ANIMAL")), playerPubView.getResourceLabels()[2],
+                    new ImageView(imagesMap.get("INSECT")), playerPubView.getResourceLabels()[3],
+                    new ImageView(imagesMap.get("QUILL")), playerPubView.getResourceLabels()[4],
+                    new ImageView(imagesMap.get("INKWELL")), playerPubView.getResourceLabels()[5],
+                    new ImageView(imagesMap.get("MANUSCRIPT")), playerPubView.getResourceLabels()[6]);
+            playerInfo.setOnMouseEntered(e -> {
+                playerInfo.getChildren().add(playerResource);
+            });
+            playerInfo.setOnMouseExited(e -> {
+                playerInfo.getChildren().remove(playerResource);
+            });
+            playerInfoPanel.getChildren().add(playerInfo);
+        }
+        playerInfoPanel.setTranslateX(20);
+        playerInfoPanel.setTranslateY(50);
+        Label labelID = createLabelMasterPane("ID: " + gameID, 20);
+        HBox StatusBox = new HBox();
+        Label statusTitle = createLabelMasterPane("Status: ", 20);
+        StatusBox.getChildren().addAll(statusTitle, matchStatus);
+        labelPlayerOrder = new ImageView[]{playerViews.get(thisPlayerNickname).getColour()};
+        Label OrderTitle = createLabelMasterPane("Order:", 20);
+
+        playerOrder = new HBox();
+        playerOrder.getChildren().addAll(OrderTitle);
+
+        HBox topLine = new HBox();
+        topLine.setSpacing(100);
+        topLine.getChildren().addAll(labelID, StatusBox, playerOrder);
+        topLine.setTranslateX(60);
+        topLine.setTranslateY(20);
+
+        masterPane.getChildren().addAll(topLine, playerInfoPanel);
+        Platform.runLater(() -> {
+            app.updateScene(masterPane);
+            app.getPrimaryStage().setMinWidth(1200);
             app.getPrimaryStage().setFullScreen(true);
         });
     }
@@ -385,7 +452,11 @@ public class GraphicalUI extends View {
     private Group createPlayerInfoPanel() {
         return null;
     }
-
+    private Label createLabelMasterPane(String text, int size) {
+        Label label = new Label(text);
+        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: "+size+"px;-fx-font-family: 'JejuHallasan';");
+        return label;
+    }
     private Label createLabel(String text, int X, int Y) {
         Label label = new Label(text);
         label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");

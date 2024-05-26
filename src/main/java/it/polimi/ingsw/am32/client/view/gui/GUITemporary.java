@@ -60,6 +60,7 @@ public class GUITemporary extends Application {
     protected volatile boolean isMyTurn = true;
     protected volatile boolean isInThread = false;
     private final Label matchStatus= createLabel(String.valueOf(Status));
+    private ChatArea chatArea;
     /**
      * Used to associate token colours to the respective images
      */
@@ -98,12 +99,14 @@ public class GUITemporary extends Application {
         publicInfo.put("player10000000000000",new PlayerPub("RED",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
         publicInfo.put("player2",new PlayerPub("GREEN",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
         publicInfo.put("player3",new PlayerPub("BLUE",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
+
         primaryStage.setTitle("Codex Naturalis");
         primaryStage.setMinHeight(750);
-        primaryStage.setMinWidth(975);
+        primaryStage.setMinWidth(1200);
         primaryStage.setFullScreen(true);
         StackPane preparationPhase = new StackPane();
         preparationPhase.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
+
         Label labelID = createLabel("ID: " + gameID);
         HBox StatusBox = new HBox();
         Label statusTitle= createLabel("Status: ");
@@ -115,10 +118,12 @@ public class GUITemporary extends Application {
         topLine.setTranslateX(60);
         topLine.setTranslateY(20);
         preparationPhase.getChildren().add(topLine);
+
         VBox playerInfoPanel = createPlayerInfoPanel();
         playerInfoPanel.setTranslateX(20);
         playerInfoPanel.setTranslateY(50);
         preparationPhase.getChildren().addAll(playerInfoPanel);
+
         GridPane board = new GridPane();
         board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
         board.setGridLinesVisible(true);
@@ -126,6 +131,11 @@ public class GUITemporary extends Application {
         ImageView card = new ImageView(new Image("/cards_front_075.png", 140, 80, true, false));
         board.add(card, 50, 50);
         board.setTranslateX(preparationPhase.getWidth() / 2 - board.getMaxWidth() / 2);
+        chatArea = new ChatArea(0,0,250,100);
+        chatArea.getChatArea().translateXProperty().bind(primaryStage.widthProperty().subtract(400));
+        chatArea.getChatArea().translateYProperty().bind(primaryStage.heightProperty().subtract(200));
+        preparationPhase.getChildren().addAll(board,chatArea.getChatArea());
+
         primaryStage.setScene(new Scene(preparationPhase));
 
         primaryStage.show();
