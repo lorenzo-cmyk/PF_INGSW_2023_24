@@ -659,7 +659,12 @@ public class GraphicalUI extends View {
 
     @Override
     public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
+        this.hand = hand;
+        this.commonObjCards = common;
+        this.secretObjCards = secrets;
 
+        showHand(hand);
+        showObjectiveCards(common);
     }
 
     @Override
