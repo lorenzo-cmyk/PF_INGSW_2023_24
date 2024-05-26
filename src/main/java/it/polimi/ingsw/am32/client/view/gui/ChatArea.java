@@ -94,7 +94,7 @@ public class ChatArea {
                 "-fx-border-radius: 5px; -fx-background-radius: 5px;");
         inputMessageField.setPrefSize(width, submitButton.getHeight());
 
-        chatArea.setPrefSize(width, height + inputMessageField.getHeight());
+        chatArea.setPrefSize(width+100, height + inputMessageField.getHeight());
 
         // Link the button to a handler method
         submitButton.setOnAction(e -> submitChatMessage());

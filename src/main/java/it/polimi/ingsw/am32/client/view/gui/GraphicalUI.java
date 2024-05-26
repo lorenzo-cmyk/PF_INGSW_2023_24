@@ -41,6 +41,7 @@ public class GraphicalUI extends View {
     private ImageView [] labelPlayerOrder;
     private HashMap<String, PlayerPubView> playerViews = new HashMap<>();
     private HashMap<String,Image> imagesMap = new HashMap<>();
+    private ChatArea chatArea;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String [] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -364,6 +365,7 @@ public class GraphicalUI extends View {
         }
     }
     private void setGameView(){
+        // load the images which will be used in the master pane
         imagesMap.put("BLUE", new Image("/CODEX_pion_bleu.png", 20, 20, true, false));
         imagesMap.put("YELLOW", new Image("/CODEX_pion_jaune.png", 20, 20, true, false));
         imagesMap.put("BLACK", new Image("/CODEX_pion_noir.png", 20, 20, true, false));
@@ -377,11 +379,16 @@ public class GraphicalUI extends View {
         imagesMap.put("INKWELL", new Image("kingdom_inkwell.png", 20, 20, true, false));
         imagesMap.put("MANUSCRIPT", new Image("kingdom_manuscript.png", 20, 20, true, false));
 
+        // set the master pane
         masterPane = new StackPane();
         masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
+
+        // set the player info panel
         VBox playerInfoPanel = new VBox();
         for (String player : publicInfo.keySet()) {
             Label nickNameLabel = createLabelMasterPane(player, 20);
+            nickNameLabel.setMaxWidth(300);
+            nickNameLabel.setMinWidth(300);
             ImageView colour = new ImageView(imagesMap.get("BLACK"));
             Label points = createLabelMasterPane("0", 20);
             Label[] resourceLabels = new Label[]{
@@ -391,18 +398,21 @@ public class GraphicalUI extends View {
                     createLabelMasterPane("0", 20),
                     createLabelMasterPane("0", 20),
                     createLabelMasterPane("0", 20),
-                    createLabelMasterPane("0", 20)};
+                    createLabelMasterPane("0", 20)
+            };
+
+            // set up the player view
             PlayerPubView playerPubView = new PlayerPubView(nickNameLabel, colour, points, resourceLabels);
             playerViews.put(player, playerPubView);
+
+            // set the player info panel
             HBox playerInfo = new HBox();
             playerInfo.setSpacing(10);
-            playerInfo.setMaxWidth(300);
-            playerInfo.setMinWidth(300);
-            playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname());
-
+            playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname(),playerViews.get(player).getPoints());
             HBox playerResource = new HBox();
             playerResource.setSpacing(10);
             playerResource.getChildren().addAll(
+                    new Label("     "),
                     new ImageView(imagesMap.get("PLANT")), playerPubView.getResourceLabels()[0],
                     new ImageView(imagesMap.get("FUNGI")), playerPubView.getResourceLabels()[1],
                     new ImageView(imagesMap.get("ANIMAL")), playerPubView.getResourceLabels()[2],
@@ -410,16 +420,14 @@ public class GraphicalUI extends View {
                     new ImageView(imagesMap.get("QUILL")), playerPubView.getResourceLabels()[4],
                     new ImageView(imagesMap.get("INKWELL")), playerPubView.getResourceLabels()[5],
                     new ImageView(imagesMap.get("MANUSCRIPT")), playerPubView.getResourceLabels()[6]);
-            playerInfo.setOnMouseEntered(e -> {
-                playerInfo.getChildren().add(playerResource);
-            });
-            playerInfo.setOnMouseExited(e -> {
-                playerInfo.getChildren().remove(playerResource);
-            });
-            playerInfoPanel.getChildren().add(playerInfo);
+            VBox playerInfoAndResource = new VBox();
+            playerInfoAndResource.getChildren().addAll(playerInfo, playerResource);
+            playerInfoPanel.getChildren().add(playerInfoAndResource);
         }
-        playerInfoPanel.setTranslateX(20);
-        playerInfoPanel.setTranslateY(50);
+        playerInfoPanel.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(20)));
+        playerInfoPanel.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(60)));
+
+        // set the top line panel of the master pane
         Label labelID = createLabelMasterPane("ID: " + gameID, 20);
         HBox StatusBox = new HBox();
         Label statusTitle = createLabelMasterPane("Status: ", 20);
@@ -433,13 +441,13 @@ public class GraphicalUI extends View {
         HBox topLine = new HBox();
         topLine.setSpacing(100);
         topLine.getChildren().addAll(labelID, StatusBox, playerOrder);
-        topLine.setTranslateX(60);
-        topLine.setTranslateY(20);
+        topLine.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(20)));
+        topLine.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(20)));
 
         masterPane.getChildren().addAll(topLine, playerInfoPanel);
         Platform.runLater(() -> {
             app.updateScene(masterPane);
-            app.getPrimaryStage().setMinWidth(1200);
+            app.getPrimaryStage().setMinWidth(1250);
             app.getPrimaryStage().setFullScreen(true);
         });
     }

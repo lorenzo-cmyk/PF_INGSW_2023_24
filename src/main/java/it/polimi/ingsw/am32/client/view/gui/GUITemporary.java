@@ -10,9 +10,9 @@ import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -24,8 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import static javafx.scene.layout.CornerRadii.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GUITemporary extends Application {
     protected final IsValid isValid = new IsValid();
@@ -99,13 +98,18 @@ public class GUITemporary extends Application {
         publicInfo.put("player10000000000000",new PlayerPub("RED",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
         publicInfo.put("player2",new PlayerPub("GREEN",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
         publicInfo.put("player3",new PlayerPub("BLUE",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
+        publicInfo.put("player4",new PlayerPub("YELLOW",0,new ArrayList<>(),new int[]{0,0,0,0,0,0,0},true));
 
         primaryStage.setTitle("Codex Naturalis");
         primaryStage.setMinHeight(750);
-        primaryStage.setMinWidth(1200);
+        primaryStage.setMinWidth(1250);
         primaryStage.setFullScreen(true);
-        StackPane preparationPhase = new StackPane();
+
+        Pane preparationPhase = new Pane();
+        preparationPhase.setPrefHeight(primaryStage.getHeight());
+        preparationPhase.setPrefWidth(primaryStage.getWidth());
         preparationPhase.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
+        preparationPhase.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179,0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(15))));
 
         Label labelID = createLabel("ID: " + gameID);
         HBox StatusBox = new HBox();
@@ -115,27 +119,71 @@ public class GUITemporary extends Application {
         HBox topLine = new HBox();
         topLine.setSpacing(100);
         topLine.getChildren().addAll(labelID,StatusBox,labelPlayerOrder);
-        topLine.setTranslateX(60);
-        topLine.setTranslateY(20);
+        topLine.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(20)));
+        topLine.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(20)));
         preparationPhase.getChildren().add(topLine);
 
         VBox playerInfoPanel = createPlayerInfoPanel();
-        playerInfoPanel.setTranslateX(20);
-        playerInfoPanel.setTranslateY(50);
+        playerInfoPanel.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(20)));
+        playerInfoPanel.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(60)));
         preparationPhase.getChildren().addAll(playerInfoPanel);
 
-        GridPane board = new GridPane();
-        board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
-        board.setGridLinesVisible(true);
-        board.setMaxSize(600, 500);
-        ImageView card = new ImageView(new Image("/cards_front_075.png", 140, 80, true, false));
-        board.add(card, 50, 50);
-        board.setTranslateX(preparationPhase.getWidth() / 2 - board.getMaxWidth() / 2);
-        chatArea = new ChatArea(0,0,250,100);
-        chatArea.getChatArea().translateXProperty().bind(primaryStage.widthProperty().subtract(400));
-        chatArea.getChatArea().translateYProperty().bind(primaryStage.heightProperty().subtract(200));
-        preparationPhase.getChildren().addAll(board,chatArea.getChatArea());
+        StackPane boardReal = new StackPane();
+        boardReal.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        StackPane board = new StackPane();
+        board.setPrefSize(770, 525);
+        ImageView card = new ImageView(new Image("/cards_front_075.png", 120, 80, true, false));
+        card.setEffect(new DropShadow(20, Color.rgb(58, 33, 17)));
+        ImageView card20 = new ImageView(new Image("/cards_front_065.png", 120, 80, true, false));
+        card20.setTranslateX(95);
+        card20.setTranslateY(-50);
+        boardReal.getChildren().addAll(card,card20);
+        board.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(50)));
+        board.translateXProperty().bind(preparationPhase.widthProperty().subtract(board.widthProperty().add(20)));
+        board.getChildren().add(boardReal);
+        chatArea = new ChatArea(0,0,305,75);
+        chatArea.getChatArea().translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(40)));
+        chatArea.getChatArea().translateYProperty().bind(preparationPhase.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
 
+        ImageView card1 = new ImageView(new Image("/cards_front_075.png", 120, 80, true, true));
+        ImageView card2 = new ImageView(new Image("/cards_front_065.png", 120, 80, true, false));
+        ImageView card3 = new ImageView(new Image("/cards_front_035.png", 120, 80, true, false));
+        ImageView card4 = new ImageView(new Image("/cards_front_045.png", 120, 80, true, false));
+        ImageView card5 = new ImageView(new Image("/cards_back_055.png", 120, 80, true, false));
+        ImageView card6 = new ImageView(new Image("/cards_back_045.png", 120, 80, true, false));
+        VBox deckArea = new VBox();
+        deckArea.setSpacing(10);
+        HBox resourceDeck = new HBox();
+        resourceDeck.setSpacing(10);
+        resourceDeck.getChildren().addAll(card5,card6,card2);
+        HBox goldDeck = new HBox();
+        goldDeck.setSpacing(10);
+        goldDeck.getChildren().addAll(card3,card4,card1);
+        deckArea.getChildren().addAll(goldDeck,resourceDeck);
+
+        deckArea.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(40)));
+        deckArea.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(deckArea.getHeight()+400)));
+        ImageView card7 = new ImageView(new Image("/cards_front_024.png", 120, 80, true, true));
+        ImageView card8 = new ImageView(new Image("/cards_front_028.png", 120, 80, true, false));
+        ImageView card9 = new ImageView(new Image("/cards_front_030.png", 120, 80, true, false));
+        ImageView card10 = new ImageView(new Image("/cards_front_035.png", 120, 80, true, false));
+        ImageView card11 = new ImageView(new Image("/cards_front_045.png", 120, 80, true, false));
+        ImageView card12 = new ImageView(new Image("/cards_front_055.png", 120, 80, true, false));
+
+        HBox notice = new HBox();
+        Label noticeText = new Label("It's your turn!");
+
+        notice.getChildren().add(noticeText);
+        notice.setPrefSize(380, 70);
+        notice.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        notice.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(40)));
+        notice.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(notice.getHeight()+325)));
+        HBox bottomLine = new HBox();
+        bottomLine.setSpacing(10);
+        bottomLine.getChildren().addAll(card7,card8,card9,card10,card11,card12);
+        bottomLine.translateXProperty().bind(preparationPhase.widthProperty().subtract(bottomLine.widthProperty().add(20)));
+        bottomLine.translateYProperty().bind(preparationPhase.heightProperty().subtract(bottomLine.heightProperty().add(20)));
+        preparationPhase.getChildren().addAll(board,deckArea,bottomLine,chatArea.getChatArea(),notice);
         primaryStage.setScene(new Scene(preparationPhase));
 
         primaryStage.show();
@@ -146,7 +194,10 @@ public class GUITemporary extends Application {
         return label;
     }
     public VBox createPlayerInfoPanel() {
+
         HashMap<String,HBox> playerResources = new HashMap<>();
+        VBox playerInfoGroup = new VBox();
+        playerInfoGroup.setSpacing(10);
         for (String playerString : publicInfo.keySet()) {
             PlayerPub playerPub = publicInfo.get(playerString);
             String playerColour = playerPub.getColour();
@@ -177,31 +228,22 @@ public class GUITemporary extends Application {
             playerInfo.setMaxWidth(300);
             playerInfo.setMinWidth(300);
             playerInfo.getChildren().addAll(tokenImage, playerName);
-            playerInfo.setOnMouseEntered(e -> {
-                HBox playerResource = new HBox();
+
+            HBox playerResource = new HBox();
                 playerResource.setSpacing(10);
-                playerResource.getChildren().addAll(new ImageView(plantSymbol), plantCount, new ImageView(fungiSymbol), fungiCount,
+                playerResource.getChildren().addAll(new Label("     "),new ImageView(plantSymbol), plantCount, new ImageView(fungiSymbol), fungiCount,
                         new ImageView(animalSymbol), animalCount, new ImageView(insectSymbol), insectCount,
                         new ImageView(quillSymbol), quillCount, new ImageView(inkwellSymbol), inkwellCount,
                         new ImageView(manuscriptSymbol), manuscriptCount);
-                playerInfo.getChildren().add(playerResource);
-            });
-            playerInfo.setOnMouseExited(e -> {
-                playerInfo.getChildren().remove(playerInfo.getChildren().size()-1);
-            });
 
             HBox playerInfoAndResource = new HBox();
             //((Label)((HBox)playerInfoAndResource.getChildren().get(0)).getChildren().get(0)).setText(" "+playerString);
-            playerInfoAndResource.setSpacing(120);
+            playerInfoAndResource.setSpacing(20);
             playerInfoAndResource.getChildren().addAll(playerInfo, playerScore);
             playerResources.put(playerString,playerInfoAndResource);
+            playerInfoGroup.getChildren().addAll(playerInfoAndResource,playerResource);
 
         }
-        VBox playerInfoGroup = new VBox();
-        playerInfoGroup.setSpacing(10);
-        playerResources.forEach((k,v) -> {
-            playerInfoGroup.getChildren().add(v);
-        });
         return playerInfoGroup;
     }
 }

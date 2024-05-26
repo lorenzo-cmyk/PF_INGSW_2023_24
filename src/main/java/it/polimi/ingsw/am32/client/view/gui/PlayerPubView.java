@@ -26,7 +26,7 @@ public class PlayerPubView {
     public void setNickname(String nickname){
         this.nickname.setText(nickname);
     }
-    public Label points() {
+    public Label getPoints() {
         return points;
     }
 
