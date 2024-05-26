@@ -23,8 +23,8 @@ public class AccessGameConfirmMessage implements StoCMessage {
 
     @Override
     public String toString() {
-        return "AccessGameConfirmMessage{" +
+        return "AccessGameConfirmMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

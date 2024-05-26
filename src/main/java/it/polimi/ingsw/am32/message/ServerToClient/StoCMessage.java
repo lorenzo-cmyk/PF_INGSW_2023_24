@@ -16,4 +16,5 @@ public interface StoCMessage extends Serializable {
      */
     void processMessage(View view);
     String getRecipientNickname(); // Method needed for submitVirtualViewMessage method in Gamecontroller; GameController needs to know who to send message to
+    String toString(); // Used for debugging purposes
 }

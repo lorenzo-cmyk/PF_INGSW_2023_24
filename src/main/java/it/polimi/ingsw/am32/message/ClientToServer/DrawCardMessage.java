@@ -34,4 +34,13 @@ public class DrawCardMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.drawCard(senderNickname, deckType, cardId);
     }
+
+    @Override
+    public String toString() {
+        return "DrawCardMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", deckType=" + deckType +
+                ", cardId=" + cardId +
+                '}';
+    }
 }

@@ -5,6 +5,8 @@ import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -17,6 +19,10 @@ import java.util.stream.Collectors;
  * @author Anto
  */
 public class GamesManager {
+    /**
+     * Logger object of the class
+     */
+    private static final Logger logger = LogManager.getLogger(GamesManager.class);
     /**
      * instance: The only instance of the class.
      */
@@ -38,6 +44,7 @@ public class GamesManager {
     public static synchronized GamesManager getInstance() {
         if (instance == null) {
             instance = new GamesManager();
+            logger.debug("Instance of GamesManager created");
         }
         return instance;
     }
@@ -52,6 +59,7 @@ public class GamesManager {
      * @throws InvalidPlayerNumberException If the player count is not between 2 and 4
      */
     public synchronized GameController createGame(String creatorName, int playerCount, NodeInterface node) throws InvalidPlayerNumberException {
+        logger.debug("Received request to create a new game. Creator name: {}, player count: {}, node: {}", creatorName, playerCount, node);
         if(creatorName == null || creatorName.isBlank()) {
             throw new CriticalFailureException("Creator name cannot be null or empty");
         }
@@ -109,6 +117,7 @@ public class GamesManager {
      * @throws DuplicateNicknameException If the player with the given nickname is already in the game
      */
     public synchronized GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException, FullLobbyException, GameAlreadyStartedException, DuplicateNicknameException {
+        logger.debug("Received request to access game. Nickname: {}, game code: {}, node: {}", nickname, gameCode, node);
         if(nickname == null || nickname.isBlank()) {
             throw new CriticalFailureException("Nickname cannot be null or empty");
         }
@@ -168,6 +177,7 @@ public class GamesManager {
             GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException, PlayerAlreadyConnectedException,
             GameNotYetStartedException
     {
+        logger.debug("Received request to reconnect to game. Nickname: {}, game code: {}, node: {}", nickname, gameCode, node);
         if (nickname == null || nickname.isBlank()) {
             throw new CriticalFailureException("Nickname cannot be null or empty");
         }
@@ -219,5 +229,6 @@ public class GamesManager {
      */
     protected synchronized void clearInstance() {
         instance = null;
+        logger.debug("Instance of GamesManager cleared");
     }
 }

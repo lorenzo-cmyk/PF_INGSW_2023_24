@@ -23,9 +23,9 @@ public class DrawCardFailedMessage implements StoCMessage {
 
     @Override
     public String toString() {
-        return "DrawCardFailedMessage{" +
+        return "DrawCardFailedMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", reason='" + reason + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

@@ -19,9 +19,10 @@ public class PongMessage implements StoCMessage {
         return recipientNickname;
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "PongMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                '}';
     }
 }

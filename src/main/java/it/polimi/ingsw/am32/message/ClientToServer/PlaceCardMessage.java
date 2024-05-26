@@ -44,4 +44,15 @@ public class PlaceCardMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.placeCard(senderNickname, cardId, row, column, isUp);
     }
+
+    @Override
+    public String toString() {
+        return "PlaceCardMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", cardId=" + cardId +
+                ", row=" + row +
+                ", column=" + column +
+                ", isUp=" + isUp +
+                '}';
+    }
 }

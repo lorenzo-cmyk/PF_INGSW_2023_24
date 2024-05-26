@@ -47,7 +47,7 @@ public class Server {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
-    private final Logger logger;
+    private static final Logger logger = LogManager.getLogger(Server.class);
 
     //---------------------------------------------------------------------------------------------
     // Static Main
@@ -58,6 +58,7 @@ public class Server {
      * @param args usual startup arguments
      */
     public static void main(String[] args){
+        logger.info("The server is now starting");
         new Server(args).start();
     }
 
@@ -72,8 +73,8 @@ public class Server {
      * @param args are the parameters to be used for the {@code Configuration} class
      */
     public Server(String[] args) {
+        logger.debug("Creating the Configuration instance");
         Configuration.createInstance(args);
-        logger = LogManager.getLogger("Server");
     }
 
     //---------------------------------------------------------------------------------------------
@@ -86,7 +87,7 @@ public class Server {
     public void start() {
         startSocketServer();
         startRMIServer();
-        logger.info("Server started");
+        logger.info("Networking stack started. Server is now ready to accept connections");
     }
 
     /**
@@ -95,6 +96,7 @@ public class Server {
      * Create an instance of {@link SKClientAcceptor} and submit it to the server {@link java.util.concurrent.ExecutorService}
      */
     private void startSocketServer() {
+        logger.debug("Starting the Socket listener");
         Configuration.getInstance().getExecutorService().submit(new SKClientAcceptor());
     }
 
@@ -104,20 +106,21 @@ public class Server {
      * Create the RMI {@link Registry} and an instance of {@link RMIClientAcceptor}, finally bind the latter to the former
      */
     private void startRMIServer() {
+        logger.debug("Starting the RMI listener");
         try {
             System.setProperty("java.rmi.server.hostname", Configuration.getInstance().getServerIp());
             Registry registry = LocateRegistry.createRegistry(Configuration.getInstance().getRmiPort());
             //FIXME problema se registro esiste gia
             RMIClientAcceptor rmiClientAcceptor = new RMIClientAcceptor();
             registry.bind("Server-CodexNaturalis", rmiClientAcceptor);
-            logger.info("RMI Client Acceptor created");
+            logger.debug("RMI Client Acceptor created");
 
         } catch (RemoteException e) {
-            logger.error("RMI communications not available. RMI Client Acceptor creation failed");
+            logger.fatal("RMI communications not available. RMI Client Acceptor creation failed", e);
         } catch (AlreadyBoundException e) {
-            logger.error("RMI communications not available. RMI Client Acceptor binding failed");
+            logger.fatal("RMI communications not available. RMI Client Acceptor binding failed", e);
         } catch (Exception e) {
-            logger.error("RMI communications not available. Not listed error: {}", e.getMessage());
+            logger.fatal("RMI communications not available. Not listed error", e);
         }
     }
 }
