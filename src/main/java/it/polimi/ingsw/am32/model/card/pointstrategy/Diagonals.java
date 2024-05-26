@@ -99,12 +99,4 @@ public class Diagonals implements PointStrategy {
         return type;
     }
 
-    /**
-     * Get the type of the diagonal line.
-     *
-     * @return true for diagonal type y=x and false for diagonal type y=-x.
-     */
-    public boolean getLeftToRight() {
-        return leftToRight;
-    }
 }

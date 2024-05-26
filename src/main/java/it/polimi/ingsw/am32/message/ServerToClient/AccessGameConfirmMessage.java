@@ -11,7 +11,6 @@ public class AccessGameConfirmMessage implements StoCMessage {
     }
 
     @Override
-
     public void processMessage(View view) {
         view.setCurrentEvent(Event.JOINED_GAME);
         view.handleEvent(Event.JOINED_GAME);
@@ -24,8 +23,8 @@ public class AccessGameConfirmMessage implements StoCMessage {
 
     @Override
     public String toString() {
-        return "AccessGameConfirmMessage{" +
+        return "AccessGameConfirmMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

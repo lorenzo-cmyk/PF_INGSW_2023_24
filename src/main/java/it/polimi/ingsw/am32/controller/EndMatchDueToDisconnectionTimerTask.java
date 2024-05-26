@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am32.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.TimerTask;
 
 /**
@@ -8,6 +11,10 @@ import java.util.TimerTask;
  * If a player remain lonely in the match for a certain amount of time, the match is ended and the sole player is declared the winner.
  */
 public class EndMatchDueToDisconnectionTimerTask extends TimerTask {
+    /**
+     * Class logger.
+     */
+    private static final Logger logger = LogManager.getLogger(EndMatchDueToDisconnectionTimerTask.class);
     /**
      * The gameController on which the timer task will be executed.
      */
@@ -27,6 +34,7 @@ public class EndMatchDueToDisconnectionTimerTask extends TimerTask {
      */
     @Override
     public void run() {
+        logger.debug("EndMatchDueToDisconnectionTimerTask starting. Now ending the match due to disconnection...");
         gameController.endMatchDueToDisconnection();
     }
 }

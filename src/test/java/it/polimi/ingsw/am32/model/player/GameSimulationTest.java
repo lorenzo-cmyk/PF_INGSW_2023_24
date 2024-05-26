@@ -389,6 +389,9 @@ public class GameSimulationTest {
         }
         // We should gain 2 points thanks to the common objectives
         assertEquals(10, player.getPoints());
+
+        // If I try now to compute the points again, I should get an AlreadyComputedPointsException
+        assertThrows(AlreadyComputedPointsException.class, player::updatePointsForSecretObjective);
     }
 
     public NonObjectiveCard retrieveNonObjectiveCardByID(NonObjectiveCardDeck deck, int id) throws Exception {

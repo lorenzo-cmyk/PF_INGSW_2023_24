@@ -21,10 +21,11 @@ public class PlayerReconnectedMessage implements StoCMessage {
         return recipientNickname;
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "disconnectedNickname: " + disconnectedNickname + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "PlayerReconnectedMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", disconnectedNickname='" + disconnectedNickname + '\'' +
+                '}';
     }
 }

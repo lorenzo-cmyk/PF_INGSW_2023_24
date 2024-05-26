@@ -49,4 +49,12 @@ class CardDeckTest {
     void getDeckTypeReturnsCorrectDeckType() {
         assertEquals(DeckType.OBJECTIVE, cardDeck.getDeckType());
     }
+
+    @DisplayName("Getter getCards should return the ArrayList of cards")
+    @Test
+    void getCardsReturnsArrayListOfCards() {
+        ArrayList<Card> cards = new ArrayList<>();
+        cards.add(card);
+        assertEquals(cards, cardDeck.getCards());
+    }
 }

@@ -29,7 +29,9 @@ public class MessagesTest {
         ArrayList<Integer> gameCurrentResourceCards = new ArrayList<>(Arrays.asList(1, 2));
         ArrayList<Integer> gameCurrentGoldCards = new ArrayList<>(Arrays.asList(1, 2));
         int gameResourcesDeckSize = 1;
+        int resourceCardDeckFacingKingdom = 1;
         int gameGoldDeckSize = 1;
+        int goldCardDeckFacingKingdom = 1;
         int matchStatus = 1;
         ArrayList<ChatMessage> chatHistory = new ArrayList<>(); // Assuming ChatMessage is a valid class
         chatHistory.add(new ChatMessage("player1", "player2", true, "Hello, player2!"));
@@ -38,7 +40,11 @@ public class MessagesTest {
         ArrayList<int[]> newAvailableFieldSpaces = new ArrayList<>(List.of(new int[]{1, 2, 3, 4}));
 
         // Create a new PlayerGameStatusMessage
-        PlayerGameStatusMessage playerGameStatusMessage = new PlayerGameStatusMessage(recipientNickname, playerNicknames, playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer, newAvailableFieldSpaces);
+        PlayerGameStatusMessage playerGameStatusMessage = new PlayerGameStatusMessage(recipientNickname, playerNicknames,
+                playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerFields,
+                playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards,
+                gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer,
+                newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom);
         // System.out.println(playerGameStatusMessage);
     }
 }

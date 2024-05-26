@@ -22,9 +22,9 @@ public class ConfirmSelectedSecretObjectiveCardMessage implements StoCMessage {
 
     @Override
     public String toString() {
-        return "ConfirmSelectedSecretObjectiveCardMessage{" +
+        return "ConfirmSelectedSecretObjectiveCardMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", chosenSecretObjectiveCard=" + chosenSecretObjectiveCard +
-                '}' + "\n";
+                '}';
     }
 }

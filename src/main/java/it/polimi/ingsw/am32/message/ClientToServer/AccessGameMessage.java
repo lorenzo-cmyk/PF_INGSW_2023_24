@@ -40,4 +40,12 @@ public class AccessGameMessage implements CtoSLobbyMessage {
     public GameController elaborateMessage(NodeInterface nodeInterface) throws GameAlreadyStartedException, FullLobbyException, DuplicateNicknameException, GameNotFoundException {
         return GamesManager.getInstance().accessGame(senderNickname, matchId, nodeInterface);
     }
+
+    @Override
+    public String toString() {
+        return "AccessGameMessage:{" +
+                "matchId=" + matchId +
+                ", senderNickname='" + senderNickname + '\'' +
+                '}';
+    }
 }

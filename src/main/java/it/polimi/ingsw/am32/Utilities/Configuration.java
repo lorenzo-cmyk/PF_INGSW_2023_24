@@ -3,10 +3,14 @@ package it.polimi.ingsw.am32.Utilities;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am32.Server;
+import it.polimi.ingsw.am32.network.ServerNode.ServerPingTask;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,6 +26,8 @@ import java.util.concurrent.Executors;
  */
 public class Configuration {
 
+    private static final Logger logger = LogManager.getLogger(Configuration.class);
+
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
@@ -32,8 +38,10 @@ public class Configuration {
     private int pingTimeInterval;
     private int maxPingCount;
     private int socketReadTimeout;
+    private int endGameDueToDisconnectionTimeout;
     private String serverIp;
     private final ExecutorService executorService;
+    private Timer notLinkedSocketTimer;
 
 
     //---------------------------------------------------------------------------------------------
@@ -62,6 +70,8 @@ public class Configuration {
         socketReadTimeout = 100;
         serverIp = "127.0.0.1";
         executorService = Executors.newCachedThreadPool();
+        notLinkedSocketTimer = new Timer();
+        endGameDueToDisconnectionTimeout = 2 * 60 * 1000; // 2 minutes
 
         // temporary values
 
@@ -112,6 +122,10 @@ public class Configuration {
             try {
                 serverIp = serverIpValidator(jsonNode.get("serverIp").asText(), serverIp);
             } catch (Exception ignored){}
+
+            try {
+                endGameDueToDisconnectionTimeout = jsonNode.get("endGameDueToDisconnectionTimeout").asInt();
+            } catch (Exception ignored){}
         }
 
         // overwrite server configuration with data from startup parameters
@@ -138,6 +152,7 @@ public class Configuration {
                     case "-ptp" -> pingTimeInterval = Integer.parseInt(args[i + 1]);
                     case "-mpc" -> maxPingCount = Integer.parseInt(args[i + 1]);
                     case "-srt" -> socketReadTimeout = Integer.parseInt(args[i + 1]);
+                    case "-edt" -> endGameDueToDisconnectionTimeout = Integer.parseInt(args[i + 1]);
                     case "-si" -> serverIp = serverIpValidator(args[i + 1], serverIp);
                 }
             } catch (NumberFormatException ignored) {}
@@ -164,12 +179,14 @@ public class Configuration {
                 rmiPort = rmiPortFile;
         }
 
-        System.out.println("Socket port: " + socketPort);
-        System.out.println("RMI port: " + rmiPort);
-        System.out.println("Ping time period: " + pingTimeInterval);
-        System.out.println("Max ping count: " + maxPingCount);
-        System.out.println("Socket read timeout: " + socketReadTimeout);
-        System.out.println("Server ip: " + serverIp);
+        logger.info("Configuration loaded");
+        logger.info("Socket port: {}", socketPort);
+        logger.info("RMI port: {}", rmiPort);
+        logger.info("Ping time period: {}", pingTimeInterval);
+        logger.info("Max ping count: {}", maxPingCount);
+        logger.info("Socket read timeout: {}", socketReadTimeout);
+        logger.info("End game due to disconnection timeout: {}", endGameDueToDisconnectionTimeout);
+        logger.info("Server IP: {}", serverIp);
     }
 
 
@@ -333,5 +350,30 @@ public class Configuration {
      */
     public ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    /**
+     * Schedule the {@link ServerPingTask} to be executed repeatedly until cancellation
+     *
+     * @param serverPingTask is the {@code ServerPingTask} to be scheduled
+     */
+    public void addTimerTask(ServerPingTask serverPingTask) {
+        notLinkedSocketTimer.scheduleAtFixedRate(serverPingTask, 0, pingTimeInterval);
+    }
+
+    /**
+     * Delete all cancelled {@link ServerPingTask} from the configuration timer
+     */
+    public void purgeTimer() {
+        notLinkedSocketTimer.purge();
+    }
+
+    /**
+     * Return the time after which the game ends due to loss of players.
+     *
+     * @return An int indicating the time in milliseconds
+     */
+    public int getEndGameDueToDisconnectionTimeout() {
+        return endGameDueToDisconnectionTimeout;
     }
 }

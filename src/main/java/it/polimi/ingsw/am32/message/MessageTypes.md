@@ -25,6 +25,15 @@ The messages are divided into three categories: Lobby Messages, Game Messages, a
 }
 ```
 
+- ReconnectGameMessage: sent by a Client who wants to reconnect to a game.
+```json
+{
+    "type": "ReconnectGameMessage",
+    "senderNickname": "playerName",
+    "matchID": 10
+}
+```
+
 ### Game Messages
 
 - RequestGameStatusMessage: sent by a Client to request the current game status.
@@ -147,6 +156,14 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
 }
 ```
 
+- ReconnectGameConfirmMessage: sent by the Server to confirm the reconnection to a game.
+```json
+{
+  "type": "ReconnectGameConfirmMessage",
+  "recipientNickname": "playerName"
+}
+```
+
 ### Game Messages
 
 - PlayerGameStatusMessage : sent by the Server to notify the current game status.
@@ -207,16 +224,6 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "type": "PlaceCardFailedMessage",
   "recipientNickname": "playerName",
   "reason": "Reason"
-}
-```
-
-- PointsUpdateMessage: sent by the Server to notify the player of the updated points.
-```json
-{
-  "type": "PointsUpdateMessage",
-  "recipientNickname": "playerName",
-  "playerNickname": "playerName",
-  "points": 5
 }
 ```
 

@@ -25,9 +25,9 @@ public class DrawCardConfirmationMessage implements StoCMessage {
 
     @Override
     public String toString() {
-        return "DrawCardConfirmationMessage{" +
+        return "DrawCardConfirmationMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", playerHand=" + playerHand.toString() +
-                '}' + "\n";
+                '}';
     }
 }

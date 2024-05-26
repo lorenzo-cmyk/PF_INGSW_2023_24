@@ -4,6 +4,8 @@ import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
@@ -14,6 +16,10 @@ import java.util.ArrayList;
  * @author Anto, Lorenzo
  */
 public class VirtualView implements VirtualViewInterface, Runnable {
+    /**
+     * The Logger of the VirtualView class.
+     */
+    private static final Logger logger = LogManager.getLogger(VirtualView.class);
     /**
      * The connection node associated with the virtual view.
      */
@@ -46,10 +52,12 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      * The run method of the VirtualView class.
      */
     public synchronized void run() {
+        logger.debug("VirtualView thread has now started");
         while (!Thread.currentThread().isInterrupted() && !terminating) {
             processMessage();
         }
         // If we get to this point, the virtualView thread dies
+        logger.debug("VirtualView thread shut down");
     }
 
     /**
@@ -72,6 +80,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
             throw new CriticalFailureException("Message cannot be null");
         }
         messageQueue.add(message);
+        logger.debug("Message added to the VirtualView queue: {}", message.getClass());
         notifyAll(); // Wake up early threads waiting to be synchronized to this
     }
 
@@ -79,6 +88,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      * Processes the message queue.
      */
     protected synchronized void processMessage() { // Synchronized statement might not be necessary, but it is kept as it is considered "more correct"
+        logger.debug("VirtualView thread awake and processing messages");
         if (messageQueue.isEmpty()) { // There is no message to be delivered to the client
             try {
                 wait(); // Enter sleep state, and what for a message to be added to the queue
@@ -86,7 +96,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
                     return;
                 }
                 else if (connectionNode == null) { // Player was disconnected, and the server node destroyed
-                    return;
+                    return; // WARNING: This should never happen, as the connection node should never be null.
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -100,7 +110,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
             try {
                 connectionNode.uploadToClient(message);
                 messageQueue.removeFirst(); // Remove the delivered message from the queue
-            } catch (UploadFailureException e) { // FIXME When does this actually happen?
+            } catch (UploadFailureException e) {
                 // If the message cannot be uploaded to the client, the connection is lost. The thread is put on wait().
                 try {
                     wait();
@@ -108,10 +118,11 @@ public class VirtualView implements VirtualViewInterface, Runnable {
                         return; // Probably not necessary, but it's here for clarity.
                     }
                     else if (connectionNode == null) { // Player was disconnected, and the server node destroyed
-                        return;
+                        return; // WARNING: This should never happen, as the connection node should never be null.
                     }
                 } catch (InterruptedException e1) {
                     Thread.currentThread().interrupt();
+                    return;
                 }
             }
         }
@@ -144,6 +155,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      */
     protected synchronized void setTerminating() {
         terminating = true;
+        logger.debug("VirtualView thread is being shut down");
         notifyAll(); // Wake up early threads waiting to be synchronized to this
     }
 }
