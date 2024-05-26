@@ -5,7 +5,10 @@ import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import it.polimi.ingsw.am32.message.ClientToServer.AccessGameMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.SelectedSecretObjectiveCardMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.SelectedStarterCardSideMessage;
 import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -38,7 +41,7 @@ public class GraphicalUI extends View {
     private TextField playerListView;
     private Label matchStatus;
     private HBox playerOrder;
-    private ImageView [] labelPlayerOrder;
+    private ImageView[] labelPlayerOrder;
     private HashMap<String, PlayerPubView> playerViews = new HashMap<>();
     private HashMap<String,Image> imagesMap = new HashMap<>();
     private HashMap<String,StackPane> playerField = new HashMap<>();
@@ -52,7 +55,7 @@ public class GraphicalUI extends View {
 
     private StackPane boardReal;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
-    private final String [] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
+    private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
             "/codex_rulebook_it_08.png", "/codex_rulebook_it_09.png", "/codex_rulebook_it_10.png", "/codex_rulebook_it_11.png",
             "/codex_rulebook_it_12.png"};
@@ -61,24 +64,29 @@ public class GraphicalUI extends View {
     public void launch() {
         Application.launch(GraphicalUIApplication.class);
     }
+
     public GraphicalUI() {
         super();
     }
+
     public void setApp(GraphicalUIApplication app) {
         this.app = app;
     }
+
     public StackPane getWelcomeRoot() {
         showWelcome();
         return welcomeRoot;
     }
+
     public StackPane getSelectionRoot() {
         chooseConnection();
         return selectionPane;
     }
+
     @Override
     public void showWelcome() {
         welcomeRoot = new StackPane();
-        Button ruleButton = createTransButton("[Rule Book]",30,"#E6DEB3",0,300);
+        Button ruleButton = createTransButton("[Rule Book]", 30, "#E6DEB3", 0, 300);
         welcomeRoot.getChildren().add(ruleButton);
         ruleButton.setTranslateX(350);
         ruleButton.setTranslateY(300);
@@ -89,12 +97,13 @@ public class GraphicalUI extends View {
         Background background = new Background(backgroundImg);
         welcomeRoot.setBackground(background);
     }
+
     public void showRuleBook() {
         StackPane ruleBookRoot = new StackPane();
         Stage ruleBookStage = new Stage();
-        Image [] ruleBookImage = new Image[ruleBookImages.length];
-        for(int i = 0; i < ruleBookImages.length; i++) {
-            ruleBookImage[i] = new Image(ruleBookImages[i],750, 750, true, true);
+        Image[] ruleBookImage = new Image[ruleBookImages.length];
+        for (int i = 0; i < ruleBookImages.length; i++) {
+            ruleBookImage[i] = new Image(ruleBookImages[i], 750, 750, true, true);
         }
         ImageView ruleBook = new ImageView(ruleBookImage[0]);
         Button[] buttons = getBox(ruleBook);
@@ -114,6 +123,7 @@ public class GraphicalUI extends View {
         ruleBookStage.show();
 
     }
+
     private Button[] getBox(ImageView ruleBook) {
         AtomicInteger index = new AtomicInteger();
         Button nextButton = new Button(">");
@@ -124,11 +134,11 @@ public class GraphicalUI extends View {
                 "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.8) , 10,0,0,10 );");
         nextButton.setOnAction(e -> {
             index.set((index.get() + 1) % ruleBookImages.length);
-            ruleBook.setImage(new Image(ruleBookImages[index.get()],750, 750, true, true));
+            ruleBook.setImage(new Image(ruleBookImages[index.get()], 750, 750, true, true));
         });
         previousButton.setOnAction(e -> {
             index.set((index.get() - 1 + ruleBookImages.length) % ruleBookImages.length);
-            ruleBook.setImage(new Image(ruleBookImages[index.get()],750, 750, true, true));
+            ruleBook.setImage(new Image(ruleBookImages[index.get()], 750, 750, true, true));
         });
         return new Button[]{previousButton, nextButton};
     }
@@ -147,21 +157,21 @@ public class GraphicalUI extends View {
         selectionPane.setBackground(background);
 
         // create the connection root
-        Label label = createLabel("Connection",-80,-70); // add the title of the connection root
-        Button socketButton = createButton("[Socket]",100,0); // create the button to choose the socket connection
-        Button rmiButton = createButton("[RMI]",-100,0); // create the button to choose the RMI connection
-        connectionRoot.getChildren().addAll(label,socketButton,rmiButton);
+        Label label = createLabel("Connection", -80, -70); // add the title of the connection root
+        Button socketButton = createButton("[Socket]", 100, 0); // create the button to choose the socket connection
+        Button rmiButton = createButton("[RMI]", -100, 0); // create the button to choose the RMI connection
+        connectionRoot.getChildren().addAll(label, socketButton, rmiButton);
 
         // add the connection root to the selection pane in this way set the choose connection page for the player
         selectionPane.getChildren().add(connectionRoot);
 
         // create the socket connection root
         StackPane socketRoot = new StackPane();
-        Label labelIP = createLabel("Socket",-80,-80); // add the title
+        Label labelIP = createLabel("Socket", -80, -80); // add the title
         TextField ip = createTextField("Enter the IP", 35, 250, -50, -30); // create the text field asks the player to enter the IP address
         TextField port = createTextField("Enter the port", 35, 250, -50, 50); // create the text field asks the player to enter the port number
-        Button OkButton = createButton("[OK]",160,0); // create the button Ok to confirm the input.
-        socketRoot.getChildren().addAll(OkButton,labelIP,ip,port); // the view when the player choose the socket connection
+        Button OkButton = createButton("[OK]", 160, 0); // create the button Ok to confirm the input.
+        socketRoot.getChildren().addAll(OkButton, labelIP, ip, port); // the view when the player choose the socket connection
 
         // set the action of the buttons
         socketButton.setOnAction(e -> {
@@ -169,16 +179,16 @@ public class GraphicalUI extends View {
             selectionPane.getChildren().add(socketRoot); // enter the socket connection page
         });
 
-        OkButton.setOnAction(e->{
+        OkButton.setOnAction(e -> {
             String ServerIP = ip.getText(); // Read the player's input and save it the server IP address
             String ServerPort = port.getText();
             try {
                 int portNumber = Integer.parseInt(ServerPort);
-                if (isValid.isIpValid(ServerIP)&&isValid.isPortValid(portNumber)) { // Check if the IP address is valid
+                if (isValid.isIpValid(ServerIP) && isValid.isPortValid(portNumber)) { // Check if the IP address is valid
                     setSocketClient(ServerIP, portNumber);
                     selectionPane.getChildren().remove(socketRoot);
                     askSelectGameMode();
-                }else {
+                } else {
                     createAlert("Invalid IP/port number");
                     ip.clear();
                     port.clear();
@@ -198,11 +208,11 @@ public class GraphicalUI extends View {
     @Override
     public void askSelectGameMode() {
         StackPane gameModeRoot = new StackPane();
-        Label label = createLabel("Game \n Mode",150,10);
-        Button newGameButton = createButton("[New Game]",-70,-50);
-        Button joinGameButton = createButton("[Join Game]",-70,10);
-        Button reconnectGameButton = createButton("[Reconnect]",-70,70);
-        gameModeRoot.getChildren().addAll(label,newGameButton,joinGameButton,reconnectGameButton);
+        Label label = createLabel("Game \n Mode", 150, 10);
+        Button newGameButton = createButton("[New Game]", -70, -50);
+        Button joinGameButton = createButton("[Join Game]", -70, 10);
+        Button reconnectGameButton = createButton("[Reconnect]", -70, 70);
+        gameModeRoot.getChildren().addAll(label, newGameButton, joinGameButton, reconnectGameButton);
         selectionPane.getChildren().add(gameModeRoot);
         newGameButton.setOnAction(e -> {
             selectionPane.getChildren().remove(gameModeRoot);
@@ -223,36 +233,33 @@ public class GraphicalUI extends View {
         currentEvent = Event.CREATE_GAME;
         StackPane createGameRoot = new StackPane();
 
-        Label labelNickname = createLabel("Nickname",-90,-80);
-        Label labelPlayers = createLabel("Players number",-60,30);
+        Label labelNickname = createLabel("Nickname", -90, -80);
+        Label labelPlayers = createLabel("Players number", -60, 30);
 
         TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
 
-        Button twoButton = createTransButton("[2]",30,"#3A2111",-150,70);
-        Button threeButton3 = createTransButton("[3]",30,"#3A2111",-70,70);
-        Button fourButton = createTransButton("[4]",30,"#3A2111",10,70);
-        Button createButton = createButton("[Create]",140,65);
+        Button twoButton = createTransButton("[2]", 30, "#3A2111", -150, 70);
+        Button threeButton3 = createTransButton("[3]", 30, "#3A2111", -70, 70);
+        Button fourButton = createTransButton("[4]", 30, "#3A2111", 10, 70);
+        Button createButton = createButton("[Create]", 140, 65);
 
-        createGameRoot.getChildren().addAll(labelNickname,labelPlayers,nickname,twoButton,threeButton3,fourButton,createButton);
+        createGameRoot.getChildren().addAll(labelNickname, labelPlayers, nickname, twoButton, threeButton3, fourButton, createButton);
 
-        twoButton.setOnAction(e-> playerNum = 2);
-        threeButton3.setOnAction(e-> playerNum = 3);
-        fourButton.setOnAction(e-> playerNum = 4);
+        twoButton.setOnAction(e -> playerNum = 2);
+        threeButton3.setOnAction(e -> playerNum = 3);
+        fourButton.setOnAction(e -> playerNum = 4);
         createButton.setOnAction(e -> {
             thisPlayerNickname = nickname.getText();
             if (thisPlayerNickname.isBlank()) {
                 createAlert("Nickname cannot be left blank");
                 nickname.clear();
-            }
-            else if (thisPlayerNickname.length() > 20) {
+            } else if (thisPlayerNickname.length() > 20) {
                 createAlert("Nickname must be less than 20 characters");
                 nickname.clear();
-            }
-            else {
-                if (playerNum==2||playerNum==3||playerNum==4) { //TODO ADD ANIMATION
-                    notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
-                }
-                else {
+            } else {
+                if (playerNum == 2 || playerNum == 3 || playerNum == 4) { //TODO ADD ANIMATION
+                    notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
+                } else {
                     createAlert("Please select the number of players");
                 }
             }
@@ -265,14 +272,14 @@ public class GraphicalUI extends View {
         currentEvent = Event.JOIN_GAME;
         StackPane joinGameRoot = new StackPane();
 
-        Label labelNickname = createLabel("Nickname&GameID",-80,-80);
+        Label labelNickname = createLabel("Nickname&GameID", -80, -80);
 
         TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
         TextField accessID = createTextField("Enter the game ID", 35, 220, -60, 35);
 
-        Button joinButton = createButton("[Join]",140,65);
+        Button joinButton = createButton("[Join]", 140, 65);
 
-        joinGameRoot.getChildren().addAll(labelNickname,nickname,accessID,joinButton);
+        joinGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
 
         joinButton.setOnAction(e -> {
             thisPlayerNickname = nickname.getText();
@@ -280,15 +287,13 @@ public class GraphicalUI extends View {
             if (thisPlayerNickname.isBlank()) {
                 createAlert("Nickname cannot be left blank");
                 nickname.clear();
-            }
-            else if (thisPlayerNickname.length() > 20) {
+            } else if (thisPlayerNickname.length() > 20) {
                 createAlert("Nickname must be less than 20 characters");
                 nickname.clear();
-            }
-            else {
+            } else {
                 try {
                     gameID = Integer.parseInt(ID);
-                    notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
+                    notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
                 } catch (NumberFormatException ex) {
                     createAlert("Game ID must be a number");
                     accessID.clear();
@@ -336,8 +341,8 @@ public class GraphicalUI extends View {
 
     @Override
     public void setUpPlayersData() {
-        if(this.matchStatus == null){
-            this.matchStatus = createLabelMasterPane(String.valueOf(Status),20);
+        if (this.matchStatus == null) {
+            this.matchStatus = createLabel(String.valueOf(Status), 20);
         }
         for (String player : players) {
             // set up the data of the players and initialize the board of the players
@@ -351,7 +356,7 @@ public class GraphicalUI extends View {
     public void updatePlayerList(ArrayList<String> players) {
         this.players = players;
         //playerList.setText("Players:\n" + String.join("\n", players));
-        if(playerListView==null){
+        if (playerListView == null) {
             playerListView = createTextField(null, 135, 360, 0, 0);
             playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
                     "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
@@ -366,14 +371,15 @@ public class GraphicalUI extends View {
     @Override
     public void updateMatchStatus(int matchStatus) {
         this.Status = Event.getEvent(matchStatus); // update the match status of the player.
-        Platform.runLater(()->this.matchStatus.setText(String.valueOf(Status)));
-        if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
+        Platform.runLater(() -> this.matchStatus.setText(String.valueOf(Status)));
+        if (Status.equals(Event.TERMINATING)) { // if the match status is TERMINATING show the points of all players.
             for (String player : players) {
                 showResource(player);
             }
         }
     }
-    private void setGameView(){
+
+    private void setGameView() {
         // load the images which will be used in the master pane
         imagesMap.put("BLUE", new Image("/CODEX_pion_bleu.png", 20, 20, true, false));
         imagesMap.put("YELLOW", new Image("/CODEX_pion_jaune.png", 20, 20, true, false));
@@ -395,19 +401,19 @@ public class GraphicalUI extends View {
         // set the player info panel
         VBox playerInfoPanel = new VBox();
         for (String player : publicInfo.keySet()) {
-            Label nickNameLabel = createLabelMasterPane(player, 20);
+            Label nickNameLabel = createLabel(player, 20);
             nickNameLabel.setMaxWidth(300);
             nickNameLabel.setMinWidth(300);
             ImageView colour = new ImageView(imagesMap.get("BLACK"));
-            Label points = createLabelMasterPane("0", 20);
+            Label points = createLabel("0", 20);
             Label[] resourceLabels = new Label[]{
-                    createLabelMasterPane("0", 20),
-                    createLabelMasterPane("0", 20),
-                    createLabelMasterPane("0", 20),
-                    createLabelMasterPane("0", 20),
-                    createLabelMasterPane("0", 20),
-                    createLabelMasterPane("0", 20),
-                    createLabelMasterPane("0", 20)
+                    createLabel("0", 20),
+                    createLabel("0", 20),
+                    createLabel("0", 20),
+                    createLabel("0", 20),
+                    createLabel("0", 20),
+                    createLabel("0", 20),
+                    createLabel("0", 20)
             };
 
             // set up the player view
@@ -417,7 +423,7 @@ public class GraphicalUI extends View {
             // set the player info panel
             HBox playerInfo = new HBox();
             playerInfo.setSpacing(10);
-            playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname(),playerViews.get(player).getPoints());
+            playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname(), playerViews.get(player).getPoints());
             HBox playerResource = new HBox();
             playerResource.setSpacing(10);
             playerResource.getChildren().addAll(
@@ -437,12 +443,12 @@ public class GraphicalUI extends View {
         playerInfoPanel.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(60)));
 
         // set the top line panel of the master pane
-        Label labelID = createLabelMasterPane("ID: " + gameID, 20);
+        Label labelID = createLabel("ID: " + gameID, 20);
         HBox StatusBox = new HBox();
-        Label statusTitle = createLabelMasterPane("Status: ", 20);
+        Label statusTitle = createLabel("Status: ", 20);
         StatusBox.getChildren().addAll(statusTitle, matchStatus);
         labelPlayerOrder = new ImageView[]{playerViews.get(thisPlayerNickname).getColour()};
-        Label OrderTitle = createLabelMasterPane("Order:", 20);
+        Label OrderTitle = createLabel("Order:", 20);
 
         playerOrder = new HBox();
         playerOrder.getChildren().addAll(OrderTitle);
@@ -458,7 +464,7 @@ public class GraphicalUI extends View {
         // set field view of the player
         boardReal = new StackPane();
         StackPane board = new StackPane(); // Fixed board where cards are displayed
-        board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         board.setPrefSize(770, 525);
         board.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(50))); // set position X of the board in the masterPane.
         board.translateXProperty().bind(masterPane.widthProperty().subtract(board.widthProperty().add(20))); // set position Y of the board in the masterPane.
@@ -470,7 +476,7 @@ public class GraphicalUI extends View {
                 return;
             }
             double scaleFactor = (e.getDeltaY() > 0) ? 1.1 : 1 / 1.1;
-            if(boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
+            if (boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
                 return;
             boardReal.setScaleX(boardReal.getScaleX() * scaleFactor);
             boardReal.setScaleY(boardReal.getScaleY() * scaleFactor);
@@ -478,16 +484,16 @@ public class GraphicalUI extends View {
 
         double[] dragPos = new double[2];
         boardReal.setOnMousePressed(e -> {
-            dragPos[0]=e.getSceneX();
-            dragPos[1]=e.getSceneY();
+            dragPos[0] = e.getSceneX();
+            dragPos[1] = e.getSceneY();
         });
         boardReal.setOnMouseDragged(e -> {
-            boardReal.setTranslateX( e.getSceneX() - dragPos[0]);
-            boardReal.setTranslateY( e.getSceneY() - dragPos[1]);
+            boardReal.setTranslateX(e.getSceneX() - dragPos[0]);
+            boardReal.setTranslateY(e.getSceneY() - dragPos[1]);
         }); // Enable translating of player field when mouse button is held down
 
         // create Chat view
-        chatArea = new ChatArea(0,0,305,75); // Create chat area //TODO FIX PROBLEM OF SEND AND RECEIVE MESSAGE
+        chatArea = new ChatArea(0, 0, 305, 75); // Create chat area //TODO FIX PROBLEM OF SEND AND RECEIVE MESSAGE
         chatArea.getChatArea().translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         chatArea.getChatArea().translateYProperty().bind(masterPane.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
 
@@ -508,7 +514,7 @@ public class GraphicalUI extends View {
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true))
         };
-        goldDeckView = new ImageView[] {
+        goldDeckView = new ImageView[]{
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true))
@@ -518,29 +524,29 @@ public class GraphicalUI extends View {
         deckArea.setSpacing(10);
         HBox resourceDeck = new HBox();
         resourceDeck.setSpacing(10);
-        resourceDeck.getChildren().addAll(resourceDeckView[0],resourceDeckView[1],resourceDeckView[2]);
+        resourceDeck.getChildren().addAll(resourceDeckView[0], resourceDeckView[1], resourceDeckView[2]);
         HBox goldDeck = new HBox();
         goldDeck.setSpacing(10);
-        goldDeck.getChildren().addAll(goldDeckView[0],goldDeckView[1],goldDeckView[2]);
-        deckArea.getChildren().addAll(goldDeck,resourceDeck);
+        goldDeck.getChildren().addAll(goldDeckView[0], goldDeckView[1], goldDeckView[2]);
+        deckArea.getChildren().addAll(goldDeck, resourceDeck);
 
         deckArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
-        deckArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight()+400)));
+        deckArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight() + 400)));
 
         // added the notice area
         HBox notice = new HBox();
         Label noticeText = new Label("It's your turn!");
         notice.getChildren().add(noticeText);
         notice.setPrefSize(380, 70);
-        notice.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        notice.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         notice.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
-        notice.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight()+325)));
+        notice.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight() + 325)));
         HBox bottomLine = new HBox();
         bottomLine.setSpacing(10);
-        bottomLine.getChildren().addAll(commonObjCardView[0],commonObjCardView[1],secretObjCardView,handView[0],handView[1],handView[2]);
+        bottomLine.getChildren().addAll(commonObjCardView[0], commonObjCardView[1], secretObjCardView, handView[0], handView[1], handView[2]);
         bottomLine.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(20)));
         bottomLine.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(20)));
-        masterPane.getChildren().addAll(board,deckArea,bottomLine,chatArea.getChatArea(),notice);
+        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea(), notice);
 
         Platform.runLater(() -> {
             app.updateScene(masterPane);
@@ -550,33 +556,55 @@ public class GraphicalUI extends View {
     }
 
 
-
-
-
     // Methods to create the components of the GUI
     private Group createPlayerInfoPanel() {
         return null;
     }
-    private Label createLabelMasterPane(String text, int size) {
+
+    /**
+     * Create a stylized label with the specified text and size.
+     * Used anywhere a stylized label is needed.
+     *
+     * @param text The text contained inside the label
+     * @param size The size of the font
+     * @return The label created
+     */
+    private Label createLabel(String text, int size) {
         Label label = new Label(text);
-        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: "+size+"px;-fx-font-family: 'JejuHallasan';");
+
+        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: " + size + "px;-fx-font-family: 'JejuHallasan';");
+
         return label;
     }
+
+    /**
+     * Create a stylized label with the specified text, X and Y coordinates.
+     * This version of the method is used in starting page.
+     *
+     * @param text The text contained inside the label
+     * @param X The X coordinate of the label
+     * @param Y The Y coordinate of the label
+     * @return The label created
+     */
     private Label createLabel(String text, int X, int Y) {
         Label label = new Label(text);
+
         label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
         label.setTranslateX(X);
         label.setTranslateY(Y);
+
         return label;
     }
-    private Button createTransButton(String buttonName,int size,String color,int X, int Y) {
+
+    private Button createTransButton(String buttonName, int size, String color, int X, int Y) {
         Button button = new Button(buttonName);
-        button.setStyle("-fx-background-color: transparent;-fx-text-fill:"+color+";-fx-alignment: center;" +
-                "-fx-font-size: "+size+"px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10,0,0,10 );");
+        button.setStyle("-fx-background-color: transparent;-fx-text-fill:" + color + ";-fx-alignment: center;" +
+                "-fx-font-size: " + size + "px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10,0,0,10 );");
         button.setTranslateX(X);
         button.setTranslateY(Y);
         return button;
     }
+
     private Button createButton(String buttonName, int X, int Y) {
         Button button = new Button(buttonName);
         button.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
@@ -586,6 +614,7 @@ public class GraphicalUI extends View {
         button.setTranslateY(Y);
         return button;
     }
+
     private TextField createTextField(String promptText, int MaxHeight, int MaxWidth, int X, int Y) {
         TextField textField = new TextField();
         textField.setMaxHeight(MaxHeight);
@@ -600,14 +629,14 @@ public class GraphicalUI extends View {
         return textField;
     }
 
-    private void createAlert(String reason){
+    private void createAlert(String reason) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         DialogPane dialogPane = new DialogPane();
         Label label1 = new Label(reason);
         label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
         dialogPane.setContent(label1);
         dialogPane.setStyle("-fx-pref-height: 120px;-fx-pref-width: 400px;-fx-background-image: " +
-                "url('/NoticeDisplay.png');-fx-background-position: center;-fx-background-size: 400px 120px;" );
+                "url('/NoticeDisplay.png');-fx-background-position: center;-fx-background-size: 400px 120px;");
         dialogPane.setMinHeight(120);
         dialogPane.setMinWidth(400);
         dialogPane.setMaxHeight(400);
@@ -630,7 +659,12 @@ public class GraphicalUI extends View {
 
     @Override
     public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
+        this.hand = hand;
+        this.commonObjCards = common;
+        this.secretObjCards = secrets;
 
+        showHand(hand);
+        showObjectiveCards(common);
     }
 
     @Override
@@ -698,10 +732,9 @@ public class GraphicalUI extends View {
     }
 
 
-
     @Override
     public void requestSelectStarterCardSide(int ID) {
-        Label requestLabel = createLabelMasterPane("choose your Starter card's side",20);
+        Label requestLabel =createLabel("choose your Starter card's side",20);
 
 
 
@@ -718,7 +751,7 @@ public class GraphicalUI extends View {
         // notify the player the colour received from the server
         VBox colourBox = new VBox();
         colourBox.getChildren().add(new ImageView(imagesMap.get(colourReceived)));
-        Label createedLabel = createLabelMasterPane("Your colour of this game is "+colourReceived,20);
+        Label createedLabel = createLabel("Your colour of this game is "+colourReceived,20);
         // update the available spaces in the field after the placement of the starter card
         availableSpaces = availablePos;
         // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
@@ -837,10 +870,10 @@ public class GraphicalUI extends View {
     @Override
     public void handleEvent(Event event, String message) {
         switch (event) {
-            case Event.NEW_PLAYER_JOIN ->{
+            case Event.NEW_PLAYER_JOIN -> {
                 this.players.add(message);
-                Label player = createLabel("Player " + message+" joined the lobby",20,20);
-                Platform.runLater(()->
+                Label player = createLabel("Player " + message + " joined the lobby", 20, 20);
+                Platform.runLater(() ->
                 {
                     selectionPane.getChildren().add(player);
                     PauseTransition pause = new PauseTransition(Duration.seconds(5));
@@ -849,12 +882,13 @@ public class GraphicalUI extends View {
                     });
                 });
             }
-            case Event.GAME_START->{
+            case Event.GAME_START -> {
                 setGameView();
             }
-            case Event.GAME_JOINED->{
-                Platform.runLater(()->
-                {   selectionPane.getChildren().removeLast();
+            case Event.GAME_JOINED -> {
+                Platform.runLater(() ->
+                {
+                    selectionPane.getChildren().removeLast();
                     waitingRoot = new StackPane();
                     this.players.add(thisPlayerNickname);
                     currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
@@ -872,7 +906,7 @@ public class GraphicalUI extends View {
                     playerListView.setEditable(false);
                     waitingRoot.getChildren().addAll(id, waiting, playerListView);
                     selectionPane.getChildren().add(waitingRoot);
-                    });
+                });
             }
             //TODO
         }
@@ -898,5 +932,151 @@ public class GraphicalUI extends View {
                 return null;
             }
         }
+    }
+
+    /**
+     * Generates the selection area for the initial card side selection.
+     * The selection area is composed of a prompt label, 2 cards to choose from
+     *
+     * @return a VBox containing the selection area for the initial card side selection
+     */
+    public VBox setupInitialCardSideSelectionArea() {
+        // TODO Need to load correct image based on the initial card assigned to the player
+        // TODO Need to notify listener of the id of the selected card
+        // TODO Need to correctly set position of selection area
+
+        VBox selectionArea = new VBox(); // Entire selection area
+
+        Label promptLabel = createLabel("Choose a secret objective card:", 20); // Text label prompting user to pick a card
+        HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
+
+        ImageView firstCard = new ImageView(new Image("cards_back_019.png", 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image("cards_back_027.png", 240, 160, true, false));
+
+        firstCard.setOnMouseClicked(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
+            st.setByX(0.15);
+            st.setByY(0.15);
+            st.setCycleCount(2);
+            st.setAutoReverse(true);
+            st.setOnFinished(event -> {
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setRadius(50.0);
+                dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+                firstCard.setEffect(dropShadow);
+            }); // When animation finishes, add a drop shadow effect to the card to highlight which card was selected
+            st.play(); // Play the animation
+
+            firstCard.setOnMouseClicked(null); // Disable card selection functionality
+            secondCard.setOnMouseClicked(null);
+
+            notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, true)); // Notify the controller that the front side of the card was selected
+        }); // Front side of starting card was selected
+        secondCard.setOnMouseClicked(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), secondCard); // Add scaling animation to the card when selected
+            st.setByX(0.15);
+            st.setByY(0.15);
+            st.setCycleCount(2);
+            st.setAutoReverse(true);
+            st.setOnFinished(event -> {
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setRadius(50.0);
+                dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+                secondCard.setEffect(dropShadow);
+            }); // When animation finishes, add a drop shadow effect to the card to highlight which card was selected
+            st.play(); // Play the animation
+
+            firstCard.setOnMouseClicked(null); // Disable card selection functionality
+            secondCard.setOnMouseClicked(null);
+
+            notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, false)); // Notify the controller that the back side of the card was selected
+        }); // Back side of starting card was selected
+
+        selectionArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+        selectionArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+
+        selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.getWidth()/2)); // Set position of selectionArea
+        selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.getHeight()/2));
+
+        cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
+
+        // Compose elements
+        selectionArea.getChildren().addAll(promptLabel, cardPairArea);
+        cardPairArea.getChildren().addAll(firstCard, secondCard);
+
+        return selectionArea;
+    }
+
+    /**
+     * Generates the selection area for the secret objective card selection.
+     * The selection area is composed of a prompt label, 2 cards to choose from
+     *
+     * @return a VBox containing the selection area for the secret objective card selection
+     */
+    public VBox setupSecretObjectiveCardSelectionArea() {
+        // TODO Need to load correct image based on the initial card assigned to the player
+        // TODO Need to notify listener of the id of the selected card
+        // TODO Need to correctly set position of selection area
+
+        VBox selectionArea = new VBox(); // Entire selection area
+
+        Label promptLabel = createLabel("Choose a secret objective card:", 20); // Text label prompting user to pick a card
+        HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
+
+        ImageView firstCard = new ImageView(new Image("cards_back_019.png", 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image("cards_back_027.png", 240, 160, true, false));
+
+        firstCard.setOnMouseClicked(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
+            st.setByX(0.15);
+            st.setByY(0.15);
+            st.setCycleCount(2);
+            st.setAutoReverse(true);
+            st.setOnFinished(event -> {
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setRadius(50.0);
+                dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+                firstCard.setEffect(dropShadow);
+            }); // When animation finishes, add a drop shadow effect to the card to highlight which card was selected
+            st.play(); // Play the animation
+
+            firstCard.setOnMouseClicked(null); // Disable card selection functionality
+            secondCard.setOnMouseClicked(null);
+
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, 0)); // Notify the controller that the first card was selected
+        }); // First card was selected
+        secondCard.setOnMouseClicked(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), secondCard); // Add scaling animation to the card when selected
+            st.setByX(0.15);
+            st.setByY(0.15);
+            st.setCycleCount(2);
+            st.setAutoReverse(true);
+            st.setOnFinished(event -> {
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setRadius(50.0);
+                dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+                secondCard.setEffect(dropShadow);
+            }); // When animation finishes, add a drop shadow effect to the card to highlight which card was selected
+            st.play(); // Play the animation
+
+            firstCard.setOnMouseClicked(null);
+            secondCard.setOnMouseClicked(null);
+
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, 1)); // Notify the controller that the second card was selected
+        });
+
+        selectionArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+        selectionArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+
+        selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.getWidth()/2)); // Set position of selectionArea
+        selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.getHeight()/2));
+
+        cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
+
+        // Compose elements
+        selectionArea.getChildren().addAll(promptLabel, cardPairArea);
+        cardPairArea.getChildren().addAll(firstCard, secondCard);
+
+        return selectionArea;
     }
 }

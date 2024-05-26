@@ -312,7 +312,7 @@ public class TextUI extends View{
      * Method that asks the player to insert the number of players and the nickname desired to create a new game.
      *
      * @see #askNickname()
-     * @see #notifyAskListenerLobby(CtoSLobbyMessage)
+     * @see #notifyAskListener(CtoSLobbyMessage)
      * @see NewGameMessage
      */
     @Override
@@ -333,7 +333,7 @@ public class TextUI extends View{
         }
 
         // Notify the listener with the new game message
-        notifyAskListenerLobby(new NewGameMessage(thisPlayerNickname, playerNum));
+        notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
     }
 
     /**
@@ -350,7 +350,7 @@ public class TextUI extends View{
         gameID = getInputInt();
 
         // notify the listener with the access game message
-        notifyAskListenerLobby(new AccessGameMessage(gameID, thisPlayerNickname));
+        notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
     }
 
     /**
@@ -363,7 +363,7 @@ public class TextUI extends View{
         out.println("Insert the game ID you want to reconnect to:");
         gameID = getInputInt();
         // notify the listener with the reconnect game message
-        notifyAskListenerLobby(new ReconnectGameMessage(thisPlayerNickname,gameID));
+        notifyAskListener(new ReconnectGameMessage(thisPlayerNickname,gameID));
     }
 
     /**
