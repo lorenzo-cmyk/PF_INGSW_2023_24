@@ -50,6 +50,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     }
 
     public void run() {
+
         // Listen for incoming messages
         while(true) {
             try {
@@ -57,23 +58,31 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 checkConnection();
 
                 listenForIncomingMessages();
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            try {
-                if (!socket.isClosed()){
-                    socketIn.close();
-                    socketOut.close();
-                    socket.close();
-                }
-            } catch (IOException ignored) {}
+
+            } catch (IOException | ClassNotFoundException | NodeClosedException ignore) {}
+            //TODO forse il catch deve fare qualcosa
         }
     }
 
-    public void listenForIncomingMessages() throws IOException, ClassNotFoundException {
-        StoCMessage message = (StoCMessage) socketIn.readObject();
-        System.out.println("Received"+message.getClass().getName()+" from server");
-        System.out.println(message.toString());
-        message.processMessage(view);
+    public void listenForIncomingMessages() throws IOException, ClassNotFoundException, NodeClosedException {
+
+        Object message;
+
+        try {
+            message = inputObtStr.readObject();
+        } catch (SocketTimeoutException e) {return;}
+
+        // TODO server sync??
+        resetTimeCounter();
+
+        if(message instanceof StoCMessage) {
+
+            ((StoCMessage) message).processMessage(view);
+
+        } else {
+
+            logger.info("Message received. Message type not recognized");
+        }
     }
 
     @Override
