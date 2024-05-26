@@ -51,8 +51,11 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     public void run() {
         // Listen for incoming messages
-        try{
-            while(true) {
+        while(true) {
+            try {
+
+                checkConnection();
+
                 listenForIncomingMessages();
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -97,6 +100,28 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         } catch (IOException e) {
             throw new UploadFailureException();
         }
+    }
+
+    private void checkConnection() {
+
+        boolean tmpReconnect = false;
+
+        synchronized (aliveLock) {
+            if (!statusIsAlive)
+                if(reconnectCalled){
+                    try {
+                        aliveLock.wait();
+                    } catch (InterruptedException ignore) {}
+                } else {
+                    reconnectCalled = true;
+                    tmpReconnect = true;
+                }
+        }
+
+        if(tmpReconnect) {
+            reconnect();
+        }
+
     }
 
     private void reconnect() {
