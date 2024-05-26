@@ -132,12 +132,12 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         }
 
         if(tmpReconnect) {
-            reconnect();
+            connect();
         }
 
     }
 
-    private void reconnect() {
+    private void connect() {
 
         boolean reconnectionProcess = true;
 
@@ -186,6 +186,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     public void startConnection(){
 
+        connect();
         // TODO da fare/controllare
         new Thread(this).start();
     }
