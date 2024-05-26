@@ -86,13 +86,15 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     }
 
     @Override
-    public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
+    public void uploadToServer(CtoSLobbyMessage message) {
 
         boolean toSend = true;
 
         while (toSend) {
             try {
-                outputObtStr.writeObject(message);
+                synchronized (ctoSProcessingLock) {
+                    outputObtStr.writeObject(message);
+                }
                 toSend = false;
             } catch (IOException e) {
                 checkConnection();
@@ -107,7 +109,9 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         while (toSend) {
             try {
-                outputObtStr.writeObject(message);
+                synchronized (ctoSProcessingLock) {
+                    outputObtStr.writeObject(message);
+                }
                 toSend = false;
             } catch (IOException e) {
                 checkConnection();
@@ -198,10 +202,13 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     @Override
     public void pingTimeOverdue() {
         try {
-            uploadToServer(new PingMessage(nickname));
 
-            // diminuzione pongCount
-        } catch (UploadFailureException ignored) {}
+            // TODO Fare
+
+            synchronized (ctoSProcessingLock) {
+                outputObtStr.writeObject(new PingMessage(nickname));
+            }
+        } catch (IOException ignored) {}
     }
 
     public void resetTimeCounter() {
