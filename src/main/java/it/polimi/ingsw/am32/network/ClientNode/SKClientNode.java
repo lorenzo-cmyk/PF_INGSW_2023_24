@@ -78,6 +78,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         if(message instanceof StoCMessage) {
 
             ((StoCMessage) message).processMessage(view);
+            logger.info("Message received. Type: StoCMessage. Processing");
 
         } else {
 
@@ -95,6 +96,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 synchronized (ctoSProcessingLock) {
                     outputObtStr.writeObject(message);
                 }
+                logger.info("Message sent. Type: CtoSLobbyMessage");
                 toSend = false;
             } catch (IOException e) {
                 checkConnection();
@@ -103,7 +105,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     }
 
     @Override
-    public void uploadToServer(CtoSMessage message) throws UploadFailureException {
+    public void uploadToServer(CtoSMessage message) {
 
         boolean toSend = true;
 
@@ -112,6 +114,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 synchronized (ctoSProcessingLock) {
                     outputObtStr.writeObject(message);
                 }
+                logger.info("Message sent. Type: CtoSMessage");
                 toSend = false;
             } catch (IOException e) {
                 checkConnection();
@@ -124,21 +127,26 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         boolean tmpReconnect = false;
 
         synchronized (aliveLock) {
-            if (!statusIsAlive)
-                if(reconnectCalled){
-                    try {
-                        aliveLock.wait();
-                    } catch (InterruptedException ignore) {}
-                } else {
-                    reconnectCalled = true;
-                    clientPingTask.cancel();
-                    timer.purge();
-                    clientPingTask = new ClientPingTask(this);
-                    tmpReconnect = true;
-                }
+            if (statusIsAlive) {
+                logger.info("Connection status: Alive");
+                return;
+            }
+
+            if(reconnectCalled){
+                try {
+                    aliveLock.wait();
+                } catch (InterruptedException ignore) {}
+            } else {
+                reconnectCalled = true;
+                clientPingTask.cancel();
+                timer.purge();
+                clientPingTask = new ClientPingTask(this);
+                tmpReconnect = true;
+            }
         }
 
         if(tmpReconnect) {
+            logger.info("Connection status: Down. Reconnecting...");
             connect();
         }
 
@@ -172,6 +180,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
             } catch (IOException ignore) {
 
+                logger.info("Failed to connect to {}:{}", ip, port);
                 try {
                     wait(100); // TODO parametrizzazione con config?
                 } catch (InterruptedException ignore2) {}
@@ -183,13 +192,14 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         }
 
+        logger.info("Connection established");
+
         synchronized (aliveLock) {
             statusIsAlive = true;
             reconnectCalled = false;
             aliveLock.notifyAll();
             timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
         }
-
     }
 
     public void startConnection(){
@@ -197,6 +207,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         connect();
         // TODO da fare/controllare
         new Thread(this).start();
+        logger.info("SKClientNode started");
     }
 
     @Override
@@ -204,7 +215,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         try {
 
             // TODO Fare
-
+            logger.info("Pong time overdue. Pong count: {}", pongCount);
             synchronized (ctoSProcessingLock) {
                 outputObtStr.writeObject(new PingMessage(nickname));
             }
@@ -220,5 +231,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
             pongCount = 3; // TODO modificare se si aggiunge config
         }
+
+        logger.info("Pong count reset");
     }
 }
