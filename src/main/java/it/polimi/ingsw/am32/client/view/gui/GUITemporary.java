@@ -8,17 +8,20 @@ import it.polimi.ingsw.am32.client.ObjectiveCardFactory;
 import it.polimi.ingsw.am32.client.PlayerPub;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -208,8 +211,12 @@ public class GUITemporary extends Application {
         bottomLine.translateXProperty().bind(preparationPhase.widthProperty().subtract(bottomLine.widthProperty().add(20)));
         bottomLine.translateYProperty().bind(preparationPhase.heightProperty().subtract(bottomLine.heightProperty().add(20)));
         preparationPhase.getChildren().addAll(board,deckArea,bottomLine,chatArea.getChatArea(),notice);
-        primaryStage.setScene(new Scene(preparationPhase));
 
+        VBox selectionArea = setupInitialCardSideSelectionArea();
+
+        preparationPhase.getChildren().add(selectionArea);
+
+        primaryStage.setScene(new Scene(preparationPhase));
         primaryStage.show();
     }
     private Label createLabel(String text) {
@@ -269,5 +276,56 @@ public class GUITemporary extends Application {
 
         }
         return playerInfoGroup;
+    }
+
+    public VBox setupInitialCardSideSelectionArea() {
+        VBox selectionArea = new VBox(); // Area containing everything
+
+        Label promptLabel = createLabel("Choose a secret objective card:"); // Text label prompting user to pick card
+        HBox cardPairArea = new HBox(); // Area at the bottom, containing the 2 cards to choose from
+
+        ImageView firstCard = new ImageView(new Image("cards_back_019.png", 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image("cards_back_027.png", 240, 160, true, false));
+
+        firstCard.setOnMouseClicked(e -> {
+            // Highlight the image once clicked
+            Glow glow = new Glow();
+            glow.setLevel(0.5);  // set the level of glow
+            firstCard.setEffect(glow);
+
+            firstCard.setOnMouseClicked(null); // Disable the card once selected
+            secondCard.setOnMouseClicked(null); // Disable the other card
+        });
+        secondCard.setOnMouseClicked(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), secondCard);
+            st.setByX(0.15);
+            st.setByY(0.15);
+            st.setCycleCount(2);
+            st.setAutoReverse(true);
+            st.setOnFinished(event -> {
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setRadius(50.0);
+                dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+                secondCard.setEffect(dropShadow);
+            });
+            st.play();
+
+            firstCard.setOnMouseClicked(null);
+            secondCard.setOnMouseClicked(null);
+        });
+
+        selectionArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        selectionArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179,0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+        selectionArea.setTranslateX(700); // Set position of selectionArea
+        selectionArea.setTranslateY(400);
+
+        cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
+
+        // Compose elements
+
+        selectionArea.getChildren().addAll(promptLabel, cardPairArea);
+        cardPairArea.getChildren().addAll(firstCard, secondCard);
+
+        return selectionArea;
     }
 }

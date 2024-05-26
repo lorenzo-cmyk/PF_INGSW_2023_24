@@ -152,7 +152,7 @@ public abstract class View implements EventHandler{
     public void notifyAskListener(CtoSMessage message){
         askListener.addMessage(message);
     }
-    public void notifyAskListenerLobby(CtoSLobbyMessage message){
+    public void notifyAskListener(CtoSLobbyMessage message){
         askListener.addMessage(message);
     }
     public void updateCurrentEvent(Event event){
