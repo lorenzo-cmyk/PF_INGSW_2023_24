@@ -4,7 +4,6 @@ module it.polimi.ingsw.am32 {
 
     requires org.controlsfx.controls;
     requires com.fasterxml.jackson.databind;
-    requires net.bytebuddy;
     requires org.apache.logging.log4j;
     requires java.rmi;
 

@@ -1,11 +1,12 @@
 package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.*;
-import it.polimi.ingsw.am32.message.ServerToClient.AccessGameConfirmMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.LobbyPlayerListMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.NewGameConfirmationMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
+import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,6 +19,10 @@ import java.util.stream.Collectors;
  * @author Anto
  */
 public class GamesManager {
+    /**
+     * Logger object of the class
+     */
+    private static final Logger logger = LogManager.getLogger(GamesManager.class);
     /**
      * instance: The only instance of the class.
      */
@@ -39,6 +44,7 @@ public class GamesManager {
     public static synchronized GamesManager getInstance() {
         if (instance == null) {
             instance = new GamesManager();
+            logger.debug("Instance of GamesManager created");
         }
         return instance;
     }
@@ -53,6 +59,7 @@ public class GamesManager {
      * @throws InvalidPlayerNumberException If the player count is not between 2 and 4
      */
     public synchronized GameController createGame(String creatorName, int playerCount, NodeInterface node) throws InvalidPlayerNumberException {
+        logger.debug("Received request to create a new game. Creator name: {}, player count: {}, node: {}", creatorName, playerCount, node);
         if(creatorName == null || creatorName.isBlank()) {
             throw new CriticalFailureException("Creator name cannot be null or empty");
         }
@@ -110,6 +117,7 @@ public class GamesManager {
      * @throws DuplicateNicknameException If the player with the given nickname is already in the game
      */
     public synchronized GameController accessGame(String nickname, int gameCode, NodeInterface node) throws GameNotFoundException, FullLobbyException, GameAlreadyStartedException, DuplicateNicknameException {
+        logger.debug("Received request to access game. Nickname: {}, game code: {}, node: {}", nickname, gameCode, node);
         if(nickname == null || nickname.isBlank()) {
             throw new CriticalFailureException("Nickname cannot be null or empty");
         }
@@ -133,6 +141,10 @@ public class GamesManager {
                             .map(PlayerQuadruple::getNickname)
                             .collect(Collectors.toCollection(ArrayList::new));
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
+                        // Also notify all players except player that has just connected, that a new player has connected
+                        if (!playerQuadruple.getNickname().equals(nickname)) {
+                            game.submitVirtualViewMessage(new PlayerConnectedMessage(playerQuadruple.getNickname(), nickname));
+                        }
                         game.submitVirtualViewMessage(new LobbyPlayerListMessage(playerQuadruple.getNickname(), allPlayerNicknames));
                     }
                 } catch (VirtualViewNotFoundException e) { // Player was added, but his virtual view could not be found
@@ -141,6 +153,60 @@ public class GamesManager {
 
                 if (game.getGameSize() == game.getLobbyPlayerCount()) { // Lobby is now full
                     game.enterPreparationPhase();
+                }
+
+                return game;
+            }
+        }
+        throw new GameNotFoundException("No game found with code " + gameCode);
+    }
+
+    /**
+     * Reconnects the player with the given nickname to the game with the given code
+     *
+     * @param nickname The nickname of the player to be reconnected
+     * @param gameCode The code of the game to be accessed
+     * @param node The server node associated with the given player
+     * @return The GameController of the game with the given code
+     * @throws GameAlreadyEndedException If the game has already ended
+     * @throws PlayerNotFoundException If the player with the given nickname is not found in the game
+     * @throws GameNotFoundException If no game with the given code is found
+     * @throws PlayerAlreadyConnectedException If the player with the given nickname is already connected to the game
+     */
+    public synchronized GameController reconnectToGame(String nickname, int gameCode, NodeInterface node) throws
+            GameAlreadyEndedException, PlayerNotFoundException, GameNotFoundException, PlayerAlreadyConnectedException,
+            GameNotYetStartedException
+    {
+        logger.debug("Received request to reconnect to game. Nickname: {}, game code: {}, node: {}", nickname, gameCode, node);
+        if (nickname == null || nickname.isBlank()) {
+            throw new CriticalFailureException("Nickname cannot be null or empty");
+        }
+        if (node == null) {
+            throw new CriticalFailureException("Node cannot be null");
+        }
+
+        for (GameController game : games) {
+            if (game.getId() == gameCode) {
+                if (game.getStatus() == GameControllerStatus.GAME_ENDED) { // If the game has already finished, the player cannot reconnect
+                    throw new GameAlreadyEndedException("Game has already ended, cannot reconnect now");
+                }
+                if(game.getStatus() == GameControllerStatus.LOBBY) {
+                    throw new GameNotYetStartedException("Game has not yet started, cannot reconnect now. Use accessGame instead.");
+                }
+
+                // Game has not yet ended
+                try {
+                    game.reconnect(nickname, node); // Attempt to reconnect the player
+                    game.submitVirtualViewMessage(new ReconnectGameConfirmMessage(nickname)); // Notify the player that he has joined the game
+
+                    for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
+                        // Also notify all players except player that has just reconnected, that a player has reconnected
+                        if (!playerQuadruple.getNickname().equals(nickname)) {
+                            game.submitVirtualViewMessage(new PlayerReconnectedMessage(playerQuadruple.getNickname(), nickname));
+                        }
+                    }
+                } catch (VirtualViewNotFoundException e) {
+                    throw new CriticalFailureException("VirtualViewNotFoundException when player reconnected to the game");
                 }
 
                 return game;
@@ -163,5 +229,6 @@ public class GamesManager {
      */
     protected synchronized void clearInstance() {
         instance = null;
+        logger.debug("Instance of GamesManager cleared");
     }
 }

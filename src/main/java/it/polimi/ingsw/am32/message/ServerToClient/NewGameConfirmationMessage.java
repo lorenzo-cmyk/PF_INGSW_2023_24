@@ -12,12 +12,20 @@ public class NewGameConfirmationMessage implements StoCMessage {
     }
 
     @Override
-    public void processMessage(View view) {
-        // TODO
+    public void processMessage(View view){
+        view.updateNewGameConfirm(matchId, recipientNickname);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    @Override
+    public String toString() {
+        return "NewGameConfirmationMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", matchId=" + matchId +
+                '}';
     }
 }

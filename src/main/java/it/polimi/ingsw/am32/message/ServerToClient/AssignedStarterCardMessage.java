@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
+import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.View;
 
 public class AssignedStarterCardMessage implements StoCMessage {
@@ -13,11 +14,20 @@ public class AssignedStarterCardMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.setCurrentEvent(Event.SELECT_STARTER_CARD_SIDE);
+        view.requestSelectStarterCardSide(cardId);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    @Override
+    public String toString() {
+        return "AssignedStarterCardMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", cardId=" + cardId +
+                '}';
     }
 }

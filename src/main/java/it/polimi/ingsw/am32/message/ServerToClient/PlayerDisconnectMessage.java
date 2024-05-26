@@ -20,4 +20,12 @@ public class PlayerDisconnectMessage implements StoCMessage {
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    @Override
+    public String toString() {
+        return "PlayerDisconnectMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", disconnectedNickname='" + disconnectedNickname + '\'' +
+                '}';
+    }
 }

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Timer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -325,7 +326,7 @@ public class GameControllerTest {
         AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
         int secretObjectiveCardId = -1;
         try {
-            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedSecretObjectiveCards");
             assignedCards.setAccessible(true);
             ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
             secretObjectiveCardId = secretObjectiveCardIds.getFirst();
@@ -393,7 +394,7 @@ public class GameControllerTest {
         AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
         int secretObjectiveCardId = -1;
         try {
-            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedSecretObjectiveCards");
             assignedCards.setAccessible(true);
             ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
             secretObjectiveCardId = secretObjectiveCardIds.getFirst();
@@ -564,7 +565,7 @@ public class GameControllerTest {
         AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub.getInternalMessages().get(4);
         int secretObjectiveCardId = -1;
         try {
-            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedSecretObjectiveCards");
             assignedCards.setAccessible(true);
             ArrayList<Integer> secretObjectiveCardIds = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage);
             secretObjectiveCardId = secretObjectiveCardIds.getFirst();
@@ -575,7 +576,7 @@ public class GameControllerTest {
         AssignedSecretObjectiveCardMessage assignedSecretObjectiveCardMessage2 = (AssignedSecretObjectiveCardMessage) nodeInterfaceStub2.getInternalMessages().get(4);
         int secretObjectiveCardId2 = -1;
         try {
-            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedCards");
+            Field assignedCards = AssignedSecretObjectiveCardMessage.class.getDeclaredField("assignedSecretObjectiveCards");
             assignedCards.setAccessible(true);
             ArrayList<Integer> secretObjectiveCardIds2 = (ArrayList<Integer>) assignedCards.get(assignedSecretObjectiveCardMessage2);
             secretObjectiveCardId2 = secretObjectiveCardIds2.getFirst();
@@ -1505,6 +1506,215 @@ public class GameControllerTest {
 
         assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
         assertInstanceOf(PongMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+    }
+
+    @DisplayName("getTimer should return the timer")
+    @Test
+    void getTimerTest() {
+        // Check that the timer is not null
+        assertNotNull(gameController.getTimer());
+        // Check that the timer is an instance of Timer
+        assertInstanceOf(Timer.class, gameController.getTimer());
+    }
+
+    @DisplayName("Test disconnect() method with GameController in LOBBY status")
+    @Test
+    void disconnectLobbyTest() {
+        // Add two players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // Get the nodes associate with each one of the players
+        NodeInterfaceStub nodeInterfaceStub1 = (NodeInterfaceStub) gameController.getNodeList().stream()
+                .filter(playerQuadruple -> playerQuadruple.getNickname().equals("player1"))
+                .findFirst()
+                .map(PlayerQuadruple::getNode)
+                .orElse(null);
+        NodeInterfaceStub nodeInterfaceStub2 = (NodeInterfaceStub) gameController.getNodeList().stream()
+                .filter(playerQuadruple -> playerQuadruple.getNickname().equals("player2"))
+                .findFirst()
+                .map(PlayerQuadruple::getNode)
+                .orElse(null);
+
+        // Check that the player has been removed from the model
+        assertEquals(2, gameController.getModel().getPlayersNicknames().size());
+
+        // Check that the player has been removed from the game
+        assertEquals(2, gameController.getNodeList().size());
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Clear the internal messages
+        nodeInterfaceStub1.clearInternalMessages();
+        nodeInterfaceStub2.clearInternalMessages();
+
+        // Disconnect player1
+        gameController.disconnect(nodeInterfaceStub1);
+
+        // Check that the player has been removed from the model
+        assertEquals(1, gameController.getModel().getPlayersNicknames().size());
+
+        // Check that the player has been removed from the game
+        assertEquals(1, gameController.getNodeList().size());
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // player2 should receive a message that player1 has disconnected and a new player list
+        assertEquals(2, nodeInterfaceStub2.getInternalMessages().size());
+        assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub2.getInternalMessages().getFirst());
+        assertInstanceOf(PlayerDisconnectMessage.class, nodeInterfaceStub2.getInternalMessages().getLast());
+    }
+
+    @DisplayName("Test disconnect() method with GameController in WAITING_STARTER_CARD_CHOICE status")
+    @Test
+    void disconnectWaitingStarterCardChoiceTest() {
+        // Add two players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+
+        // Get the nodes associate with each one of the players
+        NodeInterfaceStub nodeInterfaceStub1 = (NodeInterfaceStub) gameController.getNodeList().stream()
+                .filter(playerQuadruple -> playerQuadruple.getNickname().equals("player1"))
+                .findFirst()
+                .map(PlayerQuadruple::getNode)
+                .orElse(null);
+        NodeInterfaceStub nodeInterfaceStub2 = (NodeInterfaceStub) gameController.getNodeList().stream()
+                .filter(playerQuadruple -> playerQuadruple.getNickname().equals("player2"))
+                .findFirst()
+                .map(PlayerQuadruple::getNode)
+                .orElse(null);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Clear the internal messages
+        nodeInterfaceStub1.clearInternalMessages();
+        nodeInterfaceStub2.clearInternalMessages();
+
+        // Disconnect player1
+        gameController.disconnect(nodeInterfaceStub1);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // player2 should receive a message that player1 has disconnected
+        assertEquals(1, nodeInterfaceStub2.getInternalMessages().size());
+        assertInstanceOf(PlayerDisconnectMessage.class, nodeInterfaceStub2.getInternalMessages().getFirst());
+
+        // player1 should be marked as disconnected in the nodeList
+        // Retrieve the PlayerQuadruple associated with player1
+        PlayerQuadruple playerQuadruple = gameController.getNodeList().stream()
+                .filter(p -> p.getNickname().equals("player1"))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(playerQuadruple);
+        assertFalse(playerQuadruple.isConnected());
+    }
+
+    @DisplayName("Test disconnect() method with GameController in WAITING_SECRET_OBJECTIVE_CARD_CHOICE status")
+    @Test
+    void disconnectWaitingSecretObjectiveCardChoiceTest() {
+        // Add two players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", false);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Get the nodes associate with each one of the players
+        NodeInterfaceStub nodeInterfaceStub1 = (NodeInterfaceStub) gameController.getNodeList().stream()
+                .filter(playerQuadruple -> playerQuadruple.getNickname().equals("player1"))
+                .findFirst()
+                .map(PlayerQuadruple::getNode)
+                .orElse(null);
+        NodeInterfaceStub nodeInterfaceStub2 = (NodeInterfaceStub) gameController.getNodeList().stream()
+                .filter(playerQuadruple -> playerQuadruple.getNickname().equals("player2"))
+                .findFirst()
+                .map(PlayerQuadruple::getNode)
+                .orElse(null);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Clear the internal messages
+        nodeInterfaceStub1.clearInternalMessages();
+        nodeInterfaceStub2.clearInternalMessages();
+
+        // Disconnect player1
+        gameController.disconnect(nodeInterfaceStub1);
+
+        // Wait until all the VirtualView are executed by the OS. I know this is not the best way to test this.
+        // Otherwise, I will need to mock the VirtualView and check if the methods are called correctly.
+        // Mockito is broken on IntelliJ IDEA.
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // player2 should receive a message that player1 has disconnected
+        assertEquals(1, nodeInterfaceStub2.getInternalMessages().size());
+        assertInstanceOf(PlayerDisconnectMessage.class, nodeInterfaceStub2.getInternalMessages().getFirst());
+
+        // player1 should be marked as disconnected in the nodeList
+        // Retrieve the PlayerQuadruple associated with player1
+        PlayerQuadruple playerQuadruple = gameController.getNodeList().stream()
+                .filter(p -> p.getNickname().equals("player1"))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(playerQuadruple);
+        assertFalse(playerQuadruple.isConnected());
     }
 
 }

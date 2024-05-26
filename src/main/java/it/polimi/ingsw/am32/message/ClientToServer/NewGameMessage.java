@@ -39,11 +39,14 @@ public class NewGameMessage implements CtoSLobbyMessage {
      */
     @Override
     public GameController elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException {
-        try {
-            GameController gameController = GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
-            return gameController;
-        } catch (InvalidPlayerNumberException e) { // The player count is not between 2 and 4
-            throw e;
-        }
+        return GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
+    }
+
+    @Override
+    public String toString() {
+        return "NewGameMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", playerNum=" + playerNum +
+                '}';
     }
 }

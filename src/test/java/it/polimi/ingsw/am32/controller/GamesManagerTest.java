@@ -1,13 +1,14 @@
 package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.*;
-import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -15,13 +16,27 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GamesManagerTest {
-    // Stub class for NodeInterface. This class is used to test the GamesManager class.
+    // Stub class for NodeInterface. This class is used to test the GameController class.
     private static class NodeInterfaceStub implements NodeInterface {
-        public void uploadToClient(StoCMessage message) {}
-        public void pingTimeOverdue() {}
-        public void resetTimeCounter() {}
-        public void setGameController(GameController gameController) {}
-        public NodeInterfaceStub() {}
+        private final ArrayList<StoCMessage> internalMessages;
+        public NodeInterfaceStub() {
+            internalMessages = new ArrayList<>();
+        }
+        public synchronized void uploadToClient(StoCMessage message) {
+            internalMessages.add(message);
+        }
+        public void pingTimeOverdue() {
+            // STUB
+        }
+        public void resetTimeCounter() {
+            // STUB
+        }
+        public synchronized ArrayList<StoCMessage> getInternalMessages() {
+            return internalMessages;
+        }
+        public synchronized void clearInternalMessages() {
+            internalMessages.clear();
+        }
     }
 
     // NodeInterface instance
@@ -31,6 +46,7 @@ class GamesManagerTest {
 
     @BeforeEach
     void setUp() {
+        GamesManager.getInstance().clearInstance();
         gamesManager = GamesManager.getInstance();
         node = new NodeInterfaceStub();
     }
@@ -40,12 +56,24 @@ class GamesManagerTest {
         gamesManager.clearInstance();
     }
 
-    @DisplayName("Create a game with valid parameters - no exceptions expected")
+    @DisplayName("Create a game with valid parameters - no exceptions expected, creator should receive a NewGameConfirmationMessage")
     @Test
     void createGameWithValidParameters() {
         assertDoesNotThrow(() -> gamesManager.createGame("creator", 3, node));
         assertNotNull(gamesManager.getGames());
         assertEquals(1, gamesManager.getGames().size()); // Only one game has been created
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        // Get the node of the creator
+        NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)gamesManager.getGames().getFirst().getNodeList().getFirst().getNode();
+        // Check that creator has received a single NewGameConfirmationMessage
+        assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+        assertInstanceOf(NewGameConfirmationMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
     }
 
     @DisplayName("Create a game and check if game ID is within range and unique")
@@ -91,15 +119,95 @@ class GamesManagerTest {
         assertEquals(0, gamesManager.getGames().size());
     }
 
-    @DisplayName("Access a game with valid parameters - no exceptions expected")
+    @DisplayName("Access a game with valid parameters - no exceptions expected, players should receive correct messages")
     @Test
     void accessGameWithValidParameters() {
         try {
-            GameController gameController = gamesManager.createGame("creator", 3, node);
+            GameController gameController = gamesManager.createGame("creator", 3, new NodeInterfaceStub());
             assertEquals(1, gamesManager.getGames().size());
-            gamesManager.accessGame("player", gameController.getId(), node);
+            gamesManager.accessGame("player", gameController.getId(), new NodeInterfaceStub());
         } catch (Exception e) {
             fail("Unexpected exception thrown");
+        }
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        for (PlayerQuadruple playerQuadruple : gamesManager.getGames().getFirst().getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
+            if (playerQuadruple.getNickname().equals("creator")) {
+                // Creator should have received a NewGameConfirmationMessage, a PlayerConnectedMessage, and a LobbyPlayerListMessage
+                assertEquals(3, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(NewGameConfirmationMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+            }
+            else if (playerQuadruple.getNickname().equals("player")) {
+                // Player should have received an AccessGameConfirmMessage, and a LobbyPlayerListMessage
+                assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(AccessGameConfirmMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+            }
+        }
+    }
+
+    @DisplayName("Access a game with valid parameters - no exceptions expected, players should receive correct messages")
+    @Test
+    void accessGameWithValidParametersThreePlayer() {
+        try {
+            GameController gameController = gamesManager.createGame("creator", 4, new NodeInterfaceStub());
+            assertEquals(1, gamesManager.getGames().size());
+            gamesManager.accessGame("player", gameController.getId(), new NodeInterfaceStub());
+            gamesManager.accessGame("player2", gameController.getId(), new NodeInterfaceStub());
+        } catch (Exception e) {
+            fail("Unexpected exception thrown");
+        }
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        for (PlayerQuadruple playerQuadruple : gamesManager.getGames().getFirst().getNodeList()) {
+            NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
+            if (playerQuadruple.getNickname().equals("creator")) {
+                // Creator should have received:
+                // - a NewGameConfirmationMessage
+                // - a LobbyPlayerListMessage
+                // - a PlayerConnectedMessage
+                // - a LobbyPlayerListMessage
+                // - a PlayerConnectedMessage
+                assertEquals(5, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(NewGameConfirmationMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(4));
+            }
+            else if (playerQuadruple.getNickname().equals("player")) {
+                // Player should have received:
+                // - an AccessGameConfirmMessage
+                // - a LobbyPlayerListMessage
+                // - a LobbyPlayerListMessage
+                // - a PlayerConnectedMessage
+                assertEquals(4, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(AccessGameConfirmMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+                assertInstanceOf(PlayerConnectedMessage.class, nodeInterfaceStub.getInternalMessages().get(2));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(3));
+            }
+            else if (playerQuadruple.getNickname().equals("player2")) {
+                // Player2 should have received:
+                // - an AccessGameConfirmMessage
+                // - a LobbyPlayerListMessage
+                assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(AccessGameConfirmMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+                assertInstanceOf(LobbyPlayerListMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+            }
         }
     }
 
@@ -152,8 +260,8 @@ class GamesManagerTest {
         for (int i = 0; i < 500; i++) {
             service.submit(() -> {
                 try {
-                    GameController gameController = gamesManager.createGame("creator" + Thread.currentThread().getId(), 3, node);
-                    gamesManager.accessGame("player" + Thread.currentThread().getId(), gameController.getId(), node);
+                    GameController gameController = gamesManager.createGame("creator " + Thread.currentThread().getId(), 3, node);
+                    gamesManager.accessGame("player " + Thread.currentThread().getId(), gameController.getId(), node);
                 } catch (Exception e) {
                     fail("Unexpected exception: " + e.getMessage());
                 }

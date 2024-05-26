@@ -1,13 +1,13 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.View;
-import it.polimi.ingsw.am32.controller.VirtualView;
 
 import java.util.ArrayList;
 
 public class LobbyPlayerListMessage implements StoCMessage {
     private final String recipientNickname;
     private final ArrayList<String> playerList;
+    //FIXME private final playerName: who left the lobby or joined --> same for all messages that need to notify all the players
 
     public LobbyPlayerListMessage(String recipientNickname, ArrayList<String> playerList) {
         this.recipientNickname = recipientNickname;
@@ -16,11 +16,19 @@ public class LobbyPlayerListMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateNewPlayerJoin(playerList);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    @Override
+    public String toString() {
+        return "LobbyPlayerListMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", playerList=" + playerList.toString() +
+                '}';
     }
 }

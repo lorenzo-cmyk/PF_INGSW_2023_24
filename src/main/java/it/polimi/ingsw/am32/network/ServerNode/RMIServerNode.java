@@ -16,7 +16,8 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeInt, NodeInterface {
 
-    private final Logger logger;
+    private final static Logger logger = LogManager.getLogger(RMIServerNode.class);
+
     private final Configuration config;
     private GameController gameController;
     private int pingCount;
@@ -37,8 +38,6 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
 
-        logger = LogManager.getLogger("RMIServerNode");
-
         statusIsAlive = true;
         destroyCalled = false;
     }
@@ -54,7 +53,16 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                 resetTimeCounter();
             }
 
-            message.elaborateMessage(gameController);
+            // We can't risk to lose the observability of potential RuntimeExceptions thrown by GameController and Model
+            // The server will not crash if such exceptions are thrown, thanks to how the threads are managed, but
+            // we need to log them to understand what went wrong and fix it.
+            try{
+                message.elaborateMessage(gameController);
+                logger.info("RMI CtoSMessage received and elaborated successfully: {}", message.toString());
+            } catch (Exception e) {
+                logger.fatal("An error occurred while processing RMI CtoSMessage:", e);
+                throw e;
+            }
         }
     }
 
@@ -62,7 +70,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
         try {
             clientNode.uploadStoC(message);
-            logger.info("StoCMessage sent to client");
+            logger.info("StoCMessage sent to client: {}", message.toString());
 
         } catch (RemoteException e) { // TODO gestire errore RMI interfaccia client??
             logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
@@ -79,8 +87,11 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
             pingCount--;
 
-            if(pingCount <= 0)
+            if(pingCount <= 0){
                 statusIsAlive = false;
+                logger.debug("Ping time overdue, set statusIsAlive to false");
+            }
+
         }
 
         if(!statusIsAlive)
@@ -124,6 +135,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                 } catch (NoSuchObjectException ignored) {}
             }
         }
+        logger.info("RMIServerNode destroyed");
     }
 
     public void setGameController(GameController gameController) {

@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.View;
-import it.polimi.ingsw.am32.controller.VirtualView;
 
 public class InvalidSelectedSecretObjectiveCardMessage implements StoCMessage {
     private final String recipientNickname;
@@ -23,5 +22,13 @@ public class InvalidSelectedSecretObjectiveCardMessage implements StoCMessage {
     @Override
     public void processMessage(View view) {
 
+    }
+
+    @Override
+    public String toString() {
+        return "InvalidSelectedSecretObjectiveCardMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", reason='" + reason + '\'' +
+                '}';
     }
 }

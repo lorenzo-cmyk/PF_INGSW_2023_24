@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am32.client;
 
+import java.util.ArrayList;
+
 /**
  * It's a client-side cardPlaced class.
  * Use this class just to store the information of the card placed on the field, if the player wants to know the details
@@ -10,5 +12,5 @@ package it.polimi.ingsw.am32.client;
  * @param y the y coordinate of the card placed.
  * @param side the side of the card placed.
  */
-public record CardPlacedView(int ID, int x, int y, boolean side) {
+public record CardPlacedView(int ID, ArrayList<String>cardImage, int x, int y, boolean side) {
 }

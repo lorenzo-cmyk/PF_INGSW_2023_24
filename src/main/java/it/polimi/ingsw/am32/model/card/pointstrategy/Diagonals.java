@@ -89,10 +89,14 @@ public class Diagonals implements PointStrategy {
         this.type = type;
         this.leftToRight = leftToRight;
     }
+
+    /**
+     * Get the type of the resource (ObjectType) that the card requires.
+     *
+     * @return ObjectType needed.
+     */
     public ObjectType getType() {
         return type;
     }
-    public boolean getLeftToRight() {
-        return leftToRight;
-    }
+
 }

@@ -20,4 +20,12 @@ public class NegativeResponsePlayerFieldMessage implements StoCMessage{
     public String getRecipientNickname() {
         return recipientNickname;
     }
+
+    @Override
+    public String toString() {
+        return "NegativeResponsePlayerFieldMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", playerNickname='" + playerNickname + '\'' +
+                '}';
+    }
 }

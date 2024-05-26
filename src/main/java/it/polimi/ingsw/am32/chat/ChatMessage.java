@@ -12,6 +12,7 @@ import java.util.Objects;
  * @author Lorenzo
  * @author Anto
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class ChatMessage {
     private final String senderNickname;
     private final String recipientNickname;
@@ -82,5 +83,15 @@ public class ChatMessage {
      */
     public String getMessageContent() {
         return messageContent;
+    }
+
+    @Override
+    public String toString() {
+        return "ChatMessage{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", recipientNickname='" + recipientNickname + '\'' +
+                ", multicastFlag=" + multicastFlag +
+                ", messageContent='" + messageContent + '\'' +
+                '}';
     }
 }

@@ -6,20 +6,35 @@ import java.util.ArrayList;
 
 public class AssignedSecretObjectiveCardMessage implements StoCMessage {
     private final String recipientNickname;
-    private final ArrayList<Integer> assignedCards;
+    private final ArrayList<Integer> assignedSecretObjectiveCards;
+    private final ArrayList<Integer> chosenCommonObjectiveCards;
+    private final ArrayList<Integer> playerHand;
 
-    public AssignedSecretObjectiveCardMessage(String recipientNickname, ArrayList<Integer> assignedCards) {
+    public AssignedSecretObjectiveCardMessage(String recipientNickname, ArrayList<Integer> assignedSecretObjectiveCards,
+                                              ArrayList<Integer> chosenCommonObjectiveCards, ArrayList<Integer> playerHand) {
         this.recipientNickname = recipientNickname;
-        this.assignedCards = assignedCards;
+        this.assignedSecretObjectiveCards = assignedSecretObjectiveCards;
+        this.chosenCommonObjectiveCards = chosenCommonObjectiveCards;
+        this.playerHand = playerHand;
     }
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.requestSelectSecretObjCard(assignedSecretObjectiveCards, chosenCommonObjectiveCards, playerHand);
     }
 
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
+    }
+
+    @Override
+    public String toString() {
+        return "AssignedSecretObjectiveCardMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", assignedSecretObjectiveCards=" + assignedSecretObjectiveCards.toString() +
+                ", chosenCommonObjectiveCards=" + chosenCommonObjectiveCards.toString() +
+                ", playerHand=" + playerHand.toString() +
+                '}';
     }
 }
