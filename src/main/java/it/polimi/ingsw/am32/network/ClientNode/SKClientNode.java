@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Timer;
 
 public class SKClientNode implements ClientNodeInterface, Runnable {
@@ -28,6 +29,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     private Timer timer;
     private int pongCount;
     private boolean statusIsAlive;
+    private boolean reconnectCalled;
     private final Object aliveLock;
     private final Object ctoSProcessingLock;
     private final Object stoCProcessingLock;
@@ -44,8 +46,8 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         statusIsAlive = false;
         pongCount = 3; // todo fare un config??
         logger = LogManager.getLogger("SKClientNode");
+        reconnectCalled = false;
     }
-
 
     public void run() {
         // Listen for incoming messages
@@ -98,6 +100,49 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     }
 
     private void reconnect() {
+
+        boolean reconnectionProcess = true;
+
+        while (reconnectionProcess) {
+
+            if (socket != null && !socket.isClosed()) {
+
+                try {
+                    inputObtStr.close();
+                } catch (IOException ignore) {}
+
+                try {
+                    outputObtStr.close();
+                } catch (IOException ignore) {}
+
+                try {
+                    socket.close();
+                } catch (IOException ignore) {}
+            }
+
+            try {
+                socket = new Socket(ip, port);
+                inputObtStr = new ObjectInputStream(socket.getInputStream());
+                outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+
+            } catch (IOException ignore) {
+
+                try {
+                    wait(100); // TODO parametrizzazione con config?
+                } catch (InterruptedException ignore2) {}
+
+                continue;
+            }
+
+            reconnectionProcess = false;
+
+        }
+
+        synchronized (aliveLock) {
+            statusIsAlive = true;
+            reconnectCalled = false;
+            aliveLock.notifyAll();
+        }
 
     }
 
