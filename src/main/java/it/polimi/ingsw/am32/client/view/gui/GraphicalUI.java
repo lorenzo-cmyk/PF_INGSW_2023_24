@@ -7,6 +7,7 @@ import it.polimi.ingsw.am32.client.PlayerPub;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.AccessGameMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.SelectedSecretObjectiveCardMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.SelectedStarterCardSideMessage;
 import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
@@ -839,6 +840,10 @@ public class GraphicalUI extends View {
      * @return a VBox containing the selection area for the initial card side selection
      */
     public VBox setupInitialCardSideSelectionArea() {
+        // TODO Need to load correct image based on the initial card assigned to the player
+        // TODO Need to notify listener of the id of the selected card
+        // TODO Need to correctly set position of selection area
+
         VBox selectionArea = new VBox(); // Entire selection area
 
         Label promptLabel = createLabel("Choose a secret objective card:", 20); // Text label prompting user to pick a card
@@ -885,6 +890,79 @@ public class GraphicalUI extends View {
 
             notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, false)); // Notify the controller that the back side of the card was selected
         }); // Back side of starting card was selected
+
+        selectionArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+        selectionArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+
+        selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.getWidth()/2)); // Set position of selectionArea
+        selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.getHeight()/2));
+
+        cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
+
+        // Compose elements
+        selectionArea.getChildren().addAll(promptLabel, cardPairArea);
+        cardPairArea.getChildren().addAll(firstCard, secondCard);
+
+        return selectionArea;
+    }
+
+    /**
+     * Generates the selection area for the secret objective card selection.
+     * The selection area is composed of a prompt label, 2 cards to choose from
+     *
+     * @return a VBox containing the selection area for the secret objective card selection
+     */
+    public VBox setupSecretObjectiveCardSelectionArea() {
+        // TODO Need to load correct image based on the initial card assigned to the player
+        // TODO Need to notify listener of the id of the selected card
+        // TODO Need to correctly set position of selection area
+
+        VBox selectionArea = new VBox(); // Entire selection area
+
+        Label promptLabel = createLabel("Choose a secret objective card:", 20); // Text label prompting user to pick a card
+        HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
+
+        ImageView firstCard = new ImageView(new Image("cards_back_019.png", 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image("cards_back_027.png", 240, 160, true, false));
+
+        firstCard.setOnMouseClicked(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
+            st.setByX(0.15);
+            st.setByY(0.15);
+            st.setCycleCount(2);
+            st.setAutoReverse(true);
+            st.setOnFinished(event -> {
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setRadius(50.0);
+                dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+                firstCard.setEffect(dropShadow);
+            }); // When animation finishes, add a drop shadow effect to the card to highlight which card was selected
+            st.play(); // Play the animation
+
+            firstCard.setOnMouseClicked(null); // Disable card selection functionality
+            secondCard.setOnMouseClicked(null);
+
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, 0)); // Notify the controller that the first card was selected
+        }); // First card was selected
+        secondCard.setOnMouseClicked(e -> {
+            ScaleTransition st = new ScaleTransition(Duration.millis(200), secondCard); // Add scaling animation to the card when selected
+            st.setByX(0.15);
+            st.setByY(0.15);
+            st.setCycleCount(2);
+            st.setAutoReverse(true);
+            st.setOnFinished(event -> {
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setRadius(50.0);
+                dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+                secondCard.setEffect(dropShadow);
+            }); // When animation finishes, add a drop shadow effect to the card to highlight which card was selected
+            st.play(); // Play the animation
+
+            firstCard.setOnMouseClicked(null);
+            secondCard.setOnMouseClicked(null);
+
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, 1)); // Notify the controller that the second card was selected
+        });
 
         selectionArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         selectionArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
