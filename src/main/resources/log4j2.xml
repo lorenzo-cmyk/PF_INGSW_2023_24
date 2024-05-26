@@ -9,29 +9,13 @@
             <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</Pattern>
         </PatternLayout>
     </File>
-    <File name="ClientLoggerFile" fileName="logs/Client.log" append="false">
-        <PatternLayout>
-            <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</Pattern>
-        </PatternLayout>
-    </File>
-    <File name="TUILoggerFile" fileName="logs/TUI.log" append="false">
-        <PatternLayout>
-            <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</Pattern>
-        </PatternLayout>
-    </File>
 </Appenders>
 <Loggers>
-    <Logger name="MatchSimulationLogger" level="info" additivity="false">
-        <AppenderRef ref="MatchSimulationLoggerFile"/>
-    </Logger>
-    <Logger name="ClientLogger" level="info" additivity="false">
-        <AppenderRef ref="ClientLoggerFile"/>
-    </Logger>
-    <Logger name="TUILogger" level="info" additivity="false">
-        <AppenderRef ref="TUILoggerFile"/>
-    </Logger>
     <Root level="debug">
         <AppenderRef ref="Console"/>
     </Root>
+    <Logger name="MatchSimulationLogger" level="debug" additivity="false">
+        <AppenderRef ref="MatchSimulationLoggerFile"/>
+    </Logger>
 </Loggers>
 </Configuration>
