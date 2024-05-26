@@ -174,6 +174,7 @@ public class GUITemporary extends Application {
         ImageView card4 = new ImageView(new Image("/cards_front_045.png", 120, 80, true, false));
         ImageView card5 = new ImageView(new Image("/cards_back_055.png", 120, 80, true, false));
         ImageView card6 = new ImageView(new Image("/cards_back_045.png", 120, 80, true, false));
+
         VBox deckArea = new VBox();
         deckArea.setSpacing(10);
         HBox resourceDeck = new HBox();

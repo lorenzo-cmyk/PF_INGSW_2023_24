@@ -14,6 +14,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -42,6 +43,14 @@ public class GraphicalUI extends View {
     private HashMap<String, PlayerPubView> playerViews = new HashMap<>();
     private HashMap<String,Image> imagesMap = new HashMap<>();
     private ChatArea chatArea;
+    private ImageView[] handView;
+    private ImageView[] resourceDeckView;
+    private ImageView[] goldDeckView;
+    private ImageView secretObjCardView;
+    private ImageView[] commonObjCardView;
+
+
+    private StackPane boardReal;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String [] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -445,6 +454,94 @@ public class GraphicalUI extends View {
         topLine.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(20)));
 
         masterPane.getChildren().addAll(topLine, playerInfoPanel);
+
+        // set field view of the player
+        boardReal = new StackPane();
+        StackPane board = new StackPane(); // Fixed board where cards are displayed
+        board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        board.setPrefSize(770, 525);
+        board.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(50))); // set position X of the board in the masterPane.
+        board.translateXProperty().bind(masterPane.widthProperty().subtract(board.widthProperty().add(20))); // set position Y of the board in the masterPane.
+        board.getChildren().add(boardReal);
+        // set the Zoom and Drag effects to move the view of the Board
+        boardReal.setOnScroll(e -> {
+            e.consume();
+            if (e.getDeltaY() == 0) {
+                return;
+            }
+            double scaleFactor = (e.getDeltaY() > 0) ? 1.1 : 1 / 1.1;
+            if(boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
+                return;
+            boardReal.setScaleX(boardReal.getScaleX() * scaleFactor);
+            boardReal.setScaleY(boardReal.getScaleY() * scaleFactor);
+        }); // Enable zooming in/out of player field with mouse wheel
+
+        double[] dragPos = new double[2];
+        boardReal.setOnMousePressed(e -> {
+            dragPos[0]=e.getSceneX();
+            dragPos[1]=e.getSceneY();
+        });
+        boardReal.setOnMouseDragged(e -> {
+            boardReal.setTranslateX( e.getSceneX() - dragPos[0]);
+            boardReal.setTranslateY( e.getSceneY() - dragPos[1]);
+        }); // Enable translating of player field when mouse button is held down
+
+        // create Chat view
+        chatArea = new ChatArea(0,0,305,75); // Create chat area //TODO FIX PROBLEM OF SEND AND RECEIVE MESSAGE
+        chatArea.getChatArea().translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
+        chatArea.getChatArea().translateYProperty().bind(masterPane.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
+
+        //Images to hold the spaces for the cards in hand, common objective cards and secret objective cards
+        handView = new ImageView[]{
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true))
+        };
+        commonObjCardView = new ImageView[]{
+                new ImageView(new Image("/cards_back_089.png", 120, 80, true, true)),
+                new ImageView(new Image("/cards_back_089.png", 120, 80, true, true))
+        };
+        secretObjCardView = new ImageView(new Image("/cards_back_089.png", 120, 80, true, true));
+
+        resourceDeckView = new ImageView[]{
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true))
+        };
+        goldDeckView = new ImageView[] {
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, true))
+        };
+
+        VBox deckArea = new VBox();
+        deckArea.setSpacing(10);
+        HBox resourceDeck = new HBox();
+        resourceDeck.setSpacing(10);
+        resourceDeck.getChildren().addAll(resourceDeckView[0],resourceDeckView[1],resourceDeckView[2]);
+        HBox goldDeck = new HBox();
+        goldDeck.setSpacing(10);
+        goldDeck.getChildren().addAll(goldDeckView[0],goldDeckView[1],goldDeckView[2]);
+        deckArea.getChildren().addAll(goldDeck,resourceDeck);
+
+        deckArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
+        deckArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight()+400)));
+
+        // added the notice area
+        HBox notice = new HBox();
+        Label noticeText = new Label("It's your turn!");
+        notice.getChildren().add(noticeText);
+        notice.setPrefSize(380, 70);
+        notice.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        notice.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
+        notice.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight()+325)));
+        HBox bottomLine = new HBox();
+        bottomLine.setSpacing(10);
+        bottomLine.getChildren().addAll(commonObjCardView[0],commonObjCardView[1],secretObjCardView,handView[0],handView[1],handView[2]);
+        bottomLine.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(20)));
+        bottomLine.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(20)));
+        masterPane.getChildren().addAll(board,deckArea,bottomLine,chatArea.getChatArea(),notice);
+
         Platform.runLater(() -> {
             app.updateScene(masterPane);
             app.getPrimaryStage().setMinWidth(1250);
