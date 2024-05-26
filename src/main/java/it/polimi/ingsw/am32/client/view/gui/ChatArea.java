@@ -134,6 +134,8 @@ public class ChatArea {
      * Called when the user clicks the submit button.
      */
     private void submitChatMessage() {
+        if (inputMessageField.getText().isEmpty()) return; // Do not send empty messages (or messages with only whitespace characters)
+
         Label newMessage = new Label(">> " + inputMessageField.getText());
         newMessage.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
                 "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
