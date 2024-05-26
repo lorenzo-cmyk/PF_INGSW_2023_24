@@ -1,12 +1,13 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.control.TextField;
-import org.jetbrains.annotations.NotNull;
+import javafx.scene.paint.Color;
+
 
 public class ChatArea {
     /**
@@ -75,20 +76,42 @@ public class ChatArea {
         messageScrollPane.setMinSize(width, height);
         messageScrollPane.setMaxSize(width, height);
 
-        // Set the position of the chat area
-        chatArea.setTranslateX(X);
-        chatArea.setTranslateY(Y);
-
         // Enable only vertical scrolling
         messageScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         messageScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
+        // Set style of the chat area
+        messageScrollPane.setStyle("-fx-background-color: #E6DEB3;-fx-border-color: #3A2111; -fx-border-width: 1px; " +
+                "-fx-border-radius: 5px; -fx-background-radius: 5px;");
+
+        submitButton.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                "rgba(58,33,17,100,0.2),10,0,0,10);");
+
+        inputMessageField.setPromptText("Type your message...");
+        inputMessageField.setStyle("-fx-background-color: #E6DEB359;-fx-text-fill: #3A2111;"+
+                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-border-color: #3A2111; -fx-border-width: 1px; " +
+                "-fx-border-radius: 5px; -fx-background-radius: 5px;");
+        inputMessageField.setPrefSize(width, submitButton.getHeight());
+
+        chatArea.setPrefSize(width, height + inputMessageField.getHeight());
+
         // Link the button to a handler method
         submitButton.setOnAction(e -> submitChatMessage());
 
+        inputMessageField.setOnMouseClicked(e -> {
+            messageScrollPane.setVisible(true);
+        });
+        messageScrollPane.setOnMouseClicked(e -> {
+            messageScrollPane.setVisible(false);
+        });
+
         // Generate VBox container
         submissionArea.getChildren().addAll(inputMessageField, submitButton); // Add the text field and submit button to the chat input area
-        chatArea.getChildren().addAll(messageScrollPane, submissionArea); // Add the scroll pane and chat input area to the chat area
+        chatArea.getChildren().addAll(messageScrollPane,submissionArea); // Add the scroll pane and chat input area to the chat area
+        // Set the position of the chat area
+        chatArea.setTranslateX(X);
+        chatArea.setTranslateY(Y);
     }
 
     /**
@@ -98,8 +121,10 @@ public class ChatArea {
      *
      * @param message The message to be added
      */
-    public void addIncomingMessageToChat(@NotNull String message) {
+    public void addIncomingMessageToChat(String message) {
         Label newMessage = new Label(message);
+        newMessage.setStyle("-fx-text-fill: #E6DEB3;-fx-alignment: center;" +
+                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);
     }
 
@@ -110,6 +135,8 @@ public class ChatArea {
      */
     private void submitChatMessage() {
         Label newMessage = new Label(">> " + inputMessageField.getText());
+        newMessage.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);
         inputMessageField.clear(); // Clear the input field after the message is sent
     }
