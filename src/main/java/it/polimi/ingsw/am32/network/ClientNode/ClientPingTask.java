@@ -6,6 +6,6 @@ public class ClientPingTask extends TimerTask {
     private final ClientNodeInterface node;
     public ClientPingTask(ClientNodeInterface node) {this.node = node;}
     public void run() {
-        node.pingTimeOverdue();
+        node.pongTimeOverdue();
     }
 }

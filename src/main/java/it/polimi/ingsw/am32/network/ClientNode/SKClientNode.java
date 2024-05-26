@@ -200,7 +200,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     }
 
     @Override
-    public void pingTimeOverdue() {
+    public void pongTimeOverdue() {
         try {
 
             // TODO Fare
