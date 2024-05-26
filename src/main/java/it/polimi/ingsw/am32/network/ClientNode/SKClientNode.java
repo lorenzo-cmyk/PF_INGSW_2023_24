@@ -127,6 +127,9 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                     } catch (InterruptedException ignore) {}
                 } else {
                     reconnectCalled = true;
+                    clientPingTask.cancel();
+                    timer.purge();
+                    clientPingTask = new ClientPingTask(this);
                     tmpReconnect = true;
                 }
         }
@@ -180,6 +183,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             statusIsAlive = true;
             reconnectCalled = false;
             aliveLock.notifyAll();
+            timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
         }
 
     }
