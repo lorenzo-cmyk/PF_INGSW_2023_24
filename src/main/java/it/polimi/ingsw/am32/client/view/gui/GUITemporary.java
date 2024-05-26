@@ -129,9 +129,10 @@ public class GUITemporary extends Application {
         preparationPhase.getChildren().addAll(playerInfoPanel);
 
         StackPane boardReal = new StackPane();
-        boardReal.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
         StackPane board = new StackPane();
+        board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
         board.setPrefSize(770, 525);
+
         ImageView card = new ImageView(new Image("/cards_front_075.png", 120, 80, true, false));
         card.setEffect(new DropShadow(20, Color.rgb(58, 33, 17)));
         ImageView card20 = new ImageView(new Image("/cards_front_065.png", 120, 80, true, false));
@@ -141,6 +142,28 @@ public class GUITemporary extends Application {
         board.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(50)));
         board.translateXProperty().bind(preparationPhase.widthProperty().subtract(board.widthProperty().add(20)));
         board.getChildren().add(boardReal);
+        boardReal.setOnScroll(e -> {
+            e.consume();
+            if (e.getDeltaY() == 0) {
+                   return;
+            }
+            double scaleFactor = (e.getDeltaY() > 0) ? 1.1 : 1 / 1.1;
+            if(boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
+                return;
+            boardReal.setScaleX(boardReal.getScaleX() * scaleFactor);
+            boardReal.setScaleY(boardReal.getScaleY() * scaleFactor);
+            });
+        double[] dragPos = new double[2];
+        boardReal.setOnMousePressed(e -> {
+            dragPos[0]=e.getSceneX();
+            dragPos[1]=e.getSceneY();
+        });
+        boardReal.setOnMouseDragged(e -> {
+            boardReal.setTranslateX( e.getSceneX() - dragPos[0]);
+            boardReal.setTranslateY( e.getSceneY() - dragPos[1]);
+
+        });
+
         chatArea = new ChatArea(0,0,305,75);
         chatArea.getChatArea().translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(40)));
         chatArea.getChatArea().translateYProperty().bind(preparationPhase.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));

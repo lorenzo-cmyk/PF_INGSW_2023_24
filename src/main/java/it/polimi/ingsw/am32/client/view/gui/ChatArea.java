@@ -77,7 +77,7 @@ public class ChatArea {
         messageScrollPane.setMaxSize(width, height);
 
         // Enable only vertical scrolling
-        messageScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        messageScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         messageScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         // Set style of the chat area
