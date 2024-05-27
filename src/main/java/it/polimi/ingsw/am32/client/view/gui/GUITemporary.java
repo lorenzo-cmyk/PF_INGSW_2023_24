@@ -7,12 +7,18 @@ import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.ObjectiveCardFactory;
 import it.polimi.ingsw.am32.client.PlayerPub;
 import it.polimi.ingsw.am32.client.listener.AskListener;
+import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
@@ -82,11 +88,11 @@ public class GUITemporary extends Application {
         this.chatHistory = Collections.synchronizedList(new ArrayList<>());
 
 
-        this.colourToImage.put("BLUE",new Image("/CODEX_pion_bleu.png",20,20,true,true));
-        this.colourToImage.put("YELLOW",new Image("/CODEX_pion_jaune.png",20,20,true,true));
-        this.colourToImage.put("BLACK", new Image("/CODEX_pion_noir.png",20,20,true,true));
-        this.colourToImage.put("RED", new Image("/CODEX_pion_rouge.png",20,20,true,true));
-        this.colourToImage.put("GREEN", new Image("CODEX_pion_vert.png",20,20,true,true));
+        this.colourToImage.put("BLUE",new Image("/CODEX_pion_bleu.png",15,15,true,true));
+        this.colourToImage.put("YELLOW",new Image("/CODEX_pion_jaune.png",15,15,true,true));
+        this.colourToImage.put("BLACK", new Image("/CODEX_pion_noir.png",15,15,true,true));
+        this.colourToImage.put("RED", new Image("/CODEX_pion_rouge.png",15,15,true,true));
+        this.colourToImage.put("GREEN", new Image("CODEX_pion_vert.png",15,15,true,true));
 
     }
 
@@ -131,20 +137,24 @@ public class GUITemporary extends Application {
         playerInfoPanel.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(60)));
         preparationPhase.getChildren().addAll(playerInfoPanel);
 
-        StackPane boardReal = new StackPane();
-        StackPane board = new StackPane();
-        board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
-        board.setPrefSize(770, 525);
 
+
+
+        GridPane boardReal = new GridPane();
+        ScrollPane board = new ScrollPane();
+        //board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        board.setPrefSize(770, 525);
+        boardReal.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
         ImageView card = new ImageView(new Image("/cards_front_075.png", 120, 80, true, false));
         card.setEffect(new DropShadow(20, Color.rgb(58, 33, 17)));
         ImageView card20 = new ImageView(new Image("/cards_front_065.png", 120, 80, true, false));
-        card20.setTranslateX(95);
-        card20.setTranslateY(-50);
-        boardReal.getChildren().addAll(card,card20);
+        int x=-1;
+        int y=-1;
+
+
         board.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(50)));
         board.translateXProperty().bind(preparationPhase.widthProperty().subtract(board.widthProperty().add(20)));
-        board.getChildren().add(boardReal);
+        board.setContent(boardReal);
         boardReal.setOnScroll(e -> {
             e.consume();
             if (e.getDeltaY() == 0) {
@@ -197,14 +207,14 @@ public class GUITemporary extends Application {
         ImageView card11 = new ImageView(new Image("/cards_front_045.png", 120, 80, true, false));
         ImageView card12 = new ImageView(new Image("/cards_front_055.png", 120, 80, true, false));
 
-        HBox notice = new HBox();
-        Label noticeText = new Label("It's your turn!");
-
-        notice.getChildren().add(noticeText);
-        notice.setPrefSize(380, 70);
-        notice.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
+        TextArea notice = new TextArea();
+        notice.setWrapText(true);
+        notice.setPrefSize(380, 115);
+        notice.setEditable(false);
+        notice.setStyle("-fx-control-inner-background: #E6DEB3FF; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+        notice.appendText("Welcome to Codex Naturalis! \n");
         notice.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(40)));
-        notice.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(notice.getHeight()+325)));
+        notice.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(notice.getHeight()+280)));
         HBox bottomLine = new HBox();
         bottomLine.setSpacing(10);
         bottomLine.getChildren().addAll(card7,card8,card9,card10,card11,card12);
@@ -212,7 +222,15 @@ public class GUITemporary extends Application {
         bottomLine.translateYProperty().bind(preparationPhase.heightProperty().subtract(bottomLine.heightProperty().add(20)));
         preparationPhase.getChildren().addAll(board,deckArea,bottomLine,chatArea.getChatArea(),notice);
 
-
+        Label commonObjLabel = createLabel("Common Objective Cards");
+        Label secretObjLabel = createLabel("Secret");
+        Label handLabel = createLabel("Hand Cards");
+        HBox cardLabels = new HBox();
+        cardLabels.setSpacing(80);
+        cardLabels.getChildren().addAll(commonObjLabel,secretObjLabel,handLabel);
+        cardLabels.translateXProperty().bind(preparationPhase.widthProperty().subtract(bottomLine.widthProperty().add(10)));
+        cardLabels.translateYProperty().bind(preparationPhase.heightProperty().subtract(bottomLine.heightProperty().add(50)));
+        preparationPhase.getChildren().add(cardLabels);
         VBox selectionArea = setupInitialCardSideSelectionArea();
 
         preparationPhase.getChildren().add(selectionArea);
@@ -223,7 +241,7 @@ public class GUITemporary extends Application {
     }
     private Label createLabel(String text) {
         Label label = new Label(text);
-        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
+        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         return label;
     }
     public VBox createPlayerInfoPanel() {
@@ -237,13 +255,13 @@ public class GUITemporary extends Application {
             ImageView tokenImage = new ImageView(colourToImage.get(playerColour));
             Label playerName = createLabel(playerString);
 
-            Image plantSymbol = new Image("kingdom_plant.png",20,20,true,false);
-            Image fungiSymbol = new Image("kingdom_fungi.png",20,20,true,false);
-            Image animalSymbol = new Image("kingdom_animal.png",20,20,true,false);
-            Image insectSymbol = new Image("kingdom_insect.png",20,20,true,false);
-            Image quillSymbol = new Image("kingdom_quill.png",20,20,true,false);
-            Image inkwellSymbol = new Image("kingdom_inkwell.png",20,20,true,false);
-            Image manuscriptSymbol = new Image("kingdom_manuscript.png",20,20,true,false);
+            Image plantSymbol = new Image("kingdom_plant.png",15,15,true,false);
+            Image fungiSymbol = new Image("kingdom_fungi.png",15,15,true,false);
+            Image animalSymbol = new Image("kingdom_animal.png",15,15,true,false);
+            Image insectSymbol = new Image("kingdom_insect.png",15,15,true,false);
+            Image quillSymbol = new Image("kingdom_quill.png",15,15,true,false);
+            Image inkwellSymbol = new Image("kingdom_inkwell.png",15,15,true,false);
+            Image manuscriptSymbol = new Image("kingdom_manuscript.png",15,15,true,false);
 
             int [] resources = playerPub.getResources();
 

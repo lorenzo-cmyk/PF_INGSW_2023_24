@@ -48,6 +48,7 @@ public class GraphicalUI extends View {
     private ImageView[] goldDeckView;
     private ImageView secretObjCardView;
     private ImageView[] commonObjCardView;
+    private TextArea notice;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -437,46 +438,48 @@ public class GraphicalUI extends View {
      */
     @Override
     public void setUpPlayersData() {
+        // load the images which will be used in the master pane
+        imagesMap.put("BLUE", new Image("/CODEX_pion_bleu.png", 15, 15, true, false));
+        imagesMap.put("YELLOW", new Image("/CODEX_pion_jaune.png", 15, 15, true, false));
+        imagesMap.put("BLACK", new Image("/CODEX_pion_noir.png", 15, 15, true, false));
+        imagesMap.put("RED", new Image("/CODEX_pion_rouge.png", 15, 15, true, false));
+        imagesMap.put("GREEN", new Image("CODEX_pion_vert.png", 15, 15, true, false));
+        imagesMap.put("PLANT", new Image("kingdom_plant.png", 15, 15, true, false));
+        imagesMap.put("FUNGI", new Image("kingdom_fungi.png", 15, 15, true, false));
+        imagesMap.put("ANIMAL", new Image("kingdom_animal.png", 15, 15, true, false));
+        imagesMap.put("INSECT", new Image("kingdom_insect.png", 15, 15, true, false));
+        imagesMap.put("QUILL", new Image("kingdom_quill.png", 15, 15, true, false));
+        imagesMap.put("INKWELL", new Image("kingdom_inkwell.png", 15, 15, true, false));
+        imagesMap.put("MANUSCRIPT", new Image("kingdom_manuscript.png", 15, 15, true, false));
+        imagesMap.put("AVAILABLESPACE", new Image("availableSpace.png", 120, 80, true, true));
         if (this.matchStatus == null) {
-            this.matchStatus = createLabel(String.valueOf(Status), 20);
+            this.matchStatus = createLabel(String.valueOf(Status), 15);
         }
-        for (String player : players) {
-            // set up the data of the players and initialize the board of the players
-            publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
-                    true));
-            // create the view of the players
-            playerViews.put(player, new PlayerPubView(
-                    createLabel(player,20),
-                    new ImageView(imagesMap.get("BLACK")),
-                    createLabel("0", 20),
-                    new Label[]{
-                            createLabel("0", 20),
-                            createLabel("0", 20),
-                            createLabel("0", 20),
-                            createLabel("0", 20),
-                            createLabel("0", 20),
-                            createLabel("0", 20),
-                            createLabel("0", 20)
-                    }));
-            playerField.put(player, new StackPane());
-        }
-        setGameView(); // set the view of the game in the playing phase
+        Platform.runLater(()->{
+            for (String player : players) {
+                        // set up the data of the players and initialize the board of the players
+                        publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
+                                true));
+                        // create the view of the players
+                        playerViews.put(player, new PlayerPubView(
+                                createLabel(player,18),
+                                new ImageView(imagesMap.get("BLACK")),
+                                createLabel("0", 15),
+                                new Label[]{
+                                        createLabel("0", 15),
+                                        createLabel("0", 15),
+                                        createLabel("0", 15),
+                                        createLabel("0", 15),
+                                        createLabel("0", 15),
+                                        createLabel("0", 15),
+                                        createLabel("0", 15)
+                                }));
+                        playerField.put(player, new StackPane());
+                    }
+        setGameView();
+    });// set the view of the game in the playing phase
     }
     private void setGameView() {
-        // load the images which will be used in the master pane
-        imagesMap.put("BLUE", new Image("/CODEX_pion_bleu.png", 20, 20, true, false));
-        imagesMap.put("YELLOW", new Image("/CODEX_pion_jaune.png", 20, 20, true, false));
-        imagesMap.put("BLACK", new Image("/CODEX_pion_noir.png", 20, 20, true, false));
-        imagesMap.put("RED", new Image("/CODEX_pion_rouge.png", 20, 20, true, false));
-        imagesMap.put("GREEN", new Image("CODEX_pion_vert.png", 20, 20, true, false));
-        imagesMap.put("PLANT", new Image("kingdom_plant.png", 20, 20, true, false));
-        imagesMap.put("FUNGI", new Image("kingdom_fungi.png", 20, 20, true, false));
-        imagesMap.put("ANIMAL", new Image("kingdom_animal.png", 20, 20, true, false));
-        imagesMap.put("INSECT", new Image("kingdom_insect.png", 20, 20, true, false));
-        imagesMap.put("QUILL", new Image("kingdom_quill.png", 20, 20, true, false));
-        imagesMap.put("INKWELL", new Image("kingdom_inkwell.png", 20, 20, true, false));
-        imagesMap.put("MANUSCRIPT", new Image("kingdom_manuscript.png", 20, 20, true, false));
-        imagesMap.put("AVAILABLESPACE", new Image("availableSpace.png", 120, 80, true, true));
         // set the master pane
         masterPane = new Pane();
         masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
@@ -485,22 +488,21 @@ public class GraphicalUI extends View {
         VBox playerInfoPanel = new VBox();
         playerOrder = new HBox();
         labelPlayerOrder = new ArrayList<>();
-        Label OrderTitle = createLabel("Order:", 20);
+        Label OrderTitle = createLabel("Order:", 15);
         playerOrder.getChildren().add(OrderTitle);
 
         for (String player : players) {
             // set up the player view
             PlayerPubView playerPubView = playerViews.get(player);
-
             // set the player info line
             HBox playerInfo = new HBox();
             playerInfo.setSpacing(10);
             playerInfo.setMaxWidth(300);
             playerInfo.setMinWidth(300);
-            Label scoreLabel = createLabel("Score: ", 20);
+            Label scoreLabel = createLabel("Score: ", 15);
             HBox scoreBox = new HBox();
-            scoreBox.getChildren().addAll(scoreLabel, playerViews.get(player).getPoints());
-            playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname());
+            scoreBox.getChildren().addAll(scoreLabel, playerPubView.getPoints());
+            playerInfo.getChildren().addAll(playerPubView.getColour(), playerPubView.getNickname());
             HBox playerInfoBox = new HBox();
             playerInfoBox.setSpacing(10);
             playerInfoBox.getChildren().addAll(playerInfo, scoreBox);
@@ -524,7 +526,7 @@ public class GraphicalUI extends View {
             playerInfoPanel.getChildren().add(playerInfoAndResource);
 
             // set the player order placeholder
-           labelPlayerOrder.add(playerViews.get(player).getColour());
+           labelPlayerOrder.add(new ImageView(imagesMap.get("BLACK")));
            playerOrder.getChildren().add(labelPlayerOrder.getLast());
 
             // set field view of the player
@@ -539,9 +541,9 @@ public class GraphicalUI extends View {
         playerInfoPanel.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(60)));
 
         // set the top line panel of the master pane which contains the game ID, the status and the player order
-        Label labelID = createLabel("ID: " + gameID, 20);
+        Label labelID = createLabel("ID: " + gameID, 15);
         HBox StatusBox = new HBox();
-        Label statusTitle = createLabel("Status: ", 20);
+        Label statusTitle = createLabel("Status: ", 15);
         StatusBox.getChildren().addAll(statusTitle, matchStatus);
 
         HBox topLine = new HBox();
@@ -554,13 +556,23 @@ public class GraphicalUI extends View {
 
         // create the board of this player
         StackPane boardMove = playerField.get(thisPlayerNickname);
-        StackPane board = new StackPane(); // Fixed board where cards are displayed
+        ScrollPane board = new ScrollPane(); // Fixed board where cards are displayed
         board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         board.setPrefSize(770, 525);
         board.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(50))); // set position X of the board in the masterPane.
         board.translateXProperty().bind(masterPane.widthProperty().subtract(board.widthProperty().add(20))); // set position Y of the board in the masterPane.
-        board.getChildren().add(boardMove);
+        board.setContent(boardMove);
 
+        // create the notification area
+        notice = new TextArea();
+        notice.setWrapText(true);
+        notice.setPrefSize(380, 115);
+        notice.setEditable(false);
+        notice.setStyle("-fx-control-inner-background: #E6DEB3FF; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';" +
+                "-fx-text-fill: #3A2111; ");
+
+        notice.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
+        notice.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight()+280)));
         // create Chat view
         chatArea = new ChatArea(0, 0, 305, 75); // Create chat area //TODO FIX PROBLEM OF SEND AND RECEIVE MESSAGE
         chatArea.getChatArea().translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
@@ -572,7 +584,6 @@ public class GraphicalUI extends View {
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true))
         };
-        handleHandClicks();
         commonObjCardView = new ImageView[]{
                 new ImageView(new Image("/cards_back_089.png", 120, 80, true, true)),
                 new ImageView(new Image("/cards_back_089.png", 120, 80, true, true))
@@ -602,7 +613,6 @@ public class GraphicalUI extends View {
 
         deckArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         deckArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight() + 400)));
-        handleDeckClicks();
 
 
         HBox bottomLine = new HBox();
@@ -610,7 +620,17 @@ public class GraphicalUI extends View {
         bottomLine.getChildren().addAll(commonObjCardView[0], commonObjCardView[1], secretObjCardView, handView[0], handView[1], handView[2]);
         bottomLine.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(20)));
         bottomLine.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(20)));
-        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea());
+
+        // create the label of the card area
+        Label commonObjLabel = createLabel("Common Objective Cards", 15);
+        Label secretObjLabel = createLabel("Secret",15);
+        Label handLabel = createLabel("Hand Cards",15);
+        HBox cardLabels = new HBox();
+        cardLabels.setSpacing(80);
+        cardLabels.getChildren().addAll(commonObjLabel,secretObjLabel,handLabel);
+        cardLabels.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(10)));
+        cardLabels.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(50)));
+        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea(),cardLabels,notice);
 
         Platform.runLater(() -> {
             app.updateScene(masterPane);
@@ -829,10 +849,13 @@ public class GraphicalUI extends View {
 
     @Override
     public void showPlayersField(String playerNickname) {
-        Stage fieldStage = new Stage();
-        fieldStage.setTitle(playerNickname + "'s field");
-        fieldStage.setScene(new Scene(playerField.get(playerNickname)));
-        fieldStage.show();
+        Platform.runLater(()-> {
+            Stage fieldStage = new Stage();
+
+            fieldStage.setTitle(playerNickname + "'s field");
+            fieldStage.setScene(new Scene(playerField.get(playerNickname)));
+            fieldStage.show();
+        });
     }
 
     @Override
@@ -900,8 +923,8 @@ public class GraphicalUI extends View {
         String commonCardIdStr2 = common.get(1) > 99 ? String.valueOf(common.get(1)) : "0" + common.get(1);
         commonObjCardView[0].setImage(new Image("/cards_front_" + commonCardIdStr1 + ".png", 120, 80, true, true));
         commonObjCardView[1].setImage(new Image("/cards_front_" + commonCardIdStr2 + ".png", 120, 80, true, true));
-        //showHand(hand);
-        //showObjectiveCards(common);
+        notice.appendText("> Your hand cards and common objective cards are ready in your card area:)\n");
+        notice.appendText("> You can draw a card from the deck by clicking on the card in the deck area.\n");
         requestSelectSecretObjectiveCard();
     }
 
@@ -1033,10 +1056,6 @@ public class GraphicalUI extends View {
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
         Platform.runLater(() -> {
             masterPane.getChildren().removeLast();
-            if (isUp)
-                playerField.get(thisPlayerNickname).getChildren().add(new ImageView(new Image("/cards_back_0" + cardID + ".png", 120, 80, true, false)));
-            else
-                playerField.get(thisPlayerNickname).getChildren().add(new ImageView(new Image("/cards_front_0" + cardID + ".png", 120, 80, true, false)));
             String colourReceived = convertToColour(colour);
             publicInfo.get(thisPlayerNickname).updateColour(colourReceived);
             playerViews.get(thisPlayerNickname).setColour(imagesMap.get(colourReceived));
@@ -1056,10 +1075,6 @@ public class GraphicalUI extends View {
             // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
             updateAfterPlacedCard(thisPlayerNickname, cardID, 0, 0, isUp, availablePos,
                     resources, 0);
-            masterPane.getChildren().add(colourBox);
-            PauseTransition pause = new PauseTransition(Duration.seconds(5)); // Set a timer for the selection
-            pause.setOnFinished(e -> masterPane.getChildren().remove(colourBox));
-            pause.play();
         });
         // print the board of the player after the placement of the starter card with the current resources count
 
@@ -1149,10 +1164,13 @@ public class GraphicalUI extends View {
         playerViews.get(playerNickname).setPoints(points);
         playerViews.get(playerNickname).setResourceLabels(resources);
         // represents the sequence of the card placed in the field.
-        int posX = x * 95;
-        int posY = y * (-50);
+        int posX = 300+x * 95;
+        int posY = 250+y * (-50);
         StackPane playerBoard = playerField.get(playerNickname);
         String cardSide = isUp ? "/cards_front_" : "/cards_back_";
+        if(x==0 && y==0){
+            cardSide = isUp ? "/cards_back_" : "/cards_front_";
+        }
         String cardIdStr = cardID >= 10 ? "0" + cardID : "00" + cardID;
         ImageView cardImage = new ImageView(new Image(cardSide + cardIdStr + ".png", 120, 80, true, false));
         cardImage.setTranslateX(posX);
