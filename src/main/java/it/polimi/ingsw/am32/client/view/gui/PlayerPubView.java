@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class PlayerPubView {
@@ -34,8 +35,8 @@ public class PlayerPubView {
         return resourceLabels;
     }
 
-    public void setColour(ImageView colour) {
-        this.colour = colour;
+    public void setColour(Image colour) {
+        this.colour.setImage(colour);
     }
 
     public void setPoints(int points) {

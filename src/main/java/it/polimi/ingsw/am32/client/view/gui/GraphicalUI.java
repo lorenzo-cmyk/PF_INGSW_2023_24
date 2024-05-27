@@ -51,9 +51,6 @@ public class GraphicalUI extends View {
     private ImageView[] goldDeckView;
     private ImageView secretObjCardView;
     private ImageView[] commonObjCardView;
-
-
-    private StackPane boardReal;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -402,8 +399,6 @@ public class GraphicalUI extends View {
         VBox playerInfoPanel = new VBox();
         for (String player : publicInfo.keySet()) {
             Label nickNameLabel = createLabel(player, 20);
-            nickNameLabel.setMaxWidth(300);
-            nickNameLabel.setMinWidth(300);
             ImageView colour = new ImageView(imagesMap.get("BLACK"));
             Label points = createLabel("0", 20);
             Label[] resourceLabels = new Label[]{
@@ -420,10 +415,22 @@ public class GraphicalUI extends View {
             PlayerPubView playerPubView = new PlayerPubView(nickNameLabel, colour, points, resourceLabels);
             playerViews.put(player, playerPubView);
 
+            // set the player field board
+            playerField.put(player, new StackPane());
+
             // set the player info panel
             HBox playerInfo = new HBox();
             playerInfo.setSpacing(10);
-            playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname(), playerViews.get(player).getPoints());
+            playerInfo.setMaxWidth(300);
+            playerInfo.setMinWidth(300);
+            Label scoreLabel = createLabel("Score: ", 20);
+            HBox scoreBox = new HBox();
+            scoreBox.getChildren().addAll(scoreLabel,playerViews.get(player).getPoints());
+            playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname());
+            HBox playerInfoBox = new HBox();
+            playerInfoBox.setSpacing(10);
+            playerInfoBox.getChildren().addAll(playerInfo,scoreBox);
+
             HBox playerResource = new HBox();
             playerResource.setSpacing(10);
             playerResource.getChildren().addAll(
@@ -436,7 +443,7 @@ public class GraphicalUI extends View {
                     new ImageView(imagesMap.get("INKWELL")), playerPubView.getResourceLabels()[5],
                     new ImageView(imagesMap.get("MANUSCRIPT")), playerPubView.getResourceLabels()[6]);
             VBox playerInfoAndResource = new VBox();
-            playerInfoAndResource.getChildren().addAll(playerInfo, playerResource);
+            playerInfoAndResource.getChildren().addAll(playerInfoBox, playerResource);
             playerInfoPanel.getChildren().add(playerInfoAndResource);
         }
         playerInfoPanel.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(20)));
@@ -462,7 +469,7 @@ public class GraphicalUI extends View {
         masterPane.getChildren().addAll(topLine, playerInfoPanel);
 
         // set field view of the player
-        boardReal = new StackPane();
+        StackPane boardReal = playerField.get(thisPlayerNickname);
         StackPane board = new StackPane(); // Fixed board where cards are displayed
         board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         board.setPrefSize(770, 525);
@@ -557,9 +564,6 @@ public class GraphicalUI extends View {
 
 
     // Methods to create the components of the GUI
-    private Group createPlayerInfoPanel() {
-        return null;
-    }
 
     /**
      * Create a stylized label with the specified text and size.
@@ -589,7 +593,7 @@ public class GraphicalUI extends View {
     private Label createLabel(String text, int X, int Y) {
         Label label = new Label(text);
 
-        label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
+        label.setStyle("-fx-text-fill: #3A2111; -fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
         label.setTranslateX(X);
         label.setTranslateY(Y);
 
@@ -656,27 +660,136 @@ public class GraphicalUI extends View {
     public void showResource(String playerNickname) {
 
     }
+    @Override
+    public void updatePlayerTurn(String playerNickname) {
+        Platform.runLater(() -> {
+            noticeText.setText(playerNickname + "'s turn!");
+        });
+    }
+    @Override
+    public void updateGameStatus(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
+                                 ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
+                                 int playerSecretObjective, int[] playerPoints,
+                                 ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
+                                 ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
+                                 ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
+                                 int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
+        if(currentEvent.equals(Event.RECONNECT_GAME)) { // once the player reconnects to the game
+            // store all the data of the game received from the server
+            //TODO
+        }else {
+            // once the game enters the playing phase, the method is called to update a part of the data of the player
+            // that not yet updated in the previous phases.
+            this.currentResourceCards = gameCurrentResourceCards;
+            this.currentGoldCards = gameCurrentGoldCards;
+            this.resourceDeckSize = gameResourcesDeckSize;
+            this.goldDeckSize = gameGoldDeckSize;
+            this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
+            this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
+            this.chatHistory = chatHistory;
+            this.currentPlayer = currentPlayer;
+            this.players = playerNicknames;
+            int [] card;
+            PlayerPub playerSpecific;
+            // update the data of the players except this player: set the colour, resources, points, online status,
+            // and the field of the players after the placement of the starter card.
+            for (int i = 1; i < playerNicknames.size(); i++) {
+                playerSpecific=publicInfo.get(playerNicknames.get(i));
+                playerSpecific.updateColour(convertToColour(playerColours.get(i)));
+                playerSpecific.updateResources(playerResources);
+                card=playerFields.get(i).get(0);
+                playerSpecific.addToField(new CardPlacedView(card[2], cardImg.get(card[2]),
+                        card[0], card[1], card[3] == 1));
+                updateAfterPlacedCard(playerNicknames.get(i), card[2], card[0], card[1],
+                        card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[i]);
+            }
+        }
+    }
 
     @Override
     public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
         this.hand = hand;
         this.commonObjCards = common;
         this.secretObjCards = secrets;
-
-        showHand(hand);
-        showObjectiveCards(common);
+        String cardIdStr1 = hand.get(0)>= 10 ? "0"+ hand.get(0) : "00" + hand.get(0);
+        String cardIdStr2 = hand.get(1)>= 10 ? "0"+ hand.get(1) : "00" + hand.get(1);
+        String cardIdStr3 = hand.get(2)>= 10 ? "0"+ hand.get(2) : "00" + hand.get(2);
+        handView[0].setImage(new Image("/cards_front_" + cardIdStr1+ ".png", 120, 80, true, true));
+        handView[1].setImage(new Image("/cards_front_" + cardIdStr2 + ".png", 120, 80, true, true));
+        handView[2].setImage(new Image("/cards_front_" + cardIdStr3 + ".png", 120, 80, true, true));
+        String commonCardIdStr1 = common.get(0)> 99 ? String.valueOf(common.get(0)) : "0" + common.get(0);
+        String commonCardIdStr2 = common.get(1)> 99 ? String.valueOf(common.get(1)) : "0" + common.get(1);
+        commonObjCardView[0].setImage(new Image("/cards_front_" + commonCardIdStr1 + ".png", 120, 80, true, true));
+        commonObjCardView[1].setImage(new Image("/cards_front_" + commonCardIdStr2 + ".png", 120, 80, true, true));
+        //showHand(hand);
+        //showObjectiveCards(common);
+        requestSelectSecretObjectiveCard();
     }
 
     @Override
     public void showHand(ArrayList<Integer> hand) {
+        VBox handArea = new VBox(); // Entire selection area
+
+        Label promptLabel = createLabel("Your hand", 20);
+        HBox cardPairArea = new HBox();
+        ImageView firstCard = handView[0];
+        ImageView secondCard = handView[1];
+        ImageView thirdCard = handView[2];
+        handArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+        handArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+
+        handArea.translateXProperty().bind(masterPane.widthProperty().subtract(handArea.widthProperty()).divide(2)); // Set position of selectionArea
+        handArea.translateYProperty().bind(masterPane.heightProperty().subtract(handArea.heightProperty()).divide(2));
+
+        cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
+
+        // Compose elements
+        Platform.runLater(()->{
+            handArea.getChildren().addAll(promptLabel, cardPairArea);
+        cardPairArea.getChildren().addAll(firstCard, secondCard, thirdCard);
+            masterPane.getChildren().add(handArea);
+        PauseTransition pause = new PauseTransition(Duration.seconds(10)); // Set a timer for the selection
+        pause.setOnFinished(e -> {
+            masterPane.getChildren().remove(handArea);
+            handArea.getChildren().removeAll(promptLabel, cardPairArea);
+        });
+        pause.play();
+        });
 
     }
 
     @Override
     public void showObjectiveCards(ArrayList<Integer> ObjCards) {
+        VBox handArea = new VBox(); // Entire selection area
 
+        Label promptLabel = createLabel("Your common objective cards:", 20);
+        HBox cardPairArea = new HBox();
+
+        ImageView firstCard = commonObjCardView[0];
+        ImageView secondCard = commonObjCardView[1];
+
+        handArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+        handArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+
+        handArea.translateXProperty().bind(masterPane.widthProperty().subtract(handArea.widthProperty()).divide(2)); // Set position of selectionArea
+        handArea.translateYProperty().bind(masterPane.heightProperty().subtract(handArea.heightProperty()).divide(2));
+
+        cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
+
+        // Compose elements
+        Platform.runLater(()->{
+            handArea.getChildren().addAll(promptLabel, cardPairArea);
+        cardPairArea.getChildren().addAll(firstCard, secondCard);
+            masterPane.getChildren().add(handArea);
+        PauseTransition pause = new PauseTransition(Duration.seconds(10)); // Set a timer for the selection
+        pause.setOnFinished(e -> {
+            masterPane.getChildren().remove(handArea);
+            handArea.getChildren().removeAll(promptLabel, cardPairArea);
+        });
+        pause.play();
+        });
     }
-
 
     @Override
     public void showCard(int ID, boolean isUp) {
@@ -734,29 +847,42 @@ public class GraphicalUI extends View {
 
     @Override
     public void requestSelectStarterCardSide(int ID) {
-        Label requestLabel =createLabel("choose your Starter card's side",20);
-
-
-
+        VBox starterCardSideSelection = setupInitialCardSideSelectionArea(ID);
+        Platform.runLater(()->masterPane.getChildren().add(starterCardSideSelection));
     }
 
     @Override
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
-        if(isUp)
-            boardReal.getChildren().add(new ImageView(new Image("/cards_0"+cardID+".png", 120, 80, true, false)));
-        else
-            boardReal.getChildren().add(new ImageView(new Image("/cards_back_0"+cardID+".png", 120, 80, true, false)));
-        String colourReceived = convertToColour(colour);
-        publicInfo.get(thisPlayerNickname).updateColour(colourReceived);
-        // notify the player the colour received from the server
-        VBox colourBox = new VBox();
-        colourBox.getChildren().add(new ImageView(imagesMap.get(colourReceived)));
-        Label createedLabel = createLabel("Your colour of this game is "+colourReceived,20);
-        // update the available spaces in the field after the placement of the starter card
-        availableSpaces = availablePos;
-        // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
-        updateAfterPlacedCard(thisPlayerNickname, cardID, 0, 0, isUp, availablePos,
-                resources, 0);
+        Platform.runLater(()-> {
+                    masterPane.getChildren().removeLast();
+                    if (isUp)
+                        playerField.get(thisPlayerNickname).getChildren().add(new ImageView(new Image("/cards_back_0" + cardID + ".png", 120, 80, true, false)));
+                    else
+                        playerField.get(thisPlayerNickname).getChildren().add(new ImageView(new Image("/cards_front_0" + cardID + ".png", 120, 80, true, false)));
+                    String colourReceived = convertToColour(colour);
+                    publicInfo.get(thisPlayerNickname).updateColour(colourReceived);
+                    playerViews.get(thisPlayerNickname).setColour(imagesMap.get(colourReceived));
+                    // notify the player the colour received from the server
+                    VBox colourBox = new VBox();
+                    // Compose elements
+                    Label colourLabel = createLabel("Your colour of this game is " + colourReceived, 20);
+                    colourBox.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+                    colourBox.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+
+                    colourBox.translateXProperty().bind(masterPane.widthProperty().subtract(colourBox.widthProperty()).divide(2)); // Set position of selectionArea
+                    colourBox.translateYProperty().bind(masterPane.heightProperty().subtract(colourBox.heightProperty()).divide(2));
+
+                    colourBox.getChildren().addAll(colourLabel);
+                    // update the available spaces in the field after the placement of the starter card
+                    availableSpaces = availablePos;
+                    // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
+                    updateAfterPlacedCard(thisPlayerNickname, cardID, 0, 0, isUp, availablePos,
+                            resources, 0);
+                    masterPane.getChildren().add(colourBox);
+                    PauseTransition pause = new PauseTransition(Duration.seconds(5)); // Set a timer for the selection
+                    pause.setOnFinished(e-> masterPane.getChildren().remove(colourBox));
+                    pause.play();
+                });
         // print the board of the player after the placement of the starter card with the current resources count
 
     }
@@ -797,11 +923,18 @@ public class GraphicalUI extends View {
 
     @Override
     public void requestSelectSecretObjectiveCard() {
-
+        VBox secretObjectiveCardSelection = setupSecretObjectiveCardSelectionArea(secretObjCards.get(0), secretObjCards.get(1));
+        Platform.runLater(()->masterPane.getChildren().add(secretObjectiveCardSelection));
     }
 
     @Override
     public void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard) {
+        secretObjCardSelected = chosenSecretObjectiveCard;
+        Platform.runLater(()-> {
+            masterPane.getChildren().removeLast();
+            String cardIdStr = chosenSecretObjectiveCard > 99 ? String.valueOf(chosenSecretObjectiveCard) : "0" + chosenSecretObjectiveCard;
+            secretObjCardView.setImage(new Image("/cards_front_" + cardIdStr + ".png", 120, 80, true, true));
+        });
 
     }
 
@@ -810,6 +943,10 @@ public class GraphicalUI extends View {
     public void requestPlaceCard() {
         int posX;
         int posY;
+        StackPane playerBoard = playerField.get(thisPlayerNickname);
+        for (int i = 0; i < availableSpaces.size(); i++) {
+            playerBoard.getChildren().removeLast();
+        }
         for (int[] pos : availableSpaces) {
                 posX = pos[0]*95;
                 posY = pos[1]*(-50);
@@ -817,7 +954,7 @@ public class GraphicalUI extends View {
                 availableSpace.setTranslateX(posX);
                 availableSpace.setTranslateY(posY);
                 availableSpace.setEffect(new DropShadow(20, Color.BLACK));
-                playerField.get(thisPlayerNickname).getChildren().add(availableSpace);
+                playerBoard.getChildren().add(availableSpace);
             }
         //TODO
         }
@@ -836,31 +973,9 @@ public class GraphicalUI extends View {
         int posX = x*95;
         int posY = y*(-50);
         StackPane playerBoard=playerField.get(playerNickname);
-        if (playerNickname.equals(thisPlayerNickname)) {
-            if (!currentEvent.equals(Event.RECONNECT_GAME)) {
-                for (int i = 0; i < availableSpaces.size(); i++) {
-                    playerBoard.getChildren().removeLast();
-                }
-            }
-        }
-        availableSpaces = availablePos;
-        ImageView cardImage;
-        if(isUp) {
-            if(cardID>=10){
-                cardImage = new ImageView(new Image("/cards_front_0"+cardID+".png", 120, 80, true, false));
-            }
-            else{
-                cardImage = new ImageView(new Image("/cards_front_00"+cardID+".png", 120, 80, true, false));
-            }
-
-        }
-        else {
-            if (cardID >= 10) {
-                cardImage = new ImageView(new Image("/cards_back_0" + cardID + ".png", 120, 80, true, false));
-            } else {
-                cardImage = new ImageView(new Image("/cards_back_00" + cardID + ".png", 120, 80, true, false));
-            }
-        }
+        String cardSide = isUp ? "/cards_front_" : "/cards_back_";
+        String cardIdStr = cardID >= 10 ? "0"+cardID : "00" + cardID;
+        ImageView cardImage = new ImageView(new Image(cardSide + cardIdStr + ".png", 120, 80, true, false));
         cardImage.setTranslateX(posX);
         cardImage.setTranslateY(posY);
         playerBoard.getChildren().add(cardImage);
@@ -872,7 +987,7 @@ public class GraphicalUI extends View {
         switch (event) {
             case Event.NEW_PLAYER_JOIN -> {
                 this.players.add(message);
-                Label player = createLabel("Player " + message + " joined the lobby", 20, 20);
+                Label player = createLabel("Player " + message + " joined the lobby", 20, 50);
                 Platform.runLater(() ->
                 {
                     selectionPane.getChildren().add(player);
@@ -900,7 +1015,7 @@ public class GraphicalUI extends View {
                     playerListView = createTextField(null, 135, 360, 0, 0);
                     playerListView.setText("Players: \n" + String.join("\n", players));
                     playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                            "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
+                            "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';");
                     playerListView.setTranslateX(0);
                     playerListView.setTranslateY(0);
                     playerListView.setEditable(false);
@@ -940,18 +1055,18 @@ public class GraphicalUI extends View {
      *
      * @return a VBox containing the selection area for the initial card side selection
      */
-    public VBox setupInitialCardSideSelectionArea() {
+    public VBox setupInitialCardSideSelectionArea(int imageNumber) {
         // TODO Need to load correct image based on the initial card assigned to the player
         // TODO Need to notify listener of the id of the selected card
         // TODO Need to correctly set position of selection area
 
         VBox selectionArea = new VBox(); // Entire selection area
 
-        Label promptLabel = createLabel("Choose a secret objective card:", 20); // Text label prompting user to pick a card
+        Label promptLabel = createLabel("Choose a starter card side:", 20); // Text label prompting user to pick a card
         HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
 
-        ImageView firstCard = new ImageView(new Image("cards_back_019.png", 240, 160, true, false)); // Load the images of the cards to display
-        ImageView secondCard = new ImageView(new Image("cards_back_027.png", 240, 160, true, false));
+        ImageView firstCard = new ImageView(new Image("cards_back_0"+imageNumber+".png", 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image("cards_front_0"+imageNumber+".png", 240, 160, true, false));
 
         firstCard.setOnMouseClicked(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
@@ -995,8 +1110,8 @@ public class GraphicalUI extends View {
         selectionArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         selectionArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
 
-        selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.getWidth()/2)); // Set position of selectionArea
-        selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.getHeight()/2));
+        selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(selectionArea.widthProperty()).divide(2)); // Set position of selectionArea
+        selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(selectionArea.heightProperty()).divide(2));
 
         cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
 
@@ -1013,8 +1128,8 @@ public class GraphicalUI extends View {
      *
      * @return a VBox containing the selection area for the secret objective card selection
      */
-    public VBox setupSecretObjectiveCardSelectionArea() {
-        // TODO Need to load correct image based on the initial card assigned to the player
+    public VBox setupSecretObjectiveCardSelectionArea(int card1, int card2) {
+        // TODO Need to load correct image based on the initial card assigned to the player. Resolved!
         // TODO Need to notify listener of the id of the selected card
         // TODO Need to correctly set position of selection area
 
@@ -1022,9 +1137,10 @@ public class GraphicalUI extends View {
 
         Label promptLabel = createLabel("Choose a secret objective card:", 20); // Text label prompting user to pick a card
         HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
-
-        ImageView firstCard = new ImageView(new Image("cards_back_019.png", 240, 160, true, false)); // Load the images of the cards to display
-        ImageView secondCard = new ImageView(new Image("cards_back_027.png", 240, 160, true, false));
+        String card1Path = card1 > 99 ? "cards_front_" + card1 : "cards_front_0" + card1;
+        String card2Path = card2 > 99 ? "cards_front_" + card2 : "cards_front_0" + card2;
+        ImageView firstCard = new ImageView(new Image(card1Path+".png", 240, 160, true, false));
+        ImageView secondCard = new ImageView(new Image(card2Path+".png", 240, 160, true, false));
 
         firstCard.setOnMouseClicked(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
@@ -1043,7 +1159,7 @@ public class GraphicalUI extends View {
             firstCard.setOnMouseClicked(null); // Disable card selection functionality
             secondCard.setOnMouseClicked(null);
 
-            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, 0)); // Notify the controller that the first card was selected
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, card1)); // Notify the controller that the first card was selected
         }); // First card was selected
         secondCard.setOnMouseClicked(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), secondCard); // Add scaling animation to the card when selected
@@ -1062,14 +1178,14 @@ public class GraphicalUI extends View {
             firstCard.setOnMouseClicked(null);
             secondCard.setOnMouseClicked(null);
 
-            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, 1)); // Notify the controller that the second card was selected
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname, card2)); // Notify the controller that the second card was selected
         });
 
         selectionArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         selectionArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
 
-        selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.getWidth()/2)); // Set position of selectionArea
-        selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.getHeight()/2));
+        selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(selectionArea.widthProperty()).divide(2)); // Set position of selectionArea
+        selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(selectionArea.heightProperty()).divide(2));
 
         cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
 
