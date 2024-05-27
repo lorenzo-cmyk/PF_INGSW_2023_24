@@ -218,6 +218,27 @@ public class GameControllerTest {
         assertInstanceOf(InvalidStarterCardSideSelectionMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
     }
 
+    @DisplayName("chooseStarterCardSide should throw a CriticalFailureException if ran out of scope and the player is not in the game")
+    @Test
+    void chooseStarterCardSideOutOfScopePlayerDoesNotExists() {
+        assertThrows(CriticalFailureException.class, () -> gameController.chooseStarterCardSide("NonExistentPlayer", true));
+    }
+
+    @DisplayName("chooseStarterCardSide should throw a CriticalFailureException if the player is not in the game")
+    @Test
+    void chooseStarterCardSidePlayerDoesNotExists() {
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        gameController.enterPreparationPhase();
+
+        assertThrows(CriticalFailureException.class, () -> gameController.chooseStarterCardSide("NonExistentPlayer", true));
+    }
+
     @DisplayName("chooseStarterCardSide should inform the player if the card has already been chosen")
     @Test
     void chooseStarterCardSideAlreadyChosen() {
@@ -471,6 +492,37 @@ public class GameControllerTest {
         assertInstanceOf(InvalidSelectedSecretObjectiveCardMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
     }
 
+    @DisplayName("chooseSecretObjectiveCard should throw an exception if run out of scope and the player is not in the game")
+    @Test
+    public void chooseSecretObjectiveCardOutOfScopePlayerDoesNotExists() {
+        // Add 1 player to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        assertThrows(CriticalFailureException.class, () -> gameController.chooseSecretObjectiveCard("player2", 0));
+    }
+
+    @DisplayName("chooseSecretObjectiveCard should throw an exception if the player is not in the game")
+    @Test
+    public void chooseSecretObjectiveCardPlayerDoesNotExists() {
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+
+        gameController.enterPreparationPhase();
+
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        assertThrows(CriticalFailureException.class, () -> gameController.chooseSecretObjectiveCard("player3", 0));
+    }
+
     @DisplayName("chooseSecretObjectiveCard should inform the player if the card chosen is not valid")
     @Test
     void chooseSecretObjectiveCardInvalidCard() {
@@ -690,7 +742,7 @@ public class GameControllerTest {
         assertInstanceOf(PlaceCardFailedMessage.class, nodeInterfaceStub.getInternalMessages().get(9));
     }
 
-    @DisplayName("enterEndGamePhase should move the game to GAME_ENDED status")
+    @DisplayName("enterEndGamePhase should move the game to GAME_ENDED status and should work one time only")
     @Test
     void enterEndGamePhaseTest() {
         // Add 2 players to the game
@@ -737,6 +789,9 @@ public class GameControllerTest {
         assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
         assertInstanceOf(MatchStatusMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
         assertInstanceOf(MatchWinnersMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+
+        // If the objective points has been calculated, I shouldn't be able to call the method again.
+        assertThrows(CriticalFailureException.class, () -> gameController.enterEndPhase());
     }
 
     @DisplayName("sendGameStatus should deliver the game status to the player")
