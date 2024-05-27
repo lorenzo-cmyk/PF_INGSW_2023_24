@@ -93,12 +93,19 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             try {
                 synchronized (ctoSProcessingLock) {
                     outputObtStr.writeObject(message);
+                    outputObtStr.flush();
                 }
                 logger.info("Message sent. Type: CtoSLobbyMessage");
-                return;
+                break;
             } catch (IOException e) {
                 checkConnection();
             }
+        }
+
+        synchronized (ctoSProcessingLock) {
+            try {
+                outputObtStr.flush();
+            } catch (IOException ignore) {}
         }
     }
 
@@ -111,10 +118,16 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                     outputObtStr.writeObject(message);
                 }
                 logger.info("Message sent. Type: CtoSMessage");
-                return;
+                break;
             } catch (IOException e) {
                 checkConnection();
             }
+        }
+
+        synchronized (ctoSProcessingLock) {
+            try {
+                outputObtStr.flush();
+            } catch (IOException ignore) {}
         }
     }
 
