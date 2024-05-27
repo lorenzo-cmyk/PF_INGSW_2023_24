@@ -89,15 +89,13 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     @Override
     public void uploadToServer(CtoSLobbyMessage message) {
 
-        boolean toSend = true;
-
-        while (toSend) {
+        while (true) {
             try {
                 synchronized (ctoSProcessingLock) {
                     outputObtStr.writeObject(message);
                 }
                 logger.info("Message sent. Type: CtoSLobbyMessage");
-                toSend = false;
+                return;
             } catch (IOException e) {
                 checkConnection();
             }
@@ -107,15 +105,13 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     @Override
     public void uploadToServer(CtoSMessage message) {
 
-        boolean toSend = true;
-
-        while (toSend) {
+        while (true) {
             try {
                 synchronized (ctoSProcessingLock) {
                     outputObtStr.writeObject(message);
                 }
                 logger.info("Message sent. Type: CtoSMessage");
-                toSend = false;
+                return;
             } catch (IOException e) {
                 checkConnection();
             }
