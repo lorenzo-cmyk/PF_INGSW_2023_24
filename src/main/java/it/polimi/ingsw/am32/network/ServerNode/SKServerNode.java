@@ -158,10 +158,10 @@ public class SKServerNode implements Runnable, NodeInterface {
             if(message instanceof PingMessage && gameController == null) {
                 config.getExecutorService().submit(() -> {
                     try {
+                        logger.info("PingMessage received before assigning a game");
                         uploadToClient(new PongMessage(null));
-                        logger.info("PingMessage received before StoCLobbyMessage. Sent PongMessage to client");
                     } catch (UploadFailureException e) {
-                        logger.error("PingMessage received before StoCLobbyMessage. Failed to send PongMessage to client");
+                        logger.error("Failed to send PongMessage to client");
                     }
                 });
                 return;
