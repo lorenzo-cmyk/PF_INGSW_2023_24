@@ -53,7 +53,42 @@ public class SKServerNode implements Runnable, NodeInterface {
         this.logger = LogManager.getLogger("SKServerNode");
 
         try {
+            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+
+        } catch (IOException e) {
+
+            try {
+                if(!socket.isClosed())
+                    socket.close();
+            } catch (IOException ignored) {}
+
+            logger.error("Could not open output stream: {} . Socket Closed", e.getMessage());
+
+            throw new UninitializedException();
+        }
+
+        try {
+            inputObtStr = new ObjectInputStream(socket.getInputStream());
+
+        } catch (IOException e) {
+
+            try {
+                outputObtStr.close();
+            } catch (IOException ignored) {}
+
+            try {
+                if(!socket.isClosed())
+                    socket.close();
+            } catch (IOException ignored) {}
+
+            logger.error("Could not open input stream: {} . Socket Closed", e.getMessage());
+
+            throw new UninitializedException();
+        }
+
+        try {
             socket.setSoTimeout(config.getSocketReadTimeout());
+            logger.info("Socket timeout successfully set");
 
         } catch (SocketException e) {
 
@@ -67,38 +102,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             throw new UninitializedException();
         }
 
-        try {
-            inputObtStr = new ObjectInputStream(socket.getInputStream());
-
-        } catch (IOException e) {
-            try {
-                if(!socket.isClosed())
-                    socket.close();
-            } catch (IOException ignored) {}
-
-            logger.error("Could not open input stream: {} . Socket Closed", e.getMessage());
-
-            throw new UninitializedException();
-        }
-
-        try {
-            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
-
-        } catch (IOException e) {
-
-            try {
-                inputObtStr.close();
-            } catch (IOException ignored) {}
-
-            try {
-                if(!socket.isClosed())
-                    socket.close();
-            } catch (IOException ignored) {}
-
-            logger.error("Could not open output stream: {} . Socket Closed", e.getMessage());
-
-            throw new UninitializedException();
-        }
+        logger.info("SKServerNode ready");
 
         statusIsAlive = true;
         destroyCalled = false;
@@ -136,7 +140,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         try {
             message = inputObtStr.readObject();
-            logger.debug("Object received from socket stream: {}", message.getClass().getName());
+            //logger.debug("Object received from socket stream: {}", message.getClass().getName());
         } catch (SocketTimeoutException e) {
             return;
         }
@@ -151,7 +155,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 resetTimeCounter();
             }
 
-            if(message instanceof PingMessage && gameController == null)
+            if(message instanceof PingMessage && gameController == null) {
                 config.getExecutorService().submit(() -> {
                     try {
                         uploadToClient(new PongMessage(null));
@@ -160,6 +164,8 @@ public class SKServerNode implements Runnable, NodeInterface {
                         logger.error("PingMessage received before StoCLobbyMessage. Failed to send PongMessage to client");
                     }
                 });
+                return;
+            }
 
             if (message instanceof CtoSMessage) {
 
@@ -342,9 +348,11 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             pingCount--;
 
+            logger.info("Ping time overdue. Ping count: {}", pingCount);
+
             if(pingCount <= 0) {
                 statusIsAlive = false;
-                logger.debug("Ping time overdue, set statusIsAlive to false");
+                logger.debug("Ping count reached minimum, starting destruction process");
                 tmpDestroy = true;
             }
         }
@@ -363,6 +371,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 return;
 
             pingCount = config.getMaxPingCount();
+            logger.info("Ping count reset");
         }
     }
 

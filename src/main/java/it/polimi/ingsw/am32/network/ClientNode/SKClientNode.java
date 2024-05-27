@@ -154,16 +154,19 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         while (reconnectionProcess) {
 
-            if (socket != null && !socket.isClosed()) {
-
+            if(inputObtStr != null) {
                 try {
                     inputObtStr.close();
                 } catch (IOException ignore) {}
+            }
 
+            if(outputObtStr != null) {
                 try {
                     outputObtStr.close();
                 } catch (IOException ignore) {}
+            }
 
+            if (socket != null) {
                 try {
                     socket.close();
                 } catch (IOException ignore) {}
@@ -171,14 +174,15 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
             try {
                 socket = new Socket(ip, port);
-                inputObtStr = new ObjectInputStream(socket.getInputStream());
                 outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+                inputObtStr = new ObjectInputStream(socket.getInputStream());
+                logger.info("Connection established");
 
             } catch (IOException ignore) {
 
                 logger.info("Failed to connect to {}:{}", ip, port);
                 try {
-                    wait(100); // TODO parametrizzazione con config?
+                    Thread.sleep(100); // TODO parametrizzazione con config?
                 } catch (InterruptedException ignore2) {}
 
                 continue;
@@ -187,8 +191,6 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             reconnectionProcess = false;
 
         }
-
-        logger.info("Connection established");
 
         synchronized (aliveLock) {
             statusIsAlive = true;
@@ -200,8 +202,6 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     public void startConnection(){
 
-        connect();
-        // TODO da fare/controllare
         new Thread(this).start();
         logger.info("SKClientNode started");
     }
