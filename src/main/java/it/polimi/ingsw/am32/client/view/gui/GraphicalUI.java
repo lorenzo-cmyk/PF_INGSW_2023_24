@@ -329,11 +329,7 @@ public class GraphicalUI extends View {
 
     @Override
     public void setSocketClient(String ServerIP, int portNumber) throws IOException {
-        super.setSocketClient(ServerIP, portNumber); // see the method in the superclass
-        Thread thread = new Thread((clientNode));
-        thread.start();
-        Thread askListener = new Thread(super.askListener);
-        askListener.start();
+        super.setSocketClient(ServerIP, portNumber);
     }
 
     @Override

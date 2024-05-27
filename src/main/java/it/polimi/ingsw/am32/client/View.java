@@ -90,6 +90,10 @@ public abstract class View implements EventHandler{
         this.clientNode = clientNode;
         clientNode.startConnection(ServerIP,port);
         this.askListener = new  AskListener(clientNode);
+        Thread thread = new Thread((clientNode)); // Create a new thread to listen for messages from the server
+        thread.start();
+        Thread askListener = new Thread(this.askListener);  // Create a new thread to listen for messages from the client
+        askListener.start();
         //TODO verify if this is correct
     }
     public void setRMIClient(String ServerURL){
@@ -126,6 +130,8 @@ public abstract class View implements EventHandler{
 
     public abstract void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards,
                                     int[] currentGoldCards, int resourceDeckFace, int goldDeckFace);
+
+    public abstract String convertToColour(int colour);
 
     public abstract void handleFailureCase(Event event, String reason);
 
