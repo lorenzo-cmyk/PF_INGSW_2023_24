@@ -833,6 +833,29 @@ public class GameControllerTest {
         assertInstanceOf(ResponsePlayerFieldMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
     }
 
+    @DisplayName("sendPlayerField should throw a CriticalFailureException if the requester player does not exist")
+    @Test
+    void sendPlayerFieldRequesterDoesNotExist(){
+        // Add 2 players to the game
+        try {
+            gameController.addPlayer("player1", new NodeInterfaceStub());
+            gameController.addPlayer("player2", new NodeInterfaceStub());
+        } catch (FullLobbyException | DuplicateNicknameException e) {
+            fail();
+        }
+        // We are now ready to prepare the game
+        gameController.enterPreparationPhase();
+        // Choose the side of the starting card
+        gameController.chooseStarterCardSide("player1", true);
+        gameController.chooseStarterCardSide("player2", false);
+
+        // Choose the secret objective card
+        gameController.chooseSecretObjectiveCard("player1", gameController.getModel().getSecretObjectiveCardsPlayer("player1").getFirst());
+        gameController.chooseSecretObjectiveCard("player2", gameController.getModel().getSecretObjectiveCardsPlayer("player2").getFirst());
+
+        assertThrows(CriticalFailureException.class, () -> gameController.sendPlayerField("player3", "player2"));
+    }
+
     @DisplayName("sendPlayerField should inform the player if the requested field's player does not exist")
     @Test
     void sendPlayerFieldPlayerDoesNotExist(){
@@ -1506,6 +1529,25 @@ public class GameControllerTest {
 
         assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
         assertInstanceOf(PongMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+    }
+
+    @DisplayName("pongPlayer should throw a CriticalFailureException if the player does not exist")
+    @Test
+    void pongPlayerInvalidPlayerTest() {
+        // Try to send a PongMessage to a non-existing player
+        assertThrows(CriticalFailureException.class, () -> gameController.pongPlayer("nonExistingPlayer"));
+    }
+
+    @DisplayName("generateResponseGameStatusMessage should throw a CriticalFailureException for a non-existing player")
+    @Test
+    void generateResponseGameStatusMessageInvalidPlayer() {
+        assertThrows(CriticalFailureException.class, () -> gameController.generateResponseGameStatusMessage("nonExistingPlayer"));
+    }
+
+    @DisplayName("sendPlayerField should throw a CriticalFailureException for a non-existing requester")
+    @Test
+    void sendPlayerFieldInvalidRequester() {
+        assertThrows(CriticalFailureException.class, () -> gameController.sendPlayerField("nonExistingRequester", "player1"));
     }
 
     @DisplayName("getTimer should return the timer")
