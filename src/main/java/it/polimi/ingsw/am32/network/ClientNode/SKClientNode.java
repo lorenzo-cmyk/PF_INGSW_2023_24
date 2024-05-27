@@ -44,7 +44,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
         statusIsAlive = false;
-        pongCount = 3; // todo fare un config??
+        pongCount = 120; // todo fare un config??
         logger = LogManager.getLogger("SKClientNode");
         reconnectCalled = false;
     }
@@ -123,8 +123,8 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         boolean tmpReconnect = false;
 
         synchronized (aliveLock) {
+
             if (statusIsAlive) {
-                logger.info("Connection status: Alive");
                 return;
             }
 
@@ -210,8 +210,20 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     public void pongTimeOverdue() {
         try {
 
-            // TODO Fare
+            synchronized (aliveLock){
+                if(!statusIsAlive)
+                    return;
+            }
+
+            pongCount--;
+
             logger.info("Pong time overdue. Pong count: {}", pongCount);
+
+            if(pongCount <= 0) {
+                logger.info("Pong count reached minimum. Trying to check connection");
+                checkConnection();
+            }
+
             synchronized (ctoSProcessingLock) {
                 outputObtStr.writeObject(new PingMessage(nickname));
             }
@@ -225,7 +237,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             if (!statusIsAlive)
                 return;
 
-            pongCount = 3; // TODO modificare se si aggiunge config
+            pongCount = 120; // TODO modificare se si aggiunge config
         }
 
         logger.info("Pong count reset");
