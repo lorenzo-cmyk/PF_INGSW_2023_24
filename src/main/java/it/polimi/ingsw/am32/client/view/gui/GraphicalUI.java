@@ -662,21 +662,18 @@ public class GraphicalUI extends View {
     }
     @Override
     public void updatePlayerTurn(String playerNickname) {
-        Platform.runLater(() -> {
-            noticeText.setText(playerNickname + "'s turn!");
-        });
     }
     @Override
-    public void updateGameStatus(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
+    public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
                                  ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
                                  int playerSecretObjective, int[] playerPoints,
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
-        if(currentEvent.equals(Event.RECONNECT_GAME)) { // once the player reconnects to the game
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) { // once the player reconnects to the game
             // store all the data of the game received from the server
+        if(currentEvent.equals(Event.RECONNECT_GAME)){
             //TODO
         }else {
             // once the game enters the playing phase, the method is called to update a part of the data of the player
