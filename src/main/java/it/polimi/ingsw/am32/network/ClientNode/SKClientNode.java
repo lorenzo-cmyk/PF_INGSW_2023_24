@@ -6,7 +6,6 @@ import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
-import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,8 +58,10 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
                 listenForIncomingMessages();
 
-            } catch (IOException | ClassNotFoundException | NodeClosedException ignore) {}
-            //TODO forse il catch deve fare qualcosa
+            } catch (IOException | ClassNotFoundException | NodeClosedException e) {
+                resetConnection();
+                logger.debug("inputObtStr exception: {}", e.getMessage());
+            }
         }
     }
 
@@ -70,7 +71,10 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         try {
             message = inputObtStr.readObject();
-        } catch (SocketTimeoutException e) {return;}
+        } catch (SocketTimeoutException e) {
+            //logger.debug("Socket timeout exception");
+            return;
+        }
 
         // TODO server sync??
         resetTimeCounter();
@@ -93,19 +97,16 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             try {
                 synchronized (ctoSProcessingLock) {
                     outputObtStr.writeObject(message);
-                    outputObtStr.flush();
+
+                    try {
+                        outputObtStr.flush();
+                    } catch (IOException ignore) {}
                 }
                 logger.info("Message sent. Type: CtoSLobbyMessage");
                 break;
             } catch (IOException e) {
-                checkConnection();
+                resetConnection();
             }
-        }
-
-        synchronized (ctoSProcessingLock) {
-            try {
-                outputObtStr.flush();
-            } catch (IOException ignore) {}
         }
     }
 
@@ -116,24 +117,22 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             try {
                 synchronized (ctoSProcessingLock) {
                     outputObtStr.writeObject(message);
+
+                    try {
+                        outputObtStr.flush();
+                    } catch (IOException ignore) {}
                 }
                 logger.info("Message sent. Type: CtoSMessage");
                 break;
             } catch (IOException e) {
-                checkConnection();
+                resetConnection();
             }
-        }
-
-        synchronized (ctoSProcessingLock) {
-            try {
-                outputObtStr.flush();
-            } catch (IOException ignore) {}
         }
     }
 
     private void checkConnection() {
 
-        boolean tmpReconnect = false;
+        boolean tmpReconnect;
 
         synchronized (aliveLock) {
 
@@ -141,24 +140,49 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 return;
             }
 
-            if(reconnectCalled){
-                try {
-                    aliveLock.wait();
-                } catch (InterruptedException ignore) {}
-            } else {
-                reconnectCalled = true;
-                clientPingTask.cancel();
-                timer.purge();
-                clientPingTask = new ClientPingTask(this);
-                tmpReconnect = true;
-            }
+            tmpReconnect = manageReconnectionRequests();
         }
 
         if(tmpReconnect) {
             logger.info("Connection status: Down. Reconnecting...");
             connect();
         }
+    }
 
+    private void resetConnection() {
+
+        boolean tmpReconnect;
+
+        synchronized (aliveLock) {
+
+            statusIsAlive = false;
+
+            tmpReconnect =  manageReconnectionRequests();
+        }
+
+        if(tmpReconnect) {
+            logger.info("Connection status: Down. Reconnecting...");
+            connect();
+        }
+    }
+
+    private boolean manageReconnectionRequests() {
+
+        if(reconnectCalled){
+
+            try {
+                aliveLock.wait();
+            } catch (InterruptedException ignore) {}
+
+            return false;
+
+        } else {
+            reconnectCalled = true;
+            clientPingTask.cancel();
+            timer.purge();
+            clientPingTask = new ClientPingTask(this);
+            return true;
+        }
     }
 
     private void connect() {
@@ -189,6 +213,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 socket = new Socket(ip, port);
                 outputObtStr = new ObjectOutputStream(socket.getOutputStream());
                 inputObtStr = new ObjectInputStream(socket.getInputStream());
+                socket.setSoTimeout(100);
                 logger.info("Connection established");
 
             } catch (IOException ignore) {
