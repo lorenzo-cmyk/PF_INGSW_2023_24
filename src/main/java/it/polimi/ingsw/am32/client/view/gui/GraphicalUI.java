@@ -2,10 +2,7 @@ package it.polimi.ingsw.am32.client.view.gui;
 
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
-import it.polimi.ingsw.am32.message.ClientToServer.AccessGameMessage;
-import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
-import it.polimi.ingsw.am32.message.ClientToServer.SelectedSecretObjectiveCardMessage;
-import it.polimi.ingsw.am32.message.ClientToServer.SelectedStarterCardSideMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.*;
 import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
@@ -41,17 +38,16 @@ public class GraphicalUI extends View {
     private TextField playerListView;
     private Label matchStatus;
     private HBox playerOrder;
-    private ImageView[] labelPlayerOrder;
+    private ArrayList<ImageView> labelPlayerOrder;
     private HashMap<String, PlayerPubView> playerViews = new HashMap<>();
     private HashMap<String, Image> imagesMap = new HashMap<>();
     private HashMap<String, StackPane> playerField = new HashMap<>();
     private ChatArea chatArea;
-    private ImageView[] handView;
+    private ImageView [] handView;
     private ImageView[] resourceDeckView;
     private ImageView[] goldDeckView;
     private ImageView secretObjCardView;
     private ImageView[] commonObjCardView;
-    private boolean isClicked = false;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -237,6 +233,17 @@ public class GraphicalUI extends View {
         });
         //TODO RMI
     }
+    /**
+     * Set the socket connection between the client and the server.
+     *
+     * @param ServerIP the IP address of the server
+     * @param portNumber the port number of the server
+     * @throws IOException if the connection to the server fails
+     */
+    @Override
+    public void setSocketClient(String ServerIP, int portNumber) throws IOException {
+        super.setSocketClient(ServerIP, portNumber);
+    }
 
     /**
      * Set the page where the player can select the game mode. The player can choose between creating a new game, joining
@@ -317,7 +324,7 @@ public class GraphicalUI extends View {
                 if (playerNum == 2 || playerNum == 3 || playerNum == 4) {
                     notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
                 } else {
-                    createAlert("Please select the number of players");
+                    createAlert("Please select the number");
                 }
             }
         });
@@ -362,39 +369,72 @@ public class GraphicalUI extends View {
         });
         selectionPane.getChildren().add(joinGameRoot);
     }
+    /**
+     * Once the player receives the NewGameConfirmationMessage from the server, the method is called by processMessage
+     * to store the gameID, the nickname of the player who created the game, and add it in the list of players.
+     * In addition, the method sets the currentEvent to WAITING_FOR_START and the Status to LOBBY, then it creates the
+     * waiting page where the player can see the gameID and the list of players who joined the game.
+     *
+     * @param gameID the game ID returned by the server after the confirmation of the new game
+     * @param recipientNickname the nickname of the player who asked to create the new game
+     */
 
     @Override
     public void updateNewGameConfirm(int gameID, String recipientNickname) {
+        // use Platform.runLater to run the code in the JavaFX Application Thread
         Platform.runLater(() -> {
-            selectionPane.getChildren().removeLast();
+            selectionPane.getChildren().removeLast(); // remove the last page
             waitingRoot = new StackPane();
-
+            // set the gameID, the nickname of the player who created the game and insert it in the list of players
             this.gameID = gameID;
             this.thisPlayerNickname = recipientNickname;
             this.players.add(recipientNickname);
             currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
             Status = Event.LOBBY;
 
+            // set the components of the waiting page: the gameID, the status waiting and the list of players
             Label id = createLabel("ID: " + gameID, -80, -80);
             Label waiting = createLabel("Waiting...", 130, 100);
 
             playerListView = createTextField(null, 135, 360, 0, 0);
             playerListView.setText("Players: \n" + String.join("\n", players));
             playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
+                    "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
             playerListView.setTranslateX(0);
             playerListView.setTranslateY(0);
             playerListView.setEditable(false);
+
+            // add the components to the waiting page
             waitingRoot.getChildren().addAll(id, waiting, playerListView);
+            // add the waiting page to the selection pane which contains the background image
             selectionPane.getChildren().add(waitingRoot);
         });
     }
 
+    /**
+     * Once the player receives the LobbyPlayerList message from the server, the method is called by
+     * processMessage, to update the player's list in the Lobby phase and print the player's list updated.
+     * @param players the list updated of players in the game.
+     */
     @Override
-    public void setSocketClient(String ServerIP, int portNumber) throws IOException {
-        super.setSocketClient(ServerIP, portNumber);
+    public void updatePlayerList(ArrayList<String> players) {
+        this.players = players;
+        // if the LobbyPlayerList message is received after the NewGameConfirmationMessage or the AccessGameConfirmationMessage.
+        if (playerListView == null) {
+            playerListView = createTextField(null, 135, 360, 0, 0);
+            playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
+            playerListView.setTranslateX(0);
+            playerListView.setTranslateY(0);
+            playerListView.setEditable(false);
+        }
+        // update the list of players in the waiting page with the new list of players.
+        playerListView.setText("Players: \n" + String.join(",\n", players));
     }
-
+    /**
+     * After receiving the GameStarted message from the server, the method is called to set up the view of the player
+     * and initialize the data and the boards of the players.
+     */
     @Override
     public void setUpPlayersData() {
         if (this.matchStatus == null) {
@@ -404,37 +444,24 @@ public class GraphicalUI extends View {
             // set up the data of the players and initialize the board of the players
             publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
                     true));
-
+            // create the view of the players
+            playerViews.put(player, new PlayerPubView(
+                    createLabel(player,20),
+                    new ImageView(imagesMap.get("BLACK")),
+                    createLabel("0", 20),
+                    new Label[]{
+                            createLabel("0", 20),
+                            createLabel("0", 20),
+                            createLabel("0", 20),
+                            createLabel("0", 20),
+                            createLabel("0", 20),
+                            createLabel("0", 20),
+                            createLabel("0", 20)
+                    }));
+            playerField.put(player, new StackPane());
         }
+        setGameView(); // set the view of the game in the playing phase
     }
-
-    @Override
-    public void updatePlayerList(ArrayList<String> players) {
-        this.players = players;
-        //playerList.setText("Players:\n" + String.join("\n", players));
-        if (playerListView == null) {
-            playerListView = createTextField(null, 135, 360, 0, 0);
-            playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
-            playerListView.setTranslateX(0);
-            playerListView.setTranslateY(0);
-            playerListView.setEditable(false);
-        }
-        playerListView.setText("Players: \n" + String.join(",\n", players));
-    }
-
-
-    @Override
-    public void updateMatchStatus(int matchStatus) {
-        this.Status = Event.getEvent(matchStatus); // update the match status of the player.
-        Platform.runLater(() -> this.matchStatus.setText(String.valueOf(Status)));
-        if (Status.equals(Event.TERMINATING)) { // if the match status is TERMINATING show the points of all players.
-            for (String player : players) {
-                showResource(player);
-            }
-        }
-    }
-
     private void setGameView() {
         // load the images which will be used in the master pane
         imagesMap.put("BLUE", new Image("/CODEX_pion_bleu.png", 20, 20, true, false));
@@ -454,30 +481,18 @@ public class GraphicalUI extends View {
         masterPane = new Pane();
         masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
 
-        // set the player info panel
+        // set the players info panel
         VBox playerInfoPanel = new VBox();
-        for (String player : publicInfo.keySet()) {
-            Label nickNameLabel = createLabel(player, 20);
-            ImageView colour = new ImageView(imagesMap.get("BLACK"));
-            Label points = createLabel("0", 20);
-            Label[] resourceLabels = new Label[]{
-                    createLabel("0", 20),
-                    createLabel("0", 20),
-                    createLabel("0", 20),
-                    createLabel("0", 20),
-                    createLabel("0", 20),
-                    createLabel("0", 20),
-                    createLabel("0", 20)
-            };
+        playerOrder = new HBox();
+        labelPlayerOrder = new ArrayList<>();
+        Label OrderTitle = createLabel("Order:", 20);
+        playerOrder.getChildren().add(OrderTitle);
 
+        for (String player : players) {
             // set up the player view
-            PlayerPubView playerPubView = new PlayerPubView(nickNameLabel, colour, points, resourceLabels);
-            playerViews.put(player, playerPubView);
+            PlayerPubView playerPubView = playerViews.get(player);
 
-            // set the player field board
-            playerField.put(player, new StackPane());
-
-            // set the player info panel
+            // set the player info line
             HBox playerInfo = new HBox();
             playerInfo.setSpacing(10);
             playerInfo.setMaxWidth(300);
@@ -490,6 +505,7 @@ public class GraphicalUI extends View {
             playerInfoBox.setSpacing(10);
             playerInfoBox.getChildren().addAll(playerInfo, scoreBox);
 
+            // set the player resource line
             HBox playerResource = new HBox();
             playerResource.setSpacing(10);
             playerResource.getChildren().addAll(
@@ -501,23 +517,32 @@ public class GraphicalUI extends View {
                     new ImageView(imagesMap.get("QUILL")), playerPubView.getResourceLabels()[4],
                     new ImageView(imagesMap.get("INKWELL")), playerPubView.getResourceLabels()[5],
                     new ImageView(imagesMap.get("MANUSCRIPT")), playerPubView.getResourceLabels()[6]);
+
+            // set the player info and resource area
             VBox playerInfoAndResource = new VBox();
             playerInfoAndResource.getChildren().addAll(playerInfoBox, playerResource);
             playerInfoPanel.getChildren().add(playerInfoAndResource);
+
+            // set the player order placeholder
+           labelPlayerOrder.add(playerViews.get(player).getColour());
+           playerOrder.getChildren().add(labelPlayerOrder.getLast());
+
+            // set field view of the player
+            StackPane boardReal = playerField.get(player);
+
+            handleBoardAction(boardReal);
+            handlePlayerNicknameClick(player);
         }
+
+        // set the position of the player info panel in the master pane
         playerInfoPanel.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(20)));
         playerInfoPanel.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(60)));
 
-        // set the top line panel of the master pane
+        // set the top line panel of the master pane which contains the game ID, the status and the player order
         Label labelID = createLabel("ID: " + gameID, 20);
         HBox StatusBox = new HBox();
         Label statusTitle = createLabel("Status: ", 20);
         StatusBox.getChildren().addAll(statusTitle, matchStatus);
-        labelPlayerOrder = new ImageView[]{playerViews.get(thisPlayerNickname).getColour()};
-        Label OrderTitle = createLabel("Order:", 20);
-
-        playerOrder = new HBox();
-        playerOrder.getChildren().addAll(OrderTitle);
 
         HBox topLine = new HBox();
         topLine.setSpacing(100);
@@ -527,36 +552,14 @@ public class GraphicalUI extends View {
 
         masterPane.getChildren().addAll(topLine, playerInfoPanel);
 
-        // set field view of the player
-        StackPane boardReal = playerField.get(thisPlayerNickname);
+        // create the board of this player
+        StackPane boardMove = playerField.get(thisPlayerNickname);
         StackPane board = new StackPane(); // Fixed board where cards are displayed
         board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         board.setPrefSize(770, 525);
         board.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(50))); // set position X of the board in the masterPane.
         board.translateXProperty().bind(masterPane.widthProperty().subtract(board.widthProperty().add(20))); // set position Y of the board in the masterPane.
-        board.getChildren().add(boardReal);
-        // set the Zoom and Drag effects to move the view of the Board
-        boardReal.setOnScroll(e -> {
-            e.consume();
-            if (e.getDeltaY() == 0) {
-                return;
-            }
-            double scaleFactor = (e.getDeltaY() > 0) ? 1.1 : 1 / 1.1;
-            if (boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
-                return;
-            boardReal.setScaleX(boardReal.getScaleX() * scaleFactor);
-            boardReal.setScaleY(boardReal.getScaleY() * scaleFactor);
-        }); // Enable zooming in/out of player field with mouse wheel
-
-        double[] dragPos = new double[2];
-        boardReal.setOnMousePressed(e -> {
-            dragPos[0] = e.getSceneX();
-            dragPos[1] = e.getSceneY();
-        });
-        boardReal.setOnMouseDragged(e -> {
-            boardReal.setTranslateX(e.getSceneX() - dragPos[0]);
-            boardReal.setTranslateY(e.getSceneY() - dragPos[1]);
-        }); // Enable translating of player field when mouse button is held down
+        board.getChildren().add(boardMove);
 
         // create Chat view
         chatArea = new ChatArea(0, 0, 305, 75); // Create chat area //TODO FIX PROBLEM OF SEND AND RECEIVE MESSAGE
@@ -569,6 +572,7 @@ public class GraphicalUI extends View {
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
                 new ImageView(new Image("/placeholder.png", 120, 80, true, true))
         };
+        handleHandClicks();
         commonObjCardView = new ImageView[]{
                 new ImageView(new Image("/cards_back_089.png", 120, 80, true, true)),
                 new ImageView(new Image("/cards_back_089.png", 120, 80, true, true))
@@ -598,26 +602,131 @@ public class GraphicalUI extends View {
 
         deckArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         deckArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight() + 400)));
+        handleDeckClicks();
 
-        // added the notice area
-        HBox notice = new HBox();
-        Label noticeText = new Label("It's your turn!");
-        notice.getChildren().add(noticeText);
-        notice.setPrefSize(380, 70);
-        notice.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
-        notice.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
-        notice.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight() + 325)));
+
         HBox bottomLine = new HBox();
         bottomLine.setSpacing(10);
         bottomLine.getChildren().addAll(commonObjCardView[0], commonObjCardView[1], secretObjCardView, handView[0], handView[1], handView[2]);
         bottomLine.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(20)));
         bottomLine.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(20)));
-        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea(), notice);
+        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea());
 
         Platform.runLater(() -> {
             app.updateScene(masterPane);
             app.getPrimaryStage().setMinWidth(1250);
             app.getPrimaryStage().setFullScreen(true);
+        });
+    }
+
+    /**
+     * Method set the click action of the player's field. The player can zoom in/out the field using the mouse wheel
+     * and move the field using the drag action.
+     * @param boardReal the board of the player
+     */
+    private void handleBoardAction(StackPane boardReal) {
+        boardReal.setOnScroll(e -> {
+            e.consume();
+            if (e.getDeltaY() == 0) {
+                return;
+            }
+            double scaleFactor = (e.getDeltaY() > 0) ? 1.1 : 1 / 1.1;
+            if (boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
+                return;
+            boardReal.setScaleX(boardReal.getScaleX() * scaleFactor);
+            boardReal.setScaleY(boardReal.getScaleY() * scaleFactor);
+        }); // Enable zooming in/out of player field with mouse wheel
+
+        double[] dragPos = new double[2];
+        boardReal.setOnMousePressed(e -> {
+            dragPos[0] = e.getSceneX();
+            dragPos[1] = e.getSceneY();
+        });
+        boardReal.setOnMouseDragged(e -> {
+            boardReal.setTranslateX(e.getSceneX() - dragPos[0]);
+            boardReal.setTranslateY(e.getSceneY() - dragPos[1]);
+        }); // Enable translating of player field when mouse button is held down
+    }
+
+    /**
+     * Method set the click action of the player's nickname. The player can see the field of the player that he wants
+     * to see by clicking on the nickname of the player.
+     * @param player the nickname of the player that thisPlayer wants to see the field.
+     */
+    private void handlePlayerNicknameClick(String player) {
+        playerViews.get(player).getNickname().setOnMouseClicked(e -> {
+            if (player.equals(thisPlayerNickname)) {
+                return;
+            }
+            showPlayersField(player);
+        });
+    }
+
+    /**
+     * Method set the click action of the cards in the deck. The player can draw a card from the deck by clicking on the
+     * card in the deck.
+     * @param cardView the view of the card in the deck.
+     * @param cardID the ID of the card.
+     * @param cardType the type of the deck where the card is drawn.
+     */
+    private void handleDeckCardsClicks(ImageView cardView, int cardID, int cardType) {
+        cardView.setOnMouseClicked(e -> {
+            if (Status.equals(Event.PREPARATION)||Status.equals(Event.LAST_TURN)||Status.equals(Event.TERMINATING)){
+                createAlert("In this phase you can't draw a card");
+            }else{
+                if (currentEvent.equals(Event.DRAW_CARD)){
+                    notifyAskListener(new DrawCardMessage(thisPlayerNickname, cardType, cardID));
+                } else {
+                    createAlert("Please wait for your turn to draw a card");
+                }
+            }
+        });
+    }
+    /**
+     * Method set the click action of the cards in the deck.
+     */
+    private void handleDeckClicks() {
+        handleDeckCardsClicks(resourceDeckView[0],-1, 3);
+        handleDeckCardsClicks(goldDeckView[0],-1, 3);
+        for (int i = 1; i < 3; i++) {
+            handleDeckCardsClicks(resourceDeckView[i], currentResourceCards.get(i), 1);
+            handleDeckCardsClicks(goldDeckView[i], currentGoldCards.get(i), 2);
+        }
+    }
+    /**
+     * Method set the click action of the cards in the hand.
+     */
+    private void handleHandClicks() {
+        for (int i = 0; i < 3; i++) {
+            int finalI = i;
+            handView[i].setOnMouseClicked(e -> {
+                        if (Status.equals(Event.PREPARATION)) {
+                            createAlert("Please wait for the playing phase to play a card");
+                        } else if (currentEvent.equals(Event.PLACE_CARD)) {
+                            //TODO
+                        }
+                    }
+                );
+        }
+    }
+
+    /**
+     * Once the player receives the MatchStatus message from the server, the method is called by processMessage to
+     * update the match status of the player, and update the player of the current match status.
+     * If the match status is TERMINATING, the method is called to show the points of all players in the game with
+     * a pop-up window.
+     * @param matchStatus the current match status received from the server
+     */
+    @Override
+    public void updateMatchStatus(int matchStatus) {
+        this.Status = Event.getEvent(matchStatus); // update the match status of the player.
+        Platform.runLater(() -> {
+            this.matchStatus.setText(String.valueOf(Status));
+        if (Status.equals(Event.TERMINATING)) { // if the match status is TERMINATING show the points of all players.
+            for (String player : players) { // TODO ADD THE POP UP WINDOW
+            showPointsAndResource(player);
+            }
+        }
         });
     }
 
@@ -706,12 +815,12 @@ public class GraphicalUI extends View {
         Label label1 = new Label(reason);
         label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
         dialogPane.setContent(label1);
-        dialogPane.setStyle("-fx-pref-height: 120px;-fx-pref-width: 400px;-fx-background-image: " +
-                "url('/NoticeDisplay.png');-fx-background-position: center;-fx-background-size: 400px 120px;");
-        dialogPane.setMinHeight(120);
-        dialogPane.setMinWidth(400);
-        dialogPane.setMaxHeight(400);
-        dialogPane.setMaxWidth(400);
+        dialogPane.setStyle("-fx-pref-height: 180px;-fx-pref-width: 600px;-fx-background-image: " +
+                "url('/NoticeDisplay.png');-fx-background-position: center;-fx-background-size: 600px 180px;");
+        dialogPane.setMinHeight(180);
+        dialogPane.setMinWidth(600);
+        dialogPane.setMaxHeight(600);
+        dialogPane.setMaxWidth(180);
         alert.setDialogPane(dialogPane);
         alert.getButtonTypes().setAll(ButtonType.OK);
         alert.showAndWait();
@@ -720,11 +829,14 @@ public class GraphicalUI extends View {
 
     @Override
     public void showPlayersField(String playerNickname) {
-
+        Stage fieldStage = new Stage();
+        fieldStage.setTitle(playerNickname + "'s field");
+        fieldStage.setScene(new Scene(playerField.get(playerNickname)));
+        fieldStage.show();
     }
 
     @Override
-    public void showResource(String playerNickname) {
+    public void showPointsAndResource(String playerNickname) {
 
     }
 
@@ -1065,7 +1177,7 @@ public class GraphicalUI extends View {
                 });
             }
             case Event.GAME_START -> {
-                setGameView();
+                //TODO ADD THE POP UP WINDOW
             }
             case Event.GAME_JOINED -> {
                 Platform.runLater(() ->
@@ -1082,7 +1194,7 @@ public class GraphicalUI extends View {
                     playerListView = createTextField(null, 135, 360, 0, 0);
                     playerListView.setText("Players: \n" + String.join("\n", players));
                     playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                            "-fx-font-size: 35px;-fx-font-family: 'JejuHallasan';");
+                            "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
                     playerListView.setTranslateX(0);
                     playerListView.setTranslateY(0);
                     playerListView.setEditable(false);

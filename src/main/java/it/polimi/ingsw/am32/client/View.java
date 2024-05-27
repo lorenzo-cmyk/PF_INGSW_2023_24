@@ -172,7 +172,7 @@ public abstract class View implements EventHandler{
 
     public abstract void showPlayersField(String playerNickname);
 
-    public abstract void showResource(String playerNickname);
+    public abstract void showPointsAndResource(String playerNickname);
 
     public abstract void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
 

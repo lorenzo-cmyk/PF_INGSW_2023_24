@@ -447,7 +447,7 @@ public class TextUI extends View{
         }
         if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
             for (String player : players) {
-                showResource(player);
+                showPointsAndResource(player);
             }
         }
     }
@@ -647,7 +647,7 @@ public class TextUI extends View{
                 readInputThread(); // for the player to get the input from the player when it is not the player's turn.
                 if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
                     for (String player : players) {
-                        showResource(player);
+                        showPointsAndResource(player);
                     }
                 }
                 out.println("Order of the game: " + players);
@@ -1232,7 +1232,7 @@ public class TextUI extends View{
      */
     public void showPlayersField(String playerNickname) {
         showBoard(playerNickname);
-        showResource(playerNickname);
+        showPointsAndResource(playerNickname);
     }
 
     /**
@@ -1240,7 +1240,7 @@ public class TextUI extends View{
      * @param playerNickname the nickname of the player whose resources should be printed.
      */
     @Override
-    public void showResource(String playerNickname) {
+    public void showPointsAndResource(String playerNickname) {
         int[] resources = publicInfo.get(playerNickname).getResources();
         // print the resources of the player in the field, convert the resources to the icon.
         out.println("Player " + playerNickname + " has: " + publicInfo.get(playerNickname).getPoints() + " points" +
