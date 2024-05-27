@@ -2,7 +2,6 @@ package it.polimi.ingsw.am32.client.view.gui;
 
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
-import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import it.polimi.ingsw.am32.message.ClientToServer.AccessGameMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.NewGameMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.SelectedSecretObjectiveCardMessage;
@@ -12,11 +11,12 @@ import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -43,43 +43,66 @@ public class GraphicalUI extends View {
     private HBox playerOrder;
     private ImageView[] labelPlayerOrder;
     private HashMap<String, PlayerPubView> playerViews = new HashMap<>();
-    private HashMap<String,Image> imagesMap = new HashMap<>();
-    private HashMap<String,StackPane> playerField = new HashMap<>();
+    private HashMap<String, Image> imagesMap = new HashMap<>();
+    private HashMap<String, StackPane> playerField = new HashMap<>();
     private ChatArea chatArea;
     private ImageView[] handView;
     private ImageView[] resourceDeckView;
     private ImageView[] goldDeckView;
     private ImageView secretObjCardView;
     private ImageView[] commonObjCardView;
+    private boolean isClicked = false;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
             "/codex_rulebook_it_08.png", "/codex_rulebook_it_09.png", "/codex_rulebook_it_10.png", "/codex_rulebook_it_11.png",
             "/codex_rulebook_it_12.png"};
 
+    /**
+     * Used to launch the GUIApplication class.
+     */
     @Override
     public void launch() {
         Application.launch(GraphicalUIApplication.class);
     }
 
+    /**
+     * Constructor of the class.
+     */
     public GraphicalUI() {
         super();
     }
 
-    public void setApp(GraphicalUIApplication app) {
+    /**
+     * Set the connection between the GUI and the GUIApplication. In this way the GUI can update the scene of the
+     * GUIApplication using the reference of the GUIApplication and the methods of the GUIApplication.
+     *
+     * @param app The GUIApplication with which the GUI will be connected.
+     */
+    protected void setApp(GraphicalUIApplication app) {
         this.app = app;
     }
 
-    public StackPane getWelcomeRoot() {
+    /**
+     * Get the root of the welcome page, which is the first page shown to the player.
+     */
+    protected StackPane getWelcomeRoot() {
         showWelcome();
         return welcomeRoot;
     }
 
+    /**
+     * Get the root of the selection page, which is the page where the player can choose the connection type, choose
+     * the game mode and insert the data needed to create, join or reconnect to a game.
+     */
     public StackPane getSelectionRoot() {
         chooseConnection();
         return selectionPane;
     }
 
+    /**
+     * Set up the welcome page of the GUI, which contains the welcome image and the button to show the rule book.
+     */
     @Override
     public void showWelcome() {
         welcomeRoot = new StackPane();
@@ -95,7 +118,11 @@ public class GraphicalUI extends View {
         welcomeRoot.setBackground(background);
     }
 
-    public void showRuleBook() {
+    /**
+     * Set up the rule book of the game. The player can navigate through the pages of the rule book using the buttons
+     * “<” to go to the previous page and “>” to go to the next page.
+     */
+    private void showRuleBook() {
         StackPane ruleBookRoot = new StackPane();
         Stage ruleBookStage = new Stage();
         Image[] ruleBookImage = new Image[ruleBookImages.length];
@@ -121,6 +148,12 @@ public class GraphicalUI extends View {
 
     }
 
+    /**
+     * Get the buttons to navigate through the pages of the rule book and set the action of the buttons.
+     *
+     * @param ruleBook The image view of the rule book.
+     * @return The array of buttons to navigate through the pages of the rule book.
+     */
     private Button[] getBox(ImageView ruleBook) {
         AtomicInteger index = new AtomicInteger();
         Button nextButton = new Button(">");
@@ -140,6 +173,9 @@ public class GraphicalUI extends View {
         return new Button[]{previousButton, nextButton};
     }
 
+    /**
+     * Set the connection page of the GUI. The player can choose the connection type between socket and RMI.
+     */
     @Override
     public void chooseConnection() {
         currentEvent = Event.CHOOSE_CONNECTION;
@@ -202,14 +238,24 @@ public class GraphicalUI extends View {
         //TODO RMI
     }
 
+    /**
+     * Set the page where the player can select the game mode. The player can choose between creating a new game, joining
+     * an existing game or reconnecting to a game. The player can choose the game mode using the buttons “New Game”, “Join
+     * Game” and “Reconnect”.
+     */
     @Override
     public void askSelectGameMode() {
         StackPane gameModeRoot = new StackPane();
         Label label = createLabel("Game \n Mode", 150, 10);
-        Button newGameButton = createButton("[New Game]", -70, -50);
-        Button joinGameButton = createButton("[Join Game]", -70, 10);
-        Button reconnectGameButton = createButton("[Reconnect]", -70, 70);
-        gameModeRoot.getChildren().addAll(label, newGameButton, joinGameButton, reconnectGameButton);
+        VBox gameMode = new VBox();
+        gameMode.setSpacing(10);
+        Button newGameButton = createButton("[New Game]");
+        Button joinGameButton = createButton("[Join Game]");
+        Button reconnectGameButton = createButton("[Reconnect]");
+        gameMode.getChildren().addAll(newGameButton, joinGameButton, reconnectGameButton);
+        gameMode.setTranslateX(300);
+        gameMode.setTranslateY(300);
+        gameModeRoot.getChildren().addAll(label, gameMode);
         selectionPane.getChildren().add(gameModeRoot);
         newGameButton.setOnAction(e -> {
             selectionPane.getChildren().remove(gameModeRoot);
@@ -225,6 +271,9 @@ public class GraphicalUI extends View {
         });
     }
 
+    /**
+     * Set the page which asks the player to insert the nickname and the players number to create a new game.
+     */
     @Override
     public void askCreateGame() {
         currentEvent = Event.CREATE_GAME;
@@ -236,15 +285,26 @@ public class GraphicalUI extends View {
         TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
 
         Button twoButton = createTransButton("[2]", 30, "#3A2111", -150, 70);
-        Button threeButton3 = createTransButton("[3]", 30, "#3A2111", -70, 70);
+        Button threeButton = createTransButton("[3]", 30, "#3A2111", -70, 70);
         Button fourButton = createTransButton("[4]", 30, "#3A2111", 10, 70);
         Button createButton = createButton("[Create]", 140, 65);
-
-        createGameRoot.getChildren().addAll(labelNickname, labelPlayers, nickname, twoButton, threeButton3, fourButton, createButton);
-
-        twoButton.setOnAction(e -> playerNum = 2);
-        threeButton3.setOnAction(e -> playerNum = 3);
-        fourButton.setOnAction(e -> playerNum = 4);
+        Light.Distant light = new Light.Distant();
+        light.setColor(Color.CHOCOLATE);
+        Lighting lighting = new Lighting();
+        lighting.setLight(light);
+        createGameRoot.getChildren().addAll(labelNickname, labelPlayers, nickname, twoButton, threeButton, fourButton, createButton);
+        twoButton.setOnAction(e -> {
+            playerNum = 2;
+            handleButtonClick(twoButton, threeButton, fourButton, lighting);
+        });
+        threeButton.setOnAction(e -> {
+            playerNum = 3;
+            handleButtonClick(threeButton, twoButton, fourButton,lighting);
+        });
+        fourButton.setOnAction(e -> {
+            playerNum = 4;
+            handleButtonClick(twoButton, threeButton, fourButton,lighting);
+        });
         createButton.setOnAction(e -> {
             thisPlayerNickname = nickname.getText();
             if (thisPlayerNickname.isBlank()) {
@@ -254,7 +314,7 @@ public class GraphicalUI extends View {
                 createAlert("Nickname must be less than 20 characters");
                 nickname.clear();
             } else {
-                if (playerNum == 2 || playerNum == 3 || playerNum == 4) { //TODO ADD ANIMATION
+                if (playerNum == 2 || playerNum == 3 || playerNum == 4) {
                     notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
                 } else {
                     createAlert("Please select the number of players");
@@ -264,6 +324,9 @@ public class GraphicalUI extends View {
         selectionPane.getChildren().add(createGameRoot);
     }
 
+    /**
+     * Set the page which asks the player to insert the nickname and the game ID to reconnect to a game.
+     */
     @Override
     public void askJoinGame() {
         currentEvent = Event.JOIN_GAME;
@@ -421,11 +484,11 @@ public class GraphicalUI extends View {
             playerInfo.setMinWidth(300);
             Label scoreLabel = createLabel("Score: ", 20);
             HBox scoreBox = new HBox();
-            scoreBox.getChildren().addAll(scoreLabel,playerViews.get(player).getPoints());
+            scoreBox.getChildren().addAll(scoreLabel, playerViews.get(player).getPoints());
             playerInfo.getChildren().addAll(playerViews.get(player).getColour(), playerViews.get(player).getNickname());
             HBox playerInfoBox = new HBox();
             playerInfoBox.setSpacing(10);
-            playerInfoBox.getChildren().addAll(playerInfo,scoreBox);
+            playerInfoBox.getChildren().addAll(playerInfo, scoreBox);
 
             HBox playerResource = new HBox();
             playerResource.setSpacing(10);
@@ -582,8 +645,8 @@ public class GraphicalUI extends View {
      * This version of the method is used in starting page.
      *
      * @param text The text contained inside the label
-     * @param X The X coordinate of the label
-     * @param Y The Y coordinate of the label
+     * @param X    The X coordinate of the label
+     * @param Y    The Y coordinate of the label
      * @return The label created
      */
     private Label createLabel(String text, int X, int Y) {
@@ -602,6 +665,14 @@ public class GraphicalUI extends View {
                 "-fx-font-size: " + size + "px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10,0,0,10 );");
         button.setTranslateX(X);
         button.setTranslateY(Y);
+        return button;
+    }
+
+    private Button createButton(String buttonName) {
+        Button button = new Button(buttonName);
+        button.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                "rgba(58,33,17,100,0.2),10,0,0,10);");
         return button;
     }
 
@@ -656,9 +727,11 @@ public class GraphicalUI extends View {
     public void showResource(String playerNickname) {
 
     }
+
     @Override
     public void updatePlayerTurn(String playerNickname) {
     }
+
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
                                  ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
@@ -668,10 +741,10 @@ public class GraphicalUI extends View {
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) { // once the player reconnects to the game
-            // store all the data of the game received from the server
-        if(currentEvent.equals(Event.RECONNECT_GAME)){
+        // store all the data of the game received from the server
+        if (currentEvent.equals(Event.RECONNECT_GAME)) {
             //TODO
-        }else {
+        } else {
             // once the game enters the playing phase, the method is called to update a part of the data of the player
             // that not yet updated in the previous phases.
             this.currentResourceCards = gameCurrentResourceCards;
@@ -683,15 +756,15 @@ public class GraphicalUI extends View {
             this.chatHistory = chatHistory;
             this.currentPlayer = currentPlayer;
             this.players = playerNicknames;
-            int [] card;
+            int[] card;
             PlayerPub playerSpecific;
             // update the data of the players except this player: set the colour, resources, points, online status,
             // and the field of the players after the placement of the starter card.
             for (int i = 1; i < playerNicknames.size(); i++) {
-                playerSpecific=publicInfo.get(playerNicknames.get(i));
+                playerSpecific = publicInfo.get(playerNicknames.get(i));
                 playerSpecific.updateColour(convertToColour(playerColours.get(i)));
                 playerSpecific.updateResources(playerResources);
-                card=playerFields.get(i).get(0);
+                card = playerFields.get(i).get(0);
                 playerSpecific.addToField(new CardPlacedView(card[2], cardImg.get(card[2]),
                         card[0], card[1], card[3] == 1));
                 updateAfterPlacedCard(playerNicknames.get(i), card[2], card[0], card[1],
@@ -705,14 +778,14 @@ public class GraphicalUI extends View {
         this.hand = hand;
         this.commonObjCards = common;
         this.secretObjCards = secrets;
-        String cardIdStr1 = hand.get(0)>= 10 ? "0"+ hand.get(0) : "00" + hand.get(0);
-        String cardIdStr2 = hand.get(1)>= 10 ? "0"+ hand.get(1) : "00" + hand.get(1);
-        String cardIdStr3 = hand.get(2)>= 10 ? "0"+ hand.get(2) : "00" + hand.get(2);
-        handView[0].setImage(new Image("/cards_front_" + cardIdStr1+ ".png", 120, 80, true, true));
+        String cardIdStr1 = hand.get(0) >= 10 ? "0" + hand.get(0) : "00" + hand.get(0);
+        String cardIdStr2 = hand.get(1) >= 10 ? "0" + hand.get(1) : "00" + hand.get(1);
+        String cardIdStr3 = hand.get(2) >= 10 ? "0" + hand.get(2) : "00" + hand.get(2);
+        handView[0].setImage(new Image("/cards_front_" + cardIdStr1 + ".png", 120, 80, true, true));
         handView[1].setImage(new Image("/cards_front_" + cardIdStr2 + ".png", 120, 80, true, true));
         handView[2].setImage(new Image("/cards_front_" + cardIdStr3 + ".png", 120, 80, true, true));
-        String commonCardIdStr1 = common.get(0)> 99 ? String.valueOf(common.get(0)) : "0" + common.get(0);
-        String commonCardIdStr2 = common.get(1)> 99 ? String.valueOf(common.get(1)) : "0" + common.get(1);
+        String commonCardIdStr1 = common.get(0) > 99 ? String.valueOf(common.get(0)) : "0" + common.get(0);
+        String commonCardIdStr2 = common.get(1) > 99 ? String.valueOf(common.get(1)) : "0" + common.get(1);
         commonObjCardView[0].setImage(new Image("/cards_front_" + commonCardIdStr1 + ".png", 120, 80, true, true));
         commonObjCardView[1].setImage(new Image("/cards_front_" + commonCardIdStr2 + ".png", 120, 80, true, true));
         //showHand(hand);
@@ -738,16 +811,16 @@ public class GraphicalUI extends View {
         cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
 
         // Compose elements
-        Platform.runLater(()->{
+        Platform.runLater(() -> {
             handArea.getChildren().addAll(promptLabel, cardPairArea);
-        cardPairArea.getChildren().addAll(firstCard, secondCard, thirdCard);
+            cardPairArea.getChildren().addAll(firstCard, secondCard, thirdCard);
             masterPane.getChildren().add(handArea);
-        PauseTransition pause = new PauseTransition(Duration.seconds(10)); // Set a timer for the selection
-        pause.setOnFinished(e -> {
-            masterPane.getChildren().remove(handArea);
-            handArea.getChildren().removeAll(promptLabel, cardPairArea);
-        });
-        pause.play();
+            PauseTransition pause = new PauseTransition(Duration.seconds(10)); // Set a timer for the selection
+            pause.setOnFinished(e -> {
+                masterPane.getChildren().remove(handArea);
+                handArea.getChildren().removeAll(promptLabel, cardPairArea);
+            });
+            pause.play();
         });
 
     }
@@ -771,16 +844,16 @@ public class GraphicalUI extends View {
         cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
 
         // Compose elements
-        Platform.runLater(()->{
+        Platform.runLater(() -> {
             handArea.getChildren().addAll(promptLabel, cardPairArea);
-        cardPairArea.getChildren().addAll(firstCard, secondCard);
+            cardPairArea.getChildren().addAll(firstCard, secondCard);
             masterPane.getChildren().add(handArea);
-        PauseTransition pause = new PauseTransition(Duration.seconds(10)); // Set a timer for the selection
-        pause.setOnFinished(e -> {
-            masterPane.getChildren().remove(handArea);
-            handArea.getChildren().removeAll(promptLabel, cardPairArea);
-        });
-        pause.play();
+            PauseTransition pause = new PauseTransition(Duration.seconds(10)); // Set a timer for the selection
+            pause.setOnFinished(e -> {
+                masterPane.getChildren().remove(handArea);
+                handArea.getChildren().removeAll(promptLabel, cardPairArea);
+            });
+            pause.play();
         });
     }
 
@@ -821,7 +894,7 @@ public class GraphicalUI extends View {
 
     @Override
     public void setStarterCard(int cardId) {
-        startCard= cardId;
+        startCard = cardId;
         requestSelectStarterCardSide(cardId);
     }
 
@@ -841,44 +914,45 @@ public class GraphicalUI extends View {
     @Override
     public void requestSelectStarterCardSide(int ID) {
         VBox starterCardSideSelection = setupInitialCardSideSelectionArea(ID);
-        Platform.runLater(()->masterPane.getChildren().add(starterCardSideSelection));
+        Platform.runLater(() -> masterPane.getChildren().add(starterCardSideSelection));
     }
 
     @Override
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
-        Platform.runLater(()-> {
-                    masterPane.getChildren().removeLast();
-                    if (isUp)
-                        playerField.get(thisPlayerNickname).getChildren().add(new ImageView(new Image("/cards_back_0" + cardID + ".png", 120, 80, true, false)));
-                    else
-                        playerField.get(thisPlayerNickname).getChildren().add(new ImageView(new Image("/cards_front_0" + cardID + ".png", 120, 80, true, false)));
-                    String colourReceived = convertToColour(colour);
-                    publicInfo.get(thisPlayerNickname).updateColour(colourReceived);
-                    playerViews.get(thisPlayerNickname).setColour(imagesMap.get(colourReceived));
-                    // notify the player the colour received from the server
-                    VBox colourBox = new VBox();
-                    // Compose elements
-                    Label colourLabel = createLabel("Your colour of this game is " + colourReceived, 20);
-                    colourBox.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
-                    colourBox.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+        Platform.runLater(() -> {
+            masterPane.getChildren().removeLast();
+            if (isUp)
+                playerField.get(thisPlayerNickname).getChildren().add(new ImageView(new Image("/cards_back_0" + cardID + ".png", 120, 80, true, false)));
+            else
+                playerField.get(thisPlayerNickname).getChildren().add(new ImageView(new Image("/cards_front_0" + cardID + ".png", 120, 80, true, false)));
+            String colourReceived = convertToColour(colour);
+            publicInfo.get(thisPlayerNickname).updateColour(colourReceived);
+            playerViews.get(thisPlayerNickname).setColour(imagesMap.get(colourReceived));
+            // notify the player the colour received from the server
+            VBox colourBox = new VBox();
+            // Compose elements
+            Label colourLabel = createLabel("Your colour of this game is " + colourReceived, 20);
+            colourBox.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+            colourBox.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
 
-                    colourBox.translateXProperty().bind(masterPane.widthProperty().subtract(colourBox.widthProperty()).divide(2)); // Set position of selectionArea
-                    colourBox.translateYProperty().bind(masterPane.heightProperty().subtract(colourBox.heightProperty()).divide(2));
+            colourBox.translateXProperty().bind(masterPane.widthProperty().subtract(colourBox.widthProperty()).divide(2)); // Set position of selectionArea
+            colourBox.translateYProperty().bind(masterPane.heightProperty().subtract(colourBox.heightProperty()).divide(2));
 
-                    colourBox.getChildren().addAll(colourLabel);
-                    // update the available spaces in the field after the placement of the starter card
-                    availableSpaces = availablePos;
-                    // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
-                    updateAfterPlacedCard(thisPlayerNickname, cardID, 0, 0, isUp, availablePos,
-                            resources, 0);
-                    masterPane.getChildren().add(colourBox);
-                    PauseTransition pause = new PauseTransition(Duration.seconds(5)); // Set a timer for the selection
-                    pause.setOnFinished(e-> masterPane.getChildren().remove(colourBox));
-                    pause.play();
-                });
+            colourBox.getChildren().addAll(colourLabel);
+            // update the available spaces in the field after the placement of the starter card
+            availableSpaces = availablePos;
+            // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
+            updateAfterPlacedCard(thisPlayerNickname, cardID, 0, 0, isUp, availablePos,
+                    resources, 0);
+            masterPane.getChildren().add(colourBox);
+            PauseTransition pause = new PauseTransition(Duration.seconds(5)); // Set a timer for the selection
+            pause.setOnFinished(e -> masterPane.getChildren().remove(colourBox));
+            pause.play();
+        });
         // print the board of the player after the placement of the starter card with the current resources count
 
     }
+
     @Override
     public void requestDrawCard() {
 
@@ -917,13 +991,13 @@ public class GraphicalUI extends View {
     @Override
     public void requestSelectSecretObjectiveCard() {
         VBox secretObjectiveCardSelection = setupSecretObjectiveCardSelectionArea(secretObjCards.get(0), secretObjCards.get(1));
-        Platform.runLater(()->masterPane.getChildren().add(secretObjectiveCardSelection));
+        Platform.runLater(() -> masterPane.getChildren().add(secretObjectiveCardSelection));
     }
 
     @Override
     public void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard) {
         secretObjCardSelected = chosenSecretObjectiveCard;
-        Platform.runLater(()-> {
+        Platform.runLater(() -> {
             masterPane.getChildren().removeLast();
             String cardIdStr = chosenSecretObjectiveCard > 99 ? String.valueOf(chosenSecretObjectiveCard) : "0" + chosenSecretObjectiveCard;
             secretObjCardView.setImage(new Image("/cards_front_" + cardIdStr + ".png", 120, 80, true, true));
@@ -941,16 +1015,16 @@ public class GraphicalUI extends View {
             playerBoard.getChildren().removeLast();
         }
         for (int[] pos : availableSpaces) {
-                posX = pos[0]*95;
-                posY = pos[1]*(-50);
-                ImageView availableSpace = new ImageView(imagesMap.get("AVAILABLESPACE"));
-                availableSpace.setTranslateX(posX);
-                availableSpace.setTranslateY(posY);
-                availableSpace.setEffect(new DropShadow(20, Color.BLACK));
-                playerBoard.getChildren().add(availableSpace);
-            }
-        //TODO
+            posX = pos[0] * 95;
+            posY = pos[1] * (-50);
+            ImageView availableSpace = new ImageView(imagesMap.get("AVAILABLESPACE"));
+            availableSpace.setTranslateX(posX);
+            availableSpace.setTranslateY(posY);
+            availableSpace.setEffect(new DropShadow(20, Color.BLACK));
+            playerBoard.getChildren().add(availableSpace);
         }
+        //TODO
+    }
 
 
     @Override
@@ -963,11 +1037,11 @@ public class GraphicalUI extends View {
         playerViews.get(playerNickname).setPoints(points);
         playerViews.get(playerNickname).setResourceLabels(resources);
         // represents the sequence of the card placed in the field.
-        int posX = x*95;
-        int posY = y*(-50);
-        StackPane playerBoard=playerField.get(playerNickname);
+        int posX = x * 95;
+        int posY = y * (-50);
+        StackPane playerBoard = playerField.get(playerNickname);
         String cardSide = isUp ? "/cards_front_" : "/cards_back_";
-        String cardIdStr = cardID >= 10 ? "0"+cardID : "00" + cardID;
+        String cardIdStr = cardID >= 10 ? "0" + cardID : "00" + cardID;
         ImageView cardImage = new ImageView(new Image(cardSide + cardIdStr + ".png", 120, 80, true, false));
         cardImage.setTranslateX(posX);
         cardImage.setTranslateY(posY);
@@ -1019,13 +1093,14 @@ public class GraphicalUI extends View {
             //TODO
         }
     }
+
     public String convertToColour(int colour) {
         switch (colour) {
             case 0 -> {
-                return  "RED";
+                return "RED";
             }
             case 1 -> {
-                return  "GREEN";
+                return "GREEN";
             }
             case 2 -> {
                 return "BLUE";
@@ -1034,7 +1109,7 @@ public class GraphicalUI extends View {
                 return "YELLOW";
             }
             case 4 -> {
-                return  "BLACK" ;
+                return "BLACK";
             }
             default -> {
                 return null;
@@ -1058,8 +1133,8 @@ public class GraphicalUI extends View {
         Label promptLabel = createLabel("Choose a starter card side:", 20); // Text label prompting user to pick a card
         HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
 
-        ImageView firstCard = new ImageView(new Image("cards_back_0"+imageNumber+".png", 240, 160, true, false)); // Load the images of the cards to display
-        ImageView secondCard = new ImageView(new Image("cards_front_0"+imageNumber+".png", 240, 160, true, false));
+        ImageView firstCard = new ImageView(new Image("cards_back_0" + imageNumber + ".png", 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image("cards_front_0" + imageNumber + ".png", 240, 160, true, false));
 
         firstCard.setOnMouseClicked(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
@@ -1132,8 +1207,8 @@ public class GraphicalUI extends View {
         HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
         String card1Path = card1 > 99 ? "cards_front_" + card1 : "cards_front_0" + card1;
         String card2Path = card2 > 99 ? "cards_front_" + card2 : "cards_front_0" + card2;
-        ImageView firstCard = new ImageView(new Image(card1Path+".png", 240, 160, true, false));
-        ImageView secondCard = new ImageView(new Image(card2Path+".png", 240, 160, true, false));
+        ImageView firstCard = new ImageView(new Image(card1Path + ".png", 240, 160, true, false));
+        ImageView secondCard = new ImageView(new Image(card2Path + ".png", 240, 160, true, false));
 
         firstCard.setOnMouseClicked(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
@@ -1187,5 +1262,10 @@ public class GraphicalUI extends View {
         cardPairArea.getChildren().addAll(firstCard, secondCard);
 
         return selectionArea;
+    }
+    private void handleButtonClick(Button clickedButton, Button button1, Button button3, Effect effect) {
+        clickedButton.setEffect(effect);
+        button1.setDisable(true);
+        button3.setDisable(true);
     }
 }

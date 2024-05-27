@@ -1296,7 +1296,7 @@ public class TextUI extends View{
             out.println(card1.get(i) + "  " + card2.get(i));
         }
     }
-    
+
     /**
      * Print a card based on the ID of the card and the side of the card.
      */
