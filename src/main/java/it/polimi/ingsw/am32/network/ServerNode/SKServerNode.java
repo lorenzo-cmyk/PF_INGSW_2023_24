@@ -54,6 +54,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         try {
             outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+            outputObtStr.flush();
 
         } catch (IOException e) {
 
@@ -127,7 +128,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             destroy();
 
-            logger.error("Critical ObjectInputStream error while reading: {}" +
+            logger.info("Critical ObjectInputStream error while reading: {}" +
                     " . Socket Closed", e.getMessage()); //TODO risolvere meglio gli errori
         } catch (NodeClosedException e) {
             return;
@@ -142,6 +143,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             message = inputObtStr.readObject();
             //logger.debug("Object received from socket stream: {}", message.getClass().getName());
         } catch (SocketTimeoutException e) {
+            //logger.debug("Socket timeout exception");
             return;
         }
 
