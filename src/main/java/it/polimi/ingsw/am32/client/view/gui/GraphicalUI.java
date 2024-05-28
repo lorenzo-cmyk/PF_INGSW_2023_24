@@ -1267,14 +1267,21 @@ public class GraphicalUI extends View {
         }
         notice.appendText("Please click on the card you want to placed in the field and then click one position available.\n");
     }
+
+    /**
+     * Method set to handle the click action of the available space in the field.
+     * When a player clicks on the available space, the method notifies the listener to place the card in the field.
+     *
+     * @param availableSpace the image view of the available space the player has clicked on
+     * @param x the x coordinate of the available space (field coordinates)
+     * @param y the y coordinate of the available space (field coordinates)
+     */
     private void handleAvailableSpaceClick(ImageView availableSpace, int x, int y){
         availableSpace.setOnMouseClicked(e->{
-            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, selectedCardId, x, y, true));
+            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, selectedCardId, x, y, handViewCardSide[hand.indexOf(selectedCardId)])); // Notify server of card selection
             notice.appendText("> You selected the position (" + x + ", " + y + ") to place the card.\n");
         });
     }
-
-
 
     @Override
     public void updateAfterPlacedCard(String playerNickname, int cardID, int x, int y, boolean isUp, ArrayList<int[]> availablePos, int[] resources, int points) {
