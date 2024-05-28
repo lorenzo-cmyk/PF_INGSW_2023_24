@@ -1165,8 +1165,20 @@ public class GraphicalUI extends View {
                 hand.remove(cardIdx); // Remove placed card from hand
                 handView[cardIdx].setImage(new Image("/placeholder.png", 120, 80, true, false)); // Replace card with placeholder
 
-                updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0], placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints); // Update player's info
 
+                StackPane playerBoard = playerField.get(thisPlayerNickname);
+                // Remove all the available spaces in the field
+                if(playerBoard.getChildren().size() > 1) {
+                    int sizeAvailable = availableSpaces.size();
+                    for (int i = 0; i < sizeAvailable; i++) {
+                        Platform.runLater(() -> {
+                            playerBoard.getChildren().removeLast();
+                        });
+                    }
+                }
+
+                updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0], placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints); // Update player's info
+                availableSpaces = newAvailableFieldSpaces; // Update available spaces
                 currentEvent = Event.DRAW_CARD;
 
                 requestDrawCard(); // Request the player to draw a card
@@ -1279,11 +1291,84 @@ public class GraphicalUI extends View {
 
     @Override
     public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards, int resourceDeckFace, int goldDeckFace) {
-
+        Platform.runLater(()-> {
+            this.resourceDeckSize = resourceDeckSize;
+            this.goldDeckSize = goldDeckSize;
+            // update the current visible resource cards and gold cards in the game that the player can draw.
+            // if the player drew the card from the resource deck
+            if (!this.currentResourceCards.contains(currentResourceCards[1])) {
+                // player drew the left card from the resource deck
+                if (this.currentResourceCards.get(1) == currentResourceCards[0]) {
+                    this.currentResourceCards.remove(0);
+                    this.currentResourceCards.addFirst(currentResourceCards[1]);
+                    this.resourceDeckView[1].setImage(new Image(convertToImagePath(currentResourceCards[1], true), 120, 80, true, false));
+                }
+                // player drew the right card from the resource deck
+                else {
+                    this.currentResourceCards.remove(1);
+                    this.currentResourceCards.addLast(currentResourceCards[1]);
+                    this.resourceDeckView[2].setImage(new Image(convertToImagePath(currentResourceCards[1], true), 120, 80, true, false));
+                }
+            }
+            // if the player drew the card from the resource deck
+            if (!this.currentGoldCards.contains(currentGoldCards[1])) {
+                // player drew the left card from the gold deck
+                if (this.currentGoldCards.get(1) == currentGoldCards[0]) {
+                    this.currentGoldCards.remove(0);
+                    this.currentGoldCards.addFirst(currentGoldCards[1]);
+                    this.goldDeckView[1].setImage(new Image(convertToImagePath(currentGoldCards[1], true), 120, 80, true, false));
+                }
+                // player drew the right card from the gold deck
+                else {
+                    this.currentGoldCards.remove(1);
+                    this.currentGoldCards.addLast(currentGoldCards[1]);
+                    this.goldDeckView[2].setImage(new Image(convertToImagePath(currentGoldCards[1], true), 120, 80, true, false));
+                }
+            }
+            this.resourceCardDeckFacingKingdom = resourceDeckFace;
+            this.goldCardDeckFacingKingdom = goldDeckFace;
+            this.resourceDeckView[0].setImage(imagesMap.get(String.valueOf(resourceDeckFace)));
+            this.goldDeckView[0].setImage(imagesMap.get(String.valueOf(goldDeckFace + 4)));
+            notice.appendText("The situation of the deck after this turn is updated.\n");
+        });
     }
 
     @Override
     public void handleFailureCase(Event event, String reason) {
+        createAlert(reason);
+        switch (event){
+            case CHOOSE_CONNECTION -> { // Connection failure
+                //TODO
+            }
+            case CREATE_GAME-> { // Create game failure
+                //TODO
+            }
+            case JOIN_GAME-> { // Join game failure
+                //TODO
+            }
+            case RECONNECT_GAME -> { // Reconnect game failure
+                //TODO
+            }
+            case PLACE_CARD_FAILURE -> { // Place card failure
+                currentEvent = Event.PLACE_CARD;
+                requestPlaceCard();
+            }
+            case DRAW_CARD_FAILURE -> { // Draw card failure
+                currentEvent = Event.DRAW_CARD;
+                requestDrawCard();
+            }
+            case SELECT_SECRET_OBJ_CARD_FAILURE -> { // Select secret objective card failure
+                currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
+                requestSelectSecretObjectiveCard();
+            }
+            case SELECT_STARTER_CARD_SIDE_FAILURE -> { // Select starter card side failure
+                currentEvent = Event.SELECT_STARTER_CARD_SIDE;
+                requestSelectStarterCardSide(startCard);
+            }
+            case CHAT_ERROR -> { // Chat error
+                //TODO
+            }
+        }
 
     }
 
@@ -1325,11 +1410,6 @@ public class GraphicalUI extends View {
         int posX;
         int posY;
         StackPane playerBoard = playerField.get(thisPlayerNickname);
-        if(playerBoard.getChildren().size() > 1) {
-            for (int i = 0; i < availableSpaces.size(); i++) {
-                Platform.runLater(() -> playerBoard.getChildren().removeLast());
-            }
-        }
         for (int[] pos : availableSpaces) {
             posX = 300+pos[0] * 95;
             posY = 250+pos[1] * (-50);
