@@ -1,14 +1,15 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
+import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class GraphicalUI extends View {
 
@@ -40,12 +41,12 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void showPoints(String playerNickname) {
+    public void showResource(String playerNickname) {
 
     }
 
     @Override
-    public void requestSelectSecretObjCard(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
+    public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
 
     }
 
@@ -77,6 +78,21 @@ public class GraphicalUI extends View {
 
     @Override
     public void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets, ArrayList<Integer> pointsGainedFromSecrets, ArrayList<String> winners) {
+
+    }
+
+    @Override
+    public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
+
+    }
+
+    @Override
+    public void showChatHistory(List<ChatMessage> chatHistory) {
+
+    }
+
+    @Override
+    public void updateChat(String recipientString, String senderNickname, String content) {
 
     }
 
@@ -113,10 +129,6 @@ public class GraphicalUI extends View {
         //TODO
     }
 
-    @Override
-    public void updateNewPlayerJoin(ArrayList<String> players) {
-
-    }
 
     @Override
     public void askReconnectGame() {
@@ -127,6 +139,11 @@ public class GraphicalUI extends View {
     @Override
     public void chooseConnection() {
 
+    }
+
+    @Override
+    public void updatePlayerList(ArrayList<String> players) {
+        
     }
 
     @Override
@@ -160,12 +177,17 @@ public class GraphicalUI extends View {
     }
 
     @Override
-    public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards) {
+    public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards, int resourceDeckFace, int goldDeckFace) {
 
     }
 
     @Override
     public void handleFailureCase(Event event, String reason) {
+
+    }
+
+    @Override
+    public void startChatting() {
 
     }
 
@@ -176,6 +198,11 @@ public class GraphicalUI extends View {
 
     @Override
     public void showHelpInfo() {
+
+    }
+
+    @Override
+    public void requestSelectSecretObjectiveCard() {
 
     }
 
@@ -197,12 +224,7 @@ public class GraphicalUI extends View {
 
 
     @Override
-    public void handleEvent(Event event) {
-        //TODO
-    }
-
-    @Override
-    public void handleChoiceEvent(Event event, int Choice) {
+    public void handleEvent(Event event, String message) {
         //TODO
     }
 }

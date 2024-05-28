@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
+import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.View;
 
 public class PlayerDisconnectMessage implements StoCMessage {
@@ -13,7 +14,7 @@ public class PlayerDisconnectMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.handleEvent(Event.PLAYER_DISCONNECTED, disconnectedNickname);
     }
 
     @Override

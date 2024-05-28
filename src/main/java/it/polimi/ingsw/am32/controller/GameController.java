@@ -446,8 +446,9 @@ public class GameController {
                 }
 
                 playerQuadruple.getVirtualView().flushMessages(); // Empty the player's VirtualView of all messages
-                playerQuadruple.setNode(node); // Reattach the player's node to the VirtualView
+                playerQuadruple.getVirtualView().changeNode(node); // Reattach the player's node to the VirtualView
                 playerQuadruple.setConnected(true); // Set the player's status to connected
+                playerQuadruple.setNode(node); // Set the player's node to the new node
                 break; // Exit the for loop
             }
         }

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
+import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.View;
 
 public class ReconnectGameConfirmMessage implements StoCMessage {
@@ -11,7 +12,7 @@ public class ReconnectGameConfirmMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.handleEvent(Event.GAME_RECONNECTED,null);
     }
 
     @Override
