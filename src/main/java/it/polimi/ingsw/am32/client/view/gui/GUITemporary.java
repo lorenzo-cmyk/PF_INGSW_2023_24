@@ -18,10 +18,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.effect.Light;
@@ -272,6 +269,12 @@ public class GUITemporary extends Application {
         preparationPhase.getChildren().add(root);
         rotateTransition.play();
 
+        Button returnToMyField = createTransButton("Return to my field", 15, "#3A2111", 0, 0);
+        returnToMyField.translateXProperty().bind(preparationPhase.widthProperty().subtract(200));
+        returnToMyField.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(80)));
+        returnToMyField.setVisible(true);
+        preparationPhase.getChildren().add(returnToMyField);
+
 
         primaryStage.setScene(new Scene(preparationPhase));
         primaryStage.show();
@@ -384,5 +387,13 @@ public class GUITemporary extends Application {
         cardPairArea.getChildren().addAll(firstCard, secondCard);
 
         return selectionArea;
+    }
+    private Button createTransButton(String buttonName, int size, String color, int X, int Y) {
+        Button button = new Button(buttonName);
+        button.setStyle("-fx-background-color: transparent;-fx-text-fill:" + color + ";-fx-alignment: center;" +
+                "-fx-font-size: " + size + "px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10,0,0,10 );");
+        button.setTranslateX(X);
+        button.setTranslateY(Y);
+        return button;
     }
 }
