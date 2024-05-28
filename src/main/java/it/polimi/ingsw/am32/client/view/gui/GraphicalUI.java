@@ -1119,9 +1119,28 @@ public class GraphicalUI extends View {
         return null;
     }
 
+    /**
+     * Method called by the processMessage to update the player's field after receiving confirmation from the server that the card placement was successful.
+     *
+     * @param playerNickname the nickname of the player
+     * @param placedCard the ID of the card placed in the field
+     * @param placedCardCoordinates the coordinates of the card placed in the field
+     * @param placedSide the side of the card placed in the field
+     * @param playerPoints the updated points of the player
+     * @param playerResources the updated resources count of the player
+     * @param newAvailableFieldSpaces the updated available spaces in the field after the placement of the card
+     */
     @Override
     public void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces) {
+        /*
+        Platform.runLater(() -> {
+            updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0], placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints);
 
+            if (playerNickname.equals(thisPlayerNickname)) { // If the player is the current player, he needs to draw
+                currentEvent = Event.DRAW_CARD;
+            }
+        });
+        */
     }
 
     @Override
@@ -1169,6 +1188,15 @@ public class GraphicalUI extends View {
         Platform.runLater(() -> masterPane.getChildren().add(starterCardSideSelection));
     }
 
+    /**
+     * Method called by the processMessage after receiving confirmation from the server that the starter card side was selected.
+     *
+     * @param colour the colour assigned to the player
+     * @param cardID the ID of the starter card
+     * @param isUp the side of the starter card
+     * @param availablePos the available spaces in the field after the placement of the starter card
+     * @param resources the initial resources count of the player
+     */
     @Override
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
         Platform.runLater(() -> {
@@ -1185,7 +1213,6 @@ public class GraphicalUI extends View {
                     resources, 0);
         });
         // print the board of the player after the placement of the starter card with the current resources count
-
     }
 
     @Override
