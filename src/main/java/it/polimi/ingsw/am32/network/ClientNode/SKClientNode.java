@@ -12,38 +12,43 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SKClientNode implements ClientNodeInterface, Runnable {
 
     private final Logger logger;
-    private View view;
+    private final ExecutorService executorService;
+    private final View view;
     private Socket socket;
-    private String ip;
-    private int port;
+    private final String ip;
+    private final int port;
     private ObjectOutputStream outputObtStr;
     private ObjectInputStream inputObtStr;
     private String nickname;
     private ClientPingTask clientPingTask;
-    private Timer timer;
+    private final Timer timer;
     private int pongCount;
     private boolean statusIsAlive;
     private boolean reconnectCalled;
     private final Object aliveLock;
-    private final Object ctoSProcessingLock;
-    private final Object stoCProcessingLock;
+    private final Object cToSProcessingLock;
+    private final Object sToCProcessingLock;
 
     public SKClientNode(View view, String ip, int port) {
         this.view = view;
+        executorService = Executors.newCachedThreadPool();
         this.ip = ip;
         this.port = port;
         clientPingTask = new ClientPingTask(this);
         timer = new Timer();
         aliveLock = new Object();
-        ctoSProcessingLock = new Object();
-        stoCProcessingLock = new Object();
+        cToSProcessingLock = new Object();
+        sToCProcessingLock = new Object();
         statusIsAlive = false;
-        pongCount = 120; // todo fare un config??
+        pongCount = 3; // todo fare un config??
         logger = LogManager.getLogger("SKClientNode");
         reconnectCalled = false;
     }
@@ -59,8 +64,8 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 listenForIncomingMessages();
 
             } catch (IOException | ClassNotFoundException | NodeClosedException e) {
+                logger.debug("inputObtStr exception: {}. {}. {}",e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
                 resetConnection();
-                logger.debug("inputObtStr exception: {}", e.getMessage());
             }
         }
     }
@@ -70,7 +75,9 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         Object message;
 
         try {
-            message = inputObtStr.readObject();
+            synchronized (sToCProcessingLock) {
+                message = inputObtStr.readObject();
+            }
         } catch (SocketTimeoutException e) {
             //logger.debug("Socket timeout exception");
             return;
@@ -95,7 +102,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         while (true) {
             try {
-                synchronized (ctoSProcessingLock) {
+                synchronized (cToSProcessingLock) {
                     outputObtStr.writeObject(message);
 
                     try {
@@ -104,7 +111,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 }
                 logger.info("Message sent. Type: CtoSLobbyMessage");
                 break;
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 resetConnection();
             }
         }
@@ -115,7 +122,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         while (true) {
             try {
-                synchronized (ctoSProcessingLock) {
+                synchronized (cToSProcessingLock) {
                     outputObtStr.writeObject(message);
 
                     try {
@@ -124,7 +131,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 }
                 logger.info("Message sent. Type: CtoSMessage");
                 break;
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 resetConnection();
             }
         }
@@ -187,52 +194,59 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     private void connect() {
 
-        boolean reconnectionProcess = true;
+        synchronized (sToCProcessingLock) {
+            synchronized (cToSProcessingLock) {
 
-        while (reconnectionProcess) {
+                boolean reconnectionProcess = true;
 
-            if(inputObtStr != null) {
-                try {
-                    inputObtStr.close();
-                } catch (IOException ignore) {}
+                while (reconnectionProcess) {
+
+                    if (inputObtStr != null) {
+                        try {
+                            inputObtStr.close();
+                        } catch (IOException ignore) {}
+                    }
+
+                    if (outputObtStr != null) {
+                        try {
+                            outputObtStr.close();
+                        } catch (IOException ignore) {}
+                    }
+
+                    if (socket != null) {
+                        try {
+                            socket.close();
+                        } catch (IOException ignore) {}
+                    }
+
+                    try {
+                        socket = new Socket(ip, port);
+                        outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+                        outputObtStr.flush();
+                        inputObtStr = new ObjectInputStream(socket.getInputStream());
+                        socket.setSoTimeout(100);
+                        logger.info("Connection established");
+
+                    } catch (IOException ignore) {
+
+                        logger.info("Failed to connect to {}:{}", ip, port);
+                        try {
+                            Thread.sleep(100); // TODO parametrizzazione con config?
+                        } catch (InterruptedException ignore2) {}
+
+                        continue;
+                    }
+
+                    reconnectionProcess = false;
+
+                }
             }
-
-            if(outputObtStr != null) {
-                try {
-                    outputObtStr.close();
-                } catch (IOException ignore) {}
-            }
-
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException ignore) {}
-            }
-
-            try {
-                socket = new Socket(ip, port);
-                outputObtStr = new ObjectOutputStream(socket.getOutputStream());
-                inputObtStr = new ObjectInputStream(socket.getInputStream());
-                socket.setSoTimeout(100);
-                logger.info("Connection established");
-
-            } catch (IOException ignore) {
-
-                logger.info("Failed to connect to {}:{}", ip, port);
-                try {
-                    Thread.sleep(100); // TODO parametrizzazione con config?
-                } catch (InterruptedException ignore2) {}
-
-                continue;
-            }
-
-            reconnectionProcess = false;
-
         }
 
         synchronized (aliveLock) {
             statusIsAlive = true;
             reconnectCalled = false;
+            pongCount = 3;
             aliveLock.notifyAll();
             timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
         }
@@ -240,32 +254,33 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     public void startConnection(){
 
-        new Thread(this).start();
+        executorService.submit(this);
         logger.info("SKClientNode started");
     }
 
     @Override
     public void pongTimeOverdue() {
-        try {
 
-            synchronized (aliveLock){
-                if(!statusIsAlive)
-                    return;
-            }
+        synchronized (aliveLock){
+            if(!statusIsAlive)
+                return;
+        }
 
-            pongCount--;
+        pongCount--;
 
-            logger.info("Pong time overdue. Pong count: {}", pongCount);
+        logger.info("Pong time overdue. Pong count: {}", pongCount);
 
-            if(pongCount <= 0) {
-                logger.info("Pong count reached minimum. Trying to check connection");
-                checkConnection();
-            }
+        if(pongCount <= 0) {
+            logger.info("Pong count reached minimum. Trying to check connection");
+            resetConnection();
+            return;
+        }
 
-            synchronized (ctoSProcessingLock) {
+        executorService.submit(() -> {synchronized (cToSProcessingLock) {
+            try {
                 outputObtStr.writeObject(new PingMessage(nickname));
-            }
-        } catch (IOException ignored) {}
+            } catch (IOException | NullPointerException ignore) {}
+        }});
     }
 
     public void resetTimeCounter() {
@@ -275,7 +290,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             if (!statusIsAlive)
                 return;
 
-            pongCount = 120; // TODO modificare se si aggiunge config
+            pongCount = 3; // TODO modificare se si aggiunge config
         }
 
         logger.info("Pong count reset");
