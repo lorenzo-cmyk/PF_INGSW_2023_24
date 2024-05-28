@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
+import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.View;
 
 public class InvalidStarterCardSideSelectionMessage implements StoCMessage {
@@ -21,7 +22,7 @@ public class InvalidStarterCardSideSelectionMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-
+        view.handleFailureCase(Event.SELECT_STARTER_CARD_SIDE_FAILURE,reason);
     }
 
     @Override
