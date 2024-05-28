@@ -4,21 +4,21 @@ import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
 import javafx.animation.PauseTransition;
+import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.Light;
-import javafx.scene.effect.Lighting;
+import javafx.scene.effect.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -38,7 +38,6 @@ public class GraphicalUI extends View {
     private TextField playerListView;
     private Label matchStatus;
     private HBox playerOrder;
-    private ArrayList<ImageView> labelPlayerOrder;
     private HashMap<String, PlayerPubView> playerViews = new HashMap<>();
     private HashMap<String, Image> imagesMap = new HashMap<>();
     private HashMap<String, StackPane> playerField = new HashMap<>();
@@ -49,6 +48,8 @@ public class GraphicalUI extends View {
     private ImageView secretObjCardView;
     private ImageView[] commonObjCardView;
     private TextArea notice;
+    private Label eventLabel;
+    private Group noticeEventPanel;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -452,6 +453,15 @@ public class GraphicalUI extends View {
         imagesMap.put("INKWELL", new Image("kingdom_inkwell.png", 15, 15, true, false));
         imagesMap.put("MANUSCRIPT", new Image("kingdom_manuscript.png", 15, 15, true, false));
         imagesMap.put("AVAILABLESPACE", new Image("availableSpace.png", 120, 80, true, true));
+        imagesMap.put("0", new Image("cards_back_011.png", 120, 80, true, false));
+        imagesMap.put("1", new Image("cards_back_001.png", 120, 80, true, false));
+        imagesMap.put("2", new Image("cards_back_021.png", 120, 80, true, false));
+        imagesMap.put("3", new Image("cards_back_031.png", 120, 80, true, false));
+        imagesMap.put("4", new Image("cards_back_051.png", 120, 80, true, false));
+        imagesMap.put("5", new Image("cards_back_041.png", 120, 80, true, false));
+        imagesMap.put("6", new Image("cards_back_061.png", 120, 80, true, false));
+        imagesMap.put("7", new Image("cards_back_071.png", 120, 80, true, false));
+
         if (this.matchStatus == null) {
             this.matchStatus = createLabel(String.valueOf(Status), 15);
         }
@@ -487,7 +497,6 @@ public class GraphicalUI extends View {
         // set the players info panel
         VBox playerInfoPanel = new VBox();
         playerOrder = new HBox();
-        labelPlayerOrder = new ArrayList<>();
         Label OrderTitle = createLabel("Order:", 15);
         playerOrder.getChildren().add(OrderTitle);
 
@@ -525,9 +534,6 @@ public class GraphicalUI extends View {
             playerInfoAndResource.getChildren().addAll(playerInfoBox, playerResource);
             playerInfoPanel.getChildren().add(playerInfoAndResource);
 
-            // set the player order placeholder
-           labelPlayerOrder.add(new ImageView(imagesMap.get("BLACK")));
-           playerOrder.getChildren().add(labelPlayerOrder.getLast());
 
             // set field view of the player
             StackPane boardReal = playerField.get(player);
@@ -580,25 +586,25 @@ public class GraphicalUI extends View {
 
         //Images to hold the spaces for the cards in hand, common objective cards and secret objective cards
         handView = new ImageView[]{
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true))
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false))
         };
         commonObjCardView = new ImageView[]{
-                new ImageView(new Image("/cards_back_089.png", 120, 80, true, true)),
-                new ImageView(new Image("/cards_back_089.png", 120, 80, true, true))
+                new ImageView(new Image("/cards_back_089.png", 120, 80, true, false)),
+                new ImageView(new Image("/cards_back_089.png", 120, 80, true, false))
         };
-        secretObjCardView = new ImageView(new Image("/cards_back_089.png", 120, 80, true, true));
+        secretObjCardView = new ImageView(new Image("/cards_back_089.png", 120, 80, true, false));
 
         resourceDeckView = new ImageView[]{
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true))
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false))
         };
         goldDeckView = new ImageView[]{
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, true))
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
+                new ImageView(new Image("/placeholder.png", 120, 80, true, false))
         };
 
         VBox deckArea = new VBox();
@@ -630,7 +636,12 @@ public class GraphicalUI extends View {
         cardLabels.getChildren().addAll(commonObjLabel,secretObjLabel,handLabel);
         cardLabels.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(10)));
         cardLabels.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(50)));
-        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea(),cardLabels,notice);
+
+        // set the important event notify panel
+        noticeEventPanel = createNoticeEventPanel();
+        noticeEventPanel.setVisible(false);
+
+        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea(),cardLabels,notice,noticeEventPanel);
 
         Platform.runLater(() -> {
             app.updateScene(masterPane);
@@ -638,7 +649,34 @@ public class GraphicalUI extends View {
             app.getPrimaryStage().setFullScreen(true);
         });
     }
+    private Group createNoticeEventPanel() {
+        Group root = new Group();
+        root.setAutoSizeChildren(true);
+        ImageView background = new ImageView(new Image("/popNotice.png"));
+        background.setFitHeight(150);
+        background.setFitWidth(150);
+        eventLabel = createLabel ("It's your turn!",15);
+        eventLabel.setTranslateX(25);
+        eventLabel.setTranslateY(70);
+        root.getChildren().addAll(background,eventLabel);
+        root.setTranslateX(375);
+        root.setTranslateY(265);
+        root.setEffect(new Glow(0.3));
+        root.setEffect(new DropShadow(15, Color.rgb(236, 197, 123)));
+        root.setOnMouseClicked(e -> {
+            handleNoticeClicks(root);
+        });
+        return root;
+    }
+    private void handleNoticeClicks(Group root) {
+        RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), root);
+        rotateTransition.setByAngle(360);
+        rotateTransition.setCycleCount(1);
+        rotateTransition.setAxis(Rotate.Y_AXIS);
 
+        rotateTransition.play();
+
+    }
     /**
      * Method set the click action of the player's field. The player can zoom in/out the field using the mouse wheel
      * and move the field using the drag action.
@@ -651,8 +689,8 @@ public class GraphicalUI extends View {
                 return;
             }
             double scaleFactor = (e.getDeltaY() > 0) ? 1.1 : 1 / 1.1;
-            if (boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
-                return;
+            /*if (boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
+                return;*/
             boardReal.setScaleX(boardReal.getScaleX() * scaleFactor);
             boardReal.setScaleY(boardReal.getScaleY() * scaleFactor);
         }); // Enable zooming in/out of player field with mouse wheel
@@ -863,8 +901,33 @@ public class GraphicalUI extends View {
 
     }
 
+    /**
+     * Once the player receives the PlayerTurnMessage from the server, the method is called by processMessage to update
+     * the currentPlayer in the game and print the message to notify the player whose turn is now, also, the method
+     * notifies players the order of the turn in the game.
+     * @param playerNickname the nickname of the player who should be able to place the card and draw card in the field.
+     */
     @Override
     public void updatePlayerTurn(String playerNickname) {
+        this.currentPlayer = playerNickname;
+        if (this.currentPlayer.equals(thisPlayerNickname)) {
+            // if the player's turn is now, request the player to place the card in the field.
+            currentEvent = Event.PLACE_CARD;
+            noticeEventPanel.setVisible(true);
+            eventLabel.setText("It's your turn!");
+            RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), noticeEventPanel);
+            rotateTransition.setByAngle(360);
+            rotateTransition.setCycleCount(1);
+            rotateTransition.setAxis(Rotate.Y_AXIS);
+            rotateTransition.play();
+
+        } else {
+            noticeEventPanel.setVisible(false);
+            currentEvent = Event.WAITING_FOR_TURN;
+            notice.appendText("It is " + currentPlayer + "'s turn.\n");
+            // wake up the readInputThread to get the input from the player when it is not the player's turn. In this
+            // case, the player can insert the keyword to use the service mode of the game.
+        }
     }
 
     @Override
@@ -892,20 +955,39 @@ public class GraphicalUI extends View {
             this.currentPlayer = currentPlayer;
             this.players = playerNicknames;
             int[] card;
+            this.resourceDeckView[0].setImage(imagesMap.get(String.valueOf(resourceCardDeckFacingKingdom)));
+            this.resourceDeckView[1].setImage(new Image(convertToImagePath(currentResourceCards.get(0),true), 120, 80, true, false));
+            this.resourceDeckView[2].setImage(new Image(convertToImagePath(currentResourceCards.get(1),true), 120, 80, true, false));
+            this.goldDeckView[0].setImage(imagesMap.get(String.valueOf(goldCardDeckFacingKingdom+4)));
+            this.goldDeckView[1].setImage(new Image(convertToImagePath(currentGoldCards.get(0),true), 120, 80, true, false));
+            this.goldDeckView[2].setImage(new Image(convertToImagePath(currentGoldCards.get(1),true), 120, 80, true, false));
+            Platform.runLater(()->{
+                 playerOrder.getChildren().add(createLabel(String.valueOf(players), 15));
+            });
+            //TODO update the chat area
             PlayerPub playerSpecific;
             // update the data of the players except this player: set the colour, resources, points, online status,
             // and the field of the players after the placement of the starter card.
-            for (int i = 1; i < playerNicknames.size(); i++) {
+            for (int i = 0; i < playerNicknames.size(); i++) {
+                if(playerNicknames.get(i).equals(thisPlayerNickname)){
+                    continue;
+                }
                 playerSpecific = publicInfo.get(playerNicknames.get(i));
                 playerSpecific.updateColour(convertToColour(playerColours.get(i)));
                 playerSpecific.updateResources(playerResources);
                 card = playerFields.get(i).get(0);
-                playerSpecific.addToField(new CardPlacedView(card[2], cardImg.get(card[2]),
+                playerSpecific.addToField(new CardPlacedView(card[2], null,
                         card[0], card[1], card[3] == 1));
                 updateAfterPlacedCard(playerNicknames.get(i), card[2], card[0], card[1],
                         card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[i]);
+                int finalI = i;
+                Platform.runLater(()-> playerViews.get(playerNicknames.get(finalI)).setColour(imagesMap.get(convertToColour(playerColours.get(finalI)))));
             }
         }
+    }
+    private String convertToImagePath(int cardID, boolean isUp) {
+        String cardIdStr= String.format("%03d", cardID);
+        return isUp ? "/cards_front_" + cardIdStr + ".png" : "/cards_back_" + cardIdStr + ".png";
     }
 
     @Override
@@ -924,7 +1006,7 @@ public class GraphicalUI extends View {
         commonObjCardView[0].setImage(new Image("/cards_front_" + commonCardIdStr1 + ".png", 120, 80, true, true));
         commonObjCardView[1].setImage(new Image("/cards_front_" + commonCardIdStr2 + ".png", 120, 80, true, true));
         notice.appendText("> Your hand cards and common objective cards are ready in your card area:)\n");
-        notice.appendText("> You can draw a card from the deck by clicking on the card in the deck area.\n");
+        notice.appendText("> Please select your secret objective cards\n");
         requestSelectSecretObjectiveCard();
     }
 
@@ -1060,16 +1142,7 @@ public class GraphicalUI extends View {
             publicInfo.get(thisPlayerNickname).updateColour(colourReceived);
             playerViews.get(thisPlayerNickname).setColour(imagesMap.get(colourReceived));
             // notify the player the colour received from the server
-            VBox colourBox = new VBox();
-            // Compose elements
-            Label colourLabel = createLabel("Your colour of this game is " + colourReceived, 20);
-            colourBox.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
-            colourBox.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
-
-            colourBox.translateXProperty().bind(masterPane.widthProperty().subtract(colourBox.widthProperty()).divide(2)); // Set position of selectionArea
-            colourBox.translateYProperty().bind(masterPane.heightProperty().subtract(colourBox.heightProperty()).divide(2));
-
-            colourBox.getChildren().addAll(colourLabel);
+            notice.appendText("> Your colour of this game is " + colourReceived+".\n");
             // update the available spaces in the field after the placement of the starter card
             availableSpaces = availablePos;
             // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
@@ -1161,7 +1234,9 @@ public class GraphicalUI extends View {
         publicInfo.get(playerNickname).updateResources(resources); // update the resources
         publicInfo.get(playerNickname).updatePoints(points); // update the points
         // update the view
-        playerViews.get(playerNickname).setPoints(points);
+        Platform.runLater(()->{
+            playerViews.get(playerNickname).setPoints(points);
+
         playerViews.get(playerNickname).setResourceLabels(resources);
         // represents the sequence of the card placed in the field.
         int posX = 300+x * 95;
@@ -1172,10 +1247,11 @@ public class GraphicalUI extends View {
             cardSide = isUp ? "/cards_back_" : "/cards_front_";
         }
         String cardIdStr = cardID >= 10 ? "0" + cardID : "00" + cardID;
-        ImageView cardImage = new ImageView(new Image(cardSide + cardIdStr + ".png", 120, 80, true, false));
+        ImageView cardImage = new ImageView(new Image(cardSide + cardIdStr + ".png", 120, 80, true, true));
         cardImage.setTranslateX(posX);
         cardImage.setTranslateY(posY);
         playerBoard.getChildren().add(cardImage);
+        });
     }
 
 

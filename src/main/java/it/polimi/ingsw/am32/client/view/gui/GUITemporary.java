@@ -9,11 +9,14 @@ import it.polimi.ingsw.am32.client.PlayerPub;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
+import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
@@ -21,11 +24,16 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Box;
 import javafx.scene.text.Font;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -234,6 +242,35 @@ public class GUITemporary extends Application {
         VBox selectionArea = setupInitialCardSideSelectionArea();
 
         preparationPhase.getChildren().add(selectionArea);
+
+        Group root = new Group();
+        root.setAutoSizeChildren(true);
+        ImageView background = new ImageView(new Image("/popNotice.png"));
+        background.setFitHeight(150);
+        background.setFitWidth(150);
+        Label noticeLabel = createLabel("It's your turn!");
+        noticeLabel.setTranslateX(25);
+        noticeLabel.setTranslateY(70);
+        root.getChildren().addAll(background,noticeLabel);
+        root.setTranslateX(375);
+        root.setTranslateY(265);
+        root.setEffect(new Glow(0.3));
+        root.setEffect(new DropShadow(15, Color.rgb(236, 197, 123)));
+        root.setOnMouseClicked(e -> {
+            RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), root);
+            rotateTransition.setByAngle(360);
+            rotateTransition.setCycleCount(1);
+            rotateTransition.setAxis(Rotate.Y_AXIS);
+
+            // Avvia la transizione di rotazione
+            rotateTransition.play();
+        });
+        RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), root);
+        rotateTransition.setByAngle(360);
+        rotateTransition.setCycleCount(1);
+        rotateTransition.setAxis(Rotate.Y_AXIS);
+        preparationPhase.getChildren().add(root);
+        rotateTransition.play();
 
 
         primaryStage.setScene(new Scene(preparationPhase));
