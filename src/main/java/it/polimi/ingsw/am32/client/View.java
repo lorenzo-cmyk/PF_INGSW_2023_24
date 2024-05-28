@@ -92,8 +92,9 @@ public abstract class View implements EventHandler{
     }
     public void setRMIClient(String ServerURL){
         //TODO verify if this is correct
-        this.clientNode = new RMIClientNode(this);
+
         try{
+            this.clientNode = new RMIClientNode(this);
             Registry registry = LocateRegistry.getRegistry(ServerURL);
             String remoteObjectName = "Server-CodexNaturalis";
             RMIClientAcceptor rmiClientAcceptor = (RMIClientAcceptor) registry.lookup(remoteObjectName);
