@@ -58,7 +58,8 @@ public class GraphicalUI extends View {
     private TextArea notice;
     private Label eventLabel;
     private Group noticeEventPanel;
-    private final int[] placeCardPosition = new int[2];
+    private ScrollPane board;
+    private Button returnToMyField;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -576,7 +577,7 @@ public class GraphicalUI extends View {
 
         // create the board of this player
         StackPane boardMove = playerField.get(thisPlayerNickname);
-        ScrollPane board = new ScrollPane(); // Fixed board where cards are displayed
+        board = new ScrollPane(); // Fixed board where cards are displayed
         board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         board.setPrefSize(770, 525);
         board.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(50))); // set position X of the board in the masterPane.
@@ -658,7 +659,17 @@ public class GraphicalUI extends View {
         noticeEventPanel = createNoticeEventPanel();
         noticeEventPanel.setVisible(false);
 
-        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea(),cardLabels,notice,noticeEventPanel);
+        // add the buttons to the return to the thisPlayer's field
+        returnToMyField = createTransButton("[x] Return to my field", 15, "#3A2111", 0, 0);
+        returnToMyField.setOnAction(e -> {
+            board.setContent(this.playerField.get(thisPlayerNickname));
+            returnToMyField.setVisible(false);
+        });
+        returnToMyField.translateXProperty().bind(masterPane.widthProperty().subtract(200));
+        returnToMyField.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(80)));
+        returnToMyField.setVisible(false);
+
+        masterPane.getChildren().addAll(board, deckArea, bottomLine, chatArea.getChatArea(),cardLabels,notice,noticeEventPanel,returnToMyField);
 
         Platform.runLater(() -> {
             app.updateScene(masterPane);
@@ -927,11 +938,13 @@ public class GraphicalUI extends View {
     @Override
     public void showPlayersField(String playerNickname) {
         Platform.runLater(()-> {
-            Stage fieldStage = new Stage();
-
-            fieldStage.setTitle(playerNickname + "'s field");
-            fieldStage.setScene(new Scene(playerField.get(playerNickname)));
-            fieldStage.show();
+            StackPane playerField = this.playerField.get(playerNickname);
+            /*Label playerLabel = playerViews.get(playerNickname).getNickname();
+            playerLabel.translateXProperty().bind(board.widthProperty().subtract(board.widthProperty()));
+            playerLabel.translateYProperty().bind(board.heightProperty().subtract(board.heightProperty()));
+            playerLabel.setTranslateY(20);*/
+            board.setContent(playerField);
+            returnToMyField.setVisible(true);
         });
     }
 
