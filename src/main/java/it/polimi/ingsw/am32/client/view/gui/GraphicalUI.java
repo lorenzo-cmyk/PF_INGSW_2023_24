@@ -621,6 +621,9 @@ public class GraphicalUI extends View {
                 new ImageView(new Image("/placeholder.png", 120, 80, true, false))
         };
 
+        // Set up the click action of the cards in the hand
+        handleHandClicks();
+
         VBox deckArea = new VBox();
         deckArea.setSpacing(10);
         HBox resourceDeck = new HBox();
@@ -768,17 +771,28 @@ public class GraphicalUI extends View {
      * Method set the click action of the cards in the hand.
      */
     private void handleHandClicks() {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) { // For all cards in the player's hand
             int finalI = i;
-            handView[i].setOnMouseClicked(e -> { // Assign all cards in hand a click action
-                        if (e.getButton() == MouseButton.PRIMARY) { // User left clicks card
-                            if (!currentEvent.equals(Event.PLACE_CARD)) {
+            handView[finalI].setOnMouseClicked(e -> { // Assign all cards in hand a click action
+                        if (e.getButton() == MouseButton.PRIMARY) { // User left clicks card; highlights the card and prepare it to be placed
+                            if (!currentEvent.equals(Event.PLACE_CARD)) { // The player doesn't have the rights to place a card
                                 createAlert("Cannot place card now");
-                            } else {
-                                // TODO
+                            } else { // The player has the rights to place a card
+                                selectedCardId = hand.get(finalI); // Set selected card
+
+                                // Clear highlight effect on all cards
+                                for (int j=0; j<3; j++) {
+                                    handView[j].setEffect(null);
+                                }
+
+                                // Set highlight effect on newly selected card
+                                DropShadow dropShadow = new DropShadow();
+                                dropShadow.setRadius(50.0);
+                                dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+                                handView[finalI].setEffect(dropShadow);
                             }
                         }
-                        else if (e.getButton() == MouseButton.SECONDARY) { // User right clicks card
+                        else if (e.getButton() == MouseButton.SECONDARY) { // User right clicks card; flip the card
                             handViewCardSide[finalI] = !handViewCardSide[finalI]; // Toggle card side
                             String cardImagePath = convertToImagePath(hand.get(finalI), handViewCardSide[finalI]); // Load card image
                             handView[finalI].setImage(new Image(cardImagePath, 120, 80, true, false)); // Update card image
