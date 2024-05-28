@@ -33,6 +33,10 @@ public abstract class View implements EventHandler{
     protected ArrayList<String> players; //save and update the players in the game.
     protected String currentPlayer; //save and update the current player by receiving the message from the server.
     protected volatile Event currentEvent; //TODO: not sure if this is useful
+    /**
+     * Stores the index of the card placed by the player.
+     * When draw confirmation is received, the new card is injected into the hand at the index of the card placed.
+     */
     protected int indexCardPlaced=0;
     protected ArrayList<Integer> commonObjCards;
     protected ArrayList<Integer> secretObjCards;

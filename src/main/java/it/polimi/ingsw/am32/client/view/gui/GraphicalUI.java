@@ -739,36 +739,41 @@ public class GraphicalUI extends View {
     /**
      * Method set the click action of the cards in the deck. The player can draw a card from the deck by clicking on the
      * card in the deck.
+     *
      * @param cardView the view of the card in the deck.
      * @param cardID the ID of the card.
      * @param cardType the type of the deck where the card is drawn.
      */
     private void handleDeckCardsClicks(ImageView cardView, int cardID, int cardType) {
         cardView.setOnMouseClicked(e -> {
-            if (Status.equals(Event.PREPARATION)||Status.equals(Event.LAST_TURN)||Status.equals(Event.TERMINATING)){
+            if (!currentEvent.equals(Event.DRAW_CARD)) { // The player doesn't have the rights to draw a card
                 createAlert("In this phase you can't draw a card");
-            }else{
-                if (currentEvent.equals(Event.DRAW_CARD)){
-                    notifyAskListener(new DrawCardMessage(thisPlayerNickname, cardType, cardID));
-                } else {
-                    createAlert("Please wait for your turn to draw a card");
+            } else { // The player has the rights to draw a card
+                notifyAskListener(new DrawCardMessage(thisPlayerNickname, cardType, cardID)); // Notify the server of the selected card to draw
+
+                // Disable the click action of all cards in the deck area
+                for (int i = 0; i < 3; i++) {
+                    resourceDeckView[i].setOnMouseClicked(null);
+                    goldDeckView[i].setOnMouseClicked(null);
                 }
             }
         });
     }
+
     /**
-     * Method set the click action of the cards in the deck.
+     * Method to set the click action of the cards in the drawing area.
      */
     private void handleDeckClicks() {
-        handleDeckCardsClicks(resourceDeckView[0],-1, 3);
-        handleDeckCardsClicks(goldDeckView[0],-1, 3);
+        handleDeckCardsClicks(resourceDeckView[0],-1, 0);
+        handleDeckCardsClicks(goldDeckView[0],-1, 1);
         for (int i = 1; i < 3; i++) {
-            handleDeckCardsClicks(resourceDeckView[i], currentResourceCards.get(i), 1);
-            handleDeckCardsClicks(goldDeckView[i], currentGoldCards.get(i), 2);
+            handleDeckCardsClicks(resourceDeckView[i], currentResourceCards.get(i-1), 2);
+            handleDeckCardsClicks(goldDeckView[i], currentGoldCards.get(i-1), 3);
         }
     }
+
     /**
-     * Method set the click action of the cards in the hand.
+     * Method to set the click action of the cards in the hand.
      */
     private void handleHandClicks() {
         for (int i = 0; i < 3; i++) { // For all cards in the player's hand
@@ -779,6 +784,7 @@ public class GraphicalUI extends View {
                                 createAlert("Cannot place card now");
                             } else { // The player has the rights to place a card
                                 selectedCardId = hand.get(finalI); // Set selected card
+                                indexCardPlaced = finalI; // Set index of selected card
 
                                 // Clear highlight effect on all cards
                                 for (int j=0; j<3; j++) {
@@ -1149,6 +1155,8 @@ public class GraphicalUI extends View {
                 updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0], placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints); // Update player's info
 
                 currentEvent = Event.DRAW_CARD;
+
+                requestDrawCard(); // Request the player to draw a card
             } else { // Another player has placed a card
                 notice.appendText("> " + playerNickname + "'s card has been placed successfully in the field.\n");
             }
@@ -1227,14 +1235,33 @@ public class GraphicalUI extends View {
         // print the board of the player after the placement of the starter card with the current resources count
     }
 
+    /**
+     * Method called when place card confirmation is received from server.
+     * Enable drawing from deck
+     */
     @Override
     public void requestDrawCard() {
-
+        notice.appendText("> You can draw a card from the deck now.\n");
+        handleDeckClicks();
     }
 
+    /**
+     * Method called by the processMessage after receiving confirmation from the server that the card was drawn successfully.
+     *
+     * @param hand the updated hand of the player after the draw
+     */
     @Override
     public void updateAfterDrawCard(ArrayList<Integer> hand) {
+        Platform.runLater(() -> {
+            notice.appendText("> You have drawn a card from the deck.\n");
 
+            this.hand.add(indexCardPlaced, hand.getLast()); // Add drawn card to my hand
+            handView[indexCardPlaced].setImage(new Image("/cards_front_" + String.format("%03d", hand.getLast()) + ".png", 120, 80, true, true)); // Update hand view
+            handViewCardSide[indexCardPlaced] = true; // Set card side to face up
+
+            // Enable click action on all cards in hand
+            handleHandClicks();
+        });
     }
 
     @Override
