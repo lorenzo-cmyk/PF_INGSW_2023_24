@@ -28,4 +28,12 @@ public class SelectedStarterCardSideMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.chooseStarterCardSide(senderNickname, isUp);
     }
+
+    @Override
+    public String toString() {
+        return "SelectedStarterCardSideMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", isUp=" + isUp +
+                '}';
+    }
 }

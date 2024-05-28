@@ -28,4 +28,12 @@ public class SelectedSecretObjectiveCardMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.chooseSecretObjectiveCard(senderNickname, cardId);
     }
+
+    @Override
+    public String toString() {
+        return "SelectedSecretObjectiveCardMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", cardId=" + cardId +
+                '}';
+    }
 }

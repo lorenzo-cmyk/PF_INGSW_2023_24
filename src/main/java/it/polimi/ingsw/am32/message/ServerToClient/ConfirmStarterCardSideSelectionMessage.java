@@ -36,13 +36,13 @@ public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
 
     @Override
     public String toString() {
-        return "ConfirmStarterCardSideSelectionMessage{" +
+        return "ConfirmStarterCardSideSelectionMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", startingCardId=" + startingCardId +
                 ", side=" + side +
                 ", availableSpaces=[" + availableSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
                 "], playerResources=" + Arrays.toString(playerResources) +
                 ", playerColour=" + playerColour +
-                '}' + "\n";
+                '}';
     }
 }

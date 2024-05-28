@@ -2,35 +2,20 @@
 <Configuration status="WARN">
 <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n"/>
+        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X{objectId} - %msg%n"/>
     </Console>
     <File name="MatchSimulationLoggerFile" fileName="logs/MatchSimulationTest.log" append="false">
         <PatternLayout>
             <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</Pattern>
         </PatternLayout>
     </File>
-    <File name="ClientLoggerFile" fileName="logs/Client.log" append="false">
-        <PatternLayout>
-            <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</Pattern>
-        </PatternLayout>
-    </File>
-    <File name="TUILoggerFile" fileName="logs/TUI.log" append="false">
-        <PatternLayout>
-            <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</Pattern>
-        </PatternLayout>
-    </File>
 </Appenders>
 <Loggers>
-    <Logger name="MatchSimulationLogger" level="info" additivity="false">
+    <Root level="debug">
+        <AppenderRef ref="Console"/>
+    </Root>
+    <Logger name="MatchSimulationLogger" level="debug" additivity="false">
         <AppenderRef ref="MatchSimulationLoggerFile"/>
     </Logger>
-    <Logger name="ClientLogger" level="info" additivity="false">
-        <AppenderRef ref="ClientLoggerFile"/>
-    </Logger>
-    <Logger name="TUILogger" level="info" additivity="false">
-        <AppenderRef ref="TUILoggerFile"/>
-    </Logger>
-    <Root level="WARN">
-    </Root>
 </Loggers>
 </Configuration>

@@ -37,7 +37,7 @@ public class DeckSizeUpdateMessage implements StoCMessage {
 
     @Override
     public String toString() {
-        return "DeckSizeUpdateMessage{" +
+        return "DeckSizeUpdateMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
                 ", resourceCardDeckSize=" + resourceCardDeckSize +
                 ", resourceCardDeckFacingKingdom=" + resourceCardDeckFacingKingdom +
@@ -45,6 +45,6 @@ public class DeckSizeUpdateMessage implements StoCMessage {
                 ", goldCardDeckFacingKingdom=" + goldCardDeckFacingKingdom +
                 ", currentResourceCards=" + Arrays.toString(currentResourceCards) +
                 ", currentGoldCards=" + Arrays.toString(currentGoldCards) +
-                '}' + "\n";
+                '}';
     }
 }

@@ -23,10 +23,11 @@ public class PlaceCardFailedMessage implements StoCMessage {
         return recipientNickname;
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "reason: " + reason + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "PlaceCardFailedMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", reason='" + reason + '\'' +
+                '}';
     }
 }
