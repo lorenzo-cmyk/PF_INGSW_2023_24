@@ -1132,15 +1132,27 @@ public class GraphicalUI extends View {
      */
     @Override
     public void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces) {
-        /*
         Platform.runLater(() -> {
-            updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0], placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints);
+            if (playerNickname.equals(thisPlayerNickname)) { // This player has just placed a card
+                notice.appendText("> Your card has been placed successfully in the field.\n");
 
-            if (playerNickname.equals(thisPlayerNickname)) { // If the player is the current player, he needs to draw
+                selectedCardId = 0; // Reset selected card
+                for (int i=0; i<3; i++) {
+                    handView[i].setEffect(null); // Clear highlight effect on all cards
+                    handView[i].setOnMouseClicked(null); // Remove click action from all cards
+                }
+
+                int cardIdx = hand.indexOf(placedCard); // Get index of card in the player's hand
+                hand.remove(cardIdx); // Remove placed card from hand
+                handView[cardIdx].setImage(new Image("/placeholder.png", 120, 80, true, false)); // Replace card with placeholder
+
+                updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0], placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints); // Update player's info
+
                 currentEvent = Event.DRAW_CARD;
+            } else { // Another player has placed a card
+                notice.appendText("> " + playerNickname + "'s card has been placed successfully in the field.\n");
             }
         });
-        */
     }
 
     @Override
@@ -1413,10 +1425,6 @@ public class GraphicalUI extends View {
      * @return a VBox containing the selection area for the initial card side selection
      */
     public VBox setupInitialCardSideSelectionArea(int imageNumber) {
-        // TODO Need to load correct image based on the initial card assigned to the player
-        // TODO Need to notify listener of the id of the selected card
-        // TODO Need to correctly set position of selection area
-
         VBox selectionArea = new VBox(); // Entire selection area
 
         Label promptLabel = createLabel("Choose a starter card side:", 20); // Text label prompting user to pick a card
@@ -1486,10 +1494,6 @@ public class GraphicalUI extends View {
      * @return a VBox containing the selection area for the secret objective card selection
      */
     public VBox setupSecretObjectiveCardSelectionArea(int card1, int card2) {
-        // TODO Need to load correct image based on the initial card assigned to the player. Resolved!
-        // TODO Need to notify listener of the id of the selected card
-        // TODO Need to correctly set position of selection area
-
         VBox selectionArea = new VBox(); // Entire selection area
 
         Label promptLabel = createLabel("Choose a secret objective card:", 20); // Text label prompting user to pick a card
