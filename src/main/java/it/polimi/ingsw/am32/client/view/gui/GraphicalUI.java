@@ -58,6 +58,7 @@ public class GraphicalUI extends View {
     private TextArea notice;
     private Label eventLabel;
     private Group noticeEventPanel;
+    private final int[] placeCardPosition = new int[2];
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -1231,20 +1232,34 @@ public class GraphicalUI extends View {
         int posX;
         int posY;
         StackPane playerBoard = playerField.get(thisPlayerNickname);
-        for (int i = 0; i < availableSpaces.size(); i++) {
-            playerBoard.getChildren().removeLast();
+        if(playerBoard.getChildren().size() > 1) {
+            for (int i = 0; i < availableSpaces.size(); i++) {
+                Platform.runLater(() -> playerBoard.getChildren().removeLast());
+            }
         }
         for (int[] pos : availableSpaces) {
             posX = 300+pos[0] * 95;
             posY = 250+pos[1] * (-50);
-            ImageView availableSpace = new ImageView(imagesMap.get("AVAILABLESPACE"));
-            availableSpace.setTranslateX(posX);
-            availableSpace.setTranslateY(posY);
+            int finalPosX = posX;
+            int finalPosY = posY;
+            Platform.runLater(() ->{
+                ImageView availableSpace = new ImageView(imagesMap.get("AVAILABLESPACE"));
+            handleAvailableSpaceClick(availableSpace,pos[0], pos[1]);
+            availableSpace.setTranslateX(finalPosX);
+            availableSpace.setTranslateY(finalPosY);
             availableSpace.setEffect(new DropShadow(20, Color.BLACK));
             playerBoard.getChildren().add(availableSpace);
+        });
         }
         notice.appendText("Please click on the card you want to placed in the field and then click one position available.\n");
     }
+    private void handleAvailableSpaceClick(ImageView availableSpace, int x, int y){
+        availableSpace.setOnMouseClicked(e->{
+            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, selectedCardId, x, y, true));
+            notice.appendText("> You selected the position (" + x + ", " + y + ") to place the card.\n");
+        });
+    }
+
 
 
     @Override
