@@ -14,6 +14,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Timer;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -88,8 +89,13 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         if(message instanceof StoCMessage) {
 
-            ((StoCMessage) message).processMessage(view);
-            logger.info("Message received. Type: StoCMessage. Processing");
+            try {
+                logger.info("Message received. Type: StoCMessage. Processing");
+                ((StoCMessage) message).processMessage(view);
+            } catch (Exception e) {
+                logger.fatal("Critical Runtime Exception:\nException Type: {}\nLocal Message: {}\nStackTrace: {}",
+                        e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
+            }
 
         } else {
 
