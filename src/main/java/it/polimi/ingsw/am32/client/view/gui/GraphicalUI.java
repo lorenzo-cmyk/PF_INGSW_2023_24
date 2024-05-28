@@ -15,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.effect.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -42,7 +43,14 @@ public class GraphicalUI extends View {
     private HashMap<String, Image> imagesMap = new HashMap<>();
     private HashMap<String, StackPane> playerField = new HashMap<>();
     private ChatArea chatArea;
+    /**
+     * An array of ImageView objects containing the images of the cards in the player's hand.
+     */
     private ImageView [] handView;
+    /**
+     * An array of booleans indicating whether the card in the player's hand is being viewed front side or back side.
+     */
+    private boolean [] handViewCardSide;
     private ImageView[] resourceDeckView;
     private ImageView[] goldDeckView;
     private ImageView secretObjCardView;
@@ -55,6 +63,11 @@ public class GraphicalUI extends View {
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
             "/codex_rulebook_it_08.png", "/codex_rulebook_it_09.png", "/codex_rulebook_it_10.png", "/codex_rulebook_it_11.png",
             "/codex_rulebook_it_12.png"};
+    /**
+     * ID of card selected for placement on the field by player.
+     * Set to 0 when no card is selected.
+     */
+    private int selectedCardId;
 
     /**
      * Used to launch the GUIApplication class.
@@ -755,14 +768,21 @@ public class GraphicalUI extends View {
      */
     private void handleHandClicks() {
         for (int i = 0; i < 3; i++) {
-            handView[i].setOnMouseClicked(e -> {
-                        if (Status.equals(Event.PREPARATION)) {
-                            createAlert("Please wait for the playing phase to play a card");
-                        } else if (currentEvent.equals(Event.PLACE_CARD)) {
-                            //TODO
+            int finalI = i;
+            handView[i].setOnMouseClicked(e -> { // Assign all cards in hand a click action
+                        if (e.getButton() == MouseButton.PRIMARY) { // User left clicks card
+                            if (!currentEvent.equals(Event.PLACE_CARD)) {
+                                createAlert("Cannot place card now");
+                            } else {
+                                // TODO
+                            }
                         }
-                    }
-                );
+                        else if (e.getButton() == MouseButton.SECONDARY) { // User right clicks card
+                            handViewCardSide[finalI] = !handViewCardSide[finalI]; // Toggle card side
+                            String cardImagePath = convertToImagePath(hand.get(finalI), handViewCardSide[finalI]); // Load card image
+                            handView[finalI].setImage(new Image(cardImagePath, 120, 80, true, false)); // Update card image
+                        }
+            });
         }
     }
 
@@ -1000,6 +1020,7 @@ public class GraphicalUI extends View {
         handView[0].setImage(new Image("/cards_front_" + cardIdStr1 + ".png", 120, 80, true, true));
         handView[1].setImage(new Image("/cards_front_" + cardIdStr2 + ".png", 120, 80, true, true));
         handView[2].setImage(new Image("/cards_front_" + cardIdStr3 + ".png", 120, 80, true, true));
+        handViewCardSide = new boolean[]{true, true, true}; // All cards displayed side up in the beginning
         String commonCardIdStr1 = common.get(0) > 99 ? String.valueOf(common.get(0)) : "0" + common.get(0);
         String commonCardIdStr2 = common.get(1) > 99 ? String.valueOf(common.get(1)) : "0" + common.get(1);
         commonObjCardView[0].setImage(new Image("/cards_front_" + commonCardIdStr1 + ".png", 120, 80, true, true));
