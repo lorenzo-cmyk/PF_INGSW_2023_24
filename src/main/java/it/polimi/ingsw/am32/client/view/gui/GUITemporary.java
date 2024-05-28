@@ -185,7 +185,7 @@ public class GUITemporary extends Application {
 
         });
 
-        chatArea = new ChatArea(0,0,305,75);
+        chatArea = new ChatArea(0,0,305,75,players);
         chatArea.getChatArea().translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(40)));
         chatArea.getChatArea().translateYProperty().bind(preparationPhase.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
 

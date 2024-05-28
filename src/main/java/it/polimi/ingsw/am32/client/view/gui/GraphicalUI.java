@@ -580,7 +580,7 @@ public class GraphicalUI extends View {
         notice.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         notice.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight()+280)));
         // create Chat view
-        chatArea = new ChatArea(0, 0, 305, 75); // Create chat area //TODO FIX PROBLEM OF SEND AND RECEIVE MESSAGE
+        chatArea = new ChatArea(0, 0, 305, 75,players); // Create chat area //TODO FIX PROBLEM OF SEND AND RECEIVE MESSAGE
         chatArea.getChatArea().translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         chatArea.getChatArea().translateYProperty().bind(masterPane.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
 
@@ -705,7 +705,6 @@ public class GraphicalUI extends View {
             boardReal.setTranslateY(e.getSceneY() - dragPos[1]);
         }); // Enable translating of player field when mouse button is held down
     }
-
     /**
      * Method set the click action of the player's nickname. The player can see the field of the player that he wants
      * to see by clicking on the nickname of the player.
@@ -756,7 +755,6 @@ public class GraphicalUI extends View {
      */
     private void handleHandClicks() {
         for (int i = 0; i < 3; i++) {
-            int finalI = i;
             handView[i].setOnMouseClicked(e -> {
                         if (Status.equals(Event.PREPARATION)) {
                             createAlert("Please wait for the playing phase to play a card");
@@ -913,6 +911,7 @@ public class GraphicalUI extends View {
         if (this.currentPlayer.equals(thisPlayerNickname)) {
             // if the player's turn is now, request the player to place the card in the field.
             currentEvent = Event.PLACE_CARD;
+            requestPlaceCard();
             noticeEventPanel.setVisible(true);
             eventLabel.setText("It's your turn!");
             RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), noticeEventPanel);
@@ -1215,15 +1214,15 @@ public class GraphicalUI extends View {
             playerBoard.getChildren().removeLast();
         }
         for (int[] pos : availableSpaces) {
-            posX = pos[0] * 95;
-            posY = pos[1] * (-50);
+            posX = 300+pos[0] * 95;
+            posY = 250+pos[1] * (-50);
             ImageView availableSpace = new ImageView(imagesMap.get("AVAILABLESPACE"));
             availableSpace.setTranslateX(posX);
             availableSpace.setTranslateY(posY);
             availableSpace.setEffect(new DropShadow(20, Color.BLACK));
             playerBoard.getChildren().add(availableSpace);
         }
-        //TODO
+        notice.appendText("Please click on the card you want to placed in the field and then click one position available.\n");
     }
 
 

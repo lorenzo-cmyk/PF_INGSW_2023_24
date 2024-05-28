@@ -36,7 +36,7 @@ public enum Event {
     SELECTED_SECRET_OBJ_CARD(29),
     CARD_PLACED(30),
     CARD_DRAWN(31),
-    WAITING_FOR_TURN(32);
+    WAITING_FOR_TURN(32), CHAT_ERROR(33);
 
     private final int value;
 

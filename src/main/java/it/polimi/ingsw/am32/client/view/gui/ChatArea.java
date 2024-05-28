@@ -1,12 +1,11 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
+
+import java.util.ArrayList;
 
 
 public class ChatArea {
@@ -37,6 +36,8 @@ public class ChatArea {
      */
     private final Button submitButton;
 
+    private final ComboBox<String> playerList;
+
     /**
      * Constructor for the ChatArea class
      *
@@ -45,7 +46,7 @@ public class ChatArea {
      * @param width Width of the chat area
      * @param height Height of the chat area
      */
-    public ChatArea(int X, int Y, int width, int height) {
+    public ChatArea(int X, int Y, int width, int height, ArrayList<String> players) {
         // Initialize empty components
 
         this.chatArea = new VBox();
@@ -53,13 +54,15 @@ public class ChatArea {
         this.messageDisplayArea = new VBox();
         this.messageScrollPane = new ScrollPane(messageDisplayArea);
 
+        this.playerList = new ComboBox<String>();
+
         this.submissionArea = new HBox();
         this.inputMessageField = new TextField();
         this.submitButton = new Button("Send");
 
         // Configure components and arrange them
 
-        initializeChatArea(X, Y, width, height);
+        initializeChatArea(X, Y, width, height, players);
     }
 
     /**
@@ -71,33 +74,43 @@ public class ChatArea {
      * @param width Width of the chat area
      * @param height Height of the chat area
      */
-    private void initializeChatArea(int X, int Y, int width, int height) {
+    private void initializeChatArea(int X, int Y, int width, int height, ArrayList<String> players) {
         // Set the effective size of the chat area
-        messageScrollPane.setMinSize(width, height);
-        messageScrollPane.setMaxSize(width, height);
+        messageScrollPane.setMinSize(width+80, height);
+        messageScrollPane.setMaxSize(width+80, height);
 
         // Enable only vertical scrolling
         messageScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         messageScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        for (String player : players) {
+            playerList.getItems().add(player);
+        }
+        playerList.getItems().add("All");
+        playerList.setStyle("-fx-background-color: #E6DEB3;-fx-text-fill: #3A2111;"+
+                "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';-fx-border-color: #3A2111; -fx-border-width: 1px; " +
+                "-fx-border-radius: 5px; -fx-background-radius: 5px;");
 
         // Set style of the chat area
         messageScrollPane.setStyle("-fx-background-color: #E6DEB3;-fx-border-color: #3A2111; -fx-border-width: 1px; " +
                 "-fx-border-radius: 5px; -fx-background-radius: 5px;");
 
         submitButton.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
                 "rgba(58,33,17,100,0.2),10,0,0,10);");
+        playerList.setMaxSize(80, 30);
 
-        inputMessageField.setPromptText("Type your message...");
+        inputMessageField.setPromptText("Type your message......");
         inputMessageField.setStyle("-fx-background-color: #E6DEB359;-fx-text-fill: #3A2111;"+
-                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-border-color: #3A2111; -fx-border-width: 1px; " +
+                "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';-fx-border-color: #3A2111; -fx-border-width: 1px; " +
                 "-fx-border-radius: 5px; -fx-background-radius: 5px;");
-        inputMessageField.setPrefSize(width, submitButton.getHeight());
 
+        inputMessageField.setPrefSize(250, 30);
         chatArea.setPrefSize(width+100, height + inputMessageField.getHeight());
 
         // Link the button to a handler method
         submitButton.setOnAction(e -> submitChatMessage());
+        submitButton.setMaxSize(100, 30);
 
         inputMessageField.setOnMouseClicked(e -> {
             messageScrollPane.setVisible(true);
@@ -107,7 +120,7 @@ public class ChatArea {
         });
 
         // Generate VBox container
-        submissionArea.getChildren().addAll(inputMessageField, submitButton); // Add the text field and submit button to the chat input area
+        submissionArea.getChildren().addAll(playerList,inputMessageField, submitButton); // Add the text field and submit button to the chat input area
         chatArea.getChildren().addAll(messageScrollPane,submissionArea); // Add the scroll pane and chat input area to the chat area
         // Set the position of the chat area
         chatArea.setTranslateX(X);
@@ -124,7 +137,7 @@ public class ChatArea {
     public void addIncomingMessageToChat(String message) {
         Label newMessage = new Label(message);
         newMessage.setStyle("-fx-text-fill: #E6DEB3;-fx-alignment: center;" +
-                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
+                "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);
     }
 

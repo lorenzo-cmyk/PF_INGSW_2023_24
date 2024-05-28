@@ -1758,6 +1758,10 @@ public class TextUI extends View{
                 out.println("Please try again:");
                 currentEvent = Event.SELECT_STARTER_CARD_SIDE;
             }
+            case CHAT_ERROR -> { // Chat error
+                out.println("!The last message was not sent!");
+                chatHistory.removeLast();
+            }
         }
     }
     /**
