@@ -1132,9 +1132,40 @@ public class GraphicalUI extends View {
         return null;
     }
 
+    /**
+     * Method called by the processMessage to update the player's field after receiving confirmation from the server that the card placement was successful.
+     *
+     * @param playerNickname the nickname of the player
+     * @param placedCard the ID of the card placed in the field
+     * @param placedCardCoordinates the coordinates of the card placed in the field
+     * @param placedSide the side of the card placed in the field
+     * @param playerPoints the updated points of the player
+     * @param playerResources the updated resources count of the player
+     * @param newAvailableFieldSpaces the updated available spaces in the field after the placement of the card
+     */
     @Override
     public void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces) {
+        Platform.runLater(() -> {
+            if (playerNickname.equals(thisPlayerNickname)) { // This player has just placed a card
+                notice.appendText("> Your card has been placed successfully in the field.\n");
 
+                selectedCardId = 0; // Reset selected card
+                for (int i=0; i<3; i++) {
+                    handView[i].setEffect(null); // Clear highlight effect on all cards
+                    handView[i].setOnMouseClicked(null); // Remove click action from all cards
+                }
+
+                int cardIdx = hand.indexOf(placedCard); // Get index of card in the player's hand
+                hand.remove(cardIdx); // Remove placed card from hand
+                handView[cardIdx].setImage(new Image("/placeholder.png", 120, 80, true, false)); // Replace card with placeholder
+
+                updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0], placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints); // Update player's info
+
+                currentEvent = Event.DRAW_CARD;
+            } else { // Another player has placed a card
+                notice.appendText("> " + playerNickname + "'s card has been placed successfully in the field.\n");
+            }
+        });
     }
 
     @Override
@@ -1182,6 +1213,15 @@ public class GraphicalUI extends View {
         Platform.runLater(() -> masterPane.getChildren().add(starterCardSideSelection));
     }
 
+    /**
+     * Method called by the processMessage after receiving confirmation from the server that the starter card side was selected.
+     *
+     * @param colour the colour assigned to the player
+     * @param cardID the ID of the starter card
+     * @param isUp the side of the starter card
+     * @param availablePos the available spaces in the field after the placement of the starter card
+     * @param resources the initial resources count of the player
+     */
     @Override
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
         Platform.runLater(() -> {
@@ -1198,7 +1238,6 @@ public class GraphicalUI extends View {
                     resources, 0);
         });
         // print the board of the player after the placement of the starter card with the current resources count
-
     }
 
     @Override
@@ -1280,14 +1319,21 @@ public class GraphicalUI extends View {
         }
         notice.appendText("Please click on the card you want to placed in the field and then click one position available.\n");
     }
+
+    /**
+     * Method set to handle the click action of the available space in the field.
+     * When a player clicks on the available space, the method notifies the listener to place the card in the field.
+     *
+     * @param availableSpace the image view of the available space the player has clicked on
+     * @param x the x coordinate of the available space (field coordinates)
+     * @param y the y coordinate of the available space (field coordinates)
+     */
     private void handleAvailableSpaceClick(ImageView availableSpace, int x, int y){
         availableSpace.setOnMouseClicked(e->{
-            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, selectedCardId, x, y, true));
+            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, selectedCardId, x, y, handViewCardSide[hand.indexOf(selectedCardId)])); // Notify server of card selection
             notice.appendText("> You selected the position (" + x + ", " + y + ") to place the card.\n");
         });
     }
-
-
 
     @Override
     public void updateAfterPlacedCard(String playerNickname, int cardID, int x, int y, boolean isUp, ArrayList<int[]> availablePos, int[] resources, int points) {
@@ -1392,10 +1438,6 @@ public class GraphicalUI extends View {
      * @return a VBox containing the selection area for the initial card side selection
      */
     public VBox setupInitialCardSideSelectionArea(int imageNumber) {
-        // TODO Need to load correct image based on the initial card assigned to the player
-        // TODO Need to notify listener of the id of the selected card
-        // TODO Need to correctly set position of selection area
-
         VBox selectionArea = new VBox(); // Entire selection area
 
         Label promptLabel = createLabel("Choose a starter card side:", 20); // Text label prompting user to pick a card
@@ -1465,10 +1507,6 @@ public class GraphicalUI extends View {
      * @return a VBox containing the selection area for the secret objective card selection
      */
     public VBox setupSecretObjectiveCardSelectionArea(int card1, int card2) {
-        // TODO Need to load correct image based on the initial card assigned to the player. Resolved!
-        // TODO Need to notify listener of the id of the selected card
-        // TODO Need to correctly set position of selection area
-
         VBox selectionArea = new VBox(); // Entire selection area
 
         Label promptLabel = createLabel("Choose a secret objective card:", 20); // Text label prompting user to pick a card

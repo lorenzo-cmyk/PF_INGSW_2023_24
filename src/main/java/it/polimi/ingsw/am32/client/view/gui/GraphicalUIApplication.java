@@ -26,8 +26,6 @@ public class GraphicalUIApplication extends Application {
         primaryStage.setMinWidth(975);
         primaryStage.setScene(new Scene(graphicalUI.getWelcomeRoot(), 975, 750));
         primaryStage.setScene(new Scene(graphicalUI.getSelectionRoot(), 975, 750));
-         //FIXME WHY AFTER 3 SECONDS THE NEW BACKGROUND IS NOT CENTERED ANYMORE?
-
 
         primaryStage.setOnCloseRequest(e -> {
             Platform.exit();
