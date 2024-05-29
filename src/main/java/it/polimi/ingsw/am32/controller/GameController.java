@@ -59,6 +59,10 @@ public class GameController {
      * endMatchDueToDisconnectionTimerTask: The timer task that is used to end a match due to disconnection when only one player remains connected
      */
     private EndMatchDueToDisconnectionTimerTask endMatchDueToDisconnectionTimerTask;
+    /**
+     * alreadyEnteredTerminatingPhase: A flag that indicates whether the terminating phase has already been entered; used to notify players when terminating phase is entered
+     */
+    private boolean alreadyEnteredTerminatingPhase;
 
     /**
      * Constructor for the GameController class. Initializes the game controller with the given id and game size.
@@ -75,6 +79,7 @@ public class GameController {
         this.id = id;
         this.gameSize = gameSize;
         this.endMatchDueToDisconnectionTimerTask = null;
+        this.alreadyEnteredTerminatingPhase = false;
 
         // Enter lobby phase immediately
         model.enterLobbyPhase();
@@ -829,6 +834,13 @@ public class GameController {
                         model.getNextResourceCardKingdom().orElse(-1),
                         model.getNextGoldCardKingdom().orElse(-1)
                 ));
+            }
+
+            if (!alreadyEnteredTerminatingPhase && model.getMatchStatus() == MatchStatus.TERMINATING.getValue()) {
+                for (PlayerQuadruple playerQuadruple : nodeList) {
+                    submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                }
+                alreadyEnteredTerminatingPhase = true;
             }
 
             setNextPlayer();
