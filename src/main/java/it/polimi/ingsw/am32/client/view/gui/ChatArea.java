@@ -35,7 +35,9 @@ public class ChatArea {
      * An object representing the button that submits the message
      */
     private final Button submitButton;
-
+    /**
+     * A combo box that allows the user to select a recipient for the message
+     */
     private final ComboBox<String> playerList;
 
     /**
@@ -45,6 +47,7 @@ public class ChatArea {
      * @param Y Y coordinate of the chat area
      * @param width Width of the chat area
      * @param height Height of the chat area
+     * @param players List of players in the game; used for the combo box
      */
     public ChatArea(int X, int Y, int width, int height, ArrayList<String> players) {
         // Initialize empty components
@@ -54,7 +57,7 @@ public class ChatArea {
         this.messageDisplayArea = new VBox();
         this.messageScrollPane = new ScrollPane(messageDisplayArea);
 
-        this.playerList = new ComboBox<String>();
+        this.playerList = new ComboBox<>();
 
         this.submissionArea = new HBox();
         this.inputMessageField = new TextField();
@@ -83,10 +86,13 @@ public class ChatArea {
         messageScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         messageScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
+        // Add options to scroll pane for recipient selection in chat
         for (String player : players) {
             playerList.getItems().add(player);
         }
         playerList.getItems().add("All");
+        playerList.setValue("All"); // Set default option in scroll pane
+
         playerList.setStyle("-fx-background-color: #E6DEB3;-fx-text-fill: #3A2111;"+
                 "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';-fx-border-color: #3A2111; -fx-border-width: 1px; " +
                 "-fx-border-radius: 5px; -fx-background-radius: 5px;");
@@ -96,8 +102,7 @@ public class ChatArea {
                 "-fx-border-radius: 5px; -fx-background-radius: 5px;");
 
         submitButton.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
-                "rgba(58,33,17,100,0.2),10,0,0,10);");
+                "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan'");
         playerList.setMaxSize(80, 30);
 
         inputMessageField.setPromptText("Type your message......");
@@ -154,6 +159,20 @@ public class ChatArea {
                 "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);
         inputMessageField.clear(); // Clear the input field after the message is sent
+    }
+
+    /**
+     * Sets the chat area to active or inactive.
+     * @param active True if the chat area should be active, false otherwise
+     */
+    public void setActive(boolean active) {
+        /*
+        messageDisplayArea.setDisable(!active);
+        inputMessageField.setDisable(!active);
+        submitButton.setDisable(!active);
+        playerList.setDisable(!active);
+         */
+        chatArea.setDisable(!active);
     }
 
     /**
