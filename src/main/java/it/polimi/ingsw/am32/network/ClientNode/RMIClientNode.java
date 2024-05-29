@@ -20,6 +20,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,10 +62,6 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         sToCProcessingLock = new Object();
         pongCount = PONGMAXCOUNT;
         executorService = Executors.newCachedThreadPool();
-    }
-
-    public void run() {
-        // TODO
     }
 
     @Override
