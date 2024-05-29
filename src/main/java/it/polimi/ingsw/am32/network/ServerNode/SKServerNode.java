@@ -157,7 +157,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 resetTimeCounter();
             }
 
-            if(message instanceof PingMessage && gameController == null) {
+            if(message instanceof PingMessage) {
                 config.getExecutorService().submit(() -> {
                     try {
                         logger.info("PingMessage received before assigning a game");

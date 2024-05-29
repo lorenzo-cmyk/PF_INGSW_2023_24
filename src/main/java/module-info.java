@@ -12,6 +12,7 @@ module it.polimi.ingsw.am32 {
     exports it.polimi.ingsw.am32.network.ClientAcceptor to java.rmi;
     exports it.polimi.ingsw.am32.network to java.rmi;
     exports it.polimi.ingsw.am32.network.ClientNode to java.rmi;
+    exports it.polimi.ingsw.am32.network.ServerNode to java.rmi;
     exports it.polimi.ingsw.am32.message.ClientToServer to java.rmi;
     exports it.polimi.ingsw.am32.message.ServerToClient to java.rmi;
     exports it.polimi.ingsw.am32.client.view.gui to javafx.graphics, javafx.fxml;
