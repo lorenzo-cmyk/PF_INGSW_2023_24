@@ -25,10 +25,11 @@ public class InvalidSelectedSecretObjectiveCardMessage implements StoCMessage {
         view.handleFailureCase(Event.SELECT_SECRET_OBJ_CARD_FAILURE,reason);
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "reason: " + reason + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "InvalidSelectedSecretObjectiveCardMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", reason='" + reason + '\'' +
+                '}';
     }
 }

@@ -23,10 +23,11 @@ public class InvalidInboundChatMessage implements StoCMessage {
         view.handleFailureCase(Event.CHAT_ERROR,reason);
     }
 
-    public String toString(){
-        String myString = "";
-        myString += "recipientNickname: " + recipientNickname + "\n";
-        myString += "reason: " + reason + "\n";
-        return myString;
+    @Override
+    public String toString() {
+        return "InvalidInboundChatMessage:{" +
+                "recipientNickname='" + recipientNickname + '\'' +
+                ", reason='" + reason + '\'' +
+                '}';
     }
 }

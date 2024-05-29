@@ -23,9 +23,9 @@ public class ErrorMessage implements StoCMessage{
 
     @Override
     public String toString() {
-        return "ErrorMessage{" +
+        return "ErrorMessage:{" +
                 "message='" + message + '\'' +
                 ", recipientNickname='" + recipientNickname + '\'' +
-                '}' + "\n";
+                '}';
     }
 }

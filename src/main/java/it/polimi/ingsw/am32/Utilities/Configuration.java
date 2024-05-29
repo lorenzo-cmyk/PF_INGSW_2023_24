@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am32.Server;
 import it.polimi.ingsw.am32.network.ServerNode.ServerPingTask;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,6 +25,8 @@ import java.util.concurrent.Executors;
  * @author Matteo
  */
 public class Configuration {
+
+    private static final Logger logger = LogManager.getLogger(Configuration.class);
 
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
@@ -176,13 +179,14 @@ public class Configuration {
                 rmiPort = rmiPortFile;
         }
 
-        System.out.println("Socket port: " + socketPort);
-        System.out.println("RMI port: " + rmiPort);
-        System.out.println("Ping time period: " + pingTimeInterval);
-        System.out.println("Max ping count: " + maxPingCount);
-        System.out.println("Socket read timeout: " + socketReadTimeout);
-        System.out.println("End game due to disconnection timeout: " + endGameDueToDisconnectionTimeout);
-        System.out.println("Server ip: " + serverIp);
+        logger.info("Configuration loaded");
+        logger.info("Socket port: {}", socketPort);
+        logger.info("RMI port: {}", rmiPort);
+        logger.info("Ping time period: {}", pingTimeInterval);
+        logger.info("Max ping count: {}", maxPingCount);
+        logger.info("Socket read timeout: {}", socketReadTimeout);
+        logger.info("End game due to disconnection timeout: {}", endGameDueToDisconnectionTimeout);
+        logger.info("Server IP: {}", serverIp);
     }
 
 

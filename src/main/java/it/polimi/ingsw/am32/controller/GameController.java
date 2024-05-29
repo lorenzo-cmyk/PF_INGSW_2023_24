@@ -427,7 +427,7 @@ public class GameController {
      * @param nickname The nickname of the player that has reconnected
      * @param node The node of the player that has reconnected
      * @throws PlayerNotFoundException If the player could not be found in the list of players
-     * @throws PlayerAlreadyConnectedException If the player is already connected when attemping to reconnect
+     * @throws PlayerAlreadyConnectedException If the player is already connected when attempting to reconnect
      */
     public synchronized void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException, PlayerAlreadyConnectedException {
         // Throw exception if nickname is not present in the list of players
@@ -998,7 +998,7 @@ public class GameController {
                     matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces,
                     gameResourceDeckFacingKingdom, gameGoldDeckFacingKingdom);
         } catch (PlayerNotFoundException e) {
-            throw new CriticalFailureException("Player " + nickname + " not found");
+            throw new CriticalFailureException("Player " + nickname + " not found when generating game status message");
         }
     }
 
@@ -1024,6 +1024,15 @@ public class GameController {
         return id;
     }
 
+    /**
+     * Getter for the timer of the game controller.
+     *
+     * @return The timer of the game controller
+     */
+    public synchronized Timer getTimer() {
+        return timer;
+    }
+
     protected synchronized ArrayList<PlayerQuadruple> getNodeList() {
         return nodeList;
     }
@@ -1038,15 +1047,6 @@ public class GameController {
 
     protected synchronized GameControllerStatus getStatus() {
         return status;
-    }
-
-    /**
-     * Getter for the timer of the game controller.
-     *
-     * @return The timer of the game controller
-     */
-    public synchronized Timer getTimer() {
-        return timer;
     }
 
     protected synchronized ModelInterface getModel(){

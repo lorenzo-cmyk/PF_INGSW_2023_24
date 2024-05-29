@@ -30,4 +30,12 @@ public class RequestPlayerFieldMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.sendPlayerField(senderNickname, playerNickname);
     }
+
+    @Override
+    public String toString() {
+        return "RequestPlayerFieldMessage:{" +
+                "senderNickname='" + senderNickname + '\'' +
+                ", playerNickname='" + playerNickname + '\'' +
+                '}';
+    }
 }
