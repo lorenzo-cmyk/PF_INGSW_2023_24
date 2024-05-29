@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
+import it.polimi.ingsw.am32.client.View;
+import it.polimi.ingsw.am32.message.ClientToServer.InboundChatMessage;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -39,6 +41,10 @@ public class ChatArea {
      * A combo box that allows the user to select a recipient for the message
      */
     private final ComboBox<String> playerList;
+    /**
+     * A reference to the gui; needed to forward messages to the server
+     */
+    private final GraphicalUI gui;
 
     /**
      * Constructor for the ChatArea class
@@ -49,7 +55,7 @@ public class ChatArea {
      * @param height Height of the chat area
      * @param players List of players in the game; used for the combo box
      */
-    public ChatArea(int X, int Y, int width, int height, ArrayList<String> players) {
+    public ChatArea(int X, int Y, int width, int height, ArrayList<String> players, GraphicalUI gui) {
         // Initialize empty components
 
         this.chatArea = new VBox();
@@ -57,11 +63,12 @@ public class ChatArea {
         this.messageDisplayArea = new VBox();
         this.messageScrollPane = new ScrollPane(messageDisplayArea);
 
-        this.playerList = new ComboBox<>();
-
         this.submissionArea = new HBox();
         this.inputMessageField = new TextField();
         this.submitButton = new Button("Send");
+        this.playerList = new ComboBox<>();
+
+        this.gui = gui;
 
         // Configure components and arrange them
 
@@ -133,31 +140,38 @@ public class ChatArea {
     }
 
     /**
-     * Adds an incoming message to the chat area.
+     * Adds an incoming message to the chat area send from another player.
      * The message is appended to the end of the message display area.
      * Called by outside classes to add messages to the chat area.
      *
      * @param message The message to be added
      */
-    public void addIncomingMessageToChat(String message) {
-        Label newMessage = new Label(message);
-        newMessage.setStyle("-fx-text-fill: #E6DEB3;-fx-alignment: center;" +
+    public void addIncomingMessageToChat(String message, String senderNickname) {
+        Label newMessage = new Label("(" + senderNickname + ") " + message);
+        newMessage.setStyle("-fx-text-fill: #3CA99F;-fx-alignment: center;" +
                 "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);
     }
 
     /**
-     * Submits a message to the chat area.
+     * Submits a message to the chat area, and send it to the appropriate player.
      * The message is taken from the input field, and added to the message display area.
      * Called when the user clicks the submit button.
      */
     private void submitChatMessage() {
+        // FIXME Need to show sent message only after server confirms it
+
         if (inputMessageField.getText().isEmpty()) return; // Do not send empty messages (or messages with only whitespace characters)
 
-        Label newMessage = new Label(">> " + inputMessageField.getText());
+        // Add message to chat area
+        Label newMessage = new Label("> " + inputMessageField.getText());
         newMessage.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
+                "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);
+
+        // Send the message to the server
+        gui.notifyAskListener(new InboundChatMessage(gui.getThisPlayerNickname(), playerList.getValue(), playerList.getValue().equals("All"), inputMessageField.getText()));
+
         inputMessageField.clear(); // Clear the input field after the message is sent
     }
 
@@ -166,12 +180,6 @@ public class ChatArea {
      * @param active True if the chat area should be active, false otherwise
      */
     public void setActive(boolean active) {
-        /*
-        messageDisplayArea.setDisable(!active);
-        inputMessageField.setDisable(!active);
-        submitButton.setDisable(!active);
-        playerList.setDisable(!active);
-         */
         chatArea.setDisable(!active);
     }
 

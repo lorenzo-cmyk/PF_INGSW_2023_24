@@ -182,10 +182,6 @@ public class GUITemporary extends Application {
 
         });
 
-        chatArea = new ChatArea(0,0,305,75,players);
-        chatArea.getChatArea().translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(40)));
-        chatArea.getChatArea().translateYProperty().bind(preparationPhase.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
-
         ImageView card1 = new ImageView(new Image("/cards_front_075.png", 120, 80, true, true));
         ImageView card2 = new ImageView(new Image("/cards_front_065.png", 120, 80, true, false));
         ImageView card3 = new ImageView(new Image("/cards_front_035.png", 120, 80, true, false));
@@ -262,7 +258,7 @@ public class GUITemporary extends Application {
         root.getChildren().addAll(background,noticeLabel);
         root.setTranslateX(375);
         root.setTranslateY(265);
-        root.setEffect(new Glow(0.3));
+        root.setEffect(new Glow(0));
         root.setEffect(new DropShadow(15, Color.rgb(236, 197, 123)));
         root.setOnMouseClicked(e -> {
             RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), root);

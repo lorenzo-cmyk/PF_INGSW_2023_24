@@ -603,7 +603,7 @@ public class GraphicalUI extends View {
             noticeArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight()+280)));
 
         // Initialize the chat area
-        chatArea = new ChatArea(0, 0, 305, 75, players);
+        chatArea = new ChatArea(0, 0, 305, 75, players, this);
         chatArea.getChatArea().translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         chatArea.getChatArea().translateYProperty().bind(masterPane.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
         chatArea.setActive(false); // At the start, disable the chat area
@@ -1268,9 +1268,20 @@ public class GraphicalUI extends View {
 
     }
 
+    /**
+     * Called when a chat message is received from the server.
+     * @param recipientString the nickname of the recipient of the message
+     * @param senderNickname the nickname of the sender of the message
+     * @param content the content of the message
+     */
     @Override
     public void updateChat(String recipientString, String senderNickname, String content) {
-
+        Platform.runLater(() -> {
+            if (recipientString.equals(thisPlayerNickname)) { // We have received a message we shouldn't have received
+                // TODO Throw exception
+            }
+            chatArea.addIncomingMessageToChat(content, senderNickname); // Add message to chat area
+        });
     }
 
     @Override
@@ -1758,5 +1769,14 @@ public class GraphicalUI extends View {
         clickedButton.setEffect(effect);
         button1.setDisable(true);
         button3.setDisable(true);
+    }
+
+    /**
+     * Getter method.
+     *
+     * @return the nickname of the player
+     */
+    public String getThisPlayerNickname() {
+        return thisPlayerNickname;
     }
 }
