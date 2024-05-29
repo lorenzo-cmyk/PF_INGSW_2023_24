@@ -89,15 +89,14 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         // TODO server sync??
 
+        resetTimeCounter();
+
 
         if(message instanceof PongMessage) {
 
             logger.info("PongMessage received");
-            resetTimeCounter();
             return;
         }
-
-        resetTimeCounter();
 
         if(message instanceof StoCMessage) {
 
