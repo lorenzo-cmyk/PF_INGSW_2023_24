@@ -967,6 +967,7 @@ public class GraphicalUI extends View {
      */
     @Override
     public void updatePlayerTurn(String playerNickname) {
+        notice.clear();
         this.currentPlayer = playerNickname;
         if (this.currentPlayer.equals(thisPlayerNickname)) {
             // if the player's turn is now, request the player to place the card in the field.
@@ -995,7 +996,7 @@ public class GraphicalUI extends View {
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) { // once the player reconnects to the game
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) { // once the player reconnects to the game
         // store all the data of the game received from the server
         if (currentEvent.equals(Event.RECONNECT_GAME)) {
             //TODO
@@ -1010,7 +1011,7 @@ public class GraphicalUI extends View {
             this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
             this.chatHistory = chatHistory;
             this.currentPlayer = currentPlayer;
-            //this.players = playerNicknames; //FIXME the playerNicknames is after the Update order
+            this.players = playerNicknames;
             int[] card;
             this.resourceDeckView[0].setImage(imagesMap.get(String.valueOf(resourceCardDeckFacingKingdom)));
             this.resourceDeckView[1].setImage(new Image(convertToImagePath(currentResourceCards.get(0),true), 120, 80, true, false));
@@ -1027,19 +1028,19 @@ public class GraphicalUI extends View {
             // update the data of the players except this player: set the colour, resources, points, online status,
             // and the field of the players after the placement of the starter card.
             for (int i = 0; i < players.size(); i++) {
-                playerSpecific = publicInfo.get(players.get(i));
-                playerSpecific.updateColour(convertToColour(playerColours.get(i)));
-                playerSpecific.updateResources(playerResources);
-                card = playerFields.get(i).get(0);
-                playerSpecific.addToField(new CardPlacedView(card[2], null,
-                        card[0], card[1], card[3] == 1));
-                if(!players.get(i).equals(thisPlayerNickname)){
+                if(!playerNicknames.get(i).equals(thisPlayerNickname)) {
+                    playerSpecific = publicInfo.get(players.get(i));
+                    playerSpecific.updateColour(convertToColour(playerColours.get(i)));
+                    playerSpecific.updateResources(playersResourcesSummary.get(i));
+                    card = playerFields.get(i).get(0);
+                    playerSpecific.addToField(new CardPlacedView(card[2], null,
+                            card[0], card[1], card[3] == 1));
                     updateAfterPlacedCard(players.get(i), card[2], card[0], card[1],
-                            card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[i]);
+                            card[3] == 1, newAvailableFieldSpaces, playersResourcesSummary.get(i), playerPoints[i]);
+                    int finalI = i;
+                    Platform.runLater(() -> playerViews.get(players.get(finalI)).setColour(imagesMap.get(convertToColour(playerColours.get(finalI)))));
                 }
-                int finalI = i;
-                Platform.runLater(()-> playerViews.get(players.get(finalI)).setColour(imagesMap.get(convertToColour(playerColours.get(finalI)))));
-            }
+                }
         }
     }
     private String convertToImagePath(int cardID, boolean isUp) {
@@ -1208,7 +1209,7 @@ public class GraphicalUI extends View {
                                  ArrayList<Integer> pointsGainedFromObj, ArrayList<String> winners) {
         Platform.runLater(()-> {
             endGamePane = new Pane();
-            endGamePane.setBackground(new Background(new BackgroundImage(new Image("/endGameBackground.png"), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
+            endGamePane.setBackground(new Background(new BackgroundImage(new Image("/endGameDisplay.png"), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false))));
             Label winnersLabel = createLabel("The winners of the match are:\n " + winners + "\n", 15);
             // print the final points of the players, the secret objective card of the players, and the points gained from the
             // objective card of the players.
@@ -1225,11 +1226,13 @@ public class GraphicalUI extends View {
             PointsArea.setSpacing(10);
             PointsArea.translateXProperty().bind(endGamePane.widthProperty().subtract(PointsArea.widthProperty()).divide(2));
             PointsArea.translateYProperty().bind(endGamePane.heightProperty().subtract(PointsArea.heightProperty()).divide(2));
-            PointsArea.setStyle("-fx-background-color:trasparent;");
+            PointsArea.setStyle("-fx-background-color:transparent;");
+            winnersLabel.translateXProperty().bind(endGamePane.widthProperty().subtract(winnersLabel.widthProperty()).divide(2));
+            winnersLabel.translateYProperty().bind(endGamePane.heightProperty().subtract(endGamePane.heightProperty()).divide(2));
             endGamePane.getChildren().addAll(winnersLabel, PointsArea);
             app.updateScene(endGamePane);
-            app.getPrimaryStage().setMinWidth(950);
-            app.getPrimaryStage().setMaxWidth(950);
+            app.getPrimaryStage().setMinWidth(975);
+            app.getPrimaryStage().setMaxWidth(975);
             app.getPrimaryStage().show();
         });
     }
@@ -1478,7 +1481,7 @@ public class GraphicalUI extends View {
      */
     private void handleAvailableSpaceClick(ImageView availableSpace, int x, int y){
         availableSpace.setOnMouseClicked(e->{
-            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, selectedCardId, x, y, handViewCardSide[hand.indexOf(selectedCardId)])); // Notify server of card selection
+            notifyAskListener(new PlaceCardMessage(thisPlayerNickname, selectedCardId, x, y, handViewCardSide[indexCardPlaced])); // Notify server of card selection
             //notice.appendText("> You selected the position (" + x + ", " + y + ") to place the card.\n");
 
         });

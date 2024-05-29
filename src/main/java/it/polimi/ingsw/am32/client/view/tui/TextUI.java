@@ -598,7 +598,8 @@ public class TextUI extends View{
      * @param currentPlayer                 indicates the whose turn is now.
      * @param newAvailableFieldSpaces       the available spaces in the field of this player.
      * @param resourceCardDeckFacingKingdom the type of kingdom of the first card in the resource deck.
-     * @param goldCardDeckFacingKingdom    the type of kingdom of the first card in the gold deck.
+     * @param goldCardDeckFacingKingdom     the type of kingdom of the first card in the gold deck.
+     * @param playersResourcesSummary
      */
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
@@ -608,7 +609,9 @@ public class TextUI extends View{
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces,
+                                 int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom,
+                                 ArrayList<int[]> playersResourcesSummary) {
 
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
         if(currentEvent.equals(Event.RECONNECT_GAME)) { // once the player reconnects to the game
@@ -630,7 +633,7 @@ public class TextUI extends View{
             // update the data of the players in the game: colour, online status, points, resources, field and the board.
             for (int i = 0; i < playerNicknames.size(); i++) {
                 publicInfo.put(playerNicknames.get(i), new PlayerPub(convertToColour(playerColours.get(i)),
-                        playerPoints[i], new ArrayList<>(), playerResources, playerConnected.get(i)));
+                        playerPoints[i], new ArrayList<>(), playersResourcesSummary.get(i), playerConnected.get(i)));
                 boards.put(playerNicknames.get(i), new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
                 int finalI = i;
                 // store the all cards placed in the field of the players in the game
@@ -641,7 +644,7 @@ public class TextUI extends View{
                     // resources count, and the points of the player. Also, update the board view of the player with
                     // the current available spaces in the field.
                     updateAfterPlacedCard(playerNicknames.get(finalI), card[2], card[0], card[1],
-                            card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[finalI]);
+                            card[3] == 1, newAvailableFieldSpaces, playersResourcesSummary.get(finalI), playerPoints[finalI]);
                 });
                 // Reconnection of the player from the playing phase
                 out.println("The match status is: " + Status);
@@ -683,15 +686,17 @@ public class TextUI extends View{
             PlayerPub playerSpecific;
             // update the data of the players except this player: set the colour, resources, points, online status,
             // and the field of the players after the placement of the starter card.
-            for (int i = 1; i < playerNicknames.size(); i++) {
-                playerSpecific=publicInfo.get(playerNicknames.get(i));
-                playerSpecific.updateColour(convertToColour(playerColours.get(i)));
-                playerSpecific.updateResources(playerResources);
-                card=playerFields.get(i).get(0);
-                playerSpecific.addToField(new CardPlacedView(card[2], cardImg.get(card[2]),
-                        card[0], card[1], card[3] == 1));
-                updateAfterPlacedCard(playerNicknames.get(i), card[2], card[0], card[1],
-                        card[3] == 1, newAvailableFieldSpaces, playerResources, playerPoints[i]);
+            for (int i = 0; i < playerNicknames.size(); i++) {
+                if(!playerNicknames.get(i).equals(thisPlayerNickname)){
+                    playerSpecific = publicInfo.get(playerNicknames.get(i));
+                    playerSpecific.updateColour(convertToColour(playerColours.get(i)));
+                    playerSpecific.updateResources(playersResourcesSummary.get(i));
+                    card = playerFields.get(i).get(0);
+                    playerSpecific.addToField(new CardPlacedView(card[2], cardImg.get(card[2]),
+                            card[0], card[1], card[3] == 1));
+                    updateAfterPlacedCard(playerNicknames.get(i), card[2], card[0], card[1],
+                            card[3] == 1, newAvailableFieldSpaces, playersResourcesSummary.get(i), playerPoints[i]);
+                }
             }
         }
     }

@@ -125,11 +125,11 @@ public class PlayerGameStatusMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-            // FIXME: We should pass the playerResourcesSummary to the view according to the View demands
             view.updatePlayerData(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective,
                     playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards,
                     gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory,
-                    currentPlayer, newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom);
+                    currentPlayer, newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom,
+                    playersResourcesSummary);
     }
 
     @Override
