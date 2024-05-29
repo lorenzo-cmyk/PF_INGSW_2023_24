@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
