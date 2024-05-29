@@ -755,13 +755,13 @@ public class GameController {
             for (PlayerQuadruple playerQuadruple : nodeList) {
                 submitVirtualViewMessage(new PlaceCardConfirmationMessage(
                         playerQuadruple.getNickname(),
-                        model.getCurrentPlayerNickname(),
+                        nickname, // The player that placed the card
                         id,
                         new int[]{x, y},
                         side,
-                        model.getPlayerPoints(playerQuadruple.getNickname()),
-                        model.getPlayerResources(playerQuadruple.getNickname()),
-                        model.getAvailableSpacesPlayer(playerQuadruple.getNickname())
+                        model.getPlayerPoints(nickname), // The points of the player that placed the card
+                        model.getPlayerResources(nickname), // The resources of the player that placed the card
+                        model.getAvailableSpacesPlayer(nickname) // The available spaces of the player that placed the card
                 ));
             }
 
