@@ -972,6 +972,13 @@ public class GameController {
                     throw new CriticalFailureException("Player " + n + " not found when generating game status message");
                 }
             }).mapToInt(Integer::intValue).toArray();
+            ArrayList<int[]> playersResourcesSummary = model.getPlayersNicknames().stream().map(n -> {
+                try {
+                    return model.getPlayerResources(n);
+                } catch (PlayerNotFoundException e) {
+                    throw new CriticalFailureException("Player " + n + " not found when generating game status message");
+                }
+            }).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<ArrayList<int[]>> playerFields = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerField(n);
@@ -993,7 +1000,7 @@ public class GameController {
             ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 
             return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand,
-                    playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
+                    playerSecretObjective, playerPoints, playersResourcesSummary, playerFields, playerResources, gameCommonObjectives,
                     gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize,
                     matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces,
                     gameResourceDeckFacingKingdom, gameGoldDeckFacingKingdom);

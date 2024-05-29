@@ -177,6 +177,7 @@ Some "reasons" could be: CodeNotFoundMessage (the inserted code does not corresp
   "playerHand": [10, 11, 12],
   "playerSecretObjective": 9,
   "playerPoints": [10, 23, 10],
+  "playersResourcesSummary": [[1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1]],
   "playerFields": [[[0, 0, 12, true], [1, 2, 4, false]], [[1, 2, 34, false]], [[0, 0, 12, false], [1, 1, 34, true]]], 
   "playerResources": [1, 1, 1, 1, 1, 1, 1],
   "gameCommonObjectives": [50, 51],

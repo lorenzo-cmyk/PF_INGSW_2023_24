@@ -21,6 +21,7 @@ public class MessagesTest {
         ArrayList<Integer> playerHand = new ArrayList<>(Arrays.asList(1, 2));
         int playerSecretObjective = 1;
         int[] playerPoints = new int[]{1, 2};
+        ArrayList<int[]> playersResourcesSummary = new ArrayList<>(Arrays.asList(new int[]{1, 2, 3, 4, 5}, new int[]{1, 2, 3, 4, 5}));
         ArrayList<int[]> playerField1 = new ArrayList<>(Arrays.asList(new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}));
         ArrayList<int[]> playerField2 = new ArrayList<>(Arrays.asList(new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}));
         ArrayList<ArrayList<int[]>> playerFields = new ArrayList<>(Arrays.asList(playerField1, playerField2));
@@ -41,8 +42,8 @@ public class MessagesTest {
 
         // Create a new PlayerGameStatusMessage
         PlayerGameStatusMessage playerGameStatusMessage = new PlayerGameStatusMessage(recipientNickname, playerNicknames,
-                playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerFields,
-                playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards,
+                playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playersResourcesSummary,
+                playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards,
                 gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer,
                 newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom);
         // System.out.println(playerGameStatusMessage);
