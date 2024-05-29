@@ -203,7 +203,7 @@ public class GUITemporary extends Application {
         goldDeck.getChildren().addAll(card3,card4,card1);
         deckArea.getChildren().addAll(goldDeck,resourceDeck);
 
-        deckArea.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(40)));
+        deckArea.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(50)));
         deckArea.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(deckArea.getHeight()+400)));
         ImageView card7 = new ImageView(new Image("/cards_front_024.png", 120, 80, true, true));
         ImageView card8 = new ImageView(new Image("/cards_front_028.png", 120, 80, true, false));
@@ -211,6 +211,17 @@ public class GUITemporary extends Application {
         ImageView card10 = new ImageView(new Image("/cards_front_035.png", 120, 80, true, false));
         ImageView card11 = new ImageView(new Image("/cards_front_045.png", 120, 80, true, false));
         ImageView card12 = new ImageView(new Image("/cards_front_055.png", 120, 80, true, false));
+
+
+
+        Label DeckLabel2 = new Label("Resource Deck: 32");
+        DeckLabel2.setStyle("-fx-text-fill: rgba(52,35,7);-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+        DeckLabel2.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(50)));
+        DeckLabel2.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(deckArea.getHeight()+570)));
+        Label DeckLabel = new Label("Resource Deck: 32");
+        DeckLabel.setStyle("-fx-text-fill: rgba(52,35,7);-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+        DeckLabel.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(50)));
+        DeckLabel.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(deckArea.getHeight()+480)));
 
         TextArea notice = new TextArea();
         notice.setWrapText(true);
@@ -273,7 +284,7 @@ public class GUITemporary extends Application {
         returnToMyField.translateXProperty().bind(preparationPhase.widthProperty().subtract(200));
         returnToMyField.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(80)));
         returnToMyField.setVisible(true);
-        preparationPhase.getChildren().add(returnToMyField);
+        preparationPhase.getChildren().addAll(returnToMyField,DeckLabel,DeckLabel2);
 
 
         primaryStage.setScene(new Scene(preparationPhase));
