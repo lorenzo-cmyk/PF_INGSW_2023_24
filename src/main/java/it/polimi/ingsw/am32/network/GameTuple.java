@@ -4,7 +4,7 @@ import it.polimi.ingsw.am32.network.ServerNode.RMIServerNodeInt;
 
 public class GameTuple {
 
-    private RMIServerNodeInt node;
+    private final RMIServerNodeInt node;
     private int id;
 
     public GameTuple(RMIServerNodeInt node, int id) {
