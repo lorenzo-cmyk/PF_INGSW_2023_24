@@ -4,6 +4,7 @@ import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import org.apache.logging.log4j.LogManager;
@@ -87,6 +88,15 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         }
 
         // TODO server sync??
+
+
+        if(message instanceof PongMessage) {
+
+            logger.info("PongMessage received");
+            resetTimeCounter();
+            return;
+        }
+
         resetTimeCounter();
 
         if(message instanceof StoCMessage) {
