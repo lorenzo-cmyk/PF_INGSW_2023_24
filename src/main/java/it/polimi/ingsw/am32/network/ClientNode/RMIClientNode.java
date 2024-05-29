@@ -5,6 +5,7 @@ import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
@@ -124,7 +125,26 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     @Override
     public void uploadStoC(StoCMessage message) {
-        //TODO
+
+        resetTimeCounter();
+
+        if(message == null) {
+            logger.info("Null message received");
+            return;
+        }
+
+        if(message instanceof PongMessage) {
+            logger.info("PongMessage received");
+            return;
+        }
+
+        try {
+            logger.info("Message received. Type: StoCMessage. Processing");
+            message.processMessage(view);
+        } catch (Exception e) {
+            logger.fatal("Critical Runtime Exception:\nException Type: {}\nLocal Message: {}\nStackTrace: {}",
+                    e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
+        }
     }
 
     public void startConnection() {
