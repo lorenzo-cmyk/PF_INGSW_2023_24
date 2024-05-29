@@ -20,13 +20,17 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInterface, RMIClientNodeInt {
 
 
     private static final int PONGMAXCOUNT = 3;
 
+    private final ExecutorService executorService;
     private final Logger logger;
+
     private GameTuple gameTuple;
     private final View view;
     private final String serverURL;
@@ -55,6 +59,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
         pongCount = PONGMAXCOUNT;
+        executorService = Executors.newCachedThreadPool();
     }
 
     public void run() {
@@ -137,6 +142,33 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     @Override
     public void pongTimeOverdue() {
+
+        boolean toReset = false;
+
+        synchronized (aliveLock){
+            if(!statusIsAlive)
+                return;
+
+            pongCount--;
+
+            logger.info("Pong time overdue. Pong count: {}", pongCount);
+
+            if(pongCount <= 0) {
+                logger.info("Pong count reached minimum. Trying to check connection");
+                toReset = true;
+            }
+        }
+
+        if(toReset){
+            // resetConnection(); // TODO risolvere
+            return;
+        }
+
+        executorService.submit(() -> {
+            try {
+                uploadToServer(new PingMessage(null));
+            } catch (UploadFailureException ignore) {}
+        });
 
     }
 
