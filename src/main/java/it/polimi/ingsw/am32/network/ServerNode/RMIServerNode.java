@@ -21,7 +21,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private final Configuration config;
     private GameController gameController;
     private int pingCount;
-    private RMIClientNodeInt clientNode;
+    private final RMIClientNodeInt clientNode;
     private final ServerPingTask serverPingTask;
     private boolean statusIsAlive;
     private boolean destroyCalled;

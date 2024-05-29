@@ -9,7 +9,6 @@ import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptorInt;
 import it.polimi.ingsw.am32.network.GameTuple;
-import it.polimi.ingsw.am32.network.ServerNode.RMIServerNodeInt;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +23,9 @@ import java.util.Timer;
 
 public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInterface, RMIClientNodeInt {
 
+
+    private static final int PONGMAXCOUNT = 3;
+
     private final Logger logger;
     private GameTuple gameTuple;
     private final View view;
@@ -32,6 +34,15 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private Registry registry;
     private RMIClientAcceptorInt rmiClientAcceptor;
     private final Timer timer;
+    private ClientPingTask clientPingTask;
+
+    private int pongCount;
+
+    private boolean statusIsAlive;
+    private boolean reconnectCalled;
+    private final Object aliveLock;
+    private final Object cToSProcessingLock;
+    private final Object sToCProcessingLock;
 
 
     public RMIClientNode(View view, String serverURL, int port) throws RemoteException {
@@ -40,6 +51,10 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         this.port = port;
         logger = LogManager.getLogger("RMIClientNode");
         timer = new Timer();
+        aliveLock = new Object();
+        cToSProcessingLock = new Object();
+        sToCProcessingLock = new Object();
+        pongCount = PONGMAXCOUNT;
     }
 
     public void run() {
@@ -126,6 +141,16 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     }
 
     public void resetTimeCounter() {
+
+        synchronized (aliveLock) {
+
+            if (!statusIsAlive)
+                return;
+
+            pongCount = PONGMAXCOUNT; // TODO modificare se si aggiunge config
+        }
+
+        logger.info("Pong count reset");
 
     }
 }
