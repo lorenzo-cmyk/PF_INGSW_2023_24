@@ -15,7 +15,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Timer;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,16 +24,20 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     private final Logger logger;
     private final ExecutorService executorService;
+
     private final View view;
-    private Socket socket;
     private final String ip;
     private final int port;
+    private String nickname;
+    private int pongCount;
+
+    private Socket socket;
     private ObjectOutputStream outputObtStr;
     private ObjectInputStream inputObtStr;
-    private String nickname;
+
     private ClientPingTask clientPingTask;
     private final Timer timer;
-    private int pongCount;
+
     private boolean statusIsAlive;
     private boolean reconnectCalled;
     private final Object aliveLock;

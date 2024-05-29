@@ -38,12 +38,14 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private final View view;
     private final String serverURL;
     private final int port;
+    private String nickname;
+    private int pongCount;
+
     private Registry registry;
     private RMIClientAcceptorInt rmiClientAcceptor;
+
     private final Timer timer;
     private ClientPingTask clientPingTask;
-
-    private int pongCount;
 
     private boolean statusIsAlive;
     private boolean reconnectCalled;
