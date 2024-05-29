@@ -6,9 +6,12 @@ import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 
-public class RMIClientNode implements ClientNodeInterface, RMIClientNodeInt {
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInterface, RMIClientNodeInt {
     private final View view;
-    public RMIClientNode(View view) {
+    public RMIClientNode(View view) throws RemoteException {
         this.view = view;
     }
     @Override

@@ -15,6 +15,8 @@ import it.polimi.ingsw.am32.model.exceptions.MissingRequirementsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameSimulationTest {
@@ -392,6 +394,32 @@ public class GameSimulationTest {
 
         // If I try now to compute the points again, I should get an AlreadyComputedPointsException
         assertThrows(AlreadyComputedPointsException.class, player::updatePointsForSecretObjective);
+    }
+
+    @DisplayName("availableSpacesPlayer testing edge cases")
+    @Test
+    public void availableSpacesPlayerEdgeCasesTest() {
+        // Initialize the builder for NonObjectiveCardDeck
+        NonObjectiveCardDeckBuilder nonObjectiveCardDeckBuilder = new NonObjectiveCardDeckBuilder();
+        // Let the builder create the decks
+        NonObjectiveCardDeck startingCardDeck = nonObjectiveCardDeckBuilder.buildNonObjectiveCardDeck(DeckType.STARTING);
+
+        // Initialize the player
+        Player player = new Player("SimulationPlayer");
+
+        // Assign the starting card to the player
+        try {
+            player.assignStartingCard(retrieveNonObjectiveCardByID(startingCardDeck, 86));
+        } catch (Exception e) {
+            fail();
+        }
+
+        // Initialize the field
+        player.initializeGameField(false);
+
+        // Unpack the result of availableSpacesPlayer
+        ArrayList<int[]> avaliableSpaces = player.availableSpacesPlayer();
+        assertEquals(2, avaliableSpaces.size());
     }
 
     public NonObjectiveCard retrieveNonObjectiveCardByID(NonObjectiveCardDeck deck, int id) throws Exception {
