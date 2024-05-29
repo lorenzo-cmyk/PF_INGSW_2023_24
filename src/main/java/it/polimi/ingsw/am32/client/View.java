@@ -54,7 +54,6 @@ public abstract class View implements EventHandler{
     protected HashMap<String,PlayerPub> publicInfo; //save the colour, nickname, points and resources of the player.
     protected static final ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
-    protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
     protected List<ChatMessage>chatHistory;
     protected boolean chatMode = false;
     protected volatile boolean isMyTurn = true;
@@ -186,8 +185,6 @@ public abstract class View implements EventHandler{
 
 
     public abstract void showCard(int ID, boolean isUp);
-
-    public abstract HashMap<Integer, ArrayList<String>> setImg();
 
     public void updatePlayerTurn(String playerNickname) {
     }

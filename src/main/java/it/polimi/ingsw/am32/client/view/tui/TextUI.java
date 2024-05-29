@@ -67,6 +67,7 @@ public class TextUI extends View{
     private static final String EMPTY = "  "; // empty space used to remain the layout of the printed cards
     private static final String BLANK = "   ";// blank space used to print the cells empty for the board
     private final Object lock = new Object(); // lock object used to synchronize the readInputThread
+    protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
 
     /**
      * Constructor of the class TextUI
@@ -683,9 +684,6 @@ public class TextUI extends View{
             // update the data of the players except this player: set the colour, resources, points, online status,
             // and the field of the players after the placement of the starter card.
             for (int i = 1; i < playerNicknames.size(); i++) {
-                if(playerNicknames.get(i).equals(thisPlayerNickname)){
-                    continue;
-                }
                 playerSpecific=publicInfo.get(playerNicknames.get(i));
                 playerSpecific.updateColour(convertToColour(playerColours.get(i)));
                 playerSpecific.updateResources(playerResources);
@@ -1368,8 +1366,7 @@ public class TextUI extends View{
      * in the hashmap with the ID of the card as the key.
      * @return hashmap with the ID of the card as the key and the image of the card as the value.
      */
-    @Override
-    public HashMap<Integer, ArrayList<String>> setImg() {
+    private HashMap<Integer, ArrayList<String>> setImg() {
         HashMap<Integer, ArrayList<String>> Img = new HashMap<>();
         for (NonObjCardFactory card : nonObjCards) {
             ArrayList<String> cardImage = new ArrayList<>();
