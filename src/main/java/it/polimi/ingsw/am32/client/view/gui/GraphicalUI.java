@@ -599,10 +599,12 @@ public class GraphicalUI extends View {
 
         notice.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         notice.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight()+280)));
-        // create Chat view
-        chatArea = new ChatArea(0, 0, 305, 75,players); // Create chat area //TODO FIX PROBLEM OF SEND AND RECEIVE MESSAGE
+
+        // Initialize the chat area
+        chatArea = new ChatArea(0, 0, 305, 75, players);
         chatArea.getChatArea().translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         chatArea.getChatArea().translateYProperty().bind(masterPane.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
+        chatArea.setActive(false); // At the start, disable the chat area
 
         //Images to hold the spaces for the cards in hand, common objective cards and secret objective cards
         handView = new ImageView[]{
@@ -997,6 +999,10 @@ public class GraphicalUI extends View {
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) { // once the player reconnects to the game
+
+        // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
+        chatArea.setActive(true); // Enable chat area
+
         // store all the data of the game received from the server
         if (currentEvent.equals(Event.RECONNECT_GAME)) {
             //TODO
@@ -1444,7 +1450,6 @@ public class GraphicalUI extends View {
             String cardIdStr = chosenSecretObjectiveCard > 99 ? String.valueOf(chosenSecretObjectiveCard) : "0" + chosenSecretObjectiveCard;
             secretObjCardView.setImage(new Image("/cards_front_" + cardIdStr + ".png", 120, 80, true, true));
         });
-
     }
 
 
