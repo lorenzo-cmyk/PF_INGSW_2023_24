@@ -16,7 +16,6 @@ import java.rmi.server.UnicastRemoteObject;
 public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInterface, RMIClientNodeInt {
 
     private final View view;
-    public RMIClientNode(View view) throws RemoteException {
     private final String serverURL;
     private final int port;
     private Registry registry;
