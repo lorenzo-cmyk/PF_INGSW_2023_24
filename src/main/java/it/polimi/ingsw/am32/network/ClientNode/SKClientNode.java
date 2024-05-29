@@ -20,6 +20,8 @@ import java.util.concurrent.Executors;
 
 public class SKClientNode implements ClientNodeInterface, Runnable {
 
+    private static final int PONGMAXCOUNT = 3;
+
     private final Logger logger;
     private final ExecutorService executorService;
     private final View view;
@@ -49,7 +51,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
         statusIsAlive = false;
-        pongCount = 3; // todo fare un config??
+        pongCount = PONGMAXCOUNT; // todo fare un config??
         logger = LogManager.getLogger("SKClientNode");
         reconnectCalled = false;
     }
@@ -267,17 +269,23 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     @Override
     public void pongTimeOverdue() {
 
+        boolean toReset = false;
+
         synchronized (aliveLock){
             if(!statusIsAlive)
                 return;
+
+            pongCount--;
+
+            logger.info("Pong time overdue. Pong count: {}", pongCount);
+
+            if(pongCount <= 0) {
+                logger.info("Pong count reached minimum. Trying to check connection");
+                toReset = true;
+            }
         }
 
-        pongCount--;
-
-        logger.info("Pong time overdue. Pong count: {}", pongCount);
-
-        if(pongCount <= 0) {
-            logger.info("Pong count reached minimum. Trying to check connection");
+        if(toReset){
             resetConnection();
             return;
         }
@@ -296,7 +304,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             if (!statusIsAlive)
                 return;
 
-            pongCount = 3; // TODO modificare se si aggiunge config
+            pongCount = PONGMAXCOUNT; // TODO modificare se si aggiunge config
         }
 
         logger.info("Pong count reset");
