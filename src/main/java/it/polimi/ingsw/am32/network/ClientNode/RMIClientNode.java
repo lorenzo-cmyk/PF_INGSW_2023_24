@@ -42,8 +42,18 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         //TODO
     }
 
-    public void run() {
-        // TODO
+    public void startConnection() {
+
+        try {
+            registry = LocateRegistry.getRegistry(serverURL, port);
+            String remoteObjectName = "Server-CodexNaturalis";
+            rmiClientAcceptor = (RMIClientAcceptorInt) registry.lookup(remoteObjectName);
+            System.out.println("RMI Client Acceptor found");
+        } catch (RemoteException | NotBoundException e) {
+            //TODO handle exception
+        }
+
+
     }
 
     @Override
