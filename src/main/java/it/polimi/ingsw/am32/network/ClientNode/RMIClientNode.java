@@ -92,6 +92,9 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             try {
                 gameTuple = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
                 logger.info("Message sent. Type: CtoSLobbyMessage");
+
+                timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+
                 break;
 
             } catch (RemoteException e) { // TODO come gestisco queste exception??
