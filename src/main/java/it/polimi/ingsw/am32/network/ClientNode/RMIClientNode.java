@@ -20,6 +20,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Timer;
 
 public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInterface, RMIClientNodeInt {
 
@@ -30,6 +31,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private final int port;
     private Registry registry;
     private RMIClientAcceptorInt rmiClientAcceptor;
+    private final Timer timer;
 
 
     public RMIClientNode(View view, String serverURL, int port) throws RemoteException {
@@ -37,6 +39,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         this.serverURL = serverURL;
         this.port = port;
         logger = LogManager.getLogger("RMIClientNode");
+        timer = new Timer();
     }
 
     public void run() {
@@ -119,6 +122,10 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     @Override
     public void pongTimeOverdue() {
+
+    }
+
+    public void resetTimeCounter() {
 
     }
 }
