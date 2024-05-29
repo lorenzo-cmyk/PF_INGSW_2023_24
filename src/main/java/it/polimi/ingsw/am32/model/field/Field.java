@@ -243,11 +243,15 @@ public class Field {
                 adjacentCards = true;
                 if (cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getTopLeft() == CornerType.NON_COVERABLE) {
                     return false;
+                } else if (!cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getTopLeftBack() == CornerType.NON_COVERABLE) {
+                    return false;
                 }
             }
             else if (cardPlaced.getX() == x-1 && cardPlaced.getY() == y-1) {
                 adjacentCards = true;
                 if (cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getTopRight() == CornerType.NON_COVERABLE) {
+                    return false;
+                } else if (!cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getTopRightBack() == CornerType.NON_COVERABLE) {
                     return false;
                 }
             }
@@ -255,11 +259,15 @@ public class Field {
                 adjacentCards = true;
                 if (cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getBottomLeft() == CornerType.NON_COVERABLE) {
                     return false;
+                } else if (!cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getBottomLeftBack() == CornerType.NON_COVERABLE) {
+                    return false;
                 }
             }
             else if (cardPlaced.getX() == x-1 && cardPlaced.getY() == y+1) {
                 adjacentCards = true;
                 if (cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getBottomRight() == CornerType.NON_COVERABLE) {
+                    return false;
+                } else if(!cardPlaced.getIsUp() && cardPlaced.getNonObjectiveCard().getBottomRightBack() == CornerType.NON_COVERABLE) {
                     return false;
                 }
             }
