@@ -4,8 +4,8 @@ import it.polimi.ingsw.am32.network.ServerNode.RMIServerNodeInt;
 
 public class GameTuple {
 
-    private RMIServerNodeInt node;
-    private int id;
+    private final RMIServerNodeInt node;
+    private final int id;
 
     public GameTuple(RMIServerNodeInt node, int id) {
         this.node = node;

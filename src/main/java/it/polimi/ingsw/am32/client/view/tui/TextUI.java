@@ -145,10 +145,10 @@ public class TextUI extends View{
                     // Ask the player to insert the server IP
                     out.println("Insert the server IP:"); // Ask the player to insert the server IP
 
-                    String ServerIP = in.nextLine(); // Read the player's input
-                    while (!isValid.isIpValid(ServerIP)) { // Check if the IP address is valid
+                    String serverIP = in.nextLine(); // Read the player's input
+                    while (!isValid.isIpValid(serverIP)) { // Check if the IP address is valid
                         out.println("Invalid IP, please try again"); // Print an error message
-                        ServerIP = in.nextLine(); // Ask the player to re-enter the IP address
+                        serverIP = in.nextLine(); // Ask the player to re-enter the IP address
                     }
 
                     // Ask the player to insert the server port
@@ -161,7 +161,7 @@ public class TextUI extends View{
                     }
 
                     try {
-                        setSocketClient(ServerIP, port); // Set the socket client
+                        setSocketClient(serverIP, port); // Set the socket client
                         isConnected = true; // Set the connection status to true
                     } catch (IOException e) { // If an I/O error occurs
                         Thread.currentThread().interrupt(); // Interrupt the current thread
@@ -175,13 +175,23 @@ public class TextUI extends View{
                     out.println("Insert the server URL"); // Ask the player to insert the server URL
                     // TODO Should ask the player to insert the server URL in a specific format
 
-                    String ServerURL = in.nextLine(); // Read the player's input
-                    while (!isValid.isURLValid(ServerURL)) { // Check if the URL is valid
+                    String serverURL = in.nextLine(); // Read the player's input
+                    while (!isValid.isURLValid(serverURL)) { // Check if the URL is valid
                         out.println("Invalid URL, please try again"); // Print an error message
-                        ServerURL = in.nextLine(); // Ask the player to re-enter the URL
+                        serverURL = in.nextLine(); // Ask the player to re-enter the URL
                     }
 
-                    setRMIClient(ServerURL); // Set the RMI client
+                    // Ask the player to insert the server port
+                    out.println("Insert the server port:"); // Ask the player to insert the server port
+
+                    int port = getInputInt(); // Read the player's input
+                    while (!isValid.isPortValid(port)) { // Check if the port number is valid
+                        out.println("Invalid port, please try again"); // Print an error message
+                        port = getInputInt(); // Ask the player to re-enter the port number
+                    }
+
+                    // TODO mettere exception come
+                    setRMIClient(serverURL, port); // Set the RMI client
                     isConnected = true; // Set the connection status to true
 
                     break;
@@ -204,25 +214,25 @@ public class TextUI extends View{
      * Method that sets the socket client with the server IP and the server port entered by the player and attempts to
      * establish the connection between the client and the server.
      *
-     * @param ServerIP the server IP entered by the player
+     * @param serverIP the server IP entered by the player
      * @param port     the server port entered by the player
      * @throws IOException if an I/O error occurs
      */
     @Override
-    public void setSocketClient(String ServerIP, int port) throws IOException {
-        super.setSocketClient(ServerIP, port);
+    public void setSocketClient(String serverIP, int port) throws IOException {
+        super.setSocketClient(serverIP, port);
     }
 
     /**
      * Method that sets the RMI client with the server URL entered by the player and attempts to establish the
      * connection between the client and the server.
      *
-     * @param ServerURL the server URL entered by the player
+     * @param serverURL the server URL entered by the player
      * @see View#setSocketClient(String, int)
      */
     @Override
-    public void setRMIClient(String ServerURL) {
-        super.setRMIClient(ServerURL); // see the method in the superclass
+    public void setRMIClient(String serverURL, int port) {
+        super.setRMIClient(serverURL, port); // see the method in the superclass
     }
     //-------------------Title-------------------
 

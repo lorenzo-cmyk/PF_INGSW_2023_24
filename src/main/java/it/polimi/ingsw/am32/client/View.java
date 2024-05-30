@@ -7,15 +7,11 @@ import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
-import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNode;
 import it.polimi.ingsw.am32.network.ClientNode.SKClientNode;
 
 import java.io.IOException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -86,28 +82,27 @@ public abstract class View implements EventHandler{
 
     public abstract void chooseConnection();
 
-    public void setSocketClient(String ServerIP, int port) throws IOException {
-        SKClientNode clientNode = new SKClientNode(this);
+    public void setSocketClient(String serverIP, int port) throws IOException {
+        SKClientNode clientNode = new SKClientNode(this,serverIP,port);
         this.clientNode = clientNode;
-        clientNode.startConnection(ServerIP,port);
+        clientNode.startConnection();
         this.askListener = new  AskListener(clientNode);
-        Thread thread = new Thread((clientNode)); // Create a new thread to listen for messages from the server
-        thread.start();
         Thread askListener = new Thread(this.askListener);  // Create a new thread to listen for messages from the client
         askListener.start();
         //TODO verify if this is correct
     }
-    public void setRMIClient(String ServerURL){
+    public void setRMIClient(String serverURL, int port) {
         //TODO verify if this is correct
 
         try{
-            this.clientNode = new RMIClientNode(this);
-            Registry registry = LocateRegistry.getRegistry(ServerURL);
-            String remoteObjectName = "Server-CodexNaturalis";
-            RMIClientAcceptor rmiClientAcceptor = (RMIClientAcceptor) registry.lookup(remoteObjectName);
-            this.clientNode = new RMIClientNode(this);
-            System.out.println("RMI Client Acceptor created");
-        }catch (RemoteException | NotBoundException e) {
+            RMIClientNode clientNode = new RMIClientNode(this, serverURL, port);
+            this.clientNode = clientNode;
+            clientNode.startConnection();
+
+            this.askListener = new AskListener(clientNode);
+            Thread askListenerThread = new Thread(this.askListener);
+            askListenerThread.start();
+        }catch (RemoteException e) {
             //TODO
         }
     }

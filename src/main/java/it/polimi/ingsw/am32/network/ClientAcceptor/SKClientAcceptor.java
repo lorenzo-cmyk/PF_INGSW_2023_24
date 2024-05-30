@@ -31,8 +31,10 @@ public class SKClientAcceptor implements Runnable {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                executorService.submit(new SKServerNode(socket));
+
+                SKServerNode skServerNode = new SKServerNode(socket);
                 logger.info("Accepted connection from: {}. SKServerNode created successfully", socket.getRemoteSocketAddress());
+                executorService.submit(skServerNode);
 
             } catch (IOException e) {
                 logger.error("Connection accept failed: {}", e.getMessage());

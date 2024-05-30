@@ -20,6 +20,7 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
 
     public RMIClientAcceptor() throws RemoteException {}
 
+    // TODO export stuff
     @Override
     public GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message) throws RemoteException,
             GameAlreadyStartedException, FullLobbyException, InvalidPlayerNumberException, DuplicateNicknameException,

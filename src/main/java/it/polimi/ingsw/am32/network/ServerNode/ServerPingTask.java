@@ -12,7 +12,7 @@ public class ServerPingTask extends TimerTask {
         this.node = node;
     }
     public void run() {
-        logger.debug("ServerPingTask started. The node {} will be checked for ping time.", node);
+        //logger.debug("ServerPingTask started. The node {} will be checked for ping time.", node);
         node.pingTimeOverdue();
     }
 
