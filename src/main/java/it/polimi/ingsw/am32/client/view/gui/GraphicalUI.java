@@ -632,15 +632,19 @@ public class GraphicalUI extends View {
         playerInfoPanel.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(60)));
 
         // set the top line panel of the master pane which contains the game ID, the status and the player order
-        Label labelPlayer= createLabel(thisPlayerNickname+"'s View", 15);
+        Label labelPlayer= createLabel(thisPlayerNickname+"'s View", 20);
         Label labelID = createLabel("ID: " + gameID, 15);
         HBox StatusBox = new HBox();
         Label statusTitle = createLabel("Status: ", 15);
         StatusBox.getChildren().addAll(statusTitle, matchStatus);
+        Button rulesButton = createTransButton("[Rules]", 15, "#3A2111", 0, 0);
+        rulesButton.setOnAction(e -> showRuleBook());
+        Button helpInfoButton = createTransButton("[Help]", 15, "#3A2111", 0, 0);
+        helpInfoButton.setOnAction(e -> showHelpInfo());
 
         HBox topLine = new HBox();
         topLine.setSpacing(100);
-        topLine.getChildren().addAll(labelPlayer,labelID, StatusBox, playerOrder);
+        topLine.getChildren().addAll(labelPlayer,labelID, StatusBox, playerOrder, rulesButton, helpInfoButton);
         topLine.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(20)));
         topLine.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(20)));
 
@@ -750,6 +754,7 @@ public class GraphicalUI extends View {
         returnToMyField.translateXProperty().bind(masterPane.widthProperty().subtract(200));
         returnToMyField.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(80)));
         returnToMyField.setVisible(false);
+
 
         masterPane.getChildren().addAll(board, deckArea,deckSize, bottomLine, noticeArea,chatArea.getChatArea(),cardLabels,noticeEventPanel,returnToMyField);
 
@@ -960,7 +965,7 @@ public class GraphicalUI extends View {
     private Button createTransButton(String buttonName, int size, String color, int X, int Y) {
         Button button = new Button(buttonName);
         button.setStyle("-fx-background-color: transparent;-fx-text-fill:" + color + ";-fx-alignment: center;" +
-                "-fx-font-size: " + size + "px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.7) , 10,0,0,10 );");
+                "-fx-font-size: " + size + "px;-fx-font-family: 'JejuHallasan';");
         button.setTranslateX(X);
         button.setTranslateY(Y);
         return button;
