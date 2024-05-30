@@ -254,7 +254,7 @@ public class GraphicalUI extends View {
         });
         // create the RMI connection root
         StackPane RMIRoot = new StackPane();
-        Label labelRMIIP = createLabel("Socket", -80, -80); // add the title
+        Label labelRMIIP = createLabel("RMI", -80, -80); // add the title
         TextField RMIIp = createTextField("Enter the IP", 35, 250, -50, -30); // create the text field asks the player to enter the IP address
         TextField RMIPort = createTextField("Enter the port", 35, 250, -50, 50); // create the text field asks the player to enter the port number
         Button OkRMIButton = createButton("[OK]", 160, 0); // create the button Ok to confirm the input.
@@ -368,7 +368,7 @@ public class GraphicalUI extends View {
         });
         fourButton.setOnAction(e -> {
             playerNum = 4;
-            handleButtonClick(twoButton, threeButton, fourButton,lighting);
+            handleButtonClick(fourButton, threeButton, twoButton,lighting);
         });
         createButton.setOnAction(e -> {
             thisPlayerNickname = nickname.getText();
