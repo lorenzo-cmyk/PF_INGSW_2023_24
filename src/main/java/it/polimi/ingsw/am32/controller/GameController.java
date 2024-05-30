@@ -120,10 +120,13 @@ public class GameController {
         // Message sender does exist
         if (message.isMulticastFlag()) { // Broadcast message
             for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players
-                try {
-                    submitVirtualViewMessage(new OutboundChatMessage(playerQuadruple.getNickname(), message.getSenderNickname(), message.getMessageContent()));
-                } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify players in the game
-                    throw new CriticalFailureException("VirtualViewNotFoundException when broadcasting chat message");
+                if (!playerQuadruple.getNickname().equals(message.getSenderNickname())) { // Do not send broadcast message to sender
+                    try {
+                        submitVirtualViewMessage(new OutboundChatMessage(playerQuadruple.getNickname(), message.getSenderNickname(), message.getMessageContent()));
+                    } catch (
+                            VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify players in the game
+                        throw new CriticalFailureException("VirtualViewNotFoundException when broadcasting chat message");
+                    }
                 }
             }
         } else { // Direct message
