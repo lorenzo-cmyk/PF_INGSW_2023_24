@@ -299,15 +299,15 @@ public class SKServerNode implements Runnable, NodeInterface {
                 return;
             }
 
-        }
+            //TODO valutare se rimandare in dietro un messaggio di errore
+            try {
+                uploadToClient(new ErrorMessage("Error: message type not recognized", "PLAYER"));
+                logger.info("message type not recognized. Sending ErrorMessage to client");
 
-        //TODO valutare se rimandare in dietro un messaggio di errore
-        try {
-            uploadToClient(new ErrorMessage("Error: message type not recognized", "PLAYER"));
-            logger.info("message type not recognized. Sending ErrorMessage to client");
+            } catch (UploadFailureException e) {
+                logger.error("message type not recognized. Failed to send ErrorMessage to client");
+            }
 
-        } catch (UploadFailureException e) {
-            logger.error("message type not recognized. Failed to send ErrorMessage to client");
         }
     }
 
