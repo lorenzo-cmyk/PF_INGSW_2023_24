@@ -200,13 +200,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                 // As expected, the gameController has not yet been assigned
                 try {
                     gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
-
-                    notLinkedPingTask.cancel();
-                    config.purgeTimer();
-                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
-
-                    logger.info("Elaborated CtoSLobbyMessage received: {}", message.toString());
-
                     // TODO forse è meglio mettere il messaggio di errore nell'exception
 
                     notLinkedPingTask.cancel();
