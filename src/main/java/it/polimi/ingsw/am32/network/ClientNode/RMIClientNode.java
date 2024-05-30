@@ -126,6 +126,18 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
     }
 
+    private void resetConnection () {
+
+        gameTuple = null;
+        clientPingTask.cancel();
+        timer.purge();
+        clientPingTask = new ClientPingTask(this);
+        // TODO aggiungere alla view
+        //TODO view.disconnected();
+
+
+    }
+
     public void startConnection() {
 
         try {
