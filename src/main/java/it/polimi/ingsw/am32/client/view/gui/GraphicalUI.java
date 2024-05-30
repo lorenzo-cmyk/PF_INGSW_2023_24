@@ -400,13 +400,37 @@ public class GraphicalUI extends View {
         Label labelNickname = createLabel("Nickname&GameID", -80, -80);
 
         TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
-        TextField accessID = createTextField("Enter the game ID", 35, 220, -60, 35);
+        TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
 
         Button joinButton = createButton("[Join]", 140, 65);
 
         joinGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
 
         joinButton.setOnAction(e -> {
+            handelButtonJoinAndReconnectClick(nickname,accessID);
+        });
+        selectionPane.getChildren().add(joinGameRoot);
+    }
+    @Override
+    public void askReconnectGame() {
+        currentEvent = Event.RECONNECT_GAME;
+        StackPane reconnectGameRoot = new StackPane();
+
+        Label labelNickname = createLabel("Nickname&GameID", -80, -80);
+
+        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+        TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
+
+        Button joinButton = createButton("[Reconnect]", 140, 65);
+
+        reconnectGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+
+        joinButton.setOnAction(e -> {
+            handelButtonJoinAndReconnectClick(nickname,accessID);
+        });
+        selectionPane.getChildren().add(reconnectGameRoot);
+    }
+    public void handelButtonJoinAndReconnectClick(TextField nickname, TextField accessID){
             thisPlayerNickname = nickname.getText();
             String ID = accessID.getText();
             if (thisPlayerNickname.isBlank()) {
@@ -418,14 +442,16 @@ public class GraphicalUI extends View {
             } else {
                 try {
                     gameID = Integer.parseInt(ID);
-                    notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+                    if (currentEvent.equals(Event.RECONNECT_GAME)) {
+                        notifyAskListener(new ReconnectGameMessage(thisPlayerNickname, gameID));
+                    } else {
+                        notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+                    }
                 } catch (NumberFormatException ex) {
                     createAlert("Game ID must be a number");
                     accessID.clear();
                 }
             }
-        });
-        selectionPane.getChildren().add(joinGameRoot);
     }
     /**
      * Once the player receives the NewGameConfirmationMessage from the server, the method is called by processMessage
@@ -1329,16 +1355,6 @@ public class GraphicalUI extends View {
     }
 
 
-    @Override
-    public void askNickname() {
-        //TODO
-    }
-
-
-    @Override
-    public void askReconnectGame() {
-        //TODO
-    }
 
     @Override
     public void requestSelectStarterCardSide(int ID) {

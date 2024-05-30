@@ -280,8 +280,7 @@ public class TextUI extends View{
      * Method that asks the player to insert the nickname they want to use in the game.
      * Nickname limited to 20 characters.
      */
-    @Override
-    public void askNickname() {
+    private void askNickname() {
         while (true) {
             out.println("Insert the nickname you want to use in the game:");
             thisPlayerNickname = in.nextLine();

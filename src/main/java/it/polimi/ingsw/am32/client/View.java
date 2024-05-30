@@ -75,8 +75,6 @@ public abstract class View implements EventHandler{
 
     public abstract void askSelectGameMode();
 
-    public abstract void askNickname();
-
     public abstract void askCreateGame();
 
     public abstract void updateNewGameConfirm(int gameID, String recipientNickname);
