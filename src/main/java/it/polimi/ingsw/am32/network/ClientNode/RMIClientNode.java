@@ -71,34 +71,57 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     @Override
     public void uploadToServer(CtoSMessage message) throws UploadFailureException {
 
-        try {
-            gameTuple.getNode().uploadCtoS(message);
-            logger.info("Message sent. Type: CtoSMessage");
+        synchronized (aliveLock) {
+            if(gameTuple == null) {
 
-        } catch (NodeClosedException e) { // TODO gestire eccezioni
-            throw new RuntimeException(e);
-        } catch (PlayerNotFoundException | RemoteException e) {
-            throw new RuntimeException(e);
+                // TODO aggiungere di dire errore alla view
+                throw new UploadFailureException();
+            }
         }
 
+        synchronized (cToSProcessingLock) {
+
+            try {
+                gameTuple.getNode().uploadCtoS(message); // TODO il numero di partita in realtà non server
+                logger.info("Message sent. Type: CtoSMessage");
+
+            } catch (NodeClosedException e) { // TODO gestire eccezioni
+                throw new RuntimeException(e);
+            } catch (PlayerNotFoundException | RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
     public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
 
-        try {
-            gameTuple = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
-            logger.info("Message sent. Type: CtoSLobbyMessage");
+        synchronized (aliveLock) {
+            if(gameTuple != null) {
 
-            timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+                // TODO aggiungere di dire errore alla view
+                throw new UploadFailureException();
+            }
+        }
 
-        } catch (RemoteException e) { // TODO come gestisco queste exception??
-            throw new RuntimeException(e);
-        } catch (GameAlreadyStartedException | FullLobbyException | InvalidPlayerNumberException |
-                 DuplicateNicknameException | GameNotFoundException | GameAlreadyEndedException |
-                 PlayerNotFoundException | PlayerAlreadyConnectedException | GameNotYetStartedException e) {
+        synchronized (cToSProcessingLock) {
 
-            // view.failureCtoSLobby
+            try {
+                // TODO ritorniamo solo l'interfaccia RMI e non il num di partita perchè non serve??
+                gameTuple = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
+                logger.info("Message sent. Type: CtoSLobbyMessage");
+
+
+                timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+
+            } catch (RemoteException e) { // TODO come gestisco queste exception??
+                throw new RuntimeException(e);
+            } catch (GameAlreadyStartedException | FullLobbyException | InvalidPlayerNumberException |
+                     DuplicateNicknameException | GameNotFoundException | GameAlreadyEndedException |
+                     PlayerNotFoundException | PlayerAlreadyConnectedException | GameNotYetStartedException e) {
+
+                // view.failureCtoSLobby
+            }
         }
     }
 
@@ -126,6 +149,18 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
     }
 
+    private void resetConnection () {
+
+        gameTuple = null;
+        clientPingTask.cancel();
+        timer.purge();
+        clientPingTask = new ClientPingTask(this);
+        // TODO aggiungere alla view
+        //TODO view.disconnected();
+
+
+    }
+
     public void startConnection() {
 
         try {
@@ -136,8 +171,6 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         } catch (RemoteException | NotBoundException e) {
             //TODO handle exception
         }
-
-
     }
 
     @Override
@@ -169,7 +202,6 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
                 uploadToServer(new PingMessage(nickname));
             } catch (UploadFailureException ignore) {}
         });
-
     }
 
     public void resetTimeCounter() {
