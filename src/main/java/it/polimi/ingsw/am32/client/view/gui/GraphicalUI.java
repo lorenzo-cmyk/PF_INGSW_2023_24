@@ -302,6 +302,7 @@ public class GraphicalUI extends View {
         super.setSocketClient(ServerIP, portNumber);
     }
 
+
     /**
      * Set the page where the player can select the game mode. The player can choose between creating a new game, joining
      * an existing game or reconnecting to a game. The player can choose the game mode using the buttons “New Game”, “Join
@@ -1006,6 +1007,7 @@ public class GraphicalUI extends View {
 
     @Override
     public void showPointsAndResource(String playerNickname) {
+        //TODO
 
     }
 
@@ -1048,7 +1050,7 @@ public class GraphicalUI extends View {
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) { // once the player reconnects to the game
 
         // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
-        chatArea.setActive(true); // Enable chat area
+        startChatting(); // Enable chat area
 
         // store all the data of the game received from the server
         if (currentEvent.equals(Event.RECONNECT_GAME)) {
@@ -1078,8 +1080,6 @@ public class GraphicalUI extends View {
                  goldSize.setText(String.valueOf(goldDeckSize));
                  resourceSize.setText(String.valueOf(resourceDeckSize));
             });
-            //TODO update the chat area
-
             PlayerPub playerSpecific;
             // update the data of the players except this player: set the colour, resources, points, online status,
             // and the field of the players after the placement of the starter card.
@@ -1129,6 +1129,7 @@ public class GraphicalUI extends View {
 
     @Override
     public void showHand(ArrayList<Integer> hand) {
+        //TODO
         VBox handArea = new VBox(); // Entire selection area
 
         Label promptLabel = createLabel("Your hand", 20);
@@ -1161,6 +1162,7 @@ public class GraphicalUI extends View {
 
     @Override
     public void showObjectiveCards(ArrayList<Integer> ObjCards) {
+        //TODO
         VBox handArea = new VBox(); // Entire selection area
 
         Label promptLabel = createLabel("Your common objective cards:", 20);
@@ -1296,12 +1298,12 @@ public class GraphicalUI extends View {
 
     @Override
     public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
-
+        //TODO
     }
 
     @Override
     public void showChatHistory(List<ChatMessage> chatHistory) {
-
+        //TODO
     }
 
     /**
@@ -1337,7 +1339,6 @@ public class GraphicalUI extends View {
     public void askReconnectGame() {
         //TODO
     }
-
 
     @Override
     public void requestSelectStarterCardSide(int ID) {
@@ -1484,17 +1485,17 @@ public class GraphicalUI extends View {
 
     @Override
     public void startChatting() {
-
+        chatArea.setActive(true);
     }
 
     @Override
     public void showDeck() {
-
+           // TODO
     }
 
     @Override
     public void showHelpInfo() {
-
+        //TODO
     }
 
     @Override

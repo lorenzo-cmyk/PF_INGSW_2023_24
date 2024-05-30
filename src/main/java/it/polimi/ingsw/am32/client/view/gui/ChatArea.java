@@ -147,7 +147,8 @@ public class ChatArea {
      * @param message The message to be added
      */
     public void addIncomingMessageToChat(String message, String senderNickname) {
-        Label newMessage = new Label("(" + senderNickname + ") " + message);
+        String sender = senderNickname.equals(gui.getThisPlayerNickname())?"Yourself": senderNickname;
+        Label newMessage = new Label("(" + sender + ") " + message);
         newMessage.setStyle("-fx-text-fill: #3CA99F;-fx-alignment: center;" +
                 "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);
@@ -162,9 +163,9 @@ public class ChatArea {
         // FIXME Need to show sent message only after server confirms it
 
         if (inputMessageField.getText().isEmpty()) return; // Do not send empty messages (or messages with only whitespace characters)
-
+        String recipient = playerList.getValue().equals(gui.getThisPlayerNickname())?"Yourself": playerList.getValue();
         // Add message to chat area
-        Label newMessage = new Label("> You to "+playerList.getValue() +": "+ inputMessageField.getText());
+        Label newMessage = new Label("> You to "+ recipient+": "+ inputMessageField.getText());
         newMessage.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
                 "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);
