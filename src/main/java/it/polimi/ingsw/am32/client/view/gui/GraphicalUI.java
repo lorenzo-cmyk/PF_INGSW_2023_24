@@ -252,7 +252,43 @@ public class GraphicalUI extends View {
                 port.clear();
             }
         });
-        //TODO RMI
+        // create the RMI connection root
+        StackPane RMIRoot = new StackPane();
+        Label labelRMIIP = createLabel("Socket", -80, -80); // add the title
+        TextField RMIIp = createTextField("Enter the IP", 35, 250, -50, -30); // create the text field asks the player to enter the IP address
+        TextField RMIPort = createTextField("Enter the port", 35, 250, -50, 50); // create the text field asks the player to enter the port number
+        Button OkRMIButton = createButton("[OK]", 160, 0); // create the button Ok to confirm the input.
+        RMIRoot.getChildren().addAll(OkRMIButton, labelRMIIP, RMIIp, RMIPort); // the view when the player choose the socket connection
+
+        // set the action of the buttons
+        rmiButton.setOnAction(e -> {
+            selectionPane.getChildren().remove(connectionRoot); // exit from the choose connection page
+            selectionPane.getChildren().add(RMIRoot); // enter the socket connection page
+        });
+
+        OkRMIButton.setOnAction(e -> {
+            String ServerIP = ip.getText(); // Read the player's input and save it the server IP address
+            String ServerPort = port.getText();
+            try {
+                int portNumber = Integer.parseInt(ServerPort);
+                if (isValid.isIpValid(ServerIP) && isValid.isPortValid(portNumber)) { // Check if the IP address is valid
+                    //TODO
+                    selectionPane.getChildren().remove(RMIRoot);
+                    askSelectGameMode();
+                } else {
+                    createAlert("Invalid IP/port number");
+                    ip.clear();
+                    port.clear();
+                }
+            } catch (NumberFormatException ex) {
+                createAlert("Invalid port number");
+                port.clear();
+            } /*catch (IOException ex) { //TODO
+                createAlert("Connection failed");
+                ip.clear();
+                port.clear();
+            }*/
+        });
     }
     /**
      * Set the socket connection between the client and the server.
@@ -940,7 +976,7 @@ public class GraphicalUI extends View {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             DialogPane dialogPane = new DialogPane();
             Label label1 = new Label(reason);
-            label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 20px;-fx-font-family: 'JejuHallasan';");
+            label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
             dialogPane.setContent(label1);
             dialogPane.setStyle("-fx-pref-height: 180px;-fx-pref-width: 600px;-fx-background-image: " +
                     "url('/NoticeDisplay.png');-fx-background-position: center;-fx-background-size: 600px 180px;");
@@ -1423,9 +1459,6 @@ public class GraphicalUI extends View {
     public void handleFailureCase(Event event, String reason) {
         createAlert(reason);
         switch (event){
-            case CHOOSE_CONNECTION -> { // Connection failure
-                //TODO
-            }
             case CREATE_GAME-> { // Create game failure
                 //TODO
             }
@@ -1563,14 +1596,17 @@ public class GraphicalUI extends View {
         switch (event) {
             case Event.NEW_PLAYER_JOIN -> {
                 this.players.add(message);
-                Label player = createLabel("Player " + message + " joined the lobby", 20, 50);
+                Label player = createLabel("Player " + message + " joined the lobby",18);
+                player.setTranslateX(20);
+                player.setTranslateY(50);
                 Platform.runLater(() ->
                 {
                     selectionPane.getChildren().add(player);
-                    PauseTransition pause = new PauseTransition(Duration.seconds(5));
+                    PauseTransition pause = new PauseTransition(Duration.seconds(3));
                     pause.setOnFinished(e -> {
-                        selectionPane.getChildren().remove(player);
+                        waitingRoot.getChildren().remove(player);
                     });
+                    pause.play();
                 });
             }
             case Event.GAME_START -> {
@@ -1599,7 +1635,27 @@ public class GraphicalUI extends View {
                     selectionPane.getChildren().add(waitingRoot);
                 });
             }
-            //TODO
+            case Event.PLAYER_DISCONNECTED -> {
+                    Platform.runLater(() ->
+                    {
+                    if(!Status.equals(Event.LOBBY)){
+                        publicInfo.get(message).updateOnline(false);
+                        playerViews.get(message).setColour(imagesMap.get("GREY"));
+                        notice.getChildren().add(new Label("> Player " + message + " disconnected.\n"));
+                    }
+                    else {
+                        Label player = createLabel("Player " + message + " disconnected\n", 18);
+                        player.setTranslateX(20);
+                        player.setTranslateY(80);
+                        waitingRoot.getChildren().add(player);
+                        PauseTransition pause = new PauseTransition(Duration.seconds(3));
+                        pause.setOnFinished(e -> {
+                            waitingRoot.getChildren().remove(player);
+                        });
+                        pause.play();
+                    }
+                });
+            }
         }
     }
 
