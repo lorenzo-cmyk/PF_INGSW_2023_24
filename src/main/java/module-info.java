@@ -11,6 +11,9 @@ module it.polimi.ingsw.am32 {
     exports it.polimi.ingsw.am32;
     exports it.polimi.ingsw.am32.network.ClientAcceptor to java.rmi;
     exports it.polimi.ingsw.am32.network to java.rmi;
+    exports it.polimi.ingsw.am32.model.exceptions to java.rmi;
+    exports it.polimi.ingsw.am32.controller to java.rmi;
+    exports it.polimi.ingsw.am32.controller.exceptions to java.rmi;
     exports it.polimi.ingsw.am32.network.exceptions to java.rmi;
     exports it.polimi.ingsw.am32.network.ClientNode to java.rmi;
     exports it.polimi.ingsw.am32.network.ServerNode to java.rmi;
