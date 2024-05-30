@@ -136,28 +136,27 @@ public class SKServerNode implements Runnable, NodeInterface {
     }
 
     private void listenForIncomingMessages() throws IOException, ClassNotFoundException, NodeClosedException {
-
-        Object message;
+        Object message; // Variable containing the message object received from the client
 
         try {
-            message = inputObtStr.readObject();
-            //logger.debug("Object received from socket stream: {}", message.getClass().getName());
+            message = inputObtStr.readObject(); // Listen for incoming messages; wait here until a message is received
+            logger.debug("Object received from socket stream: {}", message.getClass().getName());
         } catch (SocketTimeoutException e) {
-            //logger.debug("Socket timeout exception");
+            logger.debug("Socket timeout exception");
             return;
         }
 
         synchronized (ctoSProcessingLock) {
 
             synchronized (aliveLock) {
-
                 if (!statusIsAlive)
                     throw new NodeClosedException();
-
-                resetTimeCounter();
+                resetTimeCounter(); // Reset the ping counter (message has been received from client)
             }
 
-            if(message instanceof PingMessage) {
+            // Check type of message received
+
+            if (message instanceof PingMessage) {
                 config.getExecutorService().submit(() -> {
                     try {
                         logger.info("PingMessage received");
@@ -165,92 +164,81 @@ public class SKServerNode implements Runnable, NodeInterface {
                     } catch (UploadFailureException e) {
                         logger.error("Failed to send PongMessage to client");
                     }
-                });
-                return;
+                }); // Create a new thread that sends a PongMessage back to the client
             }
-
-            if (message instanceof CtoSMessage) {
-
-                if (gameController == null) {
+            else if (message instanceof CtoSMessage) {
+                if (gameController == null) { // It should never happen that the gameController hasn't yet been assigned when a CtoSMessage is received
                     try {
                         uploadToClient(new ErrorMessage("Error: StoCMessage was sent before StoCLobbyMessage", "PLAYER"));
                         logger.info("StoCMessage received before StoCLobbyMessage. Sending ErrorMessage to client");
                     } catch (UploadFailureException e) {
                         logger.error("StoCMessage received before StoCLobbyMessage. Failed to send ErrorMessage to client");
                     }
-                    return;
+                    return; // Early return needed to get back to listening for incoming messages
                 }
 
+                // As expected, the gameController has been assigned
                 try {
-                    ((CtoSMessage) message).elaborateMessage(gameController);
+                    ((CtoSMessage) message).elaborateMessage(gameController); // Process the message
                     logger.info("Elaborated CtoSMessage received: {}", message.toString());
-                    return;
-                } catch (Exception e) {
+                } catch (Exception e) { // Catch any exception thrown by the message elaboration
                     logger.fatal("Error while elaborating CtoSMessage: ", e);
                     throw e;
                 }
             }
-
-            if (message instanceof CtoSLobbyMessage) {
-
-                if (gameController != null) {
-
+            else if (message instanceof CtoSLobbyMessage) {
+                if (gameController != null) { // It should never happen that the gameController has already been assigned when a CtoSLobbyMessage is received
                     try {
                         uploadToClient(new ErrorMessage("Error: StoCLobbyMessage was sent when the game has already been chosen", "PLAYER"));
                         logger.info("StoCLobbyMessage received when gameController already assigned. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException e) {
                         logger.error("StoCLobbyMessage received when gameController already assigned. Failed to send ErrorMessage to client");
                     }
-
-                    return;
+                    return; // Early return needed to get back to listening for incoming messages
                 }
 
+                // As expected, the gameController has not yet been assigned
                 try {
-                    gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
-
+                    gameController = ((CtoSLobbyMessage) message).elaborateMessage(this); // Processing lobby message will return the game controller; save it
                     // TODO forse è meglio mettere il messaggio di errore nell'exception
+
+                    notLinkedPingTask.cancel();
+                    config.purgeTimer();
+                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
+
+                    logger.info("Elaborated CtoSLobbyMessage received: {}", message.toString());
                 } catch (InvalidPlayerNumberException e) {
                     try {
                         uploadToClient(new ErrorMessage("Error: invalid player number", "PLAYER"));
                         logger.info("Invalid player number. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException ex) {
                         logger.error("Invalid player number. Failed to send ErrorMessage to client");
                     }
-
                 } catch (GameAlreadyStartedException e) {
                     try {
                         uploadToClient(new ErrorMessage("Error: Game already started", "PLAYER"));
                         logger.info("Game already started. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException ex) {
                         logger.error("Game already started. Failed to send ErrorMessage to client");
                     }
-
                 } catch (FullLobbyException e) {
                     try {
                         uploadToClient(new ErrorMessage("Error: Lobby already is full", "PLAYER"));
                         logger.info("Lobby is already full. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException ex) {
                         logger.error("Lobby is already full. Failed to send ErrorMessage to client");
                     }
-
                 } catch (DuplicateNicknameException e) {
                     try {
                         uploadToClient(new ErrorMessage("Error: Player nickname already in use", "PLAYER"));
                         logger.info("Player nickname already in use. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException ex) {
                         logger.error("Player nickname already in use. Failed to send ErrorMessage to client");
                     }
-
                 } catch (GameNotFoundException e) {
                     try {
                         uploadToClient(new ErrorMessage("Error: Game not found", "PLAYER"));
                         logger.info("Game not found. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException ex) {
                         logger.error("Game not found. Failed to send ErrorMessage to client");
                     }
@@ -258,7 +246,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                     try {
                         uploadToClient(new ErrorMessage("Error: Game already ended", "PLAYER"));
                         logger.info("Game already ended. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException ex) {
                         logger.error("Game already ended. Failed to send ErrorMessage to client");
                     }
@@ -274,7 +261,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                     try {
                         uploadToClient(new ErrorMessage("Error: Player not found", "PLAYER"));
                         logger.info("Player not found. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException ex) {
                         logger.error("Player not found. Failed to send ErrorMessage to client");
                     }
@@ -282,7 +268,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                     try {
                         uploadToClient(new ErrorMessage("Error: Player already connected", "PLAYER"));
                         logger.info("Player already connected. Sending ErrorMessage to client");
-
                     } catch (UploadFailureException ex) {
                         logger.error("Player already connected. Failed to send ErrorMessage to client");
                     }
@@ -290,24 +275,15 @@ public class SKServerNode implements Runnable, NodeInterface {
                     logger.fatal("Error while elaborating CtoSLobbyMessage: ", e);
                     throw e;
                 }
-
-                notLinkedPingTask.cancel();
-                config.purgeTimer();
-                gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
-
-                logger.info("Elaborated CtoSLobbyMessage received: {}", message.toString());
-                return;
             }
-
-        }
-
-        //TODO valutare se rimandare in dietro un messaggio di errore
-        try {
-            uploadToClient(new ErrorMessage("Error: message type not recognized", "PLAYER"));
-            logger.info("message type not recognized. Sending ErrorMessage to client");
-
-        } catch (UploadFailureException e) {
-            logger.error("message type not recognized. Failed to send ErrorMessage to client");
+            else { // Unknown message type received
+                try {
+                    uploadToClient(new ErrorMessage("Error: message type not recognized", "PLAYER"));
+                    logger.info("message type not recognized. Sending ErrorMessage to client");
+                } catch (UploadFailureException e) {
+                    logger.error("message type not recognized. Failed to send ErrorMessage to client");
+                }
+            }
         }
     }
 
