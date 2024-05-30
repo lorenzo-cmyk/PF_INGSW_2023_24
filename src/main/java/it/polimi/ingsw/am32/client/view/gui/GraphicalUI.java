@@ -223,6 +223,14 @@ public class GraphicalUI extends View {
         Button OkButton = createButton("[OK]", 160, 0); // create the button Ok to confirm the input.
         socketRoot.getChildren().addAll(OkButton, labelIP, ip, port); // the view when the player choose the socket connection
 
+        // create the RMI connection root
+        StackPane RMIRoot = new StackPane();
+        Label labelRMIIP = createLabel("RMI", -80, -80); // add the title
+        TextField RMIIp = createTextField("Enter the IP", 35, 250, -50, -30); // create the text field asks the player to enter the IP address
+        TextField RMIPort = createTextField("Enter the port", 35, 250, -50, 50); // create the text field asks the player to enter the port number
+        Button OkRMIButton = createButton("[OK]", 160, 0); // create the button Ok to confirm the input.
+        RMIRoot.getChildren().addAll(OkRMIButton, labelRMIIP, RMIIp, RMIPort); // the view when the player choose the socket connection
+
         // set the action of the buttons
         socketButton.setOnAction(e -> {
             selectionPane.getChildren().remove(connectionRoot); // exit from the choose connection page
@@ -252,14 +260,6 @@ public class GraphicalUI extends View {
                 port.clear();
             }
         });
-        // create the RMI connection root
-        StackPane RMIRoot = new StackPane();
-        Label labelRMIIP = createLabel("RMI", -80, -80); // add the title
-        TextField RMIIp = createTextField("Enter the IP", 35, 250, -50, -30); // create the text field asks the player to enter the IP address
-        TextField RMIPort = createTextField("Enter the port", 35, 250, -50, 50); // create the text field asks the player to enter the port number
-        Button OkRMIButton = createButton("[OK]", 160, 0); // create the button Ok to confirm the input.
-        RMIRoot.getChildren().addAll(OkRMIButton, labelRMIIP, RMIIp, RMIPort); // the view when the player choose the socket connection
-
         // set the action of the buttons
         rmiButton.setOnAction(e -> {
             selectionPane.getChildren().remove(connectionRoot); // exit from the choose connection page
@@ -267,14 +267,14 @@ public class GraphicalUI extends View {
         });
 
         OkRMIButton.setOnAction(e -> {
-            String ServerIP = ip.getText(); // Read the player's input and save it the server IP address
-            String ServerPort = port.getText();
+            String ServerIP = RMIIp.getText(); // Read the player's input and save it the server IP address
+            String ServerPort = RMIPort.getText();
             try {
                 int portNumber = Integer.parseInt(ServerPort);
                 if (isValid.isIpValid(ServerIP) && isValid.isPortValid(portNumber)) { // Check if the IP address is valid
-                    //TODO
-                    selectionPane.getChildren().remove(RMIRoot);
-                    askSelectGameMode();
+                    setRMIClient(ServerIP, portNumber);
+                        selectionPane.getChildren().remove(RMIRoot);
+                        askSelectGameMode();
                 } else {
                     createAlert("Invalid IP/port number");
                     ip.clear();
@@ -300,6 +300,10 @@ public class GraphicalUI extends View {
     @Override
     public void setSocketClient(String ServerIP, int portNumber) throws IOException {
         super.setSocketClient(ServerIP, portNumber);
+    }
+    @Override
+    public void setRMIClient(String serverURL, int port) {
+        super.setRMIClient(serverURL, port); // see the method in the superclass
     }
 
 

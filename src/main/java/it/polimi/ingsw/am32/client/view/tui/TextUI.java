@@ -171,14 +171,14 @@ public class TextUI extends View{
                     break;
                 }
                 case 2: { // Player chooses RMI connection
-                    // Ask the player to insert the server URL
-                    out.println("Insert the server URL"); // Ask the player to insert the server URL
+                    // Ask the player to insert the server IP
+                    out.println("Insert the server IP"); // Ask the player to insert the server URL
                     // TODO Should ask the player to insert the server URL in a specific format
 
-                    String serverURL = in.nextLine(); // Read the player's input
-                    while (!isValid.isURLValid(serverURL)) { // Check if the URL is valid
-                        out.println("Invalid URL, please try again"); // Print an error message
-                        serverURL = in.nextLine(); // Ask the player to re-enter the URL
+                    String serverIP = in.nextLine(); // Read the player's input
+                    while (!isValid.isIpValid(serverIP)) { // Check if the IP is valid
+                        out.println("Invalid IP, please try again"); // Print an error message
+                        serverIP = in.nextLine(); // Ask the player to re-enter the IP
                     }
 
                     // Ask the player to insert the server port
@@ -191,7 +191,7 @@ public class TextUI extends View{
                     }
 
                     // TODO mettere exception come
-                    setRMIClient(serverURL, port); // Set the RMI client
+                    setRMIClient(serverIP, port); // Set the RMI client
                     isConnected = true; // Set the connection status to true
 
                     break;

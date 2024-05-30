@@ -22,12 +22,4 @@ public class IsValid {
     public boolean isPortValid(int port){
         return port >=0 && port <= 65535;
     }
-    public boolean isURLValid(String url){
-        try{
-            URL u =new URL(url);
-            return "rmi".equals(u.getProtocol())&& u.getHost() !=null && u.getPort() != -1;
-        } catch (MalformedURLException e){
-            return false;
-        }
-    }
 }

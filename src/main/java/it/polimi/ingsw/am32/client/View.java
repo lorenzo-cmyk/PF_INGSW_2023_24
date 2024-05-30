@@ -91,11 +91,10 @@ public abstract class View implements EventHandler{
         askListener.start();
         //TODO verify if this is correct
     }
-    public void setRMIClient(String serverURL, int port) {
+    public void setRMIClient(String serverIP, int port) {
         //TODO verify if this is correct
-
         try{
-            RMIClientNode clientNode = new RMIClientNode(this, serverURL, port);
+            RMIClientNode clientNode = new RMIClientNode(this, serverIP, port);
             this.clientNode = clientNode;
             clientNode.startConnection();
 
@@ -202,7 +201,6 @@ public abstract class View implements EventHandler{
     public abstract void updateChat(String recipientString, String senderNickname, String content);
 
     public abstract void setStarterCard(int cardId);
-
 }
 
 
