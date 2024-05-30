@@ -187,18 +187,16 @@ public abstract class View implements EventHandler{
 
     public abstract void showCard(int ID, boolean isUp);
 
-    public void updatePlayerTurn(String playerNickname) {
-    }
+    public abstract void updatePlayerTurn(String playerNickname);
 
-    public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
+    public abstract void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
                                  ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
                                  int playerSecretObjective, int[] playerPoints,
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) {
-    }
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) ;
 
     public abstract void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces);
 
