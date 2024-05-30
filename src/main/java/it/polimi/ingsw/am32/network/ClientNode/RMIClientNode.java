@@ -38,8 +38,8 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private final View view;
     private final String serverURL;
     private final int port;
-    private String nickname;
     private int pongCount;
+    private String nickname;
 
     private Registry registry;
     private RMIClientAcceptorInt rmiClientAcceptor;
@@ -65,64 +65,41 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         sToCProcessingLock = new Object();
         pongCount = PONGMAXCOUNT;
         executorService = Executors.newCachedThreadPool();
+        clientPingTask = new ClientPingTask(this);
     }
 
     @Override
     public void uploadToServer(CtoSMessage message) throws UploadFailureException {
 
-        while (true){
+        try {
+            gameTuple.getNode().uploadCtoS(message);
+            logger.info("Message sent. Type: CtoSMessage");
 
-            try {
-                gameTuple.getNode().uploadCtoS(message);
-                logger.info("Message sent. Type: CtoSMessage");
-                break;
-
-            } catch (NodeClosedException e) { // TODO gestire eccezioni
-                throw new RuntimeException(e);
-            } catch (PlayerNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
+        } catch (NodeClosedException e) { // TODO gestire eccezioni
+            throw new RuntimeException(e);
+        } catch (PlayerNotFoundException | RemoteException e) {
+            throw new RuntimeException(e);
         }
 
     }
 
     @Override
-    public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException  {
+    public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
 
-        while (true) {
-            try {
-                gameTuple = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
-                logger.info("Message sent. Type: CtoSLobbyMessage");
+        try {
+            gameTuple = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
+            logger.info("Message sent. Type: CtoSLobbyMessage");
 
-                timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+            timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
 
-                break;
+        } catch (RemoteException e) { // TODO come gestisco queste exception??
+            throw new RuntimeException(e);
+        } catch (GameAlreadyStartedException | FullLobbyException | InvalidPlayerNumberException |
+                 DuplicateNicknameException | GameNotFoundException | GameAlreadyEndedException |
+                 PlayerNotFoundException | PlayerAlreadyConnectedException | GameNotYetStartedException e) {
 
-            } catch (RemoteException e) { // TODO come gestisco queste exception??
-                throw new RuntimeException(e);
-            } catch (GameAlreadyStartedException e) {
-                throw new RuntimeException(e);
-            } catch (FullLobbyException e) {
-                throw new RuntimeException(e);
-            } catch (InvalidPlayerNumberException e) {
-                throw new RuntimeException(e);
-            } catch (DuplicateNicknameException e) {
-                throw new RuntimeException(e);
-            } catch (GameNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (GameAlreadyEndedException e) {
-                throw new RuntimeException(e);
-            } catch (PlayerNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (PlayerAlreadyConnectedException e) {
-                throw new RuntimeException(e);
-            } catch (GameNotYetStartedException e) {
-                throw new RuntimeException(e);
-            }
+            // view.failureCtoSLobby
         }
-
     }
 
     @Override
@@ -189,7 +166,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
         executorService.submit(() -> {
             try {
-                uploadToServer(new PingMessage(null));
+                uploadToServer(new PingMessage(nickname));
             } catch (UploadFailureException ignore) {}
         });
 
