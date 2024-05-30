@@ -1458,16 +1458,8 @@ public class GraphicalUI extends View {
     @Override
     public void handleFailureCase(Event event, String reason) {
         createAlert(reason);
+        // in case of create game failure, join game failure, reconnect game failure just notify the player with the reason of the failure.
         switch (event){
-            case CREATE_GAME-> { // Create game failure
-                //TODO
-            }
-            case JOIN_GAME-> { // Join game failure
-                //TODO
-            }
-            case RECONNECT_GAME -> { // Reconnect game failure
-                //TODO
-            }
             case PLACE_CARD_FAILURE -> { // Place card failure
                 currentEvent = Event.PLACE_CARD;
             }
@@ -1484,7 +1476,7 @@ public class GraphicalUI extends View {
                 requestSelectStarterCardSide(startCard);
             }
             case CHAT_ERROR -> { // Chat error
-                //TODO
+                chatArea.addIncomingMessageToChat(reason, "NOTICE");
             }
         }
 

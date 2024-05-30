@@ -164,7 +164,7 @@ public class ChatArea {
         if (inputMessageField.getText().isEmpty()) return; // Do not send empty messages (or messages with only whitespace characters)
 
         // Add message to chat area
-        Label newMessage = new Label("> " + inputMessageField.getText());
+        Label newMessage = new Label("> You to "+playerList.getValue() +": "+ inputMessageField.getText());
         newMessage.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
                 "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         messageDisplayArea.getChildren().add(newMessage);

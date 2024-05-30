@@ -1762,7 +1762,8 @@ public class TextUI extends View{
             }
             case CHAT_ERROR -> { // Chat error
                 out.println("!The last message was not sent!");
-                chatHistory.removeLast();
+                ChatMessage error = new ChatMessage("NOTICE",thisPlayerNickname, false,"The last message was not sent! "+reason);
+                chatHistory.add(error);
             }
         }
     }
