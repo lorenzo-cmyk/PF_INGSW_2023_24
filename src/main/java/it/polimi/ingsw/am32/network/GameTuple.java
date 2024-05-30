@@ -2,7 +2,9 @@ package it.polimi.ingsw.am32.network;
 
 import it.polimi.ingsw.am32.network.ServerNode.RMIServerNodeInt;
 
-public class GameTuple {
+import java.io.Serializable;
+
+public class GameTuple implements Serializable {
 
     private final RMIServerNodeInt node;
     private final int id;
