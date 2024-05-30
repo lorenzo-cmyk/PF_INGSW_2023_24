@@ -209,6 +209,12 @@ public class SKServerNode implements Runnable, NodeInterface {
                 try {
                     gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
 
+                    notLinkedPingTask.cancel();
+                    config.purgeTimer();
+                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
+
+                    logger.info("Elaborated CtoSLobbyMessage received: {}", message.toString());
+
                     // TODO forse è meglio mettere il messaggio di errore nell'exception
                 } catch (InvalidPlayerNumberException e) {
                     try {
@@ -291,11 +297,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                     throw e;
                 }
 
-                notLinkedPingTask.cancel();
-                config.purgeTimer();
-                gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
-
-                logger.info("Elaborated CtoSLobbyMessage received: {}", message.toString());
                 return;
             }
 
