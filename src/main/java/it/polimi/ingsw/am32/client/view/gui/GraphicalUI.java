@@ -1320,7 +1320,7 @@ public class GraphicalUI extends View {
     public void updateChat(String recipientString, String senderNickname, String content) {
         Platform.runLater(() -> {
             if (recipientString.equals(thisPlayerNickname)) { // We have received a message we shouldn't have received
-                // TODO Throw exception
+                throw new RuntimeException("Received message not intended for this player");
             }
             chatArea.addIncomingMessageToChat(content, senderNickname); // Add message to chat area
         });
@@ -1331,8 +1331,6 @@ public class GraphicalUI extends View {
         startCard = cardId;
         requestSelectStarterCardSide(cardId);
     }
-
-
 
     @Override
     public void requestSelectStarterCardSide(int ID) {
