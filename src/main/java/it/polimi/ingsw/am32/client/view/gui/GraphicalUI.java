@@ -44,7 +44,6 @@ public class GraphicalUI extends View {
     private Label resourceSize;
     private final Glow glow = new Glow(0.3);
     private final DropShadow dropShadow = new DropShadow(15, Color.rgb(255, 196, 83));
-
     private final HashMap<String, PlayerPubView> playerViews = new HashMap<>();
     private final HashMap<String, Image> imagesMap = new HashMap<>();
     private final HashMap<String, StackPane> playerField = new HashMap<>();
@@ -414,10 +413,14 @@ public class GraphicalUI extends View {
         joinGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
 
         joinButton.setOnAction(e -> {
-            handelButtonJoinAndReconnectClick(nickname,accessID);
+            handleButtonJoinAndReconnectClick(nickname,accessID);
         });
         selectionPane.getChildren().add(joinGameRoot);
     }
+
+    /**
+     * Set the page which asks the player to insert the nickname and the game ID to reconnect to a game.
+     */
     @Override
     public void askReconnectGame() {
         currentEvent = Event.RECONNECT_GAME;
@@ -433,11 +436,12 @@ public class GraphicalUI extends View {
         reconnectGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
 
         joinButton.setOnAction(e -> {
-            handelButtonJoinAndReconnectClick(nickname,accessID);
+            handleButtonJoinAndReconnectClick(nickname,accessID);
         });
         selectionPane.getChildren().add(reconnectGameRoot);
     }
-    public void handelButtonJoinAndReconnectClick(TextField nickname, TextField accessID){
+
+    public void handleButtonJoinAndReconnectClick(TextField nickname, TextField accessID){
             thisPlayerNickname = nickname.getText();
             String ID = accessID.getText();
             if (thisPlayerNickname.isBlank()) {
@@ -1266,6 +1270,15 @@ public class GraphicalUI extends View {
             }
     }
 
+    /**
+     * Used to display the winners of the game and the final points of the players after the game has ended.
+     *
+     * @param players the nicknames of the players
+     * @param points the points of the players
+     * @param secrets the secret objective card of the players
+     * @param pointsGainedFromObj the points gained from the objective card of the players
+     * @param winners the winners of the game
+     */
     @Override
     public void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets,
                                  ArrayList<Integer> pointsGainedFromObj, ArrayList<String> winners) {
@@ -1303,6 +1316,11 @@ public class GraphicalUI extends View {
         //TODO
     }
 
+    /**
+     * Used to print out the entire chat history when the player reconnects to the game.
+     *
+     * @param chatHistory the chat history of the game
+     */
     @Override
     public void showChatHistory(List<ChatMessage> chatHistory) {
         for (ChatMessage message : chatHistory) {
@@ -1326,12 +1344,23 @@ public class GraphicalUI extends View {
         });
     }
 
+    /**
+     * Called when the player receives the starting card id from the server.
+     * Saves the received starting card, and calls other methods to display card side selection
+     *
+     * @param cardId the ID of the card
+     */
     @Override
     public void setStarterCard(int cardId) {
         startCard = cardId;
         requestSelectStarterCardSide(cardId);
     }
 
+    /**
+     * Support method used to prompt the user to select a starting card side
+     *
+     * @param ID the ID of the starter card
+     */
     @Override
     public void requestSelectStarterCardSide(int ID) {
         VBox starterCardSideSelection = setupInitialCardSideSelectionArea(ID);
@@ -1394,6 +1423,16 @@ public class GraphicalUI extends View {
         });
     }
 
+    /**
+     * Used to update the decks after a player has drawn a card
+     *
+     * @param resourceDeckSize the new size of the resource deck
+     * @param goldDeckSize the new size of the gold deck
+     * @param currentResourceCards the current resource cards in the game that the player can draw
+     * @param currentGoldCards the current gold cards in the game that the player can draw
+     * @param resourceDeckFace the face of the resource deck
+     * @param goldDeckFace the face of the gold deck
+     */
     @Override
     public void updateDeck(int resourceDeckSize, int goldDeckSize, int[] currentResourceCards, int[] currentGoldCards, int resourceDeckFace, int goldDeckFace) {
         Platform.runLater(()-> {
@@ -1448,6 +1487,12 @@ public class GraphicalUI extends View {
         });
     }
 
+    /**
+     * Used to handle the failure cases of the events in the game.
+     *
+     * @param event the event that has failed
+     * @param reason the reason for the failure
+     */
     @Override
     public void handleFailureCase(Event event, String reason) {
         createAlert(reason);
@@ -1472,14 +1517,19 @@ public class GraphicalUI extends View {
                 chatArea.addIncomingMessageToChat(reason, "NOTICE");
             }
         }
-
     }
 
+    /**
+     * Used to active chat area, once big boy message is received from the server.
+     */
     @Override
     public void startChatting() {
         chatArea.setActive(true);
     }
 
+    /**
+     * Method to handle effect when deck label is clicked
+     */
     @Override
     public void showDeck() {
         deckArea.setEffect(glow);
@@ -1491,17 +1541,28 @@ public class GraphicalUI extends View {
         pause.play();
     }
 
+    /**
+     * Used to display help information when help button is clicked during the game
+     */
     @Override
     public void showHelpInfo() {
         //TODO
     }
 
+    /**
+     * Method called by the processMessage after receiving confirmation from the server that the secret objective card was selected.
+     */
     @Override
     public void requestSelectSecretObjectiveCard() {
         VBox secretObjectiveCardSelection = setupSecretObjectiveCardSelectionArea(secretObjCards.get(0), secretObjCards.get(1));
         Platform.runLater(() -> masterPane.getChildren().add(secretObjectiveCardSelection));
     }
 
+    /**
+     * Method called by the processMessage after receiving confirmation from the server that the secret objective card was selected.
+     *
+     * @param chosenSecretObjectiveCard the ID of the secret objective card selected by the player
+     */
     @Override
     public void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard) {
         secretObjCardSelected = chosenSecretObjectiveCard;
@@ -1512,7 +1573,9 @@ public class GraphicalUI extends View {
         });
     }
 
-
+    /**
+     * Method called by the processMessage after receiving confirmation from the server that the secret objective card was selected.
+     */
     @Override
     public void requestPlaceCard() {
         int posX;
@@ -1552,6 +1615,18 @@ public class GraphicalUI extends View {
         });
     }
 
+    /**
+     * Updates the player's data after a card has been placed.
+     *
+     * @param playerNickname the nickname of the player
+     * @param cardID the ID of the card placed in the field
+     * @param x the x coordinate of the card placed in the field
+     * @param y the y coordinate of the card placed in the field
+     * @param isUp the side of the card placed in the field
+     * @param availablePos the available spaces in the field after the placement of the card
+     * @param resources the updated resources count of the player
+     * @param points the updated points of the player
+     */
     @Override
     public void updateAfterPlacedCard(String playerNickname, int cardID, int x, int y, boolean isUp, ArrayList<int[]> availablePos, int[] resources, int points) {
         // update the field of the player
@@ -1581,7 +1656,12 @@ public class GraphicalUI extends View {
         });
     }
 
-
+    /**
+     * Handles changes in the state of the game.
+     *
+     * @param event the event to handle
+     * @param message the message to display
+     */
     @Override
     public void handleEvent(Event event, String message) {
         switch (event) {
@@ -1650,6 +1730,12 @@ public class GraphicalUI extends View {
         }
     }
 
+    /**
+     * Used to convert the integer representation of the colour to the string representation.
+     *
+     * @param colour the integer representation of the colour
+     * @return the string representation of the colour
+     */
     @Override
     public String convertToColour(int colour) {
         switch (colour) {
@@ -1812,6 +1898,15 @@ public class GraphicalUI extends View {
 
         return selectionArea;
     }
+
+    /**
+     * Used to handle the click action on buttons used to select game size when creating a new game
+     *
+     * @param clickedButton the button that was clicked
+     * @param button1 the first button
+     * @param button3 the third button
+     * @param effect the effect to apply to the clicked button
+     */
     private void handleButtonClick(Button clickedButton, Button button1, Button button3, Effect effect) {
         clickedButton.setEffect(effect);
         button1.setDisable(true);
