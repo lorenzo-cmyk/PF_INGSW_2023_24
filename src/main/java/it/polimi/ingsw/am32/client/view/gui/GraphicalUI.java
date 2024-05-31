@@ -1546,7 +1546,32 @@ public class GraphicalUI extends View {
      */
     @Override
     public void showHelpInfo() {
-        //TODO
+        VBox helpArea = new VBox(); // Entire selection area
+
+        Label promptLabel = createLabel("HELP", 20); // Text label prompting user to pick a card
+        TextArea helpInfo = new TextArea();
+        helpInfo.setEditable(false);
+        helpInfo.setStyle("-fx-control-inner-background: #E6DEB3;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+        helpInfo.setWrapText(true);
+        helpInfo.setText(
+                "1. When it is your turn, you can place a card in the field, click on the card that you want to " +
+                "choose and click on one available position.\n" +
+                "2. You can draw a card from the deck when you have placed a card in the field.\n" +
+                "3. The chat area is enabled when the game starts.\n" +
+                "4. You can draw a card from the deck when you have placed the starter card.\n" +
+                "5. To see the field of the other players, click on the player's name.\n" +
+                "6. The player with the most points wins the game.\n");
+
+        Button closeHelp = createButton("Close", 0, 0);
+        helpArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+        helpArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
+        helpArea.setSpacing(10);
+        helpArea.getChildren().addAll(promptLabel, helpInfo, closeHelp);
+        helpArea.translateXProperty().bind(masterPane.widthProperty().subtract(helpArea.widthProperty()).divide(2)); // Set position of selectionArea
+        helpArea.translateYProperty().bind(masterPane.heightProperty().subtract(helpArea.heightProperty()).divide(2));
+        masterPane.getChildren().add(helpArea);
+        closeHelp.setOnAction(e -> masterPane.getChildren().remove(helpArea));
     }
 
     /**

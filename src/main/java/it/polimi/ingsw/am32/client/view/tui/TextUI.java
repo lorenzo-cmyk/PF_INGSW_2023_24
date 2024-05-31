@@ -1303,8 +1303,7 @@ public class TextUI extends View{
      * Print the objective cards.
      * @param ObjCards the ID of the objective cards that should be printed.
      */
-    @Override
-    public void showObjectiveCards(ArrayList<Integer> ObjCards) {
+    private void showObjectiveCards(ArrayList<Integer> ObjCards) {
         ArrayList<String> card1 = cardImg.get(ObjCards.get(0));
         ArrayList<String> card2 = cardImg.get(ObjCards.get(1));
         for (int i = 0; i < 7; i++) {
