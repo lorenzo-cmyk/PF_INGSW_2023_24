@@ -174,9 +174,6 @@ public abstract class View implements EventHandler{
 
     public abstract void showHand(ArrayList<Integer> hand);
 
-    public abstract void showObjectiveCards(ArrayList<Integer> ObjCards);
-
-
     public abstract void showCard(int ID, boolean isUp);
 
     public abstract void updatePlayerTurn(String playerNickname);

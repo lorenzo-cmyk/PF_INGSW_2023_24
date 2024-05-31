@@ -42,6 +42,8 @@ public class GraphicalUI extends View {
     private HBox playerOrder;
     private Label goldSize;
     private Label resourceSize;
+    private final Glow glow = new Glow(0.3);
+    private final DropShadow dropShadow = new DropShadow(15, Color.rgb(255, 196, 83));
 
     private final HashMap<String, PlayerPubView> playerViews = new HashMap<>();
     private final HashMap<String, Image> imagesMap = new HashMap<>();
@@ -64,6 +66,7 @@ public class GraphicalUI extends View {
     private Group noticeEventPanel;
     private ScrollPane board;
     private Button returnToMyField;
+    private VBox deckArea;
     private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
     private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
             "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
@@ -705,7 +708,7 @@ public class GraphicalUI extends View {
         // Set up the click action of the cards in the hand
         handleHandClicks();
 
-        VBox deckArea = new VBox();
+        deckArea = new VBox();
         deckArea.setSpacing(10);
         HBox resourceDeck = new HBox();
         resourceDeck.setSpacing(10);
@@ -713,7 +716,8 @@ public class GraphicalUI extends View {
         HBox goldDeck = new HBox();
         goldDeck.setSpacing(10);
         goldDeck.getChildren().addAll(goldDeckView[0], goldDeckView[1], goldDeckView[2]);
-        deckArea.getChildren().addAll(goldDeck, resourceDeck);
+        deckArea.getChildren().addAll(resourceDeck,goldDeck);
+
 
         deckArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         deckArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight() + 400)));
@@ -725,10 +729,10 @@ public class GraphicalUI extends View {
             goldSize = new Label("--");
             Label resourceDeckLabel = new Label("Resource Deck:");
             resourceSize = new Label("--");
-            deckSize.getChildren().addAll(goldDeckLabel, goldSize, resourceDeckLabel, resourceSize);
+            deckSize.getChildren().addAll(resourceDeckLabel, resourceSize,goldDeckLabel, goldSize);
             deckSize.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
             deckSize.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight()+570)));
-
+            deckSize.setOnMouseClicked(e -> showDeck());
         HBox bottomLine = new HBox();
         bottomLine.setSpacing(10);
         bottomLine.getChildren().addAll(commonObjCardView[0], commonObjCardView[1], secretObjCardView, handView[0], handView[1], handView[2]);
@@ -739,6 +743,8 @@ public class GraphicalUI extends View {
         Label commonObjLabel = createLabel("Common Objective Cards", 15);
         Label secretObjLabel = createLabel("Secret",15);
         Label handLabel = createLabel("Hand Cards",15);
+        handLabel.setOnMouseClicked(e -> showHand(hand));
+
         HBox cardLabels = new HBox();
         cardLabels.setSpacing(80);
         cardLabels.getChildren().addAll(commonObjLabel,secretObjLabel,handLabel);
@@ -921,7 +927,7 @@ public class GraphicalUI extends View {
         Platform.runLater(() -> {
             this.matchStatus.setText(String.valueOf(Status));
         if (Status.equals(Event.TERMINATING)) { // if the match status is TERMINATING show the points of all players.
-            for (String player : players) { // TODO ADD THE POP UP WINDOW
+            for (String player : players) {
             showPointsAndResource(player);
             }
         }
@@ -1042,8 +1048,11 @@ public class GraphicalUI extends View {
 
     @Override
     public void showPointsAndResource(String playerNickname) {
-        //TODO
-
+        playerViews.get(playerNickname).getPoints().setEffect(dropShadow);
+        playerViews.get(playerNickname).getNickname().setEffect(dropShadow);
+        for (Label label: playerViews.get(playerNickname).getResourceLabels()) {
+            label.setEffect(dropShadow);
+        }
     }
 
     /**
@@ -1054,7 +1063,13 @@ public class GraphicalUI extends View {
      */
     @Override
     public void updatePlayerTurn(String playerNickname) {
+        playerViews.get(this.currentPlayer).getPoints().setEffect(null);
+        playerViews.get(this.currentPlayer).getNickname().setEffect(null);
+        for(Label label: playerViews.get(this.currentPlayer).getResourceLabels()) {
+            label.setEffect(null);
+        }
         this.currentPlayer = playerNickname;
+        showPointsAndResource(playerNickname);
         if (this.currentPlayer.equals(thisPlayerNickname)) {
             // if the player's turn is now, request the player to place the card in the field.
             currentEvent = Event.PLACE_CARD;
@@ -1089,6 +1104,7 @@ public class GraphicalUI extends View {
 
         // store all the data of the game received from the server
         if (currentEvent.equals(Event.RECONNECT_GAME)) {
+            showChatHistory(chatHistory);
             //TODO
         } else {
             // once the game enters the playing phase, the method is called to update a part of the data of the player
@@ -1164,68 +1180,19 @@ public class GraphicalUI extends View {
 
     @Override
     public void showHand(ArrayList<Integer> hand) {
-        //TODO
-        VBox handArea = new VBox(); // Entire selection area
-
-        Label promptLabel = createLabel("Your hand", 20);
-        HBox cardPairArea = new HBox();
-        ImageView firstCard = handView[0];
-        ImageView secondCard = handView[1];
-        ImageView thirdCard = handView[2];
-        handArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
-        handArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
-
-        handArea.translateXProperty().bind(masterPane.widthProperty().subtract(handArea.widthProperty()).divide(2)); // Set position of selectionArea
-        handArea.translateYProperty().bind(masterPane.heightProperty().subtract(handArea.heightProperty()).divide(2));
-
-        cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
-
-        // Compose elements
-        Platform.runLater(() -> {
-            handArea.getChildren().addAll(promptLabel, cardPairArea);
-            cardPairArea.getChildren().addAll(firstCard, secondCard, thirdCard);
-            masterPane.getChildren().add(handArea);
-            PauseTransition pause = new PauseTransition(Duration.seconds(10)); // Set a timer for the selection
-            pause.setOnFinished(e -> {
-                masterPane.getChildren().remove(handArea);
-                handArea.getChildren().removeAll(promptLabel, cardPairArea);
-            });
-            pause.play();
+        handView[0].setEffect(glow);
+        handView[1].setEffect(glow);
+        handView[2].setEffect(glow);
+        handView[0].setEffect(dropShadow);
+        handView[1].setEffect(dropShadow);
+        handView[2].setEffect(dropShadow);
+        PauseTransition pause = new PauseTransition(Duration.seconds(5));
+        pause.setOnFinished(e -> {
+            handView[0].setEffect(null);
+            handView[1].setEffect(null);
+            handView[2].setEffect(null);
         });
-
-    }
-
-    @Override
-    public void showObjectiveCards(ArrayList<Integer> ObjCards) {
-        //TODO
-        VBox handArea = new VBox(); // Entire selection area
-
-        Label promptLabel = createLabel("Your common objective cards:", 20);
-        HBox cardPairArea = new HBox();
-
-        ImageView firstCard = commonObjCardView[0];
-        ImageView secondCard = commonObjCardView[1];
-
-        handArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
-        handArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
-
-        handArea.translateXProperty().bind(masterPane.widthProperty().subtract(handArea.widthProperty()).divide(2)); // Set position of selectionArea
-        handArea.translateYProperty().bind(masterPane.heightProperty().subtract(handArea.heightProperty()).divide(2));
-
-        cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
-
-        // Compose elements
-        Platform.runLater(() -> {
-            handArea.getChildren().addAll(promptLabel, cardPairArea);
-            cardPairArea.getChildren().addAll(firstCard, secondCard);
-            masterPane.getChildren().add(handArea);
-            PauseTransition pause = new PauseTransition(Duration.seconds(10)); // Set a timer for the selection
-            pause.setOnFinished(e -> {
-                masterPane.getChildren().remove(handArea);
-                handArea.getChildren().removeAll(promptLabel, cardPairArea);
-            });
-            pause.play();
-        });
+        pause.play();
     }
 
     @Override
@@ -1338,7 +1305,9 @@ public class GraphicalUI extends View {
 
     @Override
     public void showChatHistory(List<ChatMessage> chatHistory) {
-        //TODO
+        for (ChatMessage message : chatHistory) {
+            chatArea.addIncomingMessageToChat(message.getMessageContent(), message.getSenderNickname());
+        }
     }
 
     /**
@@ -1515,7 +1484,13 @@ public class GraphicalUI extends View {
 
     @Override
     public void showDeck() {
-           // TODO
+        deckArea.setEffect(glow);
+        deckArea.setEffect(dropShadow);
+        PauseTransition pause = new PauseTransition(Duration.seconds(5));
+        pause.setOnFinished(e -> {
+            deckArea.setEffect(null);
+        });
+        pause.play();
     }
 
     @Override
@@ -1628,7 +1603,7 @@ public class GraphicalUI extends View {
                 });
             }
             case Event.GAME_START -> {
-                //TODO ADD THE POP UP WINDOW
+                notice.getChildren().add(new Label("> The game starts now!\n"));
             }
             case Event.GAME_JOINED -> {
                 Platform.runLater(() ->
