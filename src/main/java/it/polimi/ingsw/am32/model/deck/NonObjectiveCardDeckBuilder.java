@@ -8,8 +8,6 @@ import it.polimi.ingsw.am32.model.deck.utils.DeckType;
 import it.polimi.ingsw.am32.model.exceptions.MissingJSONException;
 import it.polimi.ingsw.am32.model.exceptions.WrongDeckTypeException;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
@@ -57,7 +55,9 @@ public class NonObjectiveCardDeckBuilder {
 
         try {
             // Read the JSON file
-            String fileContent = new String(Files.readAllBytes(Paths.get(deckType.getJSONPath())));
+            String fileContent = new String(
+                    CardDeckBuilder.class.getResource(deckType.getJSONPath()).openStream().readAllBytes()
+            );
             // Perform the unpacking
             JsonNode jsonNode = objectMapper.readTree(fileContent);
 
