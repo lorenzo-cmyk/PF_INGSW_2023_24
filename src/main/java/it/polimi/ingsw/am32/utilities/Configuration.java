@@ -31,7 +31,7 @@ public class Configuration {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
-    private static final String JSON_CONFIG_FILE = "src/main/resources/it/polimi/ingsw/am32/utilities/Config.json";
+    private static final String JSON_CONFIG_FILE_NAME = "Config.json";
     private static Configuration instance;
     private int rmiPort;
     private int socketPort;
@@ -41,7 +41,7 @@ public class Configuration {
     private int endGameDueToDisconnectionTimeout;
     private String serverIp;
     private final ExecutorService executorService;
-    private Timer notLinkedSocketTimer;
+    private final Timer notLinkedSocketTimer;
 
 
     //---------------------------------------------------------------------------------------------
@@ -86,7 +86,12 @@ public class Configuration {
         boolean valid;
 
         try {
-            String configFileContent = new String(Files.readAllBytes(Paths.get(JSON_CONFIG_FILE)));
+            // The configuration file will be read and parsed assuming the file is in the same directory as the JAR.
+            // Therefore, we are getting the JAVA working directory and searching the file there.
+            logger.debug("Attempting to load configuration file: {}", Paths.get(System.getProperty("user.dir"), JSON_CONFIG_FILE_NAME));
+            String configFileContent = new String(
+                    Files.readAllBytes(Paths.get(System.getProperty("user.dir"), JSON_CONFIG_FILE_NAME))
+            );
 
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -179,7 +184,7 @@ public class Configuration {
                 rmiPort = rmiPortFile;
         }
 
-        logger.info("Configuration loaded");
+        logger.info("The loaded configuration is:");
         logger.info("Socket port: {}", socketPort);
         logger.info("RMI port: {}", rmiPort);
         logger.info("Ping time period: {}", pingTimeInterval);
