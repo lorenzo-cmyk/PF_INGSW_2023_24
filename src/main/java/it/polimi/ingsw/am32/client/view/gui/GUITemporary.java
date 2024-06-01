@@ -26,10 +26,8 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.net.URISyntaxException;
+import java.util.*;
 
 public class GUITemporary extends Application {
     protected final IsValid isValid = new IsValid();
@@ -37,8 +35,7 @@ public class GUITemporary extends Application {
     protected String thisPlayerNickname;
     protected int startCard;
     protected int gameID; //save the game ID received from the NewGameConfirmationMessage or AccessGameConfirmMessage.
-    protected int playerNum; //number of players connected to the game, if the player is disconnected, the number will
-    // decrease.
+    protected int playerNum; //number of players connected to the game, if the player is disconnected, the number will decrease.
     protected ArrayList<String> players; //save and update the players in the game.
     protected String currentPlayer; //save and update the current player by receiving the message from the server.
     protected volatile Event currentEvent; //TODO: not sure if this is useful
@@ -65,11 +62,17 @@ public class GUITemporary extends Application {
     protected volatile boolean isInThread = false;
     private final Label matchStatus= createLabel(String.valueOf(Status));
     private ChatArea chatArea;
-    /**
-     * Used to associate token colours to the respective images
-     */
     private final HashMap<String,Image> colourToImage = new HashMap<>();
-    Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
+    Font jejuHallasanFont = Font.loadFont(GUITemporary.class.getResourceAsStream("JejuHallasan.ttf"), 20);
+
+
+    private static String retriveResourceURI(String resourceName) {
+        try {
+            return Objects.requireNonNull(GUITemporary.class.getResource(resourceName)).toURI().toString();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public GUITemporary() {
         this.playerNum = 0;
@@ -83,16 +86,12 @@ public class GUITemporary extends Application {
         this.publicInfo = new HashMap<>();
         this.chatHistory = Collections.synchronizedList(new ArrayList<>());
 
-
-        this.colourToImage.put("BLUE",new Image("/CODEX_pion_bleu.png",15,15,true,true));
-        this.colourToImage.put("YELLOW",new Image("/CODEX_pion_jaune.png",15,15,true,true));
-        this.colourToImage.put("BLACK", new Image("/CODEX_pion_noir.png",15,15,true,true));
-        this.colourToImage.put("RED", new Image("/CODEX_pion_rouge.png",15,15,true,true));
-        this.colourToImage.put("GREEN", new Image("CODEX_pion_vert.png",15,15,true,true));
-
+        this.colourToImage.put("BLUE",new Image(retriveResourceURI("CODEX_pion_bleu.png"),15,15,true,true));
+        this.colourToImage.put("YELLOW",new Image(retriveResourceURI("CODEX_pion_jaune.png"),15,15,true,true));
+        this.colourToImage.put("BLACK", new Image(retriveResourceURI("CODEX_pion_noir.png"),15,15,true,true));
+        this.colourToImage.put("RED", new Image(retriveResourceURI("CODEX_pion_rouge.png"),15,15,true,true));
+        this.colourToImage.put("GREEN", new Image(retriveResourceURI("CODEX_pion_vert.png"),15,15,true,true));
     }
-
-
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -133,20 +132,16 @@ public class GUITemporary extends Application {
         playerInfoPanel.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(60)));
         preparationPhase.getChildren().addAll(playerInfoPanel);
 
-
-
-
         GridPane boardReal = new GridPane();
         ScrollPane board = new ScrollPane();
         //board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
         board.setPrefSize(770, 525);
         boardReal.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
-        ImageView card = new ImageView(new Image("/cards_front_075.png", 120, 80, true, false));
+        ImageView card = new ImageView(new Image(retriveResourceURI("cards_front_075.png"), 120, 80, true, false));
         card.setEffect(new DropShadow(20, Color.rgb(58, 33, 17)));
-        ImageView card20 = new ImageView(new Image("/cards_front_065.png", 120, 80, true, false));
+        ImageView card20 = new ImageView(new Image(retriveResourceURI("cards_front_065.png"), 120, 80, true, false));
         int x=-1;
         int y=-1;
-
 
         board.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(50)));
         board.translateXProperty().bind(preparationPhase.widthProperty().subtract(board.widthProperty().add(20)));
@@ -173,12 +168,12 @@ public class GUITemporary extends Application {
 
         });
 
-        ImageView card1 = new ImageView(new Image("/cards_front_075.png", 120, 80, true, true));
-        ImageView card2 = new ImageView(new Image("/cards_front_065.png", 120, 80, true, false));
-        ImageView card3 = new ImageView(new Image("/cards_front_035.png", 120, 80, true, false));
-        ImageView card4 = new ImageView(new Image("/cards_front_045.png", 120, 80, true, false));
-        ImageView card5 = new ImageView(new Image("/cards_back_055.png", 120, 80, true, false));
-        ImageView card6 = new ImageView(new Image("/cards_back_045.png", 120, 80, true, false));
+        ImageView card1 = new ImageView(new Image(retriveResourceURI("cards_front_075.png"), 120, 80, true, true));
+        ImageView card2 = new ImageView(new Image(retriveResourceURI("cards_front_065.png"), 120, 80, true, false));
+        ImageView card3 = new ImageView(new Image(retriveResourceURI("cards_front_035.png"), 120, 80, true, false));
+        ImageView card4 = new ImageView(new Image(retriveResourceURI("cards_front_045.png"), 120, 80, true, false));
+        ImageView card5 = new ImageView(new Image(retriveResourceURI("cards_back_055.png"), 120, 80, true, false));
+        ImageView card6 = new ImageView(new Image(retriveResourceURI("cards_back_045.png"), 120, 80, true, false));
 
         VBox deckArea = new VBox();
         deckArea.setSpacing(10);
@@ -192,14 +187,12 @@ public class GUITemporary extends Application {
 
         deckArea.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(50)));
         deckArea.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(deckArea.getHeight()+400)));
-        ImageView card7 = new ImageView(new Image("/cards_front_024.png", 120, 80, true, true));
-        ImageView card8 = new ImageView(new Image("/cards_front_028.png", 120, 80, true, false));
-        ImageView card9 = new ImageView(new Image("/cards_front_030.png", 120, 80, true, false));
-        ImageView card10 = new ImageView(new Image("/cards_front_035.png", 120, 80, true, false));
-        ImageView card11 = new ImageView(new Image("/cards_front_045.png", 120, 80, true, false));
-        ImageView card12 = new ImageView(new Image("/cards_front_055.png", 120, 80, true, false));
-
-
+        ImageView card7 = new ImageView(new Image(retriveResourceURI("cards_front_024.png"), 120, 80, true, true));
+        ImageView card8 = new ImageView(new Image(retriveResourceURI("cards_front_028.png"), 120, 80, true, false));
+        ImageView card9 = new ImageView(new Image(retriveResourceURI("cards_front_030.png"), 120, 80, true, false));
+        ImageView card10 = new ImageView(new Image(retriveResourceURI("cards_front_035.png"), 120, 80, true, false));
+        ImageView card11 = new ImageView(new Image(retriveResourceURI("cards_front_045.png"), 120, 80, true, false));
+        ImageView card12 = new ImageView(new Image(retriveResourceURI("cards_front_055.png"), 120, 80, true, false));
 
         Label DeckLabel2 = new Label("Resource Deck: 32");
         DeckLabel2.setStyle("-fx-text-fill: rgba(52,35,7);-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
@@ -223,7 +216,7 @@ public class GUITemporary extends Application {
         bottomLine.getChildren().addAll(card7,card8,card9,card10,card11,card12);
         bottomLine.translateXProperty().bind(preparationPhase.widthProperty().subtract(bottomLine.widthProperty().add(20)));
         bottomLine.translateYProperty().bind(preparationPhase.heightProperty().subtract(bottomLine.heightProperty().add(20)));
-        preparationPhase.getChildren().addAll(board,deckArea,bottomLine,chatArea.getChatArea(),notice);
+        preparationPhase.getChildren().addAll(board,deckArea,bottomLine,notice);
 
         Label commonObjLabel = createLabel("Common Objective Cards");
         Label secretObjLabel = createLabel("Secret");
@@ -240,7 +233,7 @@ public class GUITemporary extends Application {
 
         Group root = new Group();
         root.setAutoSizeChildren(true);
-        ImageView background = new ImageView(new Image("/popNotice.png"));
+        ImageView background = new ImageView(new Image(retriveResourceURI("popNotice.png")));
         background.setFitHeight(150);
         background.setFitWidth(150);
         Label noticeLabel = createLabel("It's your turn!");
@@ -277,13 +270,14 @@ public class GUITemporary extends Application {
         primaryStage.setScene(new Scene(preparationPhase));
         primaryStage.show();
     }
+
     private Label createLabel(String text) {
         Label label = new Label(text);
         label.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         return label;
     }
-    public VBox createPlayerInfoPanel() {
 
+    public VBox createPlayerInfoPanel() {
         HashMap<String,HBox> playerResources = new HashMap<>();
         VBox playerInfoGroup = new VBox();
         playerInfoGroup.setSpacing(10);
@@ -293,13 +287,13 @@ public class GUITemporary extends Application {
             ImageView tokenImage = new ImageView(colourToImage.get(playerColour));
             Label playerName = createLabel(playerString);
 
-            Image plantSymbol = new Image("kingdom_plant.png",15,15,true,false);
-            Image fungiSymbol = new Image("kingdom_fungi.png",15,15,true,false);
-            Image animalSymbol = new Image("kingdom_animal.png",15,15,true,false);
-            Image insectSymbol = new Image("kingdom_insect.png",15,15,true,false);
-            Image quillSymbol = new Image("kingdom_quill.png",15,15,true,false);
-            Image inkwellSymbol = new Image("kingdom_inkwell.png",15,15,true,false);
-            Image manuscriptSymbol = new Image("kingdom_manuscript.png",15,15,true,false);
+            Image plantSymbol = new Image(retriveResourceURI("kingdom_plant.png"),15,15,true,false);
+            Image fungiSymbol = new Image(retriveResourceURI("kingdom_fungi.png"),15,15,true,false);
+            Image animalSymbol = new Image(retriveResourceURI("kingdom_animal.png"),15,15,true,false);
+            Image insectSymbol = new Image(retriveResourceURI("kingdom_insect.png"),15,15,true,false);
+            Image quillSymbol = new Image(retriveResourceURI("kingdom_quill.png"),15,15,true,false);
+            Image inkwellSymbol = new Image(retriveResourceURI("kingdom_inkwell.png"),15,15,true,false);
+            Image manuscriptSymbol = new Image(retriveResourceURI("kingdom_manuscript.png"),15,15,true,false);
 
             int [] resources = playerPub.getResources();
 
@@ -342,8 +336,8 @@ public class GUITemporary extends Application {
         Label promptLabel = createLabel("Choose a secret objective card:"); // Text label prompting user to pick card
         HBox cardPairArea = new HBox(); // Area at the bottom, containing the 2 cards to choose from
 
-        ImageView firstCard = new ImageView(new Image("cards_back_019.png", 240, 160, true, false)); // Load the images of the cards to display
-        ImageView secondCard = new ImageView(new Image("cards_back_027.png", 240, 160, true, false));
+        ImageView firstCard = new ImageView(new Image(retriveResourceURI("cards_back_019.png"), 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image(retriveResourceURI("cards_back_027.png"), 240, 160, true, false));
 
         firstCard.setOnMouseClicked(e -> {
             // Highlight the image once clicked
@@ -386,6 +380,7 @@ public class GUITemporary extends Application {
 
         return selectionArea;
     }
+
     private Button createTransButton(String buttonName, int size, String color, int X, int Y) {
         Button button = new Button(buttonName);
         button.setStyle("-fx-background-color: transparent;-fx-text-fill:" + color + ";-fx-alignment: center;" +
