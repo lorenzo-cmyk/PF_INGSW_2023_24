@@ -24,8 +24,10 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
 
@@ -66,16 +68,29 @@ public class GraphicalUI extends View {
     private ScrollPane board;
     private Button returnToMyField;
     private VBox deckArea;
-    private final Font jejuHallasanFont = Font.loadFont(getClass().getResourceAsStream("/JejuHallasan.ttf"), 20);
-    private final String[] ruleBookImages = {"/codex_rulebook_it_01.png", "/codex_rulebook_it_02.png", "/codex_rulebook_it_03.png",
-            "/codex_rulebook_it_04.png", "/codex_rulebook_it_05.png", "/codex_rulebook_it_06.png", "/codex_rulebook_it_07.png",
-            "/codex_rulebook_it_08.png", "/codex_rulebook_it_09.png", "/codex_rulebook_it_10.png", "/codex_rulebook_it_11.png",
-            "/codex_rulebook_it_12.png"};
+    private final Font jejuHallasanFont = Font.loadFont(GraphicalUI.class.getResourceAsStream("JejuHallasan.ttf"), 20);
+    private final String[] ruleBookImages = {"codex_rulebook_it_01.png", "codex_rulebook_it_02.png", "codex_rulebook_it_03.png",
+            "codex_rulebook_it_04.png", "codex_rulebook_it_05.png", "codex_rulebook_it_06.png", "codex_rulebook_it_07.png",
+            "codex_rulebook_it_08.png", "codex_rulebook_it_09.png", "codex_rulebook_it_10.png", "codex_rulebook_it_11.png",
+            "codex_rulebook_it_12.png"};
     /**
      * ID of card selected for placement on the field by player.
      * Set to 0 when no card is selected.
      */
     private int selectedCardId;
+
+    /**
+     * Method used to retrieve dynamically a resource URI from the correct context folder.
+     * @param resourceName The name of the resource to retrieve.
+     * @return The URI of the resource converted to a String object to be used with JavaFX image loader.
+     */
+    private static String retrieveResourceURI(String resourceName) {
+        try {
+            return Objects.requireNonNull(GraphicalUI.class.getResource(resourceName)).toURI().toString();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Used to launch the GUIApplication class.
@@ -130,7 +145,7 @@ public class GraphicalUI extends View {
         ruleButton.setTranslateX(350);
         ruleButton.setTranslateY(300);
         ruleButton.setOnAction(e -> showRuleBook());
-        Image backgroundWelcomePage = new Image("/WelcomeDisplay.png");
+        Image backgroundWelcomePage = new Image(retrieveResourceURI("WelcomeDisplay.png"));
         BackgroundImage backgroundImg = new BackgroundImage(backgroundWelcomePage, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
         Background background = new Background(backgroundImg);
@@ -146,7 +161,7 @@ public class GraphicalUI extends View {
         Stage ruleBookStage = new Stage();
         Image[] ruleBookImage = new Image[ruleBookImages.length];
         for (int i = 0; i < ruleBookImages.length; i++) {
-            ruleBookImage[i] = new Image(ruleBookImages[i], 750, 750, true, true);
+            ruleBookImage[i] = new Image(retrieveResourceURI(ruleBookImages[i]), 750, 750, true, true);
         }
         ImageView ruleBook = new ImageView(ruleBookImage[0]);
         Button[] buttons = getBox(ruleBook);
@@ -183,11 +198,11 @@ public class GraphicalUI extends View {
                 "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.8) , 10,0,0,10 );");
         nextButton.setOnAction(e -> {
             index.set((index.get() + 1) % ruleBookImages.length);
-            ruleBook.setImage(new Image(ruleBookImages[index.get()], 750, 750, true, true));
+            ruleBook.setImage(new Image(retrieveResourceURI(ruleBookImages[index.get()]), 750, 750, true, true));
         });
         previousButton.setOnAction(e -> {
             index.set((index.get() - 1 + ruleBookImages.length) % ruleBookImages.length);
-            ruleBook.setImage(new Image(ruleBookImages[index.get()], 750, 750, true, true));
+            ruleBook.setImage(new Image(retrieveResourceURI(ruleBookImages[index.get()]), 750, 750, true, true));
         });
         return new Button[]{previousButton, nextButton};
     }
@@ -202,7 +217,7 @@ public class GraphicalUI extends View {
         connectionRoot = new StackPane();
 
         // set the background image of the selection page
-        Image backgroundSelectionPage = new Image("/SelectionDisplay.png");
+        Image backgroundSelectionPage = new Image(retrieveResourceURI("SelectionDisplay.png"));
         BackgroundImage backgroundImg = new BackgroundImage(backgroundSelectionPage, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
         Background background = new Background(backgroundImg);
@@ -533,29 +548,29 @@ public class GraphicalUI extends View {
     @Override
     public void setUpPlayersData() {
         // load the images which will be used in the master pane
-        imagesMap.put("BLUE", new Image("/CODEX_pion_bleu.png", 15, 15, true, false));
-        imagesMap.put("YELLOW", new Image("/CODEX_pion_jaune.png", 15, 15, true, false));
-        imagesMap.put("BLACK", new Image("/CODEX_pion_noir.png", 15, 15, true, false));
-        imagesMap.put("RED", new Image("/CODEX_pion_rouge.png", 15, 15, true, false));
-        imagesMap.put("GREEN", new Image("CODEX_pion_vert.png", 15, 15, true, false));
-        imagesMap.put("GREY", new Image("CODEX_pion_grey.png", 15, 15, true, false));
-        imagesMap.put("PLANT", new Image("kingdom_plant.png", 15, 15, true, false));
-        imagesMap.put("FUNGI", new Image("kingdom_fungi.png", 15, 15, true, false));
-        imagesMap.put("ANIMAL", new Image("kingdom_animal.png", 15, 15, true, false));
-        imagesMap.put("INSECT", new Image("kingdom_insect.png", 15, 15, true, false));
-        imagesMap.put("QUILL", new Image("kingdom_quill.png", 15, 15, true, false));
-        imagesMap.put("INKWELL", new Image("kingdom_inkwell.png", 15, 15, true, false));
-        imagesMap.put("MANUSCRIPT", new Image("kingdom_manuscript.png", 15, 15, true, false));
-        imagesMap.put("AVAILABLESPACE", new Image("availableSpace.png", 120, 80, true, true));
-        imagesMap.put("PLACEHOLDER", new Image("placeholder.png", 120, 80, true, true));
-        imagesMap.put("0", new Image("cards_back_011.png", 120, 80, true, false));
-        imagesMap.put("1", new Image("cards_back_001.png", 120, 80, true, false));
-        imagesMap.put("2", new Image("cards_back_021.png", 120, 80, true, false));
-        imagesMap.put("3", new Image("cards_back_031.png", 120, 80, true, false));
-        imagesMap.put("4", new Image("cards_back_051.png", 120, 80, true, false));
-        imagesMap.put("5", new Image("cards_back_041.png", 120, 80, true, false));
-        imagesMap.put("6", new Image("cards_back_061.png", 120, 80, true, false));
-        imagesMap.put("7", new Image("cards_back_071.png", 120, 80, true, false));
+        imagesMap.put("BLUE", new Image(retrieveResourceURI("CODEX_pion_bleu.png"), 15, 15, true, false));
+        imagesMap.put("YELLOW", new Image(retrieveResourceURI("CODEX_pion_jaune.png"), 15, 15, true, false));
+        imagesMap.put("BLACK", new Image(retrieveResourceURI("CODEX_pion_noir.png"), 15, 15, true, false));
+        imagesMap.put("RED", new Image(retrieveResourceURI("CODEX_pion_rouge.png"), 15, 15, true, false));
+        imagesMap.put("GREEN", new Image(retrieveResourceURI("CODEX_pion_vert.png"), 15, 15, true, false));
+        imagesMap.put("GREY", new Image(retrieveResourceURI("CODEX_pion_grey.png"), 15, 15, true, false));
+        imagesMap.put("PLANT", new Image(retrieveResourceURI("kingdom_plant.png"), 15, 15, true, false));
+        imagesMap.put("FUNGI", new Image(retrieveResourceURI("kingdom_fungi.png"), 15, 15, true, false));
+        imagesMap.put("ANIMAL", new Image(retrieveResourceURI("kingdom_animal.png"), 15, 15, true, false));
+        imagesMap.put("INSECT", new Image(retrieveResourceURI("kingdom_insect.png"), 15, 15, true, false));
+        imagesMap.put("QUILL", new Image(retrieveResourceURI("kingdom_quill.png"), 15, 15, true, false));
+        imagesMap.put("INKWELL", new Image(retrieveResourceURI("kingdom_inkwell.png"), 15, 15, true, false));
+        imagesMap.put("MANUSCRIPT", new Image(retrieveResourceURI("kingdom_manuscript.png"), 15, 15, true, false));
+        imagesMap.put("AVAILABLESPACE", new Image(retrieveResourceURI("availableSpace.png"), 120, 80, true, true));
+        imagesMap.put("PLACEHOLDER", new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, true));
+        imagesMap.put("0", new Image(retrieveResourceURI("cards_back_011.png"), 120, 80, true, false));
+        imagesMap.put("1", new Image(retrieveResourceURI("cards_back_001.png"), 120, 80, true, false));
+        imagesMap.put("2", new Image(retrieveResourceURI("cards_back_021.png"), 120, 80, true, false));
+        imagesMap.put("3", new Image(retrieveResourceURI("cards_back_031.png"), 120, 80, true, false));
+        imagesMap.put("4", new Image(retrieveResourceURI("cards_back_051.png"), 120, 80, true, false));
+        imagesMap.put("5", new Image(retrieveResourceURI("cards_back_041.png"), 120, 80, true, false));
+        imagesMap.put("6", new Image(retrieveResourceURI("cards_back_061.png"), 120, 80, true, false));
+        imagesMap.put("7", new Image(retrieveResourceURI("cards_back_071.png"), 120, 80, true, false));
 
         if (this.matchStatus == null) {
             this.matchStatus = createLabel(String.valueOf(Status), 15);
@@ -688,25 +703,25 @@ public class GraphicalUI extends View {
 
         //Images to hold the spaces for the cards in hand, common objective cards and secret objective cards
         handView = new ImageView[]{
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false))
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false))
         };
         commonObjCardView = new ImageView[]{
-                new ImageView(new Image("/cards_back_089.png", 120, 80, true, false)),
-                new ImageView(new Image("/cards_back_089.png", 120, 80, true, false))
+                new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false))
         };
-        secretObjCardView = new ImageView(new Image("/cards_back_089.png", 120, 80, true, false));
+        secretObjCardView = new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false));
 
         resourceDeckView = new ImageView[]{
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false))
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false))
         };
         goldDeckView = new ImageView[]{
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false)),
-                new ImageView(new Image("/placeholder.png", 120, 80, true, false))
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false))
         };
 
         // Set up the click action of the cards in the hand
@@ -780,7 +795,7 @@ public class GraphicalUI extends View {
     private Group createNoticeEventPanel() {
         Group root = new Group();
         root.setAutoSizeChildren(true);
-        ImageView background = new ImageView(new Image("/popNotice.png"));
+        ImageView background = new ImageView(new Image(retrieveResourceURI("popNotice.png")));
         background.setFitHeight(150);
         background.setFitWidth(150);
         eventLabel = createLabel ("It's your turn!",15);
@@ -912,7 +927,7 @@ public class GraphicalUI extends View {
                         else if (e.getButton() == MouseButton.SECONDARY) { // User right clicks card; flip the card
                             handViewCardSide[finalI] = !handViewCardSide[finalI]; // Toggle card side
                             String cardImagePath = convertToImagePath(hand.get(finalI), handViewCardSide[finalI]); // Load card image
-                            handView[finalI].setImage(new Image(cardImagePath, 120, 80, true, false)); // Update card image
+                            handView[finalI].setImage(new Image(retrieveResourceURI(cardImagePath), 120, 80, true, false)); // Update card image
                         }
             });
         }
@@ -1025,7 +1040,7 @@ public class GraphicalUI extends View {
             label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
             dialogPane.setContent(label1);
             dialogPane.setStyle("-fx-pref-height: 180px;-fx-pref-width: 600px;-fx-background-image: " +
-                    "url('/NoticeDisplay.png');-fx-background-position: center;-fx-background-size: 600px 180px;");
+                    "url('" + retrieveResourceURI("NoticeDisplay.png") + "');-fx-background-position: center;-fx-background-size: 600px 180px;");
             dialogPane.setMinHeight(180);
             dialogPane.setMinWidth(600);
             dialogPane.setMaxHeight(600);
@@ -1124,11 +1139,11 @@ public class GraphicalUI extends View {
             this.players = playerNicknames;
             int[] card;
             this.resourceDeckView[0].setImage(imagesMap.get(String.valueOf(resourceCardDeckFacingKingdom)));
-            this.resourceDeckView[1].setImage(new Image(convertToImagePath(currentResourceCards.get(0),true), 120, 80, true, false));
-            this.resourceDeckView[2].setImage(new Image(convertToImagePath(currentResourceCards.get(1),true), 120, 80, true, false));
+            this.resourceDeckView[1].setImage(new Image(retrieveResourceURI(convertToImagePath(currentResourceCards.get(0),true)), 120, 80, true, false));
+            this.resourceDeckView[2].setImage(new Image(retrieveResourceURI(convertToImagePath(currentResourceCards.get(1),true)), 120, 80, true, false));
             this.goldDeckView[0].setImage(imagesMap.get(String.valueOf(goldCardDeckFacingKingdom+4)));
-            this.goldDeckView[1].setImage(new Image(convertToImagePath(currentGoldCards.get(0),true), 120, 80, true, false));
-            this.goldDeckView[2].setImage(new Image(convertToImagePath(currentGoldCards.get(1),true), 120, 80, true, false));
+            this.goldDeckView[1].setImage(new Image(retrieveResourceURI(convertToImagePath(currentGoldCards.get(0),true)), 120, 80, true, false));
+            this.goldDeckView[2].setImage(new Image(retrieveResourceURI(convertToImagePath(currentGoldCards.get(1),true)), 120, 80, true, false));
             Platform.runLater(()->{
                  ImageView firstPlayer = new ImageView(imagesMap.get("BLACK"));
                  playerOrder.getChildren().addAll(firstPlayer,createLabel(String.valueOf(playerNicknames), 15));
@@ -1156,7 +1171,7 @@ public class GraphicalUI extends View {
     }
     private String convertToImagePath(int cardID, boolean isUp) {
         String cardIdStr= String.format("%03d", cardID);
-        return isUp ? "/cards_front_" + cardIdStr + ".png" : "/cards_back_" + cardIdStr + ".png";
+        return isUp ? "cards_front_" + cardIdStr + ".png" : "cards_back_" + cardIdStr + ".png";
     }
 
     @Override
@@ -1167,14 +1182,14 @@ public class GraphicalUI extends View {
         String cardIdStr1 = convertToImagePath(hand.get(0), true);
         String cardIdStr2 = convertToImagePath(hand.get(1), true);
         String cardIdStr3 = convertToImagePath(hand.get(2), true);
-        handView[0].setImage(new Image(cardIdStr1, 120, 80, true, true));
-        handView[1].setImage(new Image(cardIdStr2, 120, 80, true, true));
-        handView[2].setImage(new Image(cardIdStr3, 120, 80, true, true));
+        handView[0].setImage(new Image(retrieveResourceURI(cardIdStr1), 120, 80, true, true));
+        handView[1].setImage(new Image(retrieveResourceURI(cardIdStr2), 120, 80, true, true));
+        handView[2].setImage(new Image(retrieveResourceURI(cardIdStr3), 120, 80, true, true));
         handViewCardSide = new boolean[]{true, true, true}; // All cards displayed side up in the beginning
         String commonCardIdStr1 = convertToImagePath(common.get(0), true);
         String commonCardIdStr2 = convertToImagePath(common.get(1), true);
-        commonObjCardView[0].setImage(new Image(commonCardIdStr1,120, 80, true, true));
-        commonObjCardView[1].setImage(new Image(commonCardIdStr2, 120, 80, true, true));
+        commonObjCardView[0].setImage(new Image(retrieveResourceURI(commonCardIdStr1),120, 80, true, true));
+        commonObjCardView[1].setImage(new Image(retrieveResourceURI(commonCardIdStr2), 120, 80, true, true));
         Platform.runLater(()->{
         notice.getChildren().add(new Label("> Your hand cards and common objective cards are ready in your card area:)\n"));
         notice.getChildren().add(new Label("> Please select your secret objective cards\n"));
@@ -1202,7 +1217,7 @@ public class GraphicalUI extends View {
     @Override
     public void showCard(int ID, boolean isUp) {
             Platform.runLater(() -> {
-            ImageView cardView = new ImageView(new Image(convertToImagePath(ID, isUp), 120, 80, true, false));
+            ImageView cardView = new ImageView(new Image(retrieveResourceURI(convertToImagePath(ID, isUp)), 120, 80, true, false));
             VBox cardArea = new VBox(); // Entire selection area
             Label promptLabel = createLabel("Card "+ID+": ", 15);
             cardArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
@@ -1247,7 +1262,7 @@ public class GraphicalUI extends View {
 
                 int cardIdx = hand.indexOf(placedCard); // Get index of card in the player's hand
                 hand.remove(cardIdx); // Remove placed card from hand
-                handView[cardIdx].setImage(new Image("/placeholder.png", 120, 80, true, false)); // Replace card with placeholder
+                handView[cardIdx].setImage(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)); // Replace card with placeholder
 
 
                 StackPane playerBoard = playerField.get(thisPlayerNickname);
@@ -1284,7 +1299,7 @@ public class GraphicalUI extends View {
                                  ArrayList<Integer> pointsGainedFromObj, ArrayList<String> winners) {
         Platform.runLater(()-> {
             endGamePane = new Pane();
-            endGamePane.setBackground(new Background(new BackgroundImage(new Image("/endGameDisplay.png"), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false))));
+            endGamePane.setBackground(new Background(new BackgroundImage(new Image(retrieveResourceURI("endGameDisplay.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false))));
             Label winnersLabel = createLabel("Winners: " + winners + "\n", 25);
             // print the final points of the players, the secret objective card of the players, and the points gained from the
             // objective card of the players.
@@ -1415,7 +1430,7 @@ public class GraphicalUI extends View {
             notice.getChildren().add(new Label("> You have drawn a card from the deck.\n"));
 
             this.hand.add(indexCardPlaced, hand.getLast()); // Add drawn card to my hand
-            handView[indexCardPlaced].setImage(new Image("/cards_front_" + String.format("%03d", hand.getLast()) + ".png", 120, 80, true, true)); // Update hand view
+            handView[indexCardPlaced].setImage(new Image(retrieveResourceURI("cards_front_" + String.format("%03d", hand.getLast()) + ".png"), 120, 80, true, true)); // Update hand view
             handViewCardSide[indexCardPlaced] = true; // Set card side to face up
 
             // Enable click action on all cards in hand
@@ -1447,13 +1462,13 @@ public class GraphicalUI extends View {
                 if (this.currentResourceCards.get(1) == currentResourceCards[0]) {
                     this.currentResourceCards.remove(0);
                     this.currentResourceCards.addFirst(currentResourceCards[1]);
-                    this.resourceDeckView[1].setImage(new Image(convertToImagePath(currentResourceCards[1], true), 120, 80, true, false));
+                    this.resourceDeckView[1].setImage(new Image(retrieveResourceURI(convertToImagePath(currentResourceCards[1], true)), 120, 80, true, false));
                 }
                 // player drew the right card from the resource deck
                 else {
                     this.currentResourceCards.remove(1);
                     this.currentResourceCards.addLast(currentResourceCards[1]);
-                    this.resourceDeckView[2].setImage(new Image(convertToImagePath(currentResourceCards[1], true), 120, 80, true, false));
+                    this.resourceDeckView[2].setImage(new Image(retrieveResourceURI(convertToImagePath(currentResourceCards[1], true)), 120, 80, true, false));
                 }
             }
             // if the player drew the card from the resource deck
@@ -1462,13 +1477,13 @@ public class GraphicalUI extends View {
                 if (this.currentGoldCards.get(1) == currentGoldCards[0]) {
                     this.currentGoldCards.remove(0);
                     this.currentGoldCards.addFirst(currentGoldCards[1]);
-                    this.goldDeckView[1].setImage(new Image(convertToImagePath(currentGoldCards[1], true), 120, 80, true, false));
+                    this.goldDeckView[1].setImage(new Image(retrieveResourceURI(convertToImagePath(currentGoldCards[1], true)), 120, 80, true, false));
                 }
                 // player drew the right card from the gold deck
                 else {
                     this.currentGoldCards.remove(1);
                     this.currentGoldCards.addLast(currentGoldCards[1]);
-                    this.goldDeckView[2].setImage(new Image(convertToImagePath(currentGoldCards[1], true), 120, 80, true, false));
+                    this.goldDeckView[2].setImage(new Image(retrieveResourceURI(convertToImagePath(currentGoldCards[1], true)), 120, 80, true, false));
                 }
             }
             this.resourceCardDeckFacingKingdom = resourceDeckFace;
@@ -1594,7 +1609,7 @@ public class GraphicalUI extends View {
         Platform.runLater(() -> {
             masterPane.getChildren().removeLast();
             String cardIdStr = chosenSecretObjectiveCard > 99 ? String.valueOf(chosenSecretObjectiveCard) : "0" + chosenSecretObjectiveCard;
-            secretObjCardView.setImage(new Image("/cards_front_" + cardIdStr + ".png", 120, 80, true, true));
+            secretObjCardView.setImage(new Image(retrieveResourceURI("cards_front_" + cardIdStr + ".png"), 120, 80, true, true));
         });
     }
 
@@ -1666,12 +1681,12 @@ public class GraphicalUI extends View {
         int posX = 300+x * 95;
         int posY = 250+y * (-50);
         StackPane playerBoard = playerField.get(playerNickname);
-        String cardSide = isUp ? "/cards_front_" : "/cards_back_";
+        String cardSide = isUp ? "cards_front_" : "cards_back_";
         if(x==0 && y==0){
-            cardSide = isUp ? "/cards_back_" : "/cards_front_";
+            cardSide = isUp ? "cards_back_" : "cards_front_";
         }
         String cardIdStr = cardID >= 10 ? "0" + cardID : "00" + cardID;
-        ImageView cardImage = new ImageView(new Image(cardSide + cardIdStr + ".png", 120, 80, true, true));
+        ImageView cardImage = new ImageView(new Image(retrieveResourceURI(cardSide + cardIdStr + ".png"), 120, 80, true, true));
         cardImage.setTranslateX(posX);
         cardImage.setTranslateY(posY);
         playerBoard.getChildren().add(cardImage);
@@ -1797,8 +1812,8 @@ public class GraphicalUI extends View {
         Label promptLabel = createLabel("Choose a starter card side:", 20); // Text label prompting user to pick a card
         HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
 
-        ImageView firstCard = new ImageView(new Image("cards_back_0" + imageNumber + ".png", 240, 160, true, false)); // Load the images of the cards to display
-        ImageView secondCard = new ImageView(new Image("cards_front_0" + imageNumber + ".png", 240, 160, true, false));
+        ImageView firstCard = new ImageView(new Image(retrieveResourceURI("cards_back_0" + imageNumber + ".png"), 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image(retrieveResourceURI("cards_front_0" + imageNumber + ".png"), 240, 160, true, false));
 
         firstCard.setOnMouseClicked(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
@@ -1867,8 +1882,8 @@ public class GraphicalUI extends View {
         HBox cardPairArea = new HBox(); // Area displaying the 2 cards to choose from
         String card1Path = card1 > 99 ? "cards_front_" + card1 : "cards_front_0" + card1;
         String card2Path = card2 > 99 ? "cards_front_" + card2 : "cards_front_0" + card2;
-        ImageView firstCard = new ImageView(new Image(card1Path + ".png", 240, 160, true, false));
-        ImageView secondCard = new ImageView(new Image(card2Path + ".png", 240, 160, true, false));
+        ImageView firstCard = new ImageView(new Image(retrieveResourceURI(card1Path + ".png"), 240, 160, true, false));
+        ImageView secondCard = new ImageView(new Image(retrieveResourceURI(card2Path + ".png"), 240, 160, true, false));
 
         firstCard.setOnMouseClicked(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), firstCard); // Add scaling animation to the card when selected
