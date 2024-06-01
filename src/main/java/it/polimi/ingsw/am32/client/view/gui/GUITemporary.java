@@ -66,7 +66,7 @@ public class GUITemporary extends Application {
     Font jejuHallasanFont = Font.loadFont(GUITemporary.class.getResourceAsStream("JejuHallasan.ttf"), 20);
 
 
-    private static String retriveResourceURI(String resourceName) {
+    private static String retrieveResourceURI(String resourceName) {
         try {
             return Objects.requireNonNull(GUITemporary.class.getResource(resourceName)).toURI().toString();
         } catch (URISyntaxException e) {
@@ -86,11 +86,11 @@ public class GUITemporary extends Application {
         this.publicInfo = new HashMap<>();
         this.chatHistory = Collections.synchronizedList(new ArrayList<>());
 
-        this.colourToImage.put("BLUE",new Image(retriveResourceURI("CODEX_pion_bleu.png"),15,15,true,true));
-        this.colourToImage.put("YELLOW",new Image(retriveResourceURI("CODEX_pion_jaune.png"),15,15,true,true));
-        this.colourToImage.put("BLACK", new Image(retriveResourceURI("CODEX_pion_noir.png"),15,15,true,true));
-        this.colourToImage.put("RED", new Image(retriveResourceURI("CODEX_pion_rouge.png"),15,15,true,true));
-        this.colourToImage.put("GREEN", new Image(retriveResourceURI("CODEX_pion_vert.png"),15,15,true,true));
+        this.colourToImage.put("BLUE",new Image(retrieveResourceURI("CODEX_pion_bleu.png"),15,15,true,true));
+        this.colourToImage.put("YELLOW",new Image(retrieveResourceURI("CODEX_pion_jaune.png"),15,15,true,true));
+        this.colourToImage.put("BLACK", new Image(retrieveResourceURI("CODEX_pion_noir.png"),15,15,true,true));
+        this.colourToImage.put("RED", new Image(retrieveResourceURI("CODEX_pion_rouge.png"),15,15,true,true));
+        this.colourToImage.put("GREEN", new Image(retrieveResourceURI("CODEX_pion_vert.png"),15,15,true,true));
     }
 
     @Override
@@ -137,9 +137,9 @@ public class GUITemporary extends Application {
         //board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
         board.setPrefSize(770, 525);
         boardReal.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179,0.35), new CornerRadii(0), new Insets(0))));
-        ImageView card = new ImageView(new Image(retriveResourceURI("cards_front_075.png"), 120, 80, true, false));
+        ImageView card = new ImageView(new Image(retrieveResourceURI("cards_front_075.png"), 120, 80, true, false));
         card.setEffect(new DropShadow(20, Color.rgb(58, 33, 17)));
-        ImageView card20 = new ImageView(new Image(retriveResourceURI("cards_front_065.png"), 120, 80, true, false));
+        ImageView card20 = new ImageView(new Image(retrieveResourceURI("cards_front_065.png"), 120, 80, true, false));
         int x=-1;
         int y=-1;
 
@@ -168,12 +168,12 @@ public class GUITemporary extends Application {
 
         });
 
-        ImageView card1 = new ImageView(new Image(retriveResourceURI("cards_front_075.png"), 120, 80, true, true));
-        ImageView card2 = new ImageView(new Image(retriveResourceURI("cards_front_065.png"), 120, 80, true, false));
-        ImageView card3 = new ImageView(new Image(retriveResourceURI("cards_front_035.png"), 120, 80, true, false));
-        ImageView card4 = new ImageView(new Image(retriveResourceURI("cards_front_045.png"), 120, 80, true, false));
-        ImageView card5 = new ImageView(new Image(retriveResourceURI("cards_back_055.png"), 120, 80, true, false));
-        ImageView card6 = new ImageView(new Image(retriveResourceURI("cards_back_045.png"), 120, 80, true, false));
+        ImageView card1 = new ImageView(new Image(retrieveResourceURI("cards_front_075.png"), 120, 80, true, true));
+        ImageView card2 = new ImageView(new Image(retrieveResourceURI("cards_front_065.png"), 120, 80, true, false));
+        ImageView card3 = new ImageView(new Image(retrieveResourceURI("cards_front_035.png"), 120, 80, true, false));
+        ImageView card4 = new ImageView(new Image(retrieveResourceURI("cards_front_045.png"), 120, 80, true, false));
+        ImageView card5 = new ImageView(new Image(retrieveResourceURI("cards_back_055.png"), 120, 80, true, false));
+        ImageView card6 = new ImageView(new Image(retrieveResourceURI("cards_back_045.png"), 120, 80, true, false));
 
         VBox deckArea = new VBox();
         deckArea.setSpacing(10);
@@ -187,12 +187,12 @@ public class GUITemporary extends Application {
 
         deckArea.translateXProperty().bind(preparationPhase.widthProperty().subtract(preparationPhase.widthProperty().subtract(50)));
         deckArea.translateYProperty().bind(preparationPhase.heightProperty().subtract(preparationPhase.heightProperty().subtract(deckArea.getHeight()+400)));
-        ImageView card7 = new ImageView(new Image(retriveResourceURI("cards_front_024.png"), 120, 80, true, true));
-        ImageView card8 = new ImageView(new Image(retriveResourceURI("cards_front_028.png"), 120, 80, true, false));
-        ImageView card9 = new ImageView(new Image(retriveResourceURI("cards_front_030.png"), 120, 80, true, false));
-        ImageView card10 = new ImageView(new Image(retriveResourceURI("cards_front_035.png"), 120, 80, true, false));
-        ImageView card11 = new ImageView(new Image(retriveResourceURI("cards_front_045.png"), 120, 80, true, false));
-        ImageView card12 = new ImageView(new Image(retriveResourceURI("cards_front_055.png"), 120, 80, true, false));
+        ImageView card7 = new ImageView(new Image(retrieveResourceURI("cards_front_024.png"), 120, 80, true, true));
+        ImageView card8 = new ImageView(new Image(retrieveResourceURI("cards_front_028.png"), 120, 80, true, false));
+        ImageView card9 = new ImageView(new Image(retrieveResourceURI("cards_front_030.png"), 120, 80, true, false));
+        ImageView card10 = new ImageView(new Image(retrieveResourceURI("cards_front_035.png"), 120, 80, true, false));
+        ImageView card11 = new ImageView(new Image(retrieveResourceURI("cards_front_045.png"), 120, 80, true, false));
+        ImageView card12 = new ImageView(new Image(retrieveResourceURI("cards_front_055.png"), 120, 80, true, false));
 
         Label DeckLabel2 = new Label("Resource Deck: 32");
         DeckLabel2.setStyle("-fx-text-fill: rgba(52,35,7);-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
@@ -233,7 +233,7 @@ public class GUITemporary extends Application {
 
         Group root = new Group();
         root.setAutoSizeChildren(true);
-        ImageView background = new ImageView(new Image(retriveResourceURI("popNotice.png")));
+        ImageView background = new ImageView(new Image(retrieveResourceURI("popNotice.png")));
         background.setFitHeight(150);
         background.setFitWidth(150);
         Label noticeLabel = createLabel("It's your turn!");
@@ -287,13 +287,13 @@ public class GUITemporary extends Application {
             ImageView tokenImage = new ImageView(colourToImage.get(playerColour));
             Label playerName = createLabel(playerString);
 
-            Image plantSymbol = new Image(retriveResourceURI("kingdom_plant.png"),15,15,true,false);
-            Image fungiSymbol = new Image(retriveResourceURI("kingdom_fungi.png"),15,15,true,false);
-            Image animalSymbol = new Image(retriveResourceURI("kingdom_animal.png"),15,15,true,false);
-            Image insectSymbol = new Image(retriveResourceURI("kingdom_insect.png"),15,15,true,false);
-            Image quillSymbol = new Image(retriveResourceURI("kingdom_quill.png"),15,15,true,false);
-            Image inkwellSymbol = new Image(retriveResourceURI("kingdom_inkwell.png"),15,15,true,false);
-            Image manuscriptSymbol = new Image(retriveResourceURI("kingdom_manuscript.png"),15,15,true,false);
+            Image plantSymbol = new Image(retrieveResourceURI("kingdom_plant.png"),15,15,true,false);
+            Image fungiSymbol = new Image(retrieveResourceURI("kingdom_fungi.png"),15,15,true,false);
+            Image animalSymbol = new Image(retrieveResourceURI("kingdom_animal.png"),15,15,true,false);
+            Image insectSymbol = new Image(retrieveResourceURI("kingdom_insect.png"),15,15,true,false);
+            Image quillSymbol = new Image(retrieveResourceURI("kingdom_quill.png"),15,15,true,false);
+            Image inkwellSymbol = new Image(retrieveResourceURI("kingdom_inkwell.png"),15,15,true,false);
+            Image manuscriptSymbol = new Image(retrieveResourceURI("kingdom_manuscript.png"),15,15,true,false);
 
             int [] resources = playerPub.getResources();
 
@@ -336,8 +336,8 @@ public class GUITemporary extends Application {
         Label promptLabel = createLabel("Choose a secret objective card:"); // Text label prompting user to pick card
         HBox cardPairArea = new HBox(); // Area at the bottom, containing the 2 cards to choose from
 
-        ImageView firstCard = new ImageView(new Image(retriveResourceURI("cards_back_019.png"), 240, 160, true, false)); // Load the images of the cards to display
-        ImageView secondCard = new ImageView(new Image(retriveResourceURI("cards_back_027.png"), 240, 160, true, false));
+        ImageView firstCard = new ImageView(new Image(retrieveResourceURI("cards_back_019.png"), 240, 160, true, false)); // Load the images of the cards to display
+        ImageView secondCard = new ImageView(new Image(retrieveResourceURI("cards_back_027.png"), 240, 160, true, false));
 
         firstCard.setOnMouseClicked(e -> {
             // Highlight the image once clicked
