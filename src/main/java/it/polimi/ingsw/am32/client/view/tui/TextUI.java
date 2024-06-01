@@ -37,7 +37,7 @@ import org.apache.logging.log4j.Logger;
  * @author Jie
  */
 public class TextUI extends View{
-    private static final Logger logger = LogManager.getLogger("TUILogger");
+    private static final Logger logger = LogManager.getLogger(TextUI.class);
     private final Scanner in;
     private final PrintStream out;
     private final IsValid isValid = new IsValid(); // used to check the validity of the input

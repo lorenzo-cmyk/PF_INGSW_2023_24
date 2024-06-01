@@ -56,7 +56,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         sToCProcessingLock = new Object();
         statusIsAlive = false;
         pongCount = PONGMAXCOUNT; // todo fare un config??
-        logger = LogManager.getLogger("SKClientNode");
+        logger = LogManager.getLogger(SKClientNode.class);
         reconnectCalled = false;
     }
 

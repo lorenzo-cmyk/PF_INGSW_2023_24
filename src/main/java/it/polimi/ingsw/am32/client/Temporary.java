@@ -59,7 +59,7 @@ public class Temporary implements Runnable{
     protected static ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
     protected static final HashMap<Integer, ArrayList<String>> cardImg = setImg();
-    private static final Logger logger = LogManager.getLogger("TUILogger");
+    private static final Logger logger = LogManager.getLogger(Temporary.class);
 
     public Temporary(Scanner in, PrintStream out) {
         this.in = in;

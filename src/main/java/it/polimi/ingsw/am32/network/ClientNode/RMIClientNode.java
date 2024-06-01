@@ -58,7 +58,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         this.view = view;
         this.serverURL = serverURL;
         this.port = port;
-        logger = LogManager.getLogger("RMIClientNode");
+        logger = LogManager.getLogger(RMIClientNode.class);
         timer = new Timer();
         aliveLock = new Object();
         cToSProcessingLock = new Object();

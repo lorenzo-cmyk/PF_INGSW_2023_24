@@ -17,7 +17,7 @@ public class AskListener implements AskListenerInterface, Runnable {
     /**
      * The logger associated with the AskListener class.
      */
-    private static final Logger logger = LogManager.getLogger("AskLogger");
+    private static final Logger logger = LogManager.getLogger(AskListener.class);
     /**
      * The connection node associated with the listener.
      */

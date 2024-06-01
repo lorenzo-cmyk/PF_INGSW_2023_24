@@ -50,7 +50,7 @@ public class SKServerNode implements Runnable, NodeInterface {
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
 
-        this.logger = LogManager.getLogger("SKServerNode");
+        this.logger = LogManager.getLogger(SKServerNode.class);
 
         try {
             outputObtStr = new ObjectOutputStream(socket.getOutputStream());
