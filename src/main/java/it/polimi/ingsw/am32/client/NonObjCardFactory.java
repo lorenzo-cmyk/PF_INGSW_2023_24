@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am32.client.exceptions.MissingJSONException;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
- * Use this class to create a Non Objective card (Resource, Gold or Starting card) using the card data stored in the
+ * Use this class to create a Non-Objective card (Resource, Gold or Starting card) using the card data stored in the
  * JSON file, in the side of the client. In this way the client can have a copy of the cards that can be used to display
  * the cards in the UI.
  * @author Jie
@@ -68,12 +67,14 @@ public class NonObjCardFactory {
 
         try {
             // Read the JSON file: resource cards, gold cards and starting cards.
-            String fileContentResource = new String(Files.readAllBytes(
-                    Paths.get("src/main/resources/it/polimi/ingsw/am32/model/deck/ResourceCards.json")));
-            String fileContentGold = new String(Files.readAllBytes(
-                    Paths.get("src/main/resources/it/polimi/ingsw/am32/model/deck/GoldCards.json")));
-            String fileContentStarting = new String(Files.readAllBytes(
-                    Paths.get("src/main/resources/it/polimi/ingsw/am32/model/deck/StartingCards.json")));
+            InputStream resourceStreamResource = NonObjCardFactory.class.getResourceAsStream("/it/polimi/ingsw/am32/model/deck/ResourceCards.json");
+            String fileContentResource = new String(resourceStreamResource.readAllBytes());
+
+            InputStream resourceStreamGold = NonObjCardFactory.class.getResourceAsStream("/it/polimi/ingsw/am32/model/deck/GoldCards.json");
+            String fileContentGold = new String(resourceStreamGold.readAllBytes());
+
+            InputStream resourceStreamStarting = NonObjCardFactory.class.getResourceAsStream("/it/polimi/ingsw/am32/model/deck/StartingCards.json");
+            String fileContentStarting = new String(resourceStreamStarting.readAllBytes());
             // Perform the unpacking
             JsonNode[] jsonNode= new JsonNode[3];
             jsonNode[0]=objectMapper.readTree(fileContentResource);

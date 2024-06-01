@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.polimi.ingsw.am32.client.exceptions.MissingJSONException;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
- * This class is used to create the Non Objective Cards from the JSON file, in the side of the client. In this way
+ * This class is used to create the Non-Objective Cards from the JSON file, in the side of the client. In this way
  * the client can have a copy of the cards that can be used to display the cards in the UI.
  * @author Jie
  */
@@ -53,10 +52,10 @@ public class ObjectiveCardFactory {
 
         try {
             // Read the JSON file: Objective Cards
-            String fileContent = new String(Files.readAllBytes(
-                    Paths.get("src/main/resources/it/polimi/ingsw/am32/model/deck/ObjectiveCards.json")));
+            InputStream resourceStreamObjective = ObjectiveCardFactory.class.getResourceAsStream("/it/polimi/ingsw/am32/model/deck/ObjectiveCards.json");
+            String fileContentObjective = new String(resourceStreamObjective.readAllBytes());
             // Perform the unpacking
-            JsonNode jsonNode = objectMapper.readTree(fileContent);
+            JsonNode jsonNode = objectMapper.readTree(fileContentObjective);
 
             // Iterate over the JSON array
             if (jsonNode.isArray()) {
