@@ -1,34 +1,26 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
-import it.polimi.ingsw.am32.Utilities.IsValid;
+import it.polimi.ingsw.am32.utilities.IsValid;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.ObjectiveCardFactory;
 import it.polimi.ingsw.am32.client.PlayerPub;
 import it.polimi.ingsw.am32.client.listener.AskListener;
-import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
-import javafx.scene.effect.Light;
-import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
@@ -38,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class GUITemporary extends Application {
     protected final IsValid isValid = new IsValid();

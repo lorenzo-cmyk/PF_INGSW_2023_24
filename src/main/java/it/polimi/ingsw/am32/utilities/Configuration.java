@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am32.Utilities;
+package it.polimi.ingsw.am32.utilities;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +31,7 @@ public class Configuration {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
-    private static final String JSON_CONFIG_FILE = "src/main/resources/it/polimi/ingsw/am32/Utilities/Config.json";
+    private static final String JSON_CONFIG_FILE = "src/main/resources/it/polimi/ingsw/am32/utilities/Config.json";
     private static Configuration instance;
     private int rmiPort;
     private int socketPort;

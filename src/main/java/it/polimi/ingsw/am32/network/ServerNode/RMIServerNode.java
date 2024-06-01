@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.network.ServerNode;
 
-import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;

@@ -1,6 +1,4 @@
-package it.polimi.ingsw.am32.Utilities;
-import java.net.MalformedURLException;
-import java.net.URL;
+package it.polimi.ingsw.am32.utilities;
 
 public class IsValid {
     public boolean isIpValid(String ip){

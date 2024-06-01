@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.client;
 
-import it.polimi.ingsw.am32.Utilities.IsValid;
+import it.polimi.ingsw.am32.utilities.IsValid;
 import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
