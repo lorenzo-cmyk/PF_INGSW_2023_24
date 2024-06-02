@@ -71,7 +71,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 listenForIncomingMessages();
 
             } catch (IOException | ClassNotFoundException | NodeClosedException e) {
-                logger.debug("inputObtStr exception: {}. {}. {}",e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
+                logger.error("inputObtStr exception: {}. {}. {}",e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
                 resetConnection();
             }
         }
@@ -86,7 +86,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                 message = inputObtStr.readObject();
             }
         } catch (SocketTimeoutException e) {
-            //logger.debug("Socket timeout exception");
+            // logger.debug("Socket timeout exception"); Disabled because it's too verbose
             return;
         }
 
@@ -97,14 +97,14 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         if(message instanceof PongMessage) {
 
-            logger.info("PongMessage received");
+            logger.debug("PongMessage received");
             return;
         }
 
         if(message instanceof StoCMessage) {
 
             try {
-                logger.info("Message received. Type: StoCMessage. Processing");
+                logger.info("Message received. Type: StoCMessage. Processing: {}", message);
                 ((StoCMessage) message).processMessage(view);
             } catch (Exception e) {
                 logger.fatal("Critical Runtime Exception:\nException Type: {}\nLocal Message: {}\nStackTrace: {}",
@@ -113,7 +113,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         } else {
 
-            logger.info("Message received. Message type not recognized");
+            logger.error("Message received. Message type not recognized");
         }
     }
 
@@ -129,7 +129,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                         outputObtStr.flush();
                     } catch (IOException ignore) {}
                 }
-                logger.info("Message sent. Type: CtoSLobbyMessage");
+                logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
                 break;
             } catch (IOException | NullPointerException e) {
                 resetConnection();
@@ -149,7 +149,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                         outputObtStr.flush();
                     } catch (IOException ignore) {}
                 }
-                logger.info("Message sent. Type: CtoSMessage");
+                logger.info("Message sent. Type: CtoSMessage: {}", message);
                 break;
             } catch (IOException | NullPointerException e) {
                 resetConnection();
@@ -249,7 +249,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
                     } catch (IOException ignore) {
 
-                        logger.info("Failed to connect to {}:{}", ip, port);
+                        logger.error("Failed to connect to {}:{}", ip, port);
                         try {
                             Thread.sleep(100); // TODO parametrizzazione con config?
                         } catch (InterruptedException ignore2) {}
@@ -275,7 +275,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     public void startConnection(){
 
         executorService.submit(this);
-        logger.info("SKClientNode started");
+        logger.debug("SKClientNode started");
     }
 
     @Override
@@ -289,7 +289,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
             pongCount--;
 
-            logger.info("Pong time overdue. Pong count: {}", pongCount);
+            logger.debug("Pong time overdue. Pong count: {}", pongCount);
 
             if(pongCount <= 0) {
                 logger.info("Pong count reached minimum. Trying to check connection");
@@ -319,6 +319,6 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             pongCount = PONGMAXCOUNT; // TODO modificare se si aggiunge config
         }
 
-        logger.info("Pong count reset");
+        logger.debug("Pong count reset");
     }
 }
