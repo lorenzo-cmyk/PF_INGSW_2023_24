@@ -70,7 +70,6 @@ public class AskListener implements AskListenerInterface, Runnable {
         }
 
         lobbyMessagesBox.add(message);
-        System.out.println("Adding message to lobbyMessagesBox");
         logger.info("{} added to messagesBox", message);
         notifyAll(); // Wake up the thread
     }
@@ -87,7 +86,6 @@ public class AskListener implements AskListenerInterface, Runnable {
         }
 
         messagesBox.add(message);
-        System.out.println("Adding message to messagesBox");
         logger.info("{} added to messagesBox", message);
         notifyAll(); // Wake up the thread
     }
@@ -116,7 +114,6 @@ public class AskListener implements AskListenerInterface, Runnable {
                 clientNode.uploadToServer(message); // Try to send the message to the server
                 lobbyMessagesBox.removeFirst(); // The message was successfully sent, it can be removed from the queue
 
-                System.out.println(message + " uploaded lobby msg to server successfully");
                 logger.info("{} uploaded lobby msg to server successfully", message);
             } catch (UploadFailureException e) { // If the message cannot be uploaded to the server
                 try {
@@ -136,7 +133,6 @@ public class AskListener implements AskListenerInterface, Runnable {
                 clientNode.uploadToServer(message); // Try to send the message to the server
                 messagesBox.removeFirst(); // The message was successfully sent, it can be removed from the queue
 
-                System.out.println(message + " uploaded msg to server successfully");
                 logger.info("{} uploaded msg to server successfully", message);
             } catch (UploadFailureException e) { // If the message cannot be uploaded to the server
                 try {
