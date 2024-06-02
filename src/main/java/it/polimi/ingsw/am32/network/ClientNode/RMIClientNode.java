@@ -83,8 +83,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
             try {
                 gameTuple.getNode().uploadCtoS(message); // TODO il numero di partita in realtà non server
-                logger.info("Message sent. Type: CtoSMessage");
-
+                logger.info("Message sent. Type: CtoSMessage: {}", message);
             } catch (NodeClosedException e) { // TODO gestire eccezioni
                 throw new RuntimeException(e);
             } catch (PlayerNotFoundException | RemoteException e) {
@@ -109,7 +108,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             try {
                 // TODO ritorniamo solo l'interfaccia RMI e non il num di partita perchè non serve??
                 gameTuple = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
-                logger.info("Message sent. Type: CtoSLobbyMessage");
+                logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
 
 
                 timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
@@ -131,17 +130,17 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         resetTimeCounter();
 
         if(message == null) {
-            logger.info("Null message received");
+            logger.error("Null message received");
             return;
         }
 
         if(message instanceof PongMessage) {
-            logger.info("PongMessage received");
+            logger.debug("PongMessage received");
             return;
         }
 
         try {
-            logger.info("Message received. Type: StoCMessage. Processing");
+            logger.info("Message received. Type: StoCMessage. Processing: {}", message);
             message.processMessage(view);
         } catch (Exception e) {
             logger.fatal("Critical Runtime Exception:\nException Type: {}\nLocal Message: {}\nStackTrace: {}",
@@ -167,7 +166,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             registry = LocateRegistry.getRegistry(serverURL, port);
             String remoteObjectName = "Server-CodexNaturalis";
             rmiClientAcceptor = (RMIClientAcceptorInt) registry.lookup(remoteObjectName);
-            System.out.println("RMI Client Acceptor found");
+            logger.info("RMI-Client-Acceptor found on the server. Connection established");
         } catch (RemoteException | NotBoundException e) {
             //TODO handle exception
         }
@@ -184,7 +183,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
             pongCount--;
 
-            logger.info("Pong time overdue. Pong count: {}", pongCount);
+            logger.debug("Pong time overdue. Pong count: {}", pongCount);
 
             if(pongCount <= 0) {
                 logger.info("Pong count reached minimum. Trying to check connection");
@@ -214,7 +213,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             pongCount = PONGMAXCOUNT; // TODO modificare se si aggiunge config
         }
 
-        logger.info("Pong count reset");
+        logger.debug("Pong count reset");
 
     }
 }
