@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.network.ServerNode;
 
-import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
@@ -58,7 +58,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             if(message instanceof PingMessage) {
                 config.getExecutorService().submit(() -> {
                     try {
-                        logger.info("PingMessage received");
+                        logger.debug("PingMessage received");
                         uploadToClient(new PongMessage(null));
                     } catch (UploadFailureException e) {
                         logger.error("Failed to send PongMessage to client");

@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.stream.Collectors;
 
-import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.*;

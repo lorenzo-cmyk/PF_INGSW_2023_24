@@ -8,10 +8,10 @@ package it.polimi.ingsw.am32.model.deck.utils;
  * @author Lorenzo
  */
 public enum DeckType {
-    RESOURCE("src/main/resources/it/polimi/ingsw/am32/model/deck/ResourceCards.json"),
-    GOLD("src/main/resources/it/polimi/ingsw/am32/model/deck/GoldCards.json"),
-    STARTING("src/main/resources/it/polimi/ingsw/am32/model/deck/StartingCards.json"),
-    OBJECTIVE("src/main/resources/it/polimi/ingsw/am32/model/deck/ObjectiveCards.json");
+    RESOURCE("/it/polimi/ingsw/am32/model/deck/ResourceCards.json"),
+    GOLD("/it/polimi/ingsw/am32/model/deck/GoldCards.json"),
+    STARTING("/it/polimi/ingsw/am32/model/deck/StartingCards.json"),
+    OBJECTIVE("/it/polimi/ingsw/am32/model/deck/ObjectiveCards.json");
 
     /**
      * The path to the JSON file that contains the card data for the deck.

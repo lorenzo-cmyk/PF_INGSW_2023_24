@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.client.view.tui;
 
-import it.polimi.ingsw.am32.Utilities.IsValid;
+import it.polimi.ingsw.am32.utilities.IsValid;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
@@ -37,7 +37,7 @@ import org.apache.logging.log4j.Logger;
  * @author Jie
  */
 public class TextUI extends View{
-    private static final Logger logger = LogManager.getLogger("TUILogger");
+    private static final Logger logger = LogManager.getLogger(TextUI.class);
     private final Scanner in;
     private final PrintStream out;
     private final IsValid isValid = new IsValid(); // used to check the validity of the input
@@ -197,7 +197,6 @@ public class TextUI extends View{
                     break;
                 }
                 default: { // If the player's input is not one of the valid options
-                    logger.info("Invalid input, please select 1 or 2");
                     out.println("Invalid input, please select 1 or 2");
                     continue; // Continue here to avoid printing connection failed message
                 }
@@ -276,7 +275,6 @@ public class TextUI extends View{
                 case 2 -> askJoinGame();
                 case 3 -> askReconnectGame();
                 default -> { // If the player's input is not one of the valid options
-                    logger.info("Invalid input, please select 1, 2 or 3");
                     out.println("Invalid input, please select 1, 2 or 3");
                     continue;
                 }
@@ -478,7 +476,6 @@ public class TextUI extends View{
         out.println("Please select the side of the card you want to use, type[FRONT or BACK]:");
         String side = in.nextLine();
         while (!side.equals("FRONT") && !side.equals("BACK")) { // check the validity of the input
-            logger.info("Invalid input, please select FRONT or BACK");
             out.println("Invalid input, please select FRONT or BACK");
             side = in.nextLine();
         }
@@ -560,7 +557,6 @@ public class TextUI extends View{
 
         String cardID = in.nextLine();
         while (!cardID.equals("LEFT") && !cardID.equals("RIGHT")) { // check the validity of the input
-            logger.info("Invalid input, please select a card from the list");
             out.println("Invalid input, please select a card from the list, type[LEFT or RIGHT]");
             cardID = in.nextLine();
         }
@@ -797,7 +793,6 @@ public class TextUI extends View{
         isInThread = false;
         String choice = getInput();
         while (!choice.equals("LEFT") && !choice.equals("MIDDLE") && !choice.equals("RIGHT")) { // check the validity of the input
-            logger.info("Invalid input, please select LEFT, MIDDLE or RIGHT");
             out.println("Invalid input, please select LEFT, MIDDLE or RIGHT");
             choice = getInput();
         }
@@ -810,7 +805,6 @@ public class TextUI extends View{
         out.println("Do you want to see the back side of the card? type[Y or N]");
         String isUp = getInput();
         while(!isUp.equals("Y") && !isUp.equals("N")) {
-            logger.info("Invalid input, please select Y or N");
             out.println("Invalid input, please select Y or N");
             isUp = getInput();
         }
@@ -822,7 +816,6 @@ public class TextUI extends View{
        out.println("Which side do you want to place the card? type[FRONT or BACK]");
        isUp = getInput();
        while(!isUp.equals("FRONT") && !isUp.equals("BACK")) {
-           logger.info("Invalid input, please select FRONT or BACK");
            out.println("Invalid input, please select FRONT or BACK");
            isUp = getInput();
        }
@@ -831,7 +824,6 @@ public class TextUI extends View{
        out.println("Please select one of the available positions in the board to place the card,type[x,y]");
        String pos = getInput();
        while( !pos.matches("-?\\d{1,3},-?\\d{1,3}")){ // check the validity of the input
-           logger.info("Invalid input, please select a position in the board");
            out.println("Invalid input, please select a position in the board, type[x,y]:");
            pos = getInput();
        }
@@ -893,7 +885,6 @@ public class TextUI extends View{
         // check the validity of the input
         while (!choice.equals("R1") && !choice.equals("R2") && !choice.equals("G1") &&
                 !choice.equals("G2") && !choice.equals("R") && !choice.equals("G")) {
-            logger.info("Invalid input, please select a card from the list");
             out.println("Invalid input, please try again");
             choice = getInput();
         }
@@ -1369,7 +1360,7 @@ public class TextUI extends View{
                 }
             }
         } catch (RuntimeException e) {
-            logger.error("The card is not found");
+            logger.error("The card is not found", e);
         }
         return null;
     }

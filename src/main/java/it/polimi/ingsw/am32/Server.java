@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32;
 
-import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.ClientAcceptor.SKClientAcceptor;
 import it.polimi.ingsw.am32.network.ServerNode.RMIServerNode;

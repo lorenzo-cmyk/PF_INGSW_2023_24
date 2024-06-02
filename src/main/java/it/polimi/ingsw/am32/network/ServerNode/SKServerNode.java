@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.network.ServerNode;
 
-import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
@@ -50,7 +50,7 @@ public class SKServerNode implements Runnable, NodeInterface {
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
 
-        this.logger = LogManager.getLogger("SKServerNode");
+        this.logger = LogManager.getLogger(SKServerNode.class);
 
         try {
             outputObtStr = new ObjectOutputStream(socket.getOutputStream());
@@ -89,7 +89,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         try {
             socket.setSoTimeout(config.getSocketReadTimeout());
-            logger.info("Socket timeout successfully set");
+            logger.debug("Socket timeout successfully set");
 
         } catch (SocketException e) {
 
@@ -103,7 +103,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             throw new UninitializedException();
         }
 
-        logger.info("SKServerNode ready");
+        logger.debug("SKServerNode ready");
 
         statusIsAlive = true;
         destroyCalled = false;
@@ -128,7 +128,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             destroy();
 
-            logger.info("Critical ObjectInputStream error while reading: {}" +
+            logger.error("Critical ObjectInputStream error while reading: {}" +
                     " . Socket Closed", e.getMessage()); //TODO risolvere meglio gli errori
         } catch (NodeClosedException e) {
             return;
@@ -142,7 +142,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             message = inputObtStr.readObject(); // Listen for incoming messages; wait here until a message is received
             logger.debug("Object received from socket stream: {}", message.getClass().getName());
         } catch (SocketTimeoutException e) {
-            logger.debug("Socket timeout exception");
+            // logger.debug("Socket timeout exception"); Removed because it's too verbose
             return;
         }
 
@@ -159,7 +159,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             if (message instanceof PingMessage) {
                 config.getExecutorService().submit(() -> {
                     try {
-                        logger.info("PingMessage received");
+                        logger.debug("PingMessage received");
                         uploadToClient(new PongMessage(null));
                     } catch (UploadFailureException e) {
                         logger.error("Failed to send PongMessage to client");
@@ -279,9 +279,9 @@ public class SKServerNode implements Runnable, NodeInterface {
             else { // Unknown message type received
                 try {
                     uploadToClient(new ErrorMessage("Error: message type not recognized", "PLAYER"));
-                    logger.info("message type not recognized. Sending ErrorMessage to client");
+                    logger.info("Message type not recognized. Sending ErrorMessage to client");
                 } catch (UploadFailureException e) {
-                    logger.error("message type not recognized. Failed to send ErrorMessage to client");
+                    logger.error("Message type not recognized. Failed to send ErrorMessage to client");
                 }
             }
         }
@@ -326,7 +326,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             pingCount--;
 
-            logger.info("Ping time overdue. Ping count: {}", pingCount);
+            logger.debug("Ping time overdue. Ping count: {}", pingCount);
 
             if(pingCount <= 0) {
                 statusIsAlive = false;
@@ -349,7 +349,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 return;
 
             pingCount = config.getMaxPingCount();
-            logger.info("Ping count reset");
+            logger.debug("Ping count reset");
         }
     }
 

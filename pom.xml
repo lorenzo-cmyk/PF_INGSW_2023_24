@@ -35,6 +35,23 @@
             <!-- Outdated! Check https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
             <version>21</version>
         </dependency>
+        <!-- Here I'm adding the dependencies for the different operating systems -->
+        <!-- This is a workaround for the fact that the javafx-graphics dependency is not made in pure Java. -->
+        <!-- This is going to produce a lot of warnings, but it's the only way to make it work. -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <!-- Outdated! Check https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
+            <version>21</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <!-- Outdated! Check https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
+            <version>21</version>
+            <classifier>linux</classifier>
+        </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>

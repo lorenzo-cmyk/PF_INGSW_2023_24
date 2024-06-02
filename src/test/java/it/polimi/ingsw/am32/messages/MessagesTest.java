@@ -9,11 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class MessagesTest {
     @DisplayName("Print a PlayerConnectedMessage")
     @Test
     public void printPlayerGameStatusMessage() {
-       // Initialize all the required parameters
+        // Initialize all the required parameters
         String recipientNickname = "player1";
         ArrayList<String> playerNicknames = new ArrayList<>(Arrays.asList("player1", "player2"));
         ArrayList<Boolean> playerConnected = new ArrayList<>(Arrays.asList(true, true));
@@ -46,6 +48,9 @@ public class MessagesTest {
                 playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards,
                 gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer,
                 newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom);
-        // System.out.println(playerGameStatusMessage);
+
+        // Check that the message is not null and that it can be printed
+        assertNotNull(playerGameStatusMessage);
+        assertNotNull(playerGameStatusMessage.toString());
     }
 }

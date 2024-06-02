@@ -3,8 +3,6 @@ package it.polimi.ingsw.am32;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.client.view.gui.GraphicalUI;
 import it.polimi.ingsw.am32.client.view.tui.TextUI;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import java.io.PrintStream;
 import java.util.InputMismatchException;
@@ -26,13 +24,8 @@ public class Client {
      * Used to display output text on the user's terminal
      */
     private static final PrintStream out= new PrintStream(System.out);
-    /**
-     * Used for logging purposes
-     */
-    private static final Logger logger = LogManager.getLogger("ClientLogger");
 
     public static void main(String[] args){
-        logger.info("---Client ---");
         out.println("Welcome to Codex Naturalis");
         chooseUI();
     }
