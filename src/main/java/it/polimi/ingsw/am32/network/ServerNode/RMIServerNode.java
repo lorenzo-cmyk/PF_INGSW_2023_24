@@ -58,7 +58,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             if(message instanceof PingMessage) {
                 config.getExecutorService().submit(() -> {
                     try {
-                        logger.info("PingMessage received");
+                        logger.debug("PingMessage received");
                         uploadToClient(new PongMessage(null));
                     } catch (UploadFailureException e) {
                         logger.error("Failed to send PongMessage to client");
