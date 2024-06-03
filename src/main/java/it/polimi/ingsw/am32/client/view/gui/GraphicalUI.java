@@ -30,26 +30,113 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.List;
-
+/**
+ * The class GraphicalUI is the class that manages the graphical user interface of the game and interacts with the
+ * GUIApplication class. The class extends the abstract class View and implements the methods of the View class.
+ * <p>
+ *     The class contains the methods to set up the pages which are shown to the player and the methods to update the
+ *     components of the GUI when the player makes an action or receives a message that requires an update of the GUI.
+ *     In addition, the class uses CurrentEvent and Status to manage the state of the game in this way to control the
+ *     flow of the game and the actions that the player can do.
+ * <p>
+ *     To interact with the GUIApplication class, the class contains the reference of the GUIApplication class and
+ *     through this reference using the Platform.runLater method, the class can update the scene of the GUIApplication
+ *     class and show the changes updated in the GUI.
+ * <p>
+ *     For the implementation of the GUI, the class uses the JavaFX library to create the components, images,
+ *     and animations of the GUI while CSS is used to set the style of the components.
+ */
 public class GraphicalUI extends View {
+    /**
+     * The reference of the GUIApplication class which is used to connect the GUI with the GUIApplication class in able
+     * to update the scene based on the changes made in the GUI.
+     */
     private GraphicalUIApplication app;
-    private Pane masterPane;
+    /**
+     * The root of the welcome page, which is the first page of the GUI shown to the player.
+     */
     private StackPane welcomeRoot;
+    /**
+     * The root of the selection page, which is the page where the player can make a choice for the connection type,
+     * the game mode and insert the data needed to create, join or reconnect to a game.
+     */
     private StackPane selectionPane;
+    /**
+     * The root of the connection page, which contains the buttons to choose the connection type between socket and RMI
+     * and the text fields to insert the IP address and the port number.
+     */
     private StackPane connectionRoot;
+    /**
+     * The root of the waiting page, which is the page shown to the player once the player creates a new game or joins
+     * an existing game successfully. The page contains the game ID, the list of players in the lobby and updates the
+     * list of players when a new player joins the game or a player leaves the game.
+     */
     private StackPane waitingRoot;
+    /**
+     * The base pane of the GUI which contains the components of the game view from the preparation phase to the end of
+     * the game. The master pane contains the player's info panel, the top line panel, the board of the players, the
+     * chat area, the notice area, the event label, the deck area. The master pane is updated based on the current event
+     * and the status of the game by changing the components of the master pane.
+     */
+    private Pane masterPane;
+    /**
+     * The pane of the end game page which is shown to the player once the game ends. The end game page contains the
+     * final score of the players and the winner of the game.
+     */
     private Pane endGamePane;
+    /**
+     * The TextField object which contains the list of players in the lobby. The list is updated when a new player joins
+     * the game or a player leaves the game. The list is shown in the waiting page.
+     */
     private TextField playerListView;
+    /**
+     * The Label object that shows the status of the game after the login phase. The status can be PREPARATION, PLAYING,
+     * TERMINATING, TERMINATED. The status is updated based on the messages received from the server. The label is shown
+     * in the top line panel of the master pane.
+     */
+    //--top line panel--
     private Label matchStatus;
+    /**
+     * The HBox object which contains the order of the players in the game. The order is updated once the game turns
+     * to the playing phase. The order is shown in the top line panel of the master pane.
+     */
     private HBox playerOrder;
+    //--deck area--
+    /**
+     * The Label object that indicates the current size of the gold deck. The size is updated when a player takes a card
+     * from the gold deck. The label is shown in the deck area of the master pane.
+     */
     private Label goldSize;
+    /**
+     * The Label object that indicates the current size of the resource deck. The size is updated when a player takes a card
+     * from the resource deck. The label is shown in the deck area of the master pane.
+     */
     private Label resourceSize;
-    private final Glow glow = new Glow(0.3);
-    private final DropShadow dropShadow = new DropShadow(15, Color.rgb(255, 196, 83));
-    private final HashMap<String, PlayerPubView> playerViews = new HashMap<>();
-    private final HashMap<String, Image> imagesMap = new HashMap<>();
-    private final HashMap<String, StackPane> playerField = new HashMap<>();
-    private ChatArea chatArea;
+    /**
+     * An array of ImageView objects containing the images of the cards in the resource deck. In the zero index stores
+     * the image of the top card of the deck. In the other indexes contains the image of the front side of the visible
+     * cards of the resource type.
+     */
+    private ImageView[] resourceDeckView;
+    /**
+     * An array of ImageView objects containing the images of the cards in the gold deck. In the zero index stores
+     * the image of the top card of the deck. In the other indexes contains the image of the front side of the visible
+     * cards of the gold type.
+     */
+    private ImageView[] goldDeckView;
+    /**
+     * The VBox object containing the array of ImageView objects of the resource deck and the gold deck.
+     */
+    private VBox deckArea;
+    //--hand area--
+    /**
+     * The ImageView of the secret objective card selected by the player. The card is shown in the player's hand area.
+     */
+    private ImageView secretObjCardView;
+    /**
+     * An array of ImageView objects containing the common objective card selected for this match. The card is shown in the player's hand area.
+     */
+    private ImageView[] commonObjCardView;
     /**
      * An array of ImageView objects containing the images of the cards in the player's hand.
      */
@@ -58,26 +145,81 @@ public class GraphicalUI extends View {
      * An array of booleans indicating whether the card in the player's hand is being viewed front side or back side.
      */
     private boolean [] handViewCardSide;
-    private ImageView[] resourceDeckView;
-    private ImageView[] goldDeckView;
-    private ImageView secretObjCardView;
-    private ImageView[] commonObjCardView;
-    private VBox notice;
-    private Label eventLabel;
-    private Group noticeEventPanel;
-    private ScrollPane board;
-    private Button returnToMyField;
-    private VBox deckArea;
-    private final Font jejuHallasanFont = Font.loadFont(GraphicalUI.class.getResourceAsStream("JejuHallasan.ttf"), 20);
-    private final String[] ruleBookImages = {"codex_rulebook_it_01.png", "codex_rulebook_it_02.png", "codex_rulebook_it_03.png",
-            "codex_rulebook_it_04.png", "codex_rulebook_it_05.png", "codex_rulebook_it_06.png", "codex_rulebook_it_07.png",
-            "codex_rulebook_it_08.png", "codex_rulebook_it_09.png", "codex_rulebook_it_10.png", "codex_rulebook_it_11.png",
-            "codex_rulebook_it_12.png"};
     /**
      * ID of card selected for placement on the field by player.
      * Set to 0 when no card is selected.
      */
     private int selectedCardId;
+    //--notice area--
+    /**
+     * A VBox object containing the list of the notice messages shown to the player during the game.
+     */
+    private VBox notice;
+    /**
+     * The Group object used to show the important events of the game. The content of the noticeEventPanel is updated
+     * by the eventLabel. The noticeEventPanel is visible in the notice area of the master pane when is the player's
+     * turn to place a card or draw a card.
+     */
+    private Group noticeEventPanel;
+    /**
+     * The content of the noticeEventPanel which contains the important events of the game. The content is updated
+     * based on the turn of the player and the actions of the players.
+     */
+    private Label eventLabel;
+    /**
+     * HashMap containing the public information of the players and the key is the nickname of the player. The public
+     * information contains the label of the player's nickname, the image view of the player's colour, the label of the
+     * player's points, the array of labels of the player's resources.
+     */
+    //--hashmap to store the data for the game--
+    private final HashMap<String, PlayerPubView> playerViews = new HashMap<>();
+    /**
+     * HashMap containing the resources of images which are frequently used in the GUI. The key is the name given to the
+     * image and the value is the image object.
+     */
+    private final HashMap<String, Image> imagesMap = new HashMap<>();
+    /**
+     * HashMap containing the stack pane of the player's field and the key is the nickname of the player. The stack pane
+     * contains the cards placed on the field of the player and the field will be updated every time a player places a
+     * card on the field. The stack pane is shown in the board area of the master pane.
+     */
+    private final HashMap<String, StackPane> playerField = new HashMap<>();
+    /**
+     * The ScrollPane object containing the stack pane as the content of the board area. The stack pane presents the
+     * player's field and the field is updated every time a player places a card on the field.
+     */
+    private ScrollPane board;
+    /**
+     * The Button object used to return to the player's field when the player are viewing the field of another player.
+     */
+    private Button returnToMyField;
+    /**
+     * The ChatArea object which contains the ComboBox object to select the player to send a private message, the text
+     * field to write the message, the button to send the message and the scroll pane to show the messages.
+     * In the chat area, the player can select the player to send a private message and send a message to all the
+     * players in the game.
+     */
+    private ChatArea chatArea;
+    /**
+     * The style of the glow effect used in the show methods.
+     */
+    private final Glow glow = new Glow(0.3);
+    /**
+     * The style of the drop shadow effect used in the show methods.
+     */
+    private final DropShadow dropShadow = new DropShadow(15, Color.rgb(255, 196, 83));
+    /**
+     * The font used in the GUI to set the style of the text.
+     */
+    private final Font jejuHallasanFont = Font.loadFont(GraphicalUI.class.getResourceAsStream("JejuHallasan.ttf"), 20);
+    /**
+     * The array of the images of the rule book of the game. The images are shown to the player when the player clicks
+     * the button “Rule Book” in the page.
+     */
+    private final String[] ruleBookImages = {"codex_rulebook_it_01.png", "codex_rulebook_it_02.png", "codex_rulebook_it_03.png",
+            "codex_rulebook_it_04.png", "codex_rulebook_it_05.png", "codex_rulebook_it_06.png", "codex_rulebook_it_07.png",
+            "codex_rulebook_it_08.png", "codex_rulebook_it_09.png", "codex_rulebook_it_10.png", "codex_rulebook_it_11.png",
+            "codex_rulebook_it_12.png"};
 
     /**
      * Method used to retrieve dynamically a resource URI from the correct context folder.
