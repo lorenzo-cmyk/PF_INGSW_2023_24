@@ -1222,7 +1222,8 @@ public class TextUI extends View{
                 SCP: to see who is the current player.
                 SGO: to see the game order.
                 SID: to see the game ID.
-                SCD: to see the deck size and the current visible cards in the game.                
+                SCD: to see the deck size and the current visible cards in the game.
+                               
                 """);
     }
     /**
@@ -1778,16 +1779,12 @@ public class TextUI extends View{
                 out.println("Game " + gameID + " created successfully, waiting for other players to join...");
                 showPlayerInGame();
             }
-            case NEW_PLAYER_JOIN -> {
-                out.println("New player join the game :)");
-            }
+            case NEW_PLAYER_JOIN -> out.println("New player join the game :)");
             case GAME_JOINED -> {
                 Status = Event.LOBBY;
                 out.println("Joined the game "+gameID+ " successfully,waiting for the game to start...");
             }
-            case GAME_START -> {
-                out.println("YEAH!!! Let's start the game!");
-            }
+            case GAME_START -> out.println("YEAH!!! Let's start the game!");
             case GAME_RECONNECTED -> out.println("Reconnected to the game successfully");
 
             case PLAYER_DISCONNECTED-> {

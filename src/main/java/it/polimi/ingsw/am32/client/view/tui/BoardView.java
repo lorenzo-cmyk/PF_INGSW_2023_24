@@ -13,10 +13,4 @@ public class BoardView {
     public String[][] getBoard() {
         return board;
     }
-    public String[][]updateBoard(String[][] board) {
-        return board;
-    }
-    public int[] updateLimits(int[] limits) {
-        return limits;
-    }
 }

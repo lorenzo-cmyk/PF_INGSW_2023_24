@@ -571,9 +571,7 @@ public class GraphicalUI extends View {
 
         joinGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
 
-        joinButton.setOnAction(e -> {
-            handleButtonJoinAndReconnectClick(nickname,accessID);
-        });
+        joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
         selectionPane.getChildren().add(joinGameRoot);
     }
 
@@ -594,9 +592,7 @@ public class GraphicalUI extends View {
 
         reconnectGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
 
-        joinButton.setOnAction(e -> {
-            handleButtonJoinAndReconnectClick(nickname,accessID);
-        });
+        joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
         selectionPane.getChildren().add(reconnectGameRoot);
     }
 
@@ -1028,9 +1024,7 @@ public class GraphicalUI extends View {
         root.setTranslateY(265);
         root.setEffect(new Glow(0.3));
         root.setEffect(new DropShadow(15, Color.rgb(236, 197, 123)));
-        root.setOnMouseClicked(e -> {
-            handleNoticeClicks(root);
-        });
+        root.setOnMouseClicked(e -> handleNoticeClicks(root));
         return root;
     }
 
@@ -1058,8 +1052,6 @@ public class GraphicalUI extends View {
                 return;
             }
             double scaleFactor = (e.getDeltaY() > 0) ? 1.1 : 1 / 1.1;
-            /*if (boardReal.getScaleX() * scaleFactor > 1 || boardReal.getScaleY() * scaleFactor > 1)
-                return;*/
             boardReal.setScaleX(boardReal.getScaleX() * scaleFactor);
             boardReal.setScaleY(boardReal.getScaleY() * scaleFactor);
         }); // Enable zooming in/out of player field with mouse wheel
@@ -1585,9 +1577,7 @@ public class GraphicalUI extends View {
                 if(playerBoard.getChildren().size() > 1) {
                     int sizeAvailable = availableSpaces.size();
                     for (int i = 0; i < sizeAvailable; i++) {
-                        Platform.runLater(() -> {
-                            playerBoard.getChildren().removeLast();
-                        });
+                        Platform.runLater(() -> playerBoard.getChildren().removeLast());
                     }
                 }
                 updateAfterPlacedCard(playerNickname, placedCard, placedCardCoordinates[0], placedCardCoordinates[1], placedSide, newAvailableFieldSpaces, playerResources, playerPoints); // Update player's info
@@ -1625,9 +1615,7 @@ public class GraphicalUI extends View {
                 Label pointsLabel= createLabel(players.get(i) + ": " + points.get(i) + " points with " + pointsGainedFromObj.get(i) + " points from the objective card.",15);
                 Label cardLabel = createLabel("Secret Objective Card: " + secrets.get(i)+ "[CLICK ON ID to see the card].", 15);
                 int finalI = i;
-                cardLabel.setOnMouseClicked(e -> {
-                    showCard(secrets.get(finalI), true);
-                });
+                cardLabel.setOnMouseClicked(e -> showCard(secrets.get(finalI), true));
                 PointsArea.getChildren().addAll(pointsLabel, cardLabel);
             }
             PointsArea.translateXProperty().bind(endGamePane.widthProperty().subtract(PointsArea.widthProperty()).divide(2));
@@ -1836,9 +1824,8 @@ public class GraphicalUI extends View {
         createAlert(reason);
         // in case of create game failure, join game failure, reconnect game failure just notify the player with the reason of the failure.
         switch (event){
-            case PLACE_CARD_FAILURE -> { // Place card failure
-                currentEvent = Event.PLACE_CARD;
-            }
+            case PLACE_CARD_FAILURE -> // Place card failure
+                    currentEvent = Event.PLACE_CARD;
             case DRAW_CARD_FAILURE -> { // Draw card failure
                 currentEvent = Event.DRAW_CARD;
                 requestDrawCard();
@@ -1851,9 +1838,8 @@ public class GraphicalUI extends View {
                 currentEvent = Event.SELECT_STARTER_CARD_SIDE;
                 requestSelectStarterCardSide(startCard);
             }
-            case CHAT_ERROR -> { // Chat error
-                chatArea.addIncomingMessageToChat(reason, "NOTICE");
-            }
+            case CHAT_ERROR -> // Chat error
+                    chatArea.addIncomingMessageToChat(reason, "NOTICE");
         }
     }
 
@@ -1873,9 +1859,7 @@ public class GraphicalUI extends View {
         deckArea.setEffect(glow);
         deckArea.setEffect(dropShadow);
         PauseTransition pause = new PauseTransition(Duration.seconds(5));
-        pause.setOnFinished(e -> {
-            deckArea.setEffect(null);
-        });
+        pause.setOnFinished(e -> deckArea.setEffect(null));
         pause.play();
     }
 
@@ -1893,13 +1877,14 @@ public class GraphicalUI extends View {
                 "-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
         helpInfo.setWrapText(true);
         helpInfo.setText(
-                "1. When it is your turn, you can place a card in the field, click on the card that you want to " +
-                "choose and click on one available position.\n" +
-                "2. You can draw a card from the deck when you have placed a card in the field.\n" +
-                "3. The chat area is enabled when the game starts.\n" +
-                "4. You can draw a card from the deck when you have placed the starter card.\n" +
-                "5. To see the field of the other players, click on the player's name.\n" +
-                "6. The player with the most points wins the game.\n");
+                """
+                        1. When it is your turn, you can place a card in the field, click on the card that you want to choose and click on one available position.
+                        2. You can draw a card from the deck when you have placed a card in the field.
+                        3. The chat area is enabled when the game starts.
+                        4. You can draw a card from the deck when you have placed the starter card.
+                        5. To see the field of the other players, click on the player's name.
+                        6. The player with the most points wins the game.
+                        """);
 
         Button closeHelp = createButton("Close", 0, 0);
         helpArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
@@ -2037,59 +2022,49 @@ public class GraphicalUI extends View {
                 {
                     selectionPane.getChildren().add(player);
                     PauseTransition pause = new PauseTransition(Duration.seconds(3));
-                    pause.setOnFinished(e -> {
-                        waitingRoot.getChildren().remove(player);
-                    });
+                    pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
                     pause.play();
                 });
             }
-            case Event.GAME_START -> {
-                notice.getChildren().add(new Label("> The game starts now!\n"));
-            }
-            case Event.GAME_JOINED -> {
-                Platform.runLater(() ->
-                {
-                    selectionPane.getChildren().removeLast();
-                    waitingRoot = new StackPane();
-                    this.players.add(thisPlayerNickname);
-                    currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
-                    Status = Event.LOBBY;
+            case Event.GAME_START -> notice.getChildren().add(new Label("> The game starts now!\n"));
+            case Event.GAME_JOINED -> Platform.runLater(() ->
+            {
+                selectionPane.getChildren().removeLast();
+                waitingRoot = new StackPane();
+                this.players.add(thisPlayerNickname);
+                currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
+                Status = Event.LOBBY;
 
-                    Label id = createLabel("ID: " + gameID, -80, -80);
-                    Label waiting = createLabel("Waiting...", 130, 100);
+                Label id = createLabel("ID: " + gameID, -80, -80);
+                Label waiting = createLabel("Waiting...", 130, 100);
 
-                    playerListView = createTextField(null, 135, 360, 0, 0);
-                    playerListView.setText("Players: \n" + String.join("\n", players));
-                    playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                            "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
-                    playerListView.setTranslateX(0);
-                    playerListView.setTranslateY(0);
-                    playerListView.setEditable(false);
-                    waitingRoot.getChildren().addAll(id, waiting, playerListView);
-                    selectionPane.getChildren().add(waitingRoot);
-                });
+                playerListView = createTextField(null, 135, 360, 0, 0);
+                playerListView.setText("Players: \n" + String.join("\n", players));
+                playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                        "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
+                playerListView.setTranslateX(0);
+                playerListView.setTranslateY(0);
+                playerListView.setEditable(false);
+                waitingRoot.getChildren().addAll(id, waiting, playerListView);
+                selectionPane.getChildren().add(waitingRoot);
+            });
+            case Event.PLAYER_DISCONNECTED -> Platform.runLater(() ->
+            {
+            if(!Status.equals(Event.LOBBY)){
+                publicInfo.get(message).updateOnline(false);
+                playerViews.get(message).setColour(imagesMap.get("GREY"));
+                notice.getChildren().add(new Label("> Player " + message + " disconnected.\n"));
             }
-            case Event.PLAYER_DISCONNECTED -> {
-                    Platform.runLater(() ->
-                    {
-                    if(!Status.equals(Event.LOBBY)){
-                        publicInfo.get(message).updateOnline(false);
-                        playerViews.get(message).setColour(imagesMap.get("GREY"));
-                        notice.getChildren().add(new Label("> Player " + message + " disconnected.\n"));
-                    }
-                    else {
-                        Label player = createLabel("Player " + message + " disconnected\n", 18);
-                        player.setTranslateX(20);
-                        player.setTranslateY(80);
-                        waitingRoot.getChildren().add(player);
-                        PauseTransition pause = new PauseTransition(Duration.seconds(3));
-                        pause.setOnFinished(e -> {
-                            waitingRoot.getChildren().remove(player);
-                        });
-                        pause.play();
-                    }
-                });
+            else {
+                Label player = createLabel("Player " + message + " disconnected\n", 18);
+                player.setTranslateX(20);
+                player.setTranslateY(80);
+                waitingRoot.getChildren().add(player);
+                PauseTransition pause = new PauseTransition(Duration.seconds(3));
+                pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
+                pause.play();
             }
+        });
         }
     }
 

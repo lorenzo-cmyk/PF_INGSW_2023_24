@@ -1,11 +1,8 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
-import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.InboundChatMessage;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
@@ -124,12 +121,8 @@ public class ChatArea {
         submitButton.setOnAction(e -> submitChatMessage());
         submitButton.setMaxSize(100, 30);
 
-        inputMessageField.setOnMouseClicked(e -> {
-            messageScrollPane.setVisible(true);
-        });
-        messageScrollPane.setOnMouseClicked(e -> {
-            messageScrollPane.setVisible(false);
-        });
+        inputMessageField.setOnMouseClicked(e -> messageScrollPane.setVisible(true));
+        messageScrollPane.setOnMouseClicked(e -> messageScrollPane.setVisible(false));
 
         // Generate VBox container
         submissionArea.getChildren().addAll(playerList,inputMessageField, submitButton); // Add the text field and submit button to the chat input area

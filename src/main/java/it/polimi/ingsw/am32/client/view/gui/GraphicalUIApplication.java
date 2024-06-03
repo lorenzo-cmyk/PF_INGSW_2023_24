@@ -34,12 +34,6 @@ public class GraphicalUIApplication extends Application {
 
         primaryStage.show();
     }
-    public void changeStageDimensions(Stage stage,int MAXHigh, int MINHigh, int MAXWidth, int MINWidth) {
-        stage.setMaxHeight(MAXHigh);
-        stage.setMinHeight(MINHigh);
-        stage.setMinWidth(MINWidth);
-        stage.setMaxWidth(MAXWidth);
-    }
     public void updateScene(Parent parent) {
         primaryStage.setScene(new Scene(parent));
     }

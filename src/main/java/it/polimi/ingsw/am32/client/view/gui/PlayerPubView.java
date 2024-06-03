@@ -5,11 +5,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class PlayerPubView {
-    private ImageView colour;
-    private Label nickname;
-    private Label points;
+    private final ImageView colour;
+    private final Label nickname;
+    private final Label points;
     //private final field
-    private Label[] resourceLabels;
+    private final Label[] resourceLabels;
 
     public PlayerPubView(Label nickname, ImageView colour, Label points, Label[] resourceLabels) {
         this.colour = colour;

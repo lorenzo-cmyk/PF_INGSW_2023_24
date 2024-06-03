@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public abstract class View implements EventHandler{
+public abstract class View{
     protected final IsValid isValid = new IsValid();
     protected ClientNodeInterface clientNode;
     protected String thisPlayerNickname;
@@ -198,6 +198,8 @@ public abstract class View implements EventHandler{
     public abstract void updateChat(String recipientString, String senderNickname, String content);
 
     public abstract void setStarterCard(int cardId);
+
+    public abstract void handleEvent(Event event, String nickname);
 }
 
 
