@@ -529,7 +529,7 @@ public class TextUI extends View{
         this.secretObjCards = secrets;
 
         out.println("You received 3 cards(resources/gold cards), 2 card as a common objective card of the game:");
-        showHand(hand);
+        showHand();
         out.println("Your common objective cards for this game are following:");
         // print the common objectives cards of the game and the three cards received from the server using the show methods.
         showObjectiveCards(common);
@@ -604,7 +604,7 @@ public class TextUI extends View{
      * @param newAvailableFieldSpaces       the available spaces in the field of this player.
      * @param resourceCardDeckFacingKingdom the type of kingdom of the first card in the resource deck.
      * @param goldCardDeckFacingKingdom     the type of kingdom of the first card in the gold deck.
-     * @param playersResourcesSummary
+     * @param playersResourcesSummary       the array list of the resources of the players in the game.
      */
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
@@ -782,7 +782,7 @@ public class TextUI extends View{
                 To choose the left one, type LEFT
                 To choose the middle one, type MIDDLE
                 To choose the right one, type RIGHT""");
-        showHand(hand);
+        showHand();
         // if the player is in the service mode, the player will be able to see the message to exit from the service mode
         if (isInThread) {
             out.println("It is your turn now, please type something to exit from the service mode,then" +
@@ -1018,7 +1018,7 @@ public class TextUI extends View{
         this.hand.add(indexCardPlaced, hand.getLast());
         out.println("The card is added in your hand successfully, here is your hand after drawing the card:");
         // print the hand of the player after drawing the card.
-        showHand(this.hand);
+        showHand();
     }
 
     /**
@@ -1280,11 +1280,11 @@ public class TextUI extends View{
      * Print the cards in the hand of the player.
      */
     @Override
-    public void showHand(ArrayList<Integer> hand) {
+    public void showHand() {
         out.println("Hand cards: ");
-        ArrayList<String> card1 = cardImg.get(hand.get(0));
-        ArrayList<String> card2 = cardImg.get(hand.get(1));
-        ArrayList<String> card3 = cardImg.get(hand.get(2));
+        ArrayList<String> card1 = cardImg.get(this.hand.get(0));
+        ArrayList<String> card2 = cardImg.get(this.hand.get(1));
+        ArrayList<String> card3 = cardImg.get(this.hand.get(2));
         for (int i = 0; i < 7; i++) {
             out.println(card1.get(i) + "  " + card2.get(i)+" "+card3.get(i));
         }
@@ -1833,7 +1833,7 @@ public class TextUI extends View{
             case "SP" -> showPlayerInGame();
             case "SGS" -> out.println("The match status is: " + Status);
             case "SR" -> out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");
-            case "SH" -> showHand(hand);
+            case "SH" -> showHand();
             case "SCO" -> showObjectiveCards(commonObjCards);
             case "SSO" -> showCard(secretObjCardSelected, true);
             case "SF" -> {

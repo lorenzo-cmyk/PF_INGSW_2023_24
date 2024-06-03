@@ -172,7 +172,7 @@ public abstract class View implements EventHandler{
 
     public abstract void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand);
 
-    public abstract void showHand(ArrayList<Integer> hand);
+    public abstract void showHand();
 
     public abstract void showCard(int ID, boolean isUp);
 

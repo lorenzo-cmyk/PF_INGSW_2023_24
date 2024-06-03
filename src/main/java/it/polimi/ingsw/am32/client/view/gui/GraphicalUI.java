@@ -184,6 +184,7 @@ public class GraphicalUI extends View {
      * card on the field. The stack pane is shown in the board area of the master pane.
      */
     private final HashMap<String, StackPane> playerField = new HashMap<>();
+    //--board area--
     /**
      * The ScrollPane object containing the stack pane as the content of the board area. The stack pane presents the
      * player's field and the field is updated every time a player places a card on the field.
@@ -193,6 +194,7 @@ public class GraphicalUI extends View {
      * The Button object used to return to the player's field when the player are viewing the field of another player.
      */
     private Button returnToMyField;
+    //--chat area--
     /**
      * The ChatArea object which contains the ComboBox object to select the player to send a private message, the text
      * field to write the message, the button to send the message and the scroll pane to show the messages.
@@ -200,6 +202,7 @@ public class GraphicalUI extends View {
      * players in the game.
      */
     private ChatArea chatArea;
+    //--utility settings--
     /**
      * The style of the glow effect used in the show methods.
      */
@@ -220,7 +223,6 @@ public class GraphicalUI extends View {
             "codex_rulebook_it_04.png", "codex_rulebook_it_05.png", "codex_rulebook_it_06.png", "codex_rulebook_it_07.png",
             "codex_rulebook_it_08.png", "codex_rulebook_it_09.png", "codex_rulebook_it_10.png", "codex_rulebook_it_11.png",
             "codex_rulebook_it_12.png"};
-
     /**
      * Method used to retrieve dynamically a resource URI from the correct context folder.
      * @param resourceName The name of the resource to retrieve.
@@ -282,7 +284,7 @@ public class GraphicalUI extends View {
     @Override
     public void showWelcome() {
         welcomeRoot = new StackPane();
-        Button ruleButton = createTransButton("[Rule Book]", 30, "#E6DEB3", 0, 300);
+        Button ruleButton = createButton("[Rule Book]", 30, "#E6DEB3", 0, 300);
         welcomeRoot.getChildren().add(ruleButton);
         ruleButton.setTranslateX(350);
         ruleButton.setTranslateY(300);
@@ -512,9 +514,9 @@ public class GraphicalUI extends View {
 
         TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
 
-        Button twoButton = createTransButton("[2]", 30, "#3A2111", -150, 70);
-        Button threeButton = createTransButton("[3]", 30, "#3A2111", -70, 70);
-        Button fourButton = createTransButton("[4]", 30, "#3A2111", 10, 70);
+        Button twoButton = createButton("[2]", 30, "#3A2111", -150, 70);
+        Button threeButton = createButton("[3]", 30, "#3A2111", -70, 70);
+        Button fourButton = createButton("[4]", 30, "#3A2111", 10, 70);
         Button createButton = createButton("[Create]", 140, 65);
         Light.Distant light = new Light.Distant();
         light.setColor(Color.CHOCOLATE);
@@ -598,6 +600,15 @@ public class GraphicalUI extends View {
         selectionPane.getChildren().add(reconnectGameRoot);
     }
 
+    /**
+     * Handle the click on the confirmation button of the join game and reconnect game page. The method checks if the
+     * nickname is valid and the game ID is a number. If the nickname is valid and the game ID is a number, the method
+     * generates the AccessGameMessage or the ReconnectGameMessage based on the current event and notifies the listener.
+     *
+     * @param nickname the text field where the player inserts the nickname.
+     * @param accessID the text field where the player inserts the game ID.
+     */
+
     public void handleButtonJoinAndReconnectClick(TextField nickname, TextField accessID){
             thisPlayerNickname = nickname.getText();
             String ID = accessID.getText();
@@ -666,6 +677,7 @@ public class GraphicalUI extends View {
     /**
      * Once the player receives the LobbyPlayerList message from the server, the method is called by
      * processMessage, to update the player's list in the Lobby phase and print the player's list updated.
+     *
      * @param players the list updated of players in the game.
      */
     @Override
@@ -684,8 +696,9 @@ public class GraphicalUI extends View {
         playerListView.setText("Players: \n" + String.join(",\n", players));
     }
     /**
-     * After receiving the GameStarted message from the server, the method is called to set up the view of the player
-     * and initialize the data and the boards of the players.
+     * After receiving the GameStarted message from the server, the method is called to set up the view of the players,
+     * to load the images which will be used to set up the game view, to set up the player's data and call the method
+     * setGameView to set the view of the game in the preparation phase.
      */
     @Override
     public void setUpPlayersData() {
@@ -714,14 +727,16 @@ public class GraphicalUI extends View {
         imagesMap.put("6", new Image(retrieveResourceURI("cards_back_061.png"), 120, 80, true, false));
         imagesMap.put("7", new Image(retrieveResourceURI("cards_back_071.png"), 120, 80, true, false));
 
+        // create the label for the status of the match
         if (this.matchStatus == null) {
             this.matchStatus = createLabel(String.valueOf(Status), 15);
         }
+        // initialize the structure to store the data of the players and the view of the players
         Platform.runLater(()->{
             for (String player : players) {
                         // set up the data of the players and initialize the board of the players
-                        publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(), new int[]{0, 0, 0, 0, 0, 0, 0},
-                                true));
+                        publicInfo.put(player, new PlayerPub(null, 0, new ArrayList<>(),
+                                new int[]{0, 0, 0, 0, 0, 0, 0}, true));
                         // create the view of the players
                         playerViews.put(player, new PlayerPubView(
                                 createLabel(player,18),
@@ -736,35 +751,140 @@ public class GraphicalUI extends View {
                                         createLabel("0", 15),
                                         createLabel("0", 15)
                                 }));
+                        // create the field of the players
                         playerField.put(player, new StackPane());
                     }
         setGameView();
     });// set the view of the game in the playing phase
     }
+
+    /**
+     * Set the view of the game once the game enters the playing phase. The method sets the master pane, the player info
+     * panel, the top line panel, the board area, the notification area, the hand area and the chat area.
+     * The player info panel contains the player's nickname, the player's score, the player's resources and the player's
+     * colour. The top line panel contains the game ID, the status of the match, the player order, the rules button and
+     * the help button. The board area is used to show the player's field. The notification area is used to show the
+     * notifications of the game. The hand area contains the common objective cards, secret objective cards and the
+     * hand cards of the player. The chat area lets the player send messages to the other players and view the messages
+     * received.
+     */
     private void setGameView() {
         // set the master pane
         Platform.runLater(()->{
-            masterPane = new Pane();
-        masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228), new CornerRadii(0), new Insets(0))));
+        masterPane = new Pane();
+        // set the background style of the master pane
+        masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228),
+                new CornerRadii(0), new Insets(0))));
 
         // set the players info panel
-        VBox playerInfoPanel = new VBox();
-        playerOrder = new HBox();
-        Label OrderTitle = createLabel("Order:", 15);
-        playerOrder.getChildren().add(OrderTitle);
+        VBox playerInfoPanel = createPlayerInfoPanel();
 
-        for (String player : players) {
-            // set up the player view
+        // set the top line panel
+        HBox topLine = createTopLinePanel();
+
+        // create the board of this player
+        StackPane boardMove = playerField.get(thisPlayerNickname);
+        board = new ScrollPane(); // Fixed board where cards are displayed
+        board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
+        board.setPrefSize(770, 525);
+        board.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(50)));
+        board.translateXProperty().bind(masterPane.widthProperty().subtract(board.widthProperty().add(20)));
+        board.setContent(boardMove);
+
+        // create the notification area
+        notice = new VBox();
+        notice.setStyle("-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';" + "-fx-text-fill: #3A2111;");
+        ScrollPane noticeArea= new ScrollPane();
+        noticeArea.setContent(notice);
+        noticeArea.setBorder(new Border(new BorderStroke(Color.rgb(58,33,17), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        noticeArea.setPrefSize(380,115);
+        noticeArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
+        noticeArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight()+280)));
+
+        // Initialize the chat area
+        chatArea = new ChatArea(0, 0, 305, 75, players, this);
+        chatArea.getChatArea().translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
+        chatArea.getChatArea().translateYProperty().bind(masterPane.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
+        chatArea.setActive(false); // At the start, disable the chat area
+
+        // set the deck area
+        deckArea = createDeckArea();
+
+        // set Deck size label
+        HBox deckSize = new HBox();
+        deckSize.setStyle("-fx-text-fill: #3A2111 ;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+        deckSize.setSpacing(10);
+        Label goldDeckLabel = new Label("Gold Deck:");
+        goldSize = new Label("--");
+        Label resourceDeckLabel = new Label("Resource Deck:");
+        resourceSize = new Label("--");
+        deckSize.getChildren().addAll(resourceDeckLabel, resourceSize,goldDeckLabel, goldSize);
+        deckSize.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
+        deckSize.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight()+570)));
+        deckSize.setOnMouseClicked(e -> showDeck());
+
+        //Images to hold the spaces for the cards in hand, common objective cards and secret objective cards
+        HBox bottomLine = createBottomLinePanel();
+
+        // create the label of the card area
+        Label commonObjLabel = createLabel("Common Objective Cards", 15);
+        Label secretObjLabel = createLabel("Secret",15);
+        Label handLabel = createLabel("Hand Cards",15);
+        handLabel.setOnMouseClicked(e -> showHand());
+
+        HBox cardLabels = new HBox();
+        cardLabels.setSpacing(80);
+        cardLabels.getChildren().addAll(commonObjLabel,secretObjLabel,handLabel);
+        cardLabels.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(10)));
+        cardLabels.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(50)));
+
+        // set the important event notify panel
+        noticeEventPanel = createNoticeEventPanel();
+        noticeEventPanel.setVisible(false);
+
+        // add the buttons to the return to the thisPlayer's field
+        returnToMyField = createButton("[x] Return to my field", 15, "#3A2111", 0, 0);
+        returnToMyField.setOnAction(e -> {
+            board.setContent(this.playerField.get(thisPlayerNickname));
+            returnToMyField.setVisible(false);
+        });
+        returnToMyField.translateXProperty().bind(masterPane.widthProperty().subtract(200));
+        returnToMyField.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(80)));
+        returnToMyField.setVisible(false);
+
+        masterPane.getChildren().addAll(topLine, playerInfoPanel, board, deckArea,deckSize, bottomLine, noticeArea,
+                chatArea.getChatArea(),cardLabels,noticeEventPanel,returnToMyField);
+
+        // update the scene of the application with the master pane
+        app.updateScene(masterPane);
+        app.getPrimaryStage().setMinWidth(1250);
+        });
+    }
+
+    /**
+     * Method create VBox to store the player's info area. The player's info area contains the player's nickname, the
+     * player's score, the player's resources and the player's colour.
+     * @return the VBox which contains the player's info area.
+     */
+    private VBox createPlayerInfoPanel(){
+        VBox playerInfoPanel = new VBox();
+        for (String player : players) { // for each player in the list of players
+            // get the view of the player from the hashmap playerViews
             PlayerPubView playerPubView = playerViews.get(player);
-            // set the player info line
+
+            // create the HBox to store the player's nickname and player's colour
             HBox playerInfo = new HBox();
             playerInfo.setSpacing(10);
-            playerInfo.setMaxWidth(300);
+            playerInfo.setMaxWidth(300); // set the width to control the position occupied by the player's nickname.
             playerInfo.setMinWidth(300);
-            Label scoreLabel = createLabel("Score: ", 15);
-            HBox scoreBox = new HBox();
-            scoreBox.getChildren().addAll(scoreLabel, playerPubView.getPoints());
             playerInfo.getChildren().addAll(playerPubView.getColour(), playerPubView.getNickname());
+
+            // create the HBox to store the player's score
+            HBox scoreBox = new HBox();
+            Label scoreLabel = createLabel("Score: ", 15);
+            scoreBox.getChildren().addAll(scoreLabel, playerPubView.getPoints());
+
+            // create the HBox to connect the previous HBoxes.
             HBox playerInfoBox = new HBox();
             playerInfoBox.setSpacing(10);
             playerInfoBox.getChildren().addAll(playerInfo, scoreBox);
@@ -772,7 +892,7 @@ public class GraphicalUI extends View {
             // set the player resource line
             HBox playerResource = new HBox();
             playerResource.setSpacing(10);
-            playerResource.getChildren().addAll(
+            playerResource.getChildren().addAll( // set the player's resources counter with the images of the resources
                     new Label("     "),
                     new ImageView(imagesMap.get("PLANT")), playerPubView.getResourceLabels()[0],
                     new ImageView(imagesMap.get("FUNGI")), playerPubView.getResourceLabels()[1],
@@ -782,79 +902,58 @@ public class GraphicalUI extends View {
                     new ImageView(imagesMap.get("INKWELL")), playerPubView.getResourceLabels()[5],
                     new ImageView(imagesMap.get("MANUSCRIPT")), playerPubView.getResourceLabels()[6]);
 
-            // set the player info and resource area
+            // create the VBox to connect the player's info area and the player's resource area
             VBox playerInfoAndResource = new VBox();
             playerInfoAndResource.getChildren().addAll(playerInfoBox, playerResource);
             playerInfoPanel.getChildren().add(playerInfoAndResource);
 
-
-            // set field view of the player
+            // set the drag and zoom action on the player's field
             StackPane boardReal = playerField.get(player);
-
             handleBoardAction(boardReal);
+
+            // set click action on the player's nickname
             handlePlayerNicknameClick(player);
         }
-
-        // set the position of the player info panel in the master pane
         playerInfoPanel.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(20)));
         playerInfoPanel.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(60)));
 
-        // set the top line panel of the master pane which contains the game ID, the status and the player order
+        return playerInfoPanel;
+    }
+
+    /**
+     * Create the top line panel of the master pane. The top line panel contains the label indicating the nickname of
+     * thisPlayer, the game ID, the status of the match, the player order, the rules button and the help button.
+     * @return the HBox which contains the components needed.
+     */
+    private HBox createTopLinePanel(){
         Label labelPlayer= createLabel(thisPlayerNickname+"'s View", 20);
         Label labelID = createLabel("ID: " + gameID, 15);
         HBox StatusBox = new HBox();
         Label statusTitle = createLabel("Status: ", 15);
         StatusBox.getChildren().addAll(statusTitle, matchStatus);
-        Button rulesButton = createTransButton("[Rules]", 15, "#3A2111", 0, 0);
+        playerOrder = new HBox();
+        Label OrderTitle = createLabel("Order:", 15);
+        playerOrder.getChildren().add(OrderTitle);
+        Button rulesButton = createButton("[Rules]", 15, "#3A2111", 0, 0);
         rulesButton.setOnAction(e -> showRuleBook());
-        Button helpInfoButton = createTransButton("[Help]", 15, "#3A2111", 0, 0);
+        Button helpInfoButton = createButton("[Help]", 15, "#3A2111", 0, 0);
         helpInfoButton.setOnAction(e -> showHelpInfo());
+        // create the HBox to connect the previous components in one line
 
         HBox topLine = new HBox();
         topLine.setSpacing(100);
         topLine.getChildren().addAll(labelPlayer,labelID, StatusBox, playerOrder, rulesButton, helpInfoButton);
         topLine.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(20)));
         topLine.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(20)));
+        return topLine;
+    }
 
-        masterPane.getChildren().addAll(topLine, playerInfoPanel);
-
-        // create the board of this player
-        StackPane boardMove = playerField.get(thisPlayerNickname);
-        board = new ScrollPane(); // Fixed board where cards are displayed
-        board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
-        board.setPrefSize(770, 525);
-        board.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(50))); // set position X of the board in the masterPane.
-        board.translateXProperty().bind(masterPane.widthProperty().subtract(board.widthProperty().add(20))); // set position Y of the board in the masterPane.
-        board.setContent(boardMove);
-
-        // create the notification area
-            notice = new VBox();
-            notice.setStyle("-fx-font-size: 15px;-fx-font-family: 'JejuHallasan';" + "-fx-text-fill: #3A2111;");
-            ScrollPane noticeArea= new ScrollPane();
-            noticeArea.setContent(notice);
-            noticeArea.setBorder(new Border(new BorderStroke(Color.rgb(58,33,17), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            noticeArea.setPrefSize(380,115);
-            noticeArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
-            noticeArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(notice.getHeight()+280)));
-
-        // Initialize the chat area
-        chatArea = new ChatArea(0, 0, 305, 75, players, this);
-        chatArea.getChatArea().translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
-        chatArea.getChatArea().translateYProperty().bind(masterPane.heightProperty().subtract(chatArea.getChatArea().heightProperty().add(20)));
-        chatArea.setActive(false); // At the start, disable the chat area
-
-        //Images to hold the spaces for the cards in hand, common objective cards and secret objective cards
-        handView = new ImageView[]{
-                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
-                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
-                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false))
-        };
-        commonObjCardView = new ImageView[]{
-                new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false)),
-                new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false))
-        };
-        secretObjCardView = new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false));
-
+    /**
+     * Method create the deck area of the player. The deck area contains the resource deck and the gold deck. The player
+     * can draw a card from the deck by clicking on the card in the deck.
+     * @return the VBox which contains the array of the resource deck and the gold deck.
+     */
+    private VBox createDeckArea() {
         resourceDeckView = new ImageView[]{
                 new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
                 new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
@@ -879,61 +978,42 @@ public class GraphicalUI extends View {
         goldDeck.getChildren().addAll(goldDeckView[0], goldDeckView[1], goldDeckView[2]);
         deckArea.getChildren().addAll(resourceDeck,goldDeck);
 
-
         deckArea.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
         deckArea.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight() + 400)));
-        // set Deck size label
-            HBox deckSize = new HBox();
-            deckSize.setStyle("-fx-text-fill: #3A2111 ;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
-            deckSize.setSpacing(10);
-            Label goldDeckLabel = new Label("Gold Deck:");
-            goldSize = new Label("--");
-            Label resourceDeckLabel = new Label("Resource Deck:");
-            resourceSize = new Label("--");
-            deckSize.getChildren().addAll(resourceDeckLabel, resourceSize,goldDeckLabel, goldSize);
-            deckSize.translateXProperty().bind(masterPane.widthProperty().subtract(masterPane.widthProperty().subtract(40)));
-            deckSize.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(deckArea.getHeight()+570)));
-            deckSize.setOnMouseClicked(e -> showDeck());
+
+        return deckArea;
+    }
+
+    /**
+     * Method create the bottom line panel of the master pane. The bottom line panel contains the common objective cards,
+     * the secret objective cards and the hand cards of the player.
+     * @return the HBox which contains the components needed.
+     */
+    private HBox createBottomLinePanel() {
+        handView = new ImageView[]{
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false))
+        };
+        commonObjCardView = new ImageView[]{
+                new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false)),
+                new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false))
+        };
+        secretObjCardView = new ImageView(new Image(retrieveResourceURI("cards_back_089.png"), 120, 80, true, false));
         HBox bottomLine = new HBox();
         bottomLine.setSpacing(10);
         bottomLine.getChildren().addAll(commonObjCardView[0], commonObjCardView[1], secretObjCardView, handView[0], handView[1], handView[2]);
         bottomLine.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(20)));
         bottomLine.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(20)));
 
-        // create the label of the card area
-        Label commonObjLabel = createLabel("Common Objective Cards", 15);
-        Label secretObjLabel = createLabel("Secret",15);
-        Label handLabel = createLabel("Hand Cards",15);
-        handLabel.setOnMouseClicked(e -> showHand(hand));
-
-        HBox cardLabels = new HBox();
-        cardLabels.setSpacing(80);
-        cardLabels.getChildren().addAll(commonObjLabel,secretObjLabel,handLabel);
-        cardLabels.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(10)));
-        cardLabels.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(50)));
-
-        // set the important event notify panel
-        noticeEventPanel = createNoticeEventPanel();
-        noticeEventPanel.setVisible(false);
-
-        // add the buttons to the return to the thisPlayer's field
-        returnToMyField = createTransButton("[x] Return to my field", 15, "#3A2111", 0, 0);
-        returnToMyField.setOnAction(e -> {
-            board.setContent(this.playerField.get(thisPlayerNickname));
-            returnToMyField.setVisible(false);
-        });
-        returnToMyField.translateXProperty().bind(masterPane.widthProperty().subtract(200));
-        returnToMyField.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(80)));
-        returnToMyField.setVisible(false);
-
-
-        masterPane.getChildren().addAll(board, deckArea,deckSize, bottomLine, noticeArea,chatArea.getChatArea(),cardLabels,noticeEventPanel,returnToMyField);
-
-            app.updateScene(masterPane);
-            app.getPrimaryStage().setMinWidth(1250);
-           // app.getPrimaryStage().setFullScreen(true);
-        });
+        return bottomLine;
     }
+    /**
+     * Method create the notification event panel. The notification event panel is used to notify the player that it's
+     * his turn to play.
+     * @return the Group which contains the notification panel and the label of the content of the notification.
+     */
+
     private Group createNoticeEventPanel() {
         Group root = new Group();
         root.setAutoSizeChildren(true);
@@ -953,12 +1033,16 @@ public class GraphicalUI extends View {
         });
         return root;
     }
+
+    /**
+     * Method to handle the click action of the notification event panel. The player can rotate the notification panel
+     * for 360 degrees.
+     */
     private void handleNoticeClicks(Group root) {
         RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), root);
         rotateTransition.setByAngle(360);
         rotateTransition.setCycleCount(1);
         rotateTransition.setAxis(Rotate.Y_AXIS);
-
         rotateTransition.play();
 
     }
@@ -1133,15 +1217,11 @@ public class GraphicalUI extends View {
         return label;
     }
 
-    private Button createTransButton(String buttonName, int size, String color, int X, int Y) {
-        Button button = new Button(buttonName);
-        button.setStyle("-fx-background-color: transparent;-fx-text-fill:" + color + ";-fx-alignment: center;" +
-                "-fx-font-size: " + size + "px;-fx-font-family: 'JejuHallasan';");
-        button.setTranslateX(X);
-        button.setTranslateY(Y);
-        return button;
-    }
-
+    /**
+     * Create a stylized button with the specified text.
+     * @param buttonName the text contained inside the button
+     * @return the button created
+     */
     private Button createButton(String buttonName) {
         Button button = new Button(buttonName);
         button.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
@@ -1150,6 +1230,13 @@ public class GraphicalUI extends View {
         return button;
     }
 
+    /**
+     * Create a stylized button with the specified text, X and Y coordinates.
+     * @param buttonName the text contained inside the button
+     * @param X the X coordinate of the button
+     * @param Y the Y coordinate of the button
+     * @return the button created
+     */
     private Button createButton(String buttonName, int X, int Y) {
         Button button = new Button(buttonName);
         button.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center;" +
@@ -1160,6 +1247,34 @@ public class GraphicalUI extends View {
         return button;
     }
 
+    /**
+     * Create a stylized button with the specified text, size and color, and X and Y coordinates.
+     *
+     * @param buttonName the text contained inside the button
+     * @param size the size of the text inside the button
+     * @param color the color of the text inside the button
+     * @param X the X coordinate of the button
+     * @param Y the Y coordinate of the button
+     * @return the button created
+     */
+    private Button createButton(String buttonName, int size, String color, int X, int Y) {
+        Button button = new Button(buttonName);
+        button.setStyle("-fx-background-color: transparent;-fx-text-fill:" + color + ";-fx-alignment: center;" +
+                "-fx-font-size: " + size + "px;-fx-font-family: 'JejuHallasan';");
+        button.setTranslateX(X);
+        button.setTranslateY(Y);
+        return button;
+    }
+
+    /**
+     * Create a text field with the specified prompt text, maximum height, maximum width, X and Y coordinates.
+     * @param promptText the prompt text of the text field
+     * @param MaxHeight the maximum height of the text field
+     * @param MaxWidth the maximum width of the text field
+     * @param X the X coordinate of the text field
+     * @param Y the Y coordinate of the text field
+     * @return the text field created
+     */
     private TextField createTextField(String promptText, int MaxHeight, int MaxWidth, int X, int Y) {
         TextField textField = new TextField();
         textField.setMaxHeight(MaxHeight);
@@ -1174,6 +1289,10 @@ public class GraphicalUI extends View {
         return textField;
     }
 
+    /**
+     * Create a stylized Alert pop-up window with the specified reason.
+     * @param reason the reason of the error alert
+     */
     private void createAlert(String reason) {
         Platform.runLater(()-> {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -1193,20 +1312,24 @@ public class GraphicalUI extends View {
         });
     }
 
-
+    /**
+     * Method used to show the field of the player whose nickname is passed as a parameter.
+     * @param playerNickname the nickname of the player whose field should be shown in the board area.
+     */
     @Override
     public void showPlayersField(String playerNickname) {
         Platform.runLater(()-> {
             StackPane playerField = this.playerField.get(playerNickname);
-            /*Label playerLabel = playerViews.get(playerNickname).getNickname();
-            playerLabel.translateXProperty().bind(board.widthProperty().subtract(board.widthProperty()));
-            playerLabel.translateYProperty().bind(board.heightProperty().subtract(board.heightProperty()));
-            playerLabel.setTranslateY(20);*/
             board.setContent(playerField);
             returnToMyField.setVisible(true);
         });
     }
 
+    /**
+     * Method used to make the highlight effect on the player's points and resources when the player's turn is now or
+     * the match status is TERMINATING.
+     * @param playerNickname the nickname of the player whose points and resources should be shown.
+     */
     @Override
     public void showPointsAndResource(String playerNickname) {
         playerViews.get(playerNickname).getPoints().setEffect(dropShadow);
@@ -1250,6 +1373,31 @@ public class GraphicalUI extends View {
         }
     }
 
+    /**
+     * This method is called by processMessage to update the all data of the players in the game when the game enters
+     * the playing phase or when the player reconnects to the game.
+     *
+     * @param playerNicknames               the nicknames of the players in the game.
+     * @param playerConnected               the connection status of the players in the game.
+     * @param playerColours                 the colours assigned to the players in the game.
+     * @param playerHand                    the hand of this player.
+     * @param playerSecretObjective         the secret objective card selected by this player.
+     * @param playerPoints                  the points of the players in the game.
+     * @param playerFields                  the fields of the players in the game.
+     * @param playerResources               the resources of the players in the game.
+     * @param gameCommonObjectives          the common objective cards of the game.
+     * @param gameCurrentResourceCards      the current visible resource cards in the game that the player can draw.
+     * @param gameCurrentGoldCards          the current visible gold cards in the game that the player can draw.
+     * @param gameResourcesDeckSize         the size of the resource deck in the game.
+     * @param gameGoldDeckSize              the size of the gold deck in the game.
+     * @param matchStatus                   the current match status of the game.
+     * @param chatHistory                   the chat history of this player in the game.
+     * @param currentPlayer                 indicates the whose turn is now.
+     * @param newAvailableFieldSpaces       the available spaces in the field of this player.
+     * @param resourceCardDeckFacingKingdom the type of kingdom of the first card in the resource deck.
+     * @param goldCardDeckFacingKingdom     the type of kingdom of the first card in the gold deck.
+     * @param playersResourcesSummary       the array list of the resources of the players in the game.
+     */
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
                                  ArrayList<Integer> playerColours, ArrayList<Integer> playerHand,
@@ -1311,11 +1459,28 @@ public class GraphicalUI extends View {
                 }
         }
     }
+
+    /**
+     * Method to convert the integer value of the cardID and the boolean value of the side of the card to the specific
+     * image path of the card.
+     * @param cardID the ID of the card shown in the image
+     * @param isUp the side of the card shown in the image
+     * @return the image path of the card given the cardID and the side of the card.
+     */
     private String convertToImagePath(int cardID, boolean isUp) {
         String cardIdStr= String.format("%03d", cardID);
         return isUp ? "cards_front_" + cardIdStr + ".png" : "cards_back_" + cardIdStr + ".png";
     }
 
+    /**
+     * Once the player receives the AssignedSecretObjectiveCardMessage from the server, the method is called by
+     * processMessage to request the player to select the secret objective card they want to use. In addition, the
+     * method is called to update the player's hand cards and the common objective cards of the game.
+     *
+     * @param secrets the secret objective cards received from the server and assigned to the player.
+     * @param common the common objective cards of the game received from the server.
+     * @param hand the three cards received from the server and should be stored in the player's hand.
+     */
     @Override
     public void setCardsReceived(ArrayList<Integer> secrets, ArrayList<Integer> common, ArrayList<Integer> hand) {
         this.hand = hand;
@@ -1339,8 +1504,11 @@ public class GraphicalUI extends View {
         requestSelectSecretObjectiveCard();
     }
 
+    /**
+     * Method to show the hand of the player in the GUI adding the highlight effect on the cards in the hand.
+     */
     @Override
-    public void showHand(ArrayList<Integer> hand) {
+    public void showHand() {
         handView[0].setEffect(glow);
         handView[1].setEffect(glow);
         handView[2].setEffect(glow);
@@ -1356,6 +1524,11 @@ public class GraphicalUI extends View {
         pause.play();
     }
 
+    /**
+     * Method to show the image of the card in the GUI with the specified ID and side.
+     * @param ID the ID of the card should be shown in the image.
+     * @param isUp the side of the card should be shown in the image.
+     */
     @Override
     public void showCard(int ID, boolean isUp) {
             Platform.runLater(() -> {
@@ -1468,6 +1641,14 @@ public class GraphicalUI extends View {
         });
     }
 
+    /**
+     * Method used to update the player's board and public info when the player disconnects from the game after the
+     * placement of the card.
+     * @param playerNickname the nickname of the player whose board should be updated with the rollback
+     * @param removedCard the ID of the card that should be removed from the board and the public info of the player
+     * @param playerPoints the points of the player after the rollback
+     * @param playerResources the resources of the player after the rollback
+     */
     @Override
     public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
         //TODO
