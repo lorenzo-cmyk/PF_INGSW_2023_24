@@ -961,8 +961,6 @@ public class GraphicalUI extends View {
                 new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false))
         };
 
-        // Set up the click action of the cards in the hand
-        handleHandClicks();
 
         deckArea = new VBox();
         deckArea.setSpacing(10);
@@ -1001,7 +999,8 @@ public class GraphicalUI extends View {
         bottomLine.getChildren().addAll(commonObjCardView[0], commonObjCardView[1], secretObjCardView, handView[0], handView[1], handView[2]);
         bottomLine.translateXProperty().bind(masterPane.widthProperty().subtract(bottomLine.widthProperty().add(20)));
         bottomLine.translateYProperty().bind(masterPane.heightProperty().subtract(bottomLine.heightProperty().add(20)));
-
+        // Set up the click action of the cards in the hand
+        handleHandClicks();
         return bottomLine;
     }
     /**
@@ -2012,60 +2011,56 @@ public class GraphicalUI extends View {
      */
     @Override
     public void handleEvent(Event event, String message) {
-        switch (event) {
-            case Event.NEW_PLAYER_JOIN -> {
-                this.players.add(message);
-                Label player = createLabel("Player " + message + " joined the lobby",18);
-                player.setTranslateX(20);
-                player.setTranslateY(50);
-                Platform.runLater(() ->
-                {
+        Platform.runLater(() -> {
+            switch (event) {
+                case Event.NEW_PLAYER_JOIN -> {
+                    this.players.add(message);
+                    Label player = createLabel("Player " + message + " joined the lobby", 18);
+                    player.setTranslateX(20);
+                    player.setTranslateY(50);
                     selectionPane.getChildren().add(player);
                     PauseTransition pause = new PauseTransition(Duration.seconds(3));
                     pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
                     pause.play();
-                });
-            }
-            case Event.GAME_START -> notice.getChildren().add(new Label("> The game starts now!\n"));
-            case Event.GAME_JOINED -> Platform.runLater(() ->
-            {
-                selectionPane.getChildren().removeLast();
-                waitingRoot = new StackPane();
-                this.players.add(thisPlayerNickname);
-                currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
-                Status = Event.LOBBY;
+                }
+                case Event.GAME_START -> Platform.runLater(()-> notice.getChildren().add(new Label("> The game starts now!\n")));
+                case Event.GAME_JOINED -> {
+                    selectionPane.getChildren().removeLast();
+                    waitingRoot = new StackPane();
+                    this.players.add(thisPlayerNickname);
+                    currentEvent = Event.WAITING_FOR_START; // enter the waiting for start event
+                    Status = Event.LOBBY;
 
-                Label id = createLabel("ID: " + gameID, -80, -80);
-                Label waiting = createLabel("Waiting...", 130, 100);
+                    Label id = createLabel("ID: " + gameID, -80, -80);
+                    Label waiting = createLabel("Waiting...", 130, 100);
 
-                playerListView = createTextField(null, 135, 360, 0, 0);
-                playerListView.setText("Players: \n" + String.join("\n", players));
-                playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                        "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
-                playerListView.setTranslateX(0);
-                playerListView.setTranslateY(0);
-                playerListView.setEditable(false);
-                waitingRoot.getChildren().addAll(id, waiting, playerListView);
-                selectionPane.getChildren().add(waitingRoot);
-            });
-            case Event.PLAYER_DISCONNECTED -> Platform.runLater(() ->
-            {
-            if(!Status.equals(Event.LOBBY)){
-                publicInfo.get(message).updateOnline(false);
-                playerViews.get(message).setColour(imagesMap.get("GREY"));
-                notice.getChildren().add(new Label("> Player " + message + " disconnected.\n"));
-            }
-            else {
-                Label player = createLabel("Player " + message + " disconnected\n", 18);
-                player.setTranslateX(20);
-                player.setTranslateY(80);
-                waitingRoot.getChildren().add(player);
-                PauseTransition pause = new PauseTransition(Duration.seconds(3));
-                pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
-                pause.play();
+                    playerListView = createTextField(null, 135, 360, 0, 0);
+                    playerListView.setText("Players: \n" + String.join("\n", players));
+                    playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                            "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
+                    playerListView.setTranslateX(0);
+                    playerListView.setTranslateY(0);
+                    playerListView.setEditable(false);
+                    waitingRoot.getChildren().addAll(id, waiting, playerListView);
+                    selectionPane.getChildren().add(waitingRoot);
+                }
+                case Event.PLAYER_DISCONNECTED -> {
+                    if (!Status.equals(Event.LOBBY)) {
+                        publicInfo.get(message).updateOnline(false);
+                        playerViews.get(message).setColour(imagesMap.get("GREY"));
+                        notice.getChildren().add(new Label("> Player " + message + " disconnected.\n"));
+                    } else {
+                        Label player = createLabel("Player " + message + " disconnected\n", 18);
+                        player.setTranslateX(20);
+                        player.setTranslateY(80);
+                        waitingRoot.getChildren().add(player);
+                        PauseTransition pause = new PauseTransition(Duration.seconds(3));
+                        pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
+                        pause.play();
+                    }
+                }
             }
         });
-        }
     }
 
     /**
