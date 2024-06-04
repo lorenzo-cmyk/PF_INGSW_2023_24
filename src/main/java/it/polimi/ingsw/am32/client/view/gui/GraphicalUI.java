@@ -1662,7 +1662,7 @@ public class GraphicalUI extends View {
     @Override
     public void updateChat(String recipientString, String senderNickname, String content) {
         Platform.runLater(() -> {
-            if (recipientString.equals(thisPlayerNickname)) { // We have received a message we shouldn't have received
+            if (!recipientString.equals(thisPlayerNickname)) { // We have received a message we shouldn't have received
                 throw new RuntimeException("Received message not intended for this player");
             }
             chatArea.addIncomingMessageToChat(content, senderNickname); // Add message to chat area
