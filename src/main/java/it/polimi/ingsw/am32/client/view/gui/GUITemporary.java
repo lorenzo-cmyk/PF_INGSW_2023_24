@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
 import it.polimi.ingsw.am32.utilities.IsValid;
-import it.polimi.ingsw.am32.chat.ChatMessage;
+import it.polimi.ingsw.am32.client.ChatMessage;
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.NonObjCardFactory;
 import it.polimi.ingsw.am32.client.ObjectiveCardFactory;
