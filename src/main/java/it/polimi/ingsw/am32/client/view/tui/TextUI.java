@@ -614,7 +614,7 @@ public class TextUI extends View{
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
-                                 int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
+                                 int gameGoldDeckSize, int matchStatus, ArrayList<String[]> chatHistory,
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces,
                                  int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom,
                                  ArrayList<int[]> playersResourcesSummary) {
@@ -632,7 +632,16 @@ public class TextUI extends View{
             this.resourceDeckSize = gameResourcesDeckSize;
             this.goldDeckSize = gameGoldDeckSize;
             this.Status = Event.getEvent(matchStatus);
-            this.chatHistory = chatHistory;
+
+            // We are now rebuilding the ChatMessage object from the ArrayList of Arrays
+            ArrayList<ChatMessage> chatHistoryRebuild = new ArrayList<>();
+            for (String[] messageArray : chatHistory) {
+                ChatMessage messageRebuild = new ChatMessage(messageArray[0], messageArray[1],
+                        Boolean.parseBoolean(messageArray[2]), messageArray[3]);
+                chatHistoryRebuild.add(messageRebuild);
+            }
+            this.chatHistory = chatHistoryRebuild;
+
             this.currentPlayer = currentPlayer;
             this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
             this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
@@ -685,7 +694,16 @@ public class TextUI extends View{
             this.goldDeckSize = gameGoldDeckSize;
             this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
             this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
-            this.chatHistory = chatHistory;
+
+            // We are now rebuilding the ChatMessage object from the ArrayList of Arrays
+            ArrayList<ChatMessage> chatHistoryRebuild = new ArrayList<>();
+            for (String[] messageArray : chatHistory) {
+                ChatMessage messageRebuild = new ChatMessage(messageArray[0], messageArray[1],
+                        Boolean.parseBoolean(messageArray[2]), messageArray[3]);
+                chatHistoryRebuild.add(messageRebuild);
+            }
+            this.chatHistory = chatHistoryRebuild;
+
             this.currentPlayer = currentPlayer;
             this.players = playerNicknames;
             int [] card;
@@ -1164,7 +1182,7 @@ public class TextUI extends View{
                     out.println("You --> all players:\" "+chat.getMessageContent()+"\"");
                 }
             }
-            else if(chat.getRecipientNickname().equals(thisPlayerNickname)){
+            else if(chat.getRecipientNickname().equals(thisPlayerNickname) || chat.isMulticastFlag()){
                 out.println(chat.getSenderNickname() + " --> You:\" "+chat.getMessageContent()+"\"");
             }
         }

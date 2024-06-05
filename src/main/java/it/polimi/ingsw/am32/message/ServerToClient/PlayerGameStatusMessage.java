@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
-import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
@@ -83,7 +82,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
     /**
      * List of chat messages that represent the chat history of the game
      */
-    private final ArrayList<ChatMessage> chatHistory;
+    private final ArrayList<String[]> chatHistory;
     /**
      * String that represents the nickname of the current player
      */
@@ -97,7 +96,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
                                    ArrayList<Integer> playerHand, int playerSecretObjective, int[] playerPoints, ArrayList<int[]> playersResourcesSummary,
                                    ArrayList<ArrayList<int[]>> playerFields, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
                                    ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
-                                   int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory, String currentPlayer,
+                                   int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<String[]> chatHistory, String currentPlayer,
                                    ArrayList<int[]> newAvailableFieldSpaces,
                                    int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
         this.recipientNickname = recipientNickname;
@@ -164,7 +163,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 ", gameGoldDeckSize=" + gameGoldDeckSize +
                 ", goldCardDeckFacingKingdom=" + goldCardDeckFacingKingdom +
                 ", matchStatus=" + matchStatus +
-                ", chatHistory=" + chatHistory.stream().map(ChatMessage::toString).toList() +
+                ", chatHistory=" + chatHistory.stream().map(Arrays::toString).toList() +
                 ", currentPlayer='" + currentPlayer + '\'' +
                 ", newAvailableFieldSpaces=[" + newAvailableFieldSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
                 "]}";

@@ -85,6 +85,14 @@ public class ChatMessage {
         return messageContent;
     }
 
+    /**
+     * Convert the message to an Array of 4 Strings representing the message.
+     * @return An Array of 4 Strings representing the message
+     */
+    public String[] toArray() {
+        return new String[]{senderNickname, recipientNickname, Boolean.toString(multicastFlag), messageContent};
+    }
+
     @Override
     public String toString() {
         return "ChatMessage{" +
