@@ -1,8 +1,10 @@
 package it.polimi.ingsw.am32.network.ServerNode;
 
-import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNodeInt;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
@@ -21,7 +23,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private final Configuration config;
     private GameController gameController;
     private int pingCount;
-    private RMIClientNodeInt clientNode;
+    private final RMIClientNodeInt clientNode;
     private final ServerPingTask serverPingTask;
     private boolean statusIsAlive;
     private boolean destroyCalled;
@@ -51,6 +53,18 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                     throw new NodeClosedException();
 
                 resetTimeCounter();
+            }
+
+            if(message instanceof PingMessage) {
+                config.getExecutorService().submit(() -> {
+                    try {
+                        logger.debug("PingMessage received");
+                        uploadToClient(new PongMessage(null));
+                    } catch (UploadFailureException e) {
+                        logger.error("Failed to send PongMessage to client");
+                    }
+                });
+                return;
             }
 
             // We can't risk to lose the observability of potential RuntimeExceptions thrown by GameController and Model

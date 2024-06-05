@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.stream.Collectors;
 
-import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.controller.exceptions.*;
@@ -59,6 +59,10 @@ public class GameController {
      * endMatchDueToDisconnectionTimerTask: The timer task that is used to end a match due to disconnection when only one player remains connected
      */
     private EndMatchDueToDisconnectionTimerTask endMatchDueToDisconnectionTimerTask;
+    /**
+     * alreadyEnteredTerminatingPhase: A flag that indicates whether the terminating phase has already been entered; used to notify players when terminating phase is entered
+     */
+    private boolean alreadyEnteredTerminatingPhase;
 
     /**
      * Constructor for the GameController class. Initializes the game controller with the given id and game size.
@@ -75,6 +79,7 @@ public class GameController {
         this.id = id;
         this.gameSize = gameSize;
         this.endMatchDueToDisconnectionTimerTask = null;
+        this.alreadyEnteredTerminatingPhase = false;
 
         // Enter lobby phase immediately
         model.enterLobbyPhase();
@@ -115,10 +120,13 @@ public class GameController {
         // Message sender does exist
         if (message.isMulticastFlag()) { // Broadcast message
             for (PlayerQuadruple playerQuadruple : nodeList) { // Notify all players
-                try {
-                    submitVirtualViewMessage(new OutboundChatMessage(playerQuadruple.getNickname(), message.getSenderNickname(), message.getMessageContent()));
-                } catch (VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify players in the game
-                    throw new CriticalFailureException("VirtualViewNotFoundException when broadcasting chat message");
+                if (!playerQuadruple.getNickname().equals(message.getSenderNickname())) { // Do not send broadcast message to sender
+                    try {
+                        submitVirtualViewMessage(new OutboundChatMessage(playerQuadruple.getNickname(), message.getSenderNickname(), message.getMessageContent()));
+                    } catch (
+                            VirtualViewNotFoundException e) { // The recipient's VirtualView could not be found when attempting to notify players in the game
+                        throw new CriticalFailureException("VirtualViewNotFoundException when broadcasting chat message");
+                    }
                 }
             }
         } else { // Direct message
@@ -446,8 +454,9 @@ public class GameController {
                 }
 
                 playerQuadruple.getVirtualView().flushMessages(); // Empty the player's VirtualView of all messages
-                playerQuadruple.setNode(node); // Reattach the player's node to the VirtualView
+                playerQuadruple.getVirtualView().changeNode(node); // Reattach the player's node to the VirtualView
                 playerQuadruple.setConnected(true); // Set the player's status to connected
+                playerQuadruple.setNode(node); // Set the player's node to the new node
                 break; // Exit the for loop
             }
         }
@@ -754,13 +763,13 @@ public class GameController {
             for (PlayerQuadruple playerQuadruple : nodeList) {
                 submitVirtualViewMessage(new PlaceCardConfirmationMessage(
                         playerQuadruple.getNickname(),
-                        model.getCurrentPlayerNickname(),
+                        nickname, // The player that placed the card
                         id,
                         new int[]{x, y},
                         side,
-                        model.getPlayerPoints(playerQuadruple.getNickname()),
-                        model.getPlayerResources(playerQuadruple.getNickname()),
-                        model.getAvailableSpacesPlayer(playerQuadruple.getNickname())
+                        model.getPlayerPoints(nickname), // The points of the player that placed the card
+                        model.getPlayerResources(nickname), // The resources of the player that placed the card
+                        model.getAvailableSpacesPlayer(nickname) // The available spaces of the player that placed the card
                 ));
             }
 
@@ -828,6 +837,13 @@ public class GameController {
                         model.getNextResourceCardKingdom().orElse(-1),
                         model.getNextGoldCardKingdom().orElse(-1)
                 ));
+            }
+
+            if (!alreadyEnteredTerminatingPhase && model.getMatchStatus() == MatchStatus.TERMINATING.getValue()) {
+                for (PlayerQuadruple playerQuadruple : nodeList) {
+                    submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                }
+                alreadyEnteredTerminatingPhase = true;
             }
 
             setNextPlayer();
@@ -971,6 +987,13 @@ public class GameController {
                     throw new CriticalFailureException("Player " + n + " not found when generating game status message");
                 }
             }).mapToInt(Integer::intValue).toArray();
+            ArrayList<int[]> playersResourcesSummary = model.getPlayersNicknames().stream().map(n -> {
+                try {
+                    return model.getPlayerResources(n);
+                } catch (PlayerNotFoundException e) {
+                    throw new CriticalFailureException("Player " + n + " not found when generating game status message");
+                }
+            }).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<ArrayList<int[]>> playerFields = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerField(n);
@@ -992,7 +1015,7 @@ public class GameController {
             ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 
             return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand,
-                    playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
+                    playerSecretObjective, playerPoints, playersResourcesSummary, playerFields, playerResources, gameCommonObjectives,
                     gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize,
                     matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces,
                     gameResourceDeckFacingKingdom, gameGoldDeckFacingKingdom);

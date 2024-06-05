@@ -9,11 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class MessagesTest {
     @DisplayName("Print a PlayerConnectedMessage")
     @Test
     public void printPlayerGameStatusMessage() {
-       // Initialize all the required parameters
+        // Initialize all the required parameters
         String recipientNickname = "player1";
         ArrayList<String> playerNicknames = new ArrayList<>(Arrays.asList("player1", "player2"));
         ArrayList<Boolean> playerConnected = new ArrayList<>(Arrays.asList(true, true));
@@ -21,6 +23,7 @@ public class MessagesTest {
         ArrayList<Integer> playerHand = new ArrayList<>(Arrays.asList(1, 2));
         int playerSecretObjective = 1;
         int[] playerPoints = new int[]{1, 2};
+        ArrayList<int[]> playersResourcesSummary = new ArrayList<>(Arrays.asList(new int[]{1, 2, 3, 4, 5}, new int[]{1, 2, 3, 4, 5}));
         ArrayList<int[]> playerField1 = new ArrayList<>(Arrays.asList(new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}));
         ArrayList<int[]> playerField2 = new ArrayList<>(Arrays.asList(new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}, new int[]{1, 2, 3, 4}));
         ArrayList<ArrayList<int[]>> playerFields = new ArrayList<>(Arrays.asList(playerField1, playerField2));
@@ -41,10 +44,13 @@ public class MessagesTest {
 
         // Create a new PlayerGameStatusMessage
         PlayerGameStatusMessage playerGameStatusMessage = new PlayerGameStatusMessage(recipientNickname, playerNicknames,
-                playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playerFields,
-                playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards,
+                playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playersResourcesSummary,
+                playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards,
                 gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer,
                 newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom);
-        // System.out.println(playerGameStatusMessage);
+
+        // Check that the message is not null and that it can be printed
+        assertNotNull(playerGameStatusMessage);
+        assertNotNull(playerGameStatusMessage.toString());
     }
 }

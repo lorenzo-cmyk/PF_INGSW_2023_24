@@ -1206,8 +1206,13 @@ public class GameControllerTest {
         // Check that players have received the right amount of messages
         for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
             NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
-            assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
-            assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+            if (playerQuadruple.getNickname().equals("player1")) { // First player should not have received any broadcast messages
+                assertEquals(0, nodeInterfaceStub.getInternalMessages().size());
+            }
+            else { // Other players should have received broadcast messages
+                assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+            }
         }
 
         // There should be one message in the chat history
@@ -1294,8 +1299,14 @@ public class GameControllerTest {
         // Check that players have received the right amount of messages
         for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
             NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
-            assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
-            assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+            if (playerQuadruple.getNickname().equals("player1")) { // First player should not have received any broadcast messages
+                assertEquals(0, nodeInterfaceStub.getInternalMessages().size());
+            }
+            else { // Other players should have received broadcast messages
+                assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+            }
         }
 
         // There should be two messages in the chat history
@@ -1334,14 +1345,17 @@ public class GameControllerTest {
         // Check that players have received the right amount of messages
         for (PlayerQuadruple playerQuadruple : gameController.getNodeList()) {
             NodeInterfaceStub nodeInterfaceStub = (NodeInterfaceStub)playerQuadruple.getNode();
-            if (playerQuadruple.getNickname().equals("player2")) {
-                assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
-                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
-                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
-            }
-            else {
-                assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
-                assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+            switch (playerQuadruple.getNickname()) {
+                case "player1" -> { // Should have received broadcast message from player 3
+                    assertEquals(1, nodeInterfaceStub.getInternalMessages().size());
+                    assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().getFirst());
+                }
+                case "player2" -> { // Should have received direct message from player 1 and broadcast message from player 3
+                    assertEquals(2, nodeInterfaceStub.getInternalMessages().size());
+                    assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(0));
+                    assertInstanceOf(OutboundChatMessage.class, nodeInterfaceStub.getInternalMessages().get(1));
+                } // Player 3 should have received no message
+                case "player3" -> assertEquals(0, nodeInterfaceStub.getInternalMessages().size());
             }
         }
 

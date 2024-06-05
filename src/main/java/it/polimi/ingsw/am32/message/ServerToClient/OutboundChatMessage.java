@@ -15,7 +15,7 @@ public class OutboundChatMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-        // TODO
+        view.updateChat(recipientString,senderNickname,content);
     }
 
     @Override

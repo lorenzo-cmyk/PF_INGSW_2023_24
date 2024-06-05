@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.client;
 
-import it.polimi.ingsw.am32.Utilities.IsValid;
+import it.polimi.ingsw.am32.utilities.IsValid;
 import it.polimi.ingsw.am32.client.view.tui.BoardView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,7 +59,7 @@ public class Temporary implements Runnable{
     protected static ArrayList<ObjectiveCardFactory> objectiveCards = ObjectiveCardFactory.setObjectiveCardArray();
     protected static final ArrayList<NonObjCardFactory> nonObjCards = NonObjCardFactory.setNonObjCardArray();
     protected static final HashMap<Integer, ArrayList<String>> cardImg = setImg();
-    private static final Logger logger = LogManager.getLogger("TUILogger");
+    private static final Logger logger = LogManager.getLogger(Temporary.class);
 
     public Temporary(Scanner in, PrintStream out) {
         this.in = in;
@@ -533,7 +533,7 @@ public class Temporary implements Runnable{
             case "INKWELL" ->  icon= INKWELL;
             case "MANUSCRIPT" -> icon= MANUSCRIPT;
             case "NON_COVERABLE" -> icon= NON_COVERABLE;
-            default -> icon= "  ";
+            default -> icon= EMPTY;
         }
         return icon;
     }

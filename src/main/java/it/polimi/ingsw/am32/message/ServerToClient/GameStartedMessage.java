@@ -13,6 +13,8 @@ public class GameStartedMessage implements StoCMessage {
     @Override
     public void processMessage(View view) {
         view.setUpPlayersData();
+        view.updateCurrentEvent(Event.GAME_START);
+        view.handleEvent(Event.GAME_START,null);  // notify the player that the game is started
     }
 
     @Override

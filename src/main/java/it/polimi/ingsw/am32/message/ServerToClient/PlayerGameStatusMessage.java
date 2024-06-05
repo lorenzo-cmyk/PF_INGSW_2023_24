@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.chat.ChatMessage;
-import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
@@ -37,6 +36,10 @@ public class PlayerGameStatusMessage implements StoCMessage {
      * Array of integers that represent the points held by each player
      */
     private final int[] playerPoints;
+    /**
+     * ArrayList of arrays of integers that represent the resources of each player in the game
+     */
+    private final ArrayList<int[]> playersResourcesSummary;
     /**
      * List of lists of arrays of integers that represent the fields of each player
      */
@@ -91,7 +94,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
     private final ArrayList<int[]> newAvailableFieldSpaces;
 
     public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
-                                   ArrayList<Integer> playerHand, int playerSecretObjective, int[] playerPoints,
+                                   ArrayList<Integer> playerHand, int playerSecretObjective, int[] playerPoints, ArrayList<int[]> playersResourcesSummary,
                                    ArrayList<ArrayList<int[]>> playerFields, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
                                    ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
                                    int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory, String currentPlayer,
@@ -104,6 +107,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
         this.playerHand = playerHand;
         this.playerSecretObjective = playerSecretObjective;
         this.playerPoints = playerPoints;
+        this.playersResourcesSummary = playersResourcesSummary;
         this.playerFields = playerFields;
         this.playerResources = playerResources;
         this.gameCommonObjectives = gameCommonObjectives;
@@ -121,10 +125,11 @@ public class PlayerGameStatusMessage implements StoCMessage {
 
     @Override
     public void processMessage(View view) {
-            view.updatePlayerDate(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective, playerPoints, playerFields, playerResources, gameCommonObjectives,
-                    gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory, currentPlayer, newAvailableFieldSpaces);
-        // TODO FOR RECONECTION
-        // FIXME: Update the view with the new kingdoms information.
+            view.updatePlayerData(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective,
+                    playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards,
+                    gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory,
+                    currentPlayer, newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom,
+                    playersResourcesSummary);
     }
 
     @Override
@@ -148,6 +153,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 ", playerHand=" + playerHand.toString() +
                 ", playerSecretObjective=" + playerSecretObjective +
                 ", playerPoints=" + Arrays.toString(playerPoints) +
+                ", playersResourcesSummary=" + playersResourcesSummary.stream().map(Arrays::toString).toList() +
                 ", playerFields=" + playerFieldsAsString +
                 ", playerResources=" + Arrays.toString(playerResources) +
                 ", gameCommonObjectives=" + gameCommonObjectives.toString() +

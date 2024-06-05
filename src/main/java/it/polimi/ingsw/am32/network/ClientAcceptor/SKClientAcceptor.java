@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.network.ClientAcceptor;
 
-import it.polimi.ingsw.am32.Utilities.Configuration;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.network.ServerNode.SKServerNode;
 import it.polimi.ingsw.am32.network.exceptions.UninitializedException;
 import org.apache.logging.log4j.LogManager;
@@ -31,8 +31,10 @@ public class SKClientAcceptor implements Runnable {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                executorService.submit(new SKServerNode(socket));
+
+                SKServerNode skServerNode = new SKServerNode(socket);
                 logger.info("Accepted connection from: {}. SKServerNode created successfully", socket.getRemoteSocketAddress());
+                executorService.submit(skServerNode);
 
             } catch (IOException e) {
                 logger.error("Connection accept failed: {}", e.getMessage());

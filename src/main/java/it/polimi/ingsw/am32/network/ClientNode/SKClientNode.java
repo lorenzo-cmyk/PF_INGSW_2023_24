@@ -3,78 +3,323 @@ package it.polimi.ingsw.am32.network.ClientNode;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
+import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.util.Arrays;
+import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SKClientNode implements ClientNodeInterface, Runnable {
-    private View view;
-    private Socket socket;
-    private ObjectOutputStream socketOut;
-    private ObjectInputStream socketIn;
 
-    public SKClientNode(View view) {
+    private static final int PONGMAXCOUNT = 3;
+
+    private final Logger logger;
+    private final ExecutorService executorService;
+
+    private final View view;
+    private final String ip;
+    private final int port;
+    private String nickname;
+    private int pongCount;
+
+    private Socket socket;
+    private ObjectOutputStream outputObtStr;
+    private ObjectInputStream inputObtStr;
+
+    private ClientPingTask clientPingTask;
+    private final Timer timer;
+
+    private boolean statusIsAlive;
+    private boolean reconnectCalled;
+    private final Object aliveLock;
+    private final Object cToSProcessingLock;
+    private final Object sToCProcessingLock;
+
+    public SKClientNode(View view, String ip, int port) {
         this.view = view;
+        executorService = Executors.newCachedThreadPool();
+        this.ip = ip;
+        this.port = port;
+        clientPingTask = new ClientPingTask(this);
+        timer = new Timer();
+        aliveLock = new Object();
+        cToSProcessingLock = new Object();
+        sToCProcessingLock = new Object();
+        statusIsAlive = false;
+        pongCount = PONGMAXCOUNT; // todo fare un config??
+        logger = LogManager.getLogger(SKClientNode.class);
+        reconnectCalled = false;
     }
 
     public void run() {
+
         // Listen for incoming messages
-        try{
-            while(true) {
-                receiveFromServer();
-            }
-        } catch (IOException | ClassNotFoundException e) {
+        while(true) {
             try {
-                if (!socket.isClosed()){
-                    socketIn.close();
-                    socketOut.close();
-                    socket.close();
+
+                checkConnection();
+
+                listenForIncomingMessages();
+
+            } catch (IOException | ClassNotFoundException | NodeClosedException e) {
+                logger.error("inputObtStr exception: {}. {}. {}",e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
+                resetConnection();
+            }
+        }
+    }
+
+    public void listenForIncomingMessages() throws IOException, ClassNotFoundException, NodeClosedException {
+
+        Object message;
+
+        try {
+            synchronized (sToCProcessingLock) {
+                message = inputObtStr.readObject();
+            }
+        } catch (SocketTimeoutException e) {
+            // logger.debug("Socket timeout exception"); Disabled because it's too verbose
+            return;
+        }
+
+        // TODO server sync??
+
+        resetTimeCounter();
+
+
+        if(message instanceof PongMessage) {
+
+            logger.debug("PongMessage received");
+            return;
+        }
+
+        if(message instanceof StoCMessage) {
+
+            try {
+                System.out.println("Message received. Type: StoCMessage. Processing: " + message);
+                logger.info("Message received. Type: StoCMessage. Processing: {}", message);
+                ((StoCMessage) message).processMessage(view);
+            } catch (Exception e) {
+                logger.fatal("Critical Runtime Exception:\nException Type: {}\nLocal Message: {}\nStackTrace: {}",
+                        e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
+            }
+
+        } else {
+
+            logger.error("Message received. Message type not recognized");
+        }
+    }
+
+    @Override
+    public void uploadToServer(CtoSLobbyMessage message) {
+
+        while (true) {
+            try {
+                synchronized (cToSProcessingLock) {
+                    outputObtStr.writeObject(message);
+
+                    try {
+                        outputObtStr.flush();
+                    } catch (IOException ignore) {}
                 }
-            } catch (IOException ignored) {}
+                logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
+                break;
+            } catch (IOException | NullPointerException e) {
+                resetConnection();
+            }
         }
     }
 
     @Override
-    public void uploadToServer(CtoSMessage message) throws UploadFailureException {
-        if (socket.isClosed()) {
-            throw new UploadFailureException();
+    public void uploadToServer(CtoSMessage message) {
+
+        while (true) {
+            try {
+                synchronized (cToSProcessingLock) {
+                    outputObtStr.writeObject(message);
+
+                    try {
+                        outputObtStr.flush();
+                    } catch (IOException ignore) {}
+                }
+                logger.info("Message sent. Type: CtoSMessage: {}", message);
+                break;
+            } catch (IOException | NullPointerException e) {
+                resetConnection();
+            }
+        }
+    }
+
+    private void checkConnection() {
+
+        boolean tmpReconnect;
+
+        synchronized (aliveLock) {
+
+            if (statusIsAlive) {
+                return;
+            }
+
+            tmpReconnect = manageReconnectionRequests();
         }
 
-        try {
-            socketOut.writeObject(message);
-        } catch (IOException e) {
-            throw new UploadFailureException();
+        if(tmpReconnect) {
+            logger.info("Connection status: Down. Reconnecting...");
+            connect();
         }
+    }
+
+    private void resetConnection() {
+
+        boolean tmpReconnect;
+
+        synchronized (aliveLock) {
+
+            statusIsAlive = false;
+
+            tmpReconnect =  manageReconnectionRequests();
+        }
+
+        if(tmpReconnect) {
+            logger.info("Connection status: Down. Reconnecting...");
+            connect();
+        }
+    }
+
+    private boolean manageReconnectionRequests() {
+
+        if(reconnectCalled){
+
+            try {
+                aliveLock.wait();
+            } catch (InterruptedException ignore) {}
+
+            return false;
+
+        } else {
+            reconnectCalled = true;
+            clientPingTask.cancel();
+            timer.purge();
+            clientPingTask = new ClientPingTask(this);
+            return true;
+        }
+    }
+
+    private void connect() {
+
+        synchronized (sToCProcessingLock) {
+            synchronized (cToSProcessingLock) {
+
+                boolean reconnectionProcess = true;
+
+                while (reconnectionProcess) {
+
+                    if (inputObtStr != null) {
+                        try {
+                            inputObtStr.close();
+                        } catch (IOException ignore) {}
+                    }
+
+                    if (outputObtStr != null) {
+                        try {
+                            outputObtStr.close();
+                        } catch (IOException ignore) {}
+                    }
+
+                    if (socket != null) {
+                        try {
+                            socket.close();
+                        } catch (IOException ignore) {}
+                    }
+
+                    try {
+                        socket = new Socket(ip, port);
+                        outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+                        outputObtStr.flush();
+                        inputObtStr = new ObjectInputStream(socket.getInputStream());
+                        socket.setSoTimeout(100);
+                        logger.info("Connection established");
+
+                    } catch (IOException ignore) {
+
+                        logger.error("Failed to connect to {}:{}", ip, port);
+                        try {
+                            Thread.sleep(100); // TODO parametrizzazione con config?
+                        } catch (InterruptedException ignore2) {}
+
+                        continue;
+                    }
+
+                    reconnectionProcess = false;
+
+                }
+            }
+        }
+
+        synchronized (aliveLock) {
+            statusIsAlive = true;
+            reconnectCalled = false;
+            pongCount = 3;
+            aliveLock.notifyAll();
+            timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+        }
+    }
+
+    public void startConnection(){
+
+        executorService.submit(this);
+        logger.debug("SKClientNode started");
     }
 
     @Override
-    public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
-        if (socket.isClosed()) {
-            throw new UploadFailureException();
+    public void pongTimeOverdue() {
+
+        boolean toReset = false;
+
+        synchronized (aliveLock){
+            if(!statusIsAlive)
+                return;
+
+            pongCount--;
+
+            logger.debug("Pong time overdue. Pong count: {}", pongCount);
+
+            if(pongCount <= 0) {
+                logger.info("Pong count reached minimum. Trying to check connection");
+                toReset = true;
+            }
         }
 
-        try {
-            socketOut.writeObject(message);
-        } catch (IOException e) {
-            throw new UploadFailureException();
+        if(toReset){
+            resetConnection();
+            return;
         }
+
+        executorService.submit(() -> {synchronized (cToSProcessingLock) {
+            try {
+                outputObtStr.writeObject(new PingMessage(nickname));
+            } catch (IOException | NullPointerException ignore) {}
+        }});
     }
 
-    @Override
-    public void receiveFromServer() throws IOException, ClassNotFoundException {
-        StoCMessage message = (StoCMessage) socketIn.readObject();
-        System.out.println("Received"+message.getClass().getName()+" from server");
-        System.out.println(message.toString());
-        message.processMessage(view);
-    }
+    public void resetTimeCounter() {
 
-    public void startConnection(String ip, int port) throws IOException {
-        this.socket = new Socket(ip, port);
-        System.out.println("Socket Client Acceptor created");
-        this.socketOut = new ObjectOutputStream(socket.getOutputStream());
-        this.socketIn = new ObjectInputStream(socket.getInputStream());
+        synchronized (aliveLock) {
 
+            if (!statusIsAlive)
+                return;
+
+            pongCount = PONGMAXCOUNT; // TODO modificare se si aggiunge config
+        }
+
+        logger.debug("Pong count reset");
     }
 }
