@@ -1,6 +1,6 @@
-package it.polimi.ingsw.am32.chat;
+package it.polimi.ingsw.am32.client;
 
-import it.polimi.ingsw.am32.chat.exceptions.MalformedMessageException;
+import it.polimi.ingsw.am32.client.exceptions.MalformedMessageException;
 
 import java.util.Objects;
 
@@ -83,14 +83,6 @@ public class ChatMessage {
      */
     public String getMessageContent() {
         return messageContent;
-    }
-
-    /**
-     * Convert the message to an Array of 4 Strings representing the message.
-     * @return An Array of 4 Strings representing the message
-     */
-    public String[] toArray() {
-        return new String[]{senderNickname, recipientNickname, Boolean.toString(multicastFlag), messageContent};
     }
 
     @Override

@@ -1010,7 +1010,7 @@ public class GameController {
             int gameGoldDeckSize = model.getGoldCardDeckSize();
             int gameGoldDeckFacingKingdom = model.getNextGoldCardKingdom().orElse(-1);
             int matchStatus = model.getMatchStatus();
-            ArrayList<ChatMessage> playerChatHistory = chat.getPlayerChatHistory(nickname);
+            ArrayList<String[]> playerChatHistory = chat.getPlayerChatHistory(nickname).stream().map(ChatMessage::toArray).collect(Collectors.toCollection(ArrayList::new));
             String currentPlayer = model.getCurrentPlayerNickname();
             ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 

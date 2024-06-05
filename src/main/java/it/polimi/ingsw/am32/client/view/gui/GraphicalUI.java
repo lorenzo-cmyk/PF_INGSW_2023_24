@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
-import it.polimi.ingsw.am32.chat.ChatMessage;
+import it.polimi.ingsw.am32.client.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
 import javafx.animation.PauseTransition;
@@ -1396,15 +1396,25 @@ public class GraphicalUI extends View {
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
-                                 int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
+                                 int gameGoldDeckSize, int matchStatus, ArrayList<String[]> chatHistory,
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) { // once the player reconnects to the game
+
+        // Forcefully overwrite the chatHistory to prevent an unwanted use of Server's class inside the Client
+        // We are now rebuilding the ChatMessage object from the ArrayList of Arrays
+        ArrayList<ChatMessage> chatHistoryRebuild = new ArrayList<>();
+        for (String[] messageArray : chatHistory) {
+            ChatMessage messageRebuild = new ChatMessage(messageArray[0], messageArray[1],
+                    Boolean.parseBoolean(messageArray[2]), messageArray[3]);
+            chatHistoryRebuild.add(messageRebuild);
+        }
+        this.chatHistory = chatHistoryRebuild;
 
         // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
         startChatting(); // Enable chat area
 
         // store all the data of the game received from the server
         if (currentEvent.equals(Event.RECONNECT_GAME)) {
-            showChatHistory(chatHistory);
+            showChatHistory(this.chatHistory);
             //TODO
         } else {
             // once the game enters the playing phase, the method is called to update a part of the data of the player
@@ -1415,7 +1425,6 @@ public class GraphicalUI extends View {
             this.goldDeckSize = gameGoldDeckSize;
             this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
             this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
-            this.chatHistory = chatHistory;
             this.currentPlayer = currentPlayer;
             this.players = playerNicknames;
             int[] card;

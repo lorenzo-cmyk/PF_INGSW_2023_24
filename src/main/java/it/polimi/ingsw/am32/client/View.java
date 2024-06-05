@@ -2,7 +2,7 @@ package it.polimi.ingsw.am32.client;
 
 
 import it.polimi.ingsw.am32.utilities.IsValid;
-import it.polimi.ingsw.am32.chat.ChatMessage;
+import it.polimi.ingsw.am32.client.ChatMessage;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
@@ -184,7 +184,7 @@ public abstract class View{
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
-                                 int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
+                                 int gameGoldDeckSize, int matchStatus, ArrayList<String[]> chatHistory,
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) ;
 
     public abstract void updatePlacedCardConfirm(String playerNickname, int placedCard, int[] placedCardCoordinates, boolean placedSide, int playerPoints, int[] playerResources, ArrayList<int[]> newAvailableFieldSpaces);
