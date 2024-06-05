@@ -104,6 +104,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         if(message instanceof StoCMessage) {
 
             try {
+                System.out.println("Message received. Type: StoCMessage. Processing: " + message);
                 logger.info("Message received. Type: StoCMessage. Processing: {}", message);
                 ((StoCMessage) message).processMessage(view);
             } catch (Exception e) {

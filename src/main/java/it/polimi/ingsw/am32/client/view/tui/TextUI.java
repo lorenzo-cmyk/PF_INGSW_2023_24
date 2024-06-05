@@ -68,6 +68,7 @@ public class TextUI extends View{
     private static final String BLANK = "   ";// blank space used to print the cells empty for the board
     private final Object lock = new Object(); // lock object used to synchronize the readInputThread
     protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
+    private Thread service;
 
     /**
      * Constructor of the class TextUI
@@ -740,7 +741,7 @@ public class TextUI extends View{
      * PlayerTurnMessage from the server to update the currentPlayer in the game.
      */
     public void readInputThread() {
-        Thread service = new Thread(() -> {
+        service = new Thread(() -> {
             while (true) {
                 synchronized (lock) {
                     while (isMyTurn) {
@@ -1334,6 +1335,7 @@ public class TextUI extends View{
     @Override
     public void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets,
                                  ArrayList<Integer> pointsGainedFromObj, ArrayList<String> winners) {
+        currentEvent = Event.TERMINATED;
         out.println("The match is ended !!!");
         out.println("The winners of the match are: "+winners);
         out.println("The final points of the players are following:");
@@ -1345,6 +1347,9 @@ public class TextUI extends View{
             out.println("The secret objective card of the player is:");
             showCard(secrets.get(i), true);
         }
+        service.interrupt();
+        out.close();
+        in.close();
     }
 
     //-------------------Card Factory-------------------
@@ -1822,31 +1827,34 @@ public class TextUI extends View{
      * @return the input from the user.
      */
     private synchronized String getInput() {
-        String input = in.nextLine();
-        switch (input) {
-            case "HELP" -> showHelpInfo();
-            case "QUIT" -> System.exit(0);
-            case "Chat" -> startChatting();
-            case "SP" -> showPlayerInGame();
-            case "SGS" -> out.println("The match status is: " + Status);
-            case "SR" -> out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");
-            case "SH" -> showHand();
-            case "SCO" -> showObjectiveCards(commonObjCards);
-            case "SSO" -> showCard(secretObjCardSelected, true);
-            case "SF" -> {
-                out.println("Whose field do you want to see?");
-                String Nickname = in.nextLine();
-                while (!players.contains(Nickname)) {
-                    out.println("Invalid nickname, can't find the player, please try again");
-                    Nickname = in.nextLine();
-                }
-                showPlayersField(Nickname);
-            }
-            case "SCP" -> out.println("Is " + currentPlayer + "'s turn.");
-            case "SGO" -> out.println("The game order is: " + players);
-            case "SID" -> out.println("The game ID is: " + gameID);
-            case "SCD" -> showDeck();
+        String input = "";
+        if (!currentEvent.equals(Event.TERMINATED)) {
+         input= in.nextLine();
         }
+            switch (input) {
+                case "HELP" -> showHelpInfo();
+                case "QUIT" -> System.exit(0);
+                case "Chat" -> startChatting();
+                case "SP" -> showPlayerInGame();
+                case "SGS" -> out.println("The match status is: " + Status);
+                case "SR" -> out.println("Game rule:https://it.boardgamearena.com/link?url=https%3A%2F%2Fcdn.1j1ju.com%2Fmedias%2Fa7%2Fd7%2F66-codex-naturalis-rulebook.pdf&id=9212");
+                case "SH" -> showHand();
+                case "SCO" -> showObjectiveCards(commonObjCards);
+                case "SSO" -> showCard(secretObjCardSelected, true);
+                case "SF" -> {
+                    out.println("Whose field do you want to see?");
+                    String Nickname = in.nextLine();
+                    while (!players.contains(Nickname)) {
+                        out.println("Invalid nickname, can't find the player, please try again");
+                        Nickname = in.nextLine();
+                    }
+                    showPlayersField(Nickname);
+                }
+                case "SCP" -> out.println("Is " + currentPlayer + "'s turn.");
+                case "SGO" -> out.println("The game order is: " + players);
+                case "SID" -> out.println("The game ID is: " + gameID);
+                case "SCD" -> showDeck();
+            }
         return input;
     }
 
