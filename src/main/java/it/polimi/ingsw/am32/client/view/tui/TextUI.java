@@ -398,9 +398,10 @@ public class TextUI extends View{
      */
     @Override
     public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
+        CardPlacedView LastCard= publicInfo.get(playerNickname).getField().getLast();
         // get the coordinates of the card from player's field should be removed
-        int x = publicInfo.get(playerNickname).getField().getLast().x();
-        int y = publicInfo.get(playerNickname).getField().getLast().y();
+        int x = LastCard.x();
+        int y = LastCard.y();
         // get the player's board
         String[][]board = boards.get(playerNickname).getBoard();
         // conversion of the coordinates of the card in the index of the matrix
@@ -418,6 +419,22 @@ public class TextUI extends View{
         board[posX + 1][posY - 1] = BLANK;
         //remove the card from the array list of the player's field
         publicInfo.get(playerNickname).getField().removeLast();
+        // get the last card after the removal and reset the corner type of this card
+        LastCard= publicInfo.get(playerNickname).getField().getLast();
+        NonObjCardFactory card = searchNonObjCardById(LastCard.ID());
+        String[] cornerType = LastCard.side() ? card.getCorner() : card.getCornerBack();
+        x = publicInfo.get(playerNickname).getField().getLast().x();
+        y = publicInfo.get(playerNickname).getField().getLast().y();
+        posX = -2 * y + 80;
+        posY = 2 * x + 80;
+        String topLeft = ColourCard(card.getKingdom()) + "|" + icon(cornerType[0]) + ANSI_RESET; // TopLeft 1)
+        String topRight = ColourCard(card.getKingdom()) + icon(cornerType[1]) + "|" + ANSI_RESET; // TopRight 2)
+        String bottomLeft = ColourCard(card.getKingdom()) + "|" + icon(cornerType[2]) + ANSI_RESET; // BottomLeft 3)
+        String bottomRight = ColourCard(card.getKingdom()) + icon(cornerType[3]) + "|" + ANSI_RESET; // BottomRight 4)
+        board[posX - 1][posY + 1] = topRight;
+        board[posX + 1][posY + 1] = bottomRight;
+        board[posX - 1][posY - 1] = topLeft;
+        board[posX + 1][posY - 1] = bottomLeft;
         // update the points and the resources of the player after the rollback
         publicInfo.get(playerNickname).updatePoints(playerPoints);
         publicInfo.get(playerNickname).updateResources(playerResources);
