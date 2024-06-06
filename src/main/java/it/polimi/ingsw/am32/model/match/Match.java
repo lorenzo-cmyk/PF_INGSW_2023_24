@@ -258,8 +258,11 @@ public class Match implements ModelInterface {
         ArrayList<Integer> idCards = new ArrayList<>();
         for (Player player : players) {
             if (player.getNickname().equals(nickname)) {
-                idCards.add(player.getTmpSecretObj()[0].getId());
-                idCards.add(player.getTmpSecretObj()[1].getId());
+                if(!isNull(player.getTmpSecretObj()[0]) && !isNull(player.getTmpSecretObj()[1])) {
+                    idCards.add(player.getTmpSecretObj()[0].getId());
+                    idCards.add(player.getTmpSecretObj()[1].getId());
+                    return idCards;
+                }
             }
         }
         return idCards;

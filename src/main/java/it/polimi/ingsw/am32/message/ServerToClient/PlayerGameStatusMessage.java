@@ -154,10 +154,12 @@ public class PlayerGameStatusMessage implements StoCMessage {
     @Override
     public String toString(){
         String playerFieldsAsString = playerFields.stream()
-            .map(innerList -> innerList.stream()
-                .map(Arrays::toString)
-                .collect(Collectors.joining(", ", "[", "]")))
-            .collect(Collectors.joining(", ", "[", "]"));
+                .map(innerList -> (innerList != null && !innerList.isEmpty())
+                        ? innerList.stream()
+                        .map(Arrays::toString)
+                        .collect(Collectors.joining(", ", "[", "]"))
+                        : "[]")
+                .collect(Collectors.joining(", ", "[", "]"));
 
         return "PlayerGameStatusMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
