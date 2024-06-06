@@ -967,8 +967,14 @@ public class GameController {
      */
     protected synchronized PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
+            // ArrayList containing the nicknames of all players.
+            // EDGE CASE: None. The list of players is always present.
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
+            // ArrayList containing the connection status of all players.
+            // EDGE CASE: None. The list of players is always present.
             ArrayList<Boolean> playerConnected = nodeList.stream().map(PlayerQuadruple::isConnected).collect(Collectors.toCollection(ArrayList::new));
+            // ArrayList containing the colours of all players.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             ArrayList<Integer> playerColours = model.getPlayersNicknames().stream().map(playerNickname -> {
                 try {
                     return model.getPlayerColour(playerNickname);
@@ -978,10 +984,20 @@ public class GameController {
                     throw new CriticalFailureException("Player " + playerNickname + " has a null colour");
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
+            // ArrayList containing the hand of the player.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
+            // Array containing the secret objective cards assigned to the player.
+            // EDGE CASE: If the player has not yet chosen his starting card side, so the secret objective cards are not yet assigned, the array is empty.
             int[] playerAssignedSecretObjectiveCards = model.getSecretObjectiveCardsPlayer(nickname).stream().mapToInt(Integer::intValue).toArray();
+            // The starting card assigned to the player.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             int playerStartingCard = model.getInitialCardPlayer(nickname);
+            // The secret objective assigned to the player.
+            // EDGE CASE: Can be -1 if the player has not yet chosen a secret objective.
             int playerSecretObjective = model.getPlayerSecretObjective(nickname);
+            // Array containing the points of all players.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the player has 0 points.
             int[] playerPoints = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerPoints(n);
@@ -989,32 +1005,76 @@ public class GameController {
                     throw new CriticalFailureException("Player " + n + " not found when generating game status message");
                 }
             }).mapToInt(Integer::intValue).toArray();
+            // ArrayList containing the resources summary of all players.
+            // EDGE CASE: If the player has not yet chosen his starting card's side, his field is not yet initialized.
             ArrayList<int[]> playersResourcesSummary = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerResources(n);
                 } catch (PlayerNotFoundException e) {
                     throw new CriticalFailureException("Player " + n + " not found when generating game status message");
+                } catch (NullFieldException e) {
+                    // 7 zeroes represent the resources summary of a player with no resources.
+                    return new int[]{0, 0, 0, 0, 0, 0, 0};
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
+            // ArrayList containing the fields of all players.
+            // EDGE CASE: If a player has not yet chosen his starting card's side, his field is not yet initialized.
             ArrayList<ArrayList<int[]>> playerFields = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerField(n);
                 } catch (PlayerNotFoundException e) {
                     throw new CriticalFailureException("Player " + n + " not found when generating game status message");
+                } catch (NullFieldException e) {
+                    return new ArrayList<int[]>();
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
-            int[] playerResources = model.getPlayerResources(nickname);
+            // Array containing the resources of the player.
+            // EDGE CASE: If the player has not yet chosen his starting card's side, his field is not yet initialized.
+            int[] playerResources;
+            try {
+                playerResources = model.getPlayerResources(nickname);
+            } catch (NullFieldException e) {
+                // 7 zeroes represent the resources summary of a player with no resources.
+                playerResources = new int[]{0, 0, 0, 0, 0, 0, 0};
+            }
+            // ArrayList containing the common objectives of the game.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             ArrayList<Integer> gameCommonObjectives = model.getCommonObjectives();
+            // ArrayList containing the current resource cards of the game.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the ArrayList is empty if all cards have been drawn.
             ArrayList<Integer> gameCurrentResourceCards = model.getCurrentResourcesCards();
+            // ArrayList containing the current gold cards of the game.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the ArrayList is empty if all cards have been drawn.
             ArrayList<Integer> gameCurrentGoldCards = model.getCurrentGoldCards();
+            // The size of the resource card deck.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the deck is empty.
             int gameResourcesDeckSize = model.getResourceCardDeckSize();
+            // The kingdom of the next resource card.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. If the deck is empty, the kingdom is -1.
             int gameResourceDeckFacingKingdom = model.getNextResourceCardKingdom().orElse(-1);
+            // The size of the gold card deck.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the deck is empty.
             int gameGoldDeckSize = model.getGoldCardDeckSize();
+            // The kingdom of the next gold card.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. If the deck is empty, the kingdom is -1.
             int gameGoldDeckFacingKingdom = model.getNextGoldCardKingdom().orElse(-1);
+            // The status of the match.
+            // EDGE CASE: None. The match status is always present.
             int matchStatus = model.getMatchStatus();
+            // The chat history of the player.
+            // EDGE CASE: None. The chat history is always present. In the worst case, the player has no chat history.
             ArrayList<String[]> playerChatHistory = chat.getPlayerChatHistory(nickname).stream().map(ChatMessage::toArray).collect(Collectors.toCollection(ArrayList::new));
+            // The nickname of the current player.
+            // EDGE CASE: None. The current player is always present.
             String currentPlayer = model.getCurrentPlayerNickname();
-            ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
+            // The available field spaces of the player.
+            // EDGE CASE: If the player has not yet chosen his starting card's side, his field is not yet initialized.
+            ArrayList<int[]> newAvailableFieldSpaces;
+            try {
+                newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
+            } catch (NullFieldException e) {
+                newAvailableFieldSpaces = new ArrayList<>();
+            }
 
             return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerAssignedSecretObjectiveCards, playerStartingCard,
                     playerSecretObjective, playerPoints, playersResourcesSummary, playerFields, playerResources, gameCommonObjectives,
