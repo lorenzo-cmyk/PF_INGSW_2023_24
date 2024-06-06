@@ -1368,26 +1368,28 @@ public class GraphicalUI extends View {
      * This method is called by processMessage to update the all data of the players in the game when the game enters
      * the playing phase or when the player reconnects to the game.
      *
-     * @param playerNicknames               the nicknames of the players in the game.
-     * @param playerConnected               the connection status of the players in the game.
-     * @param playerColours                 the colours assigned to the players in the game.
-     * @param playerHand                    the hand of this player.
-     * @param playerSecretObjective         the secret objective card selected by this player.
-     * @param playerPoints                  the points of the players in the game.
-     * @param playerFields                  the fields of the players in the game.
-     * @param playerResources               the resources of the players in the game.
-     * @param gameCommonObjectives          the common objective cards of the game.
-     * @param gameCurrentResourceCards      the current visible resource cards in the game that the player can draw.
-     * @param gameCurrentGoldCards          the current visible gold cards in the game that the player can draw.
-     * @param gameResourcesDeckSize         the size of the resource deck in the game.
-     * @param gameGoldDeckSize              the size of the gold deck in the game.
-     * @param matchStatus                   the current match status of the game.
-     * @param chatHistory                   the chat history of this player in the game.
-     * @param currentPlayer                 indicates the whose turn is now.
-     * @param newAvailableFieldSpaces       the available spaces in the field of this player.
-     * @param resourceCardDeckFacingKingdom the type of kingdom of the first card in the resource deck.
-     * @param goldCardDeckFacingKingdom     the type of kingdom of the first card in the gold deck.
-     * @param playersResourcesSummary       the array list of the resources of the players in the game.
+     * @param playerNicknames                    the nicknames of the players in the game.
+     * @param playerConnected                    the connection status of the players in the game.
+     * @param playerColours                      the colours assigned to the players in the game.
+     * @param playerHand                         the hand of this player.
+     * @param playerSecretObjective              the secret objective card selected by this player.
+     * @param playerPoints                       the points of the players in the game.
+     * @param playerFields                       the fields of the players in the game.
+     * @param playerResources                    the resources of the players in the game.
+     * @param gameCommonObjectives               the common objective cards of the game.
+     * @param gameCurrentResourceCards           the current visible resource cards in the game that the player can draw.
+     * @param gameCurrentGoldCards               the current visible gold cards in the game that the player can draw.
+     * @param gameResourcesDeckSize              the size of the resource deck in the game.
+     * @param gameGoldDeckSize                   the size of the gold deck in the game.
+     * @param matchStatus                        the current match status of the game.
+     * @param chatHistory                        the chat history of this player in the game.
+     * @param currentPlayer                      indicates the whose turn is now.
+     * @param newAvailableFieldSpaces            the available spaces in the field of this player.
+     * @param resourceCardDeckFacingKingdom      the type of kingdom of the first card in the resource deck.
+     * @param goldCardDeckFacingKingdom          the type of kingdom of the first card in the gold deck.
+     * @param playersResourcesSummary            the array list of the resources of the players in the game.
+     * @param playerAssignedSecretObjectiveCards
+     * @param playerStartingCard
      */
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
@@ -1397,7 +1399,7 @@ public class GraphicalUI extends View {
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
                                  int gameGoldDeckSize, int matchStatus, ArrayList<String[]> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) { // once the player reconnects to the game
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary, ArrayList<Integer> playerAssignedSecretObjectiveCards, int playerStartingCard) { // once the player reconnects to the game
 
         // Forcefully overwrite the chatHistory to prevent an unwanted use of Server's class inside the Client
         // We are now rebuilding the ChatMessage object from the ArrayList of Arrays

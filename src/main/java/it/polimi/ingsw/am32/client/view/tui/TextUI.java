@@ -586,26 +586,28 @@ public class TextUI extends View{
      * This method is called by processMessage to update the all data of the players in the game when the game enters
      * the playing phase or when the player reconnects to the game.
      *
-     * @param playerNicknames               the nicknames of the players in the game.
-     * @param playerConnected               the connection status of the players in the game.
-     * @param playerColours                 the colours assigned to the players in the game.
-     * @param playerHand                    the hand of this player.
-     * @param playerSecretObjective         the secret objective card selected by this player.
-     * @param playerPoints                  the points of the players in the game.
-     * @param playerFields                  the fields of the players in the game.
-     * @param playerResources               the resources of the players in the game.
-     * @param gameCommonObjectives          the common objective cards of the game.
-     * @param gameCurrentResourceCards      the current visible resource cards in the game that the player can draw.
-     * @param gameCurrentGoldCards          the current visible gold cards in the game that the player can draw.
-     * @param gameResourcesDeckSize         the size of the resource deck in the game.
-     * @param gameGoldDeckSize              the size of the gold deck in the game.
-     * @param matchStatus                   the current match status of the game.
-     * @param chatHistory                   the chat history of this player in the game.
-     * @param currentPlayer                 indicates the whose turn is now.
-     * @param newAvailableFieldSpaces       the available spaces in the field of this player.
-     * @param resourceCardDeckFacingKingdom the type of kingdom of the first card in the resource deck.
-     * @param goldCardDeckFacingKingdom     the type of kingdom of the first card in the gold deck.
-     * @param playersResourcesSummary       the array list of the resources of the players in the game.
+     * @param playerNicknames                    the nicknames of the players in the game.
+     * @param playerConnected                    the connection status of the players in the game.
+     * @param playerColours                      the colours assigned to the players in the game.
+     * @param playerHand                         the hand of this player.
+     * @param playerSecretObjective              the secret objective card selected by this player.
+     * @param playerPoints                       the points of the players in the game.
+     * @param playerFields                       the fields of the players in the game.
+     * @param playerResources                    the resources of the players in the game.
+     * @param gameCommonObjectives               the common objective cards of the game.
+     * @param gameCurrentResourceCards           the current visible resource cards in the game that the player can draw.
+     * @param gameCurrentGoldCards               the current visible gold cards in the game that the player can draw.
+     * @param gameResourcesDeckSize              the size of the resource deck in the game.
+     * @param gameGoldDeckSize                   the size of the gold deck in the game.
+     * @param matchStatus                        the current match status of the game.
+     * @param chatHistory                        the chat history of this player in the game.
+     * @param currentPlayer                      indicates the whose turn is now.
+     * @param newAvailableFieldSpaces            the available spaces in the field of this player.
+     * @param resourceCardDeckFacingKingdom      the type of kingdom of the first card in the resource deck.
+     * @param goldCardDeckFacingKingdom          the type of kingdom of the first card in the gold deck.
+     * @param playersResourcesSummary            the array list of the resources of the players in the game.
+     * @param playerAssignedSecretObjectiveCards the two secret objective cards assigned to the player.
+     * @param playerStartingCard                 the ID of the starter card assigned to the player.
      */
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
@@ -617,59 +619,87 @@ public class TextUI extends View{
                                  int gameGoldDeckSize, int matchStatus, ArrayList<String[]> chatHistory,
                                  String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces,
                                  int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom,
-                                 ArrayList<int[]> playersResourcesSummary) {
+                                 ArrayList<int[]> playersResourcesSummary, ArrayList<Integer> playerAssignedSecretObjectiveCards,
+                                 int playerStartingCard) {
 
         // after receiving the message from the server, the method is called to set up/initiate the view of the player
         if(currentEvent.equals(Event.RECONNECT_GAME)) { // once the player reconnects to the game
-
-            // store all the data of the game received from the server
-            this.players = playerNicknames;
-            this.hand = playerHand;
-            this.commonObjCards = gameCommonObjectives;
-            this.secretObjCardSelected = playerSecretObjective;
-            this.currentResourceCards = gameCurrentResourceCards;
-            this.currentGoldCards = gameCurrentGoldCards;
-            this.resourceDeckSize = gameResourcesDeckSize;
-            this.goldDeckSize = gameGoldDeckSize;
-            this.Status = Event.getEvent(matchStatus);
-
-            // We are now rebuilding the ChatMessage object from the ArrayList of Arrays
-            ArrayList<ChatMessage> chatHistoryRebuild = new ArrayList<>();
-            for (String[] messageArray : chatHistory) {
-                ChatMessage messageRebuild = new ChatMessage(messageArray[0], messageArray[1],
-                        Boolean.parseBoolean(messageArray[2]), messageArray[3]);
-                chatHistoryRebuild.add(messageRebuild);
-            }
-            this.chatHistory = chatHistoryRebuild;
-
-            this.currentPlayer = currentPlayer;
-            this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
-            this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
-            // update the data of the players in the game: colour, online status, points, resources, field and the board.
-            for (int i = 0; i < playerNicknames.size(); i++) {
-                publicInfo.put(playerNicknames.get(i), new PlayerPub(convertToColour(playerColours.get(i)),
-                        playerPoints[i], new ArrayList<>(), playersResourcesSummary.get(i), playerConnected.get(i)));
-                boards.put(playerNicknames.get(i), new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
-                int finalI = i;
-                // store the all cards placed in the field of the players in the game
-                playerFields.get(i).forEach(card -> {
-                    publicInfo.get(playerNicknames.get(finalI)).getField().clear();
-                    publicInfo.get(playerNicknames.get(finalI)).addToField(new CardPlacedView(card[2], cardImg.get(card[2]), card[0], card[1], card[3] == 1));
-                    // use the updateAfterPlacedCard method to add the card in the field of the player, update the
-                    // resources count, and the points of the player. Also, update the board view of the player with
-                    // the current available spaces in the field.
-                    updateAfterPlacedCard(playerNicknames.get(finalI), card[2], card[0], card[1],
-                            card[3] == 1, newAvailableFieldSpaces, playersResourcesSummary.get(finalI), playerPoints[finalI]);
-                });
-                // Reconnection of the player from the playing phase
-                out.println("The match status is: " + Status);
-                readInputThread(); // for the player to get the input from the player when it is not the player's turn.
-                if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
-                    for (String player : players) {
-                        showPointsAndResource(player);
+            this.Status = Event.getEvent(matchStatus); // update the match status of the player.
+            out.println("The match status is: " + Status);
+            this.players = playerNicknames; // store the nicknames of the players in the game
+            // update the data of the player based on the match status of the game.
+            if (this.Status.equals(Event.PREPARATION)) {
+                setUpPlayersData(); // set up the data of the players and initialize the board of the players
+                for (String player : players) {
+                    publicInfo.get(player).updateOnline(playerConnected.get(playerNicknames.indexOf(player)));
+                    if(!playerConnected.get(playerNicknames.indexOf(player))){
+                        out.println(player + " is offline\n");
                     }
                 }
-                out.println("Order of the game: " + players);
+                setStarterCard(playerStartingCard); // store the ID of the starter card received from the server
+                int thisPlayerIndex = playerNicknames.indexOf(thisPlayerNickname);
+                // case 1: reconnect before the selection of the starter card
+                if (playerFields.get(thisPlayerIndex)==null) {
+                    currentEvent = Event.SELECT_STARTER_CARD_SIDE;
+                }
+                else {
+                    boolean isUp = playerFields.get(thisPlayerIndex).getFirst()[3] == 1;
+                    updateConfirmStarterCard(playerColours.get(thisPlayerIndex), playerStartingCard, isUp,
+                            newAvailableFieldSpaces, playerResources);
+                    setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
+                // case 2: reconnect before the selection of the secret objective card
+                    if (playerSecretObjective == -1) {
+                        currentEvent = Event.SELECT_SECRET_OBJ_CARD;
+                    }
+                // case 3: reconnect after the secret objective card
+                    else {
+                        currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
+                        updateConfirmSelectedSecretCard(playerSecretObjective);
+                        out.println("Please wait for the other players to select the secret objective card");
+                    }
+                }
+            }
+            // case 4: reconnect after the preparation phase: playing, terminating, last
+            else {
+                this.hand = playerHand;
+                this.commonObjCards = gameCommonObjectives;
+                this.secretObjCardSelected = playerSecretObjective;
+                this.currentResourceCards = gameCurrentResourceCards;
+                this.currentGoldCards = gameCurrentGoldCards;
+                this.resourceDeckSize = gameResourcesDeckSize;
+                this.goldDeckSize = gameGoldDeckSize;
+                this.currentPlayer = currentPlayer;
+                this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
+                this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
+                // We are now rebuilding the ChatMessage object from the ArrayList of Arrays
+                ArrayList<ChatMessage> chatHistoryRebuild = new ArrayList<>();
+                for (String[] messageArray : chatHistory) {
+                    ChatMessage messageRebuild = new ChatMessage(messageArray[0], messageArray[1],
+                            Boolean.parseBoolean(messageArray[2]), messageArray[3]);
+                    chatHistoryRebuild.add(messageRebuild);
+                }
+                this.chatHistory = chatHistoryRebuild;
+                // update the data of the players in the game: colour, online status, points, resources, field and the board.
+                for (int i = 0; i < playerNicknames.size(); i++) {
+                    publicInfo.put(playerNicknames.get(i), new PlayerPub(convertToColour(playerColours.get(i)),
+                            playerPoints[i], new ArrayList<>(), playersResourcesSummary.get(i), playerConnected.get(i)));
+                    boards.put(playerNicknames.get(i), new BoardView(new int[]{80, 80, 80, 80}, new String[160][160]));
+                    int finalI = i;
+                    // store the all cards placed in the field of the players in the game
+                    playerFields.get(i).forEach(card -> {
+                        publicInfo.get(playerNicknames.get(finalI)).getField().clear();
+                        publicInfo.get(playerNicknames.get(finalI)).addToField(new CardPlacedView(card[2],
+                                cardImg.get(card[2]), card[0], card[1], card[3] == 1));
+                        // use the updateAfterPlacedCard method to add the card in the field of the player, update the
+                        // resources count, and the points of the player. Also, update the board view of the player with
+                        // the current available spaces in the field.
+                        updateAfterPlacedCard(playerNicknames.get(finalI), card[2], card[0], card[1],
+                                card[3] == 1, newAvailableFieldSpaces, playersResourcesSummary.get(finalI), playerPoints[finalI]);
+                    });
+                    showPointsAndResource(playerNicknames.get(i));
+                }
+                readInputThread(); // for the player to get the input from the player when it is not the player's turn.
+                out.println("Order of the game: " + players + "\n");
                 if (this.currentPlayer.equals(thisPlayerNickname)) {
                     isMyTurn = true;
                     // if the player's turn is now, request the player to place the card in the field.
@@ -677,16 +707,14 @@ public class TextUI extends View{
                 } else {
                     currentEvent = Event.WAITING_FOR_TURN;
                     isMyTurn = false;
-                    out.println("It is " + currentPlayer + "'s turn");
-                    // wake up the readInputThread to get the input from the player when it is not the player's turn. In this
-                    // case, the player can insert the keyword to use the service mode of the game.
+                    out.println("It is " + currentPlayer + "'s turn" + "\n");
+                    // wake up the readInputThread to get the input from the player when it is not the player's turn.
                     synchronized (lock) {
                         lock.notify();
                     }
                 }
             }
         }else {
-            // once the game enters the playing phase, the method is called to update a part of the data of the player
             // that not yet updated in the previous phases.
             this.currentResourceCards = gameCurrentResourceCards;
             this.currentGoldCards = gameCurrentGoldCards;

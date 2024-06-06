@@ -143,7 +143,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
                     playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards,
                     gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory,
                     currentPlayer, newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom,
-                    playersResourcesSummary);
+                    playersResourcesSummary,playerAssignedSecretObjectiveCards,playerStartingCard );
     }
 
     @Override

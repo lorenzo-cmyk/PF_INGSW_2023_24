@@ -112,6 +112,7 @@ public class AskListener implements AskListenerInterface, Runnable {
             CtoSLobbyMessage message = lobbyMessagesBox.getFirst(); // Get the first message from the lobby queue but don't remove it yet
             try {
                 clientNode.uploadToServer(message); // Try to send the message to the server
+                System.out.println(message+"Message sent");
                 lobbyMessagesBox.removeFirst(); // The message was successfully sent, it can be removed from the queue
 
                 logger.info("{} uploaded lobby msg to server successfully", message);
