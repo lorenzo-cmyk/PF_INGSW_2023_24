@@ -7,7 +7,6 @@ import java.util.ArrayList;
 public class LobbyPlayerListMessage implements StoCMessage {
     private final String recipientNickname;
     private final ArrayList<String> playerList;
-    //FIXME private final playerName: who left the lobby or joined --> same for all messages that need to notify all the players
 
     public LobbyPlayerListMessage(String recipientNickname, ArrayList<String> playerList) {
         this.recipientNickname = recipientNickname;

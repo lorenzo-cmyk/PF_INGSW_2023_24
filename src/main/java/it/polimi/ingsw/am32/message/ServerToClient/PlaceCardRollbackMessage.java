@@ -17,7 +17,6 @@ public class PlaceCardRollbackMessage implements StoCMessage{
         this.removedCard = removedCard;
         this.playerPoints = playerPoints;
         this.playerResources = playerResources;
-        //TODO: add the attributes availableSpaces
     }
 
     @Override
