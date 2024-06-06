@@ -979,6 +979,8 @@ public class GameController {
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
+            int[] playerAssignedSecretObjectiveCards = model.getSecretObjectiveCardsPlayer(nickname).stream().mapToInt(Integer::intValue).toArray();
+            int playerStartingCard = model.getInitialCardPlayer(nickname);
             int playerSecretObjective = model.getPlayerSecretObjective(nickname);
             int[] playerPoints = model.getPlayersNicknames().stream().map(n -> {
                 try {
@@ -1014,7 +1016,7 @@ public class GameController {
             String currentPlayer = model.getCurrentPlayerNickname();
             ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
 
-            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand,
+            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerAssignedSecretObjectiveCards, playerStartingCard,
                     playerSecretObjective, playerPoints, playersResourcesSummary, playerFields, playerResources, gameCommonObjectives,
                     gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize,
                     matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces,

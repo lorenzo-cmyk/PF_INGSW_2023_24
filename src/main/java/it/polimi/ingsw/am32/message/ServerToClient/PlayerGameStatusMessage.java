@@ -28,6 +28,14 @@ public class PlayerGameStatusMessage implements StoCMessage {
      */
     private final ArrayList<Integer> playerHand;
     /**
+     * An Array of two integers that represent the server-assigned secret objective cards of the player
+     */
+    private final int[] playerAssignedSecretObjectiveCards;
+    /**
+     * The ID of the starting card assigned by the server to the player
+     */
+    private final int playerStartingCard;
+    /**
      * Integer that represents the id of the chosen secret objective of the player
      */
     private final int playerSecretObjective;
@@ -92,18 +100,25 @@ public class PlayerGameStatusMessage implements StoCMessage {
      */
     private final ArrayList<int[]> newAvailableFieldSpaces;
 
-    public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
-                                   ArrayList<Integer> playerHand, int playerSecretObjective, int[] playerPoints, ArrayList<int[]> playersResourcesSummary,
-                                   ArrayList<ArrayList<int[]>> playerFields, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
-                                   ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
-                                   int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<String[]> chatHistory, String currentPlayer,
-                                   ArrayList<int[]> newAvailableFieldSpaces,
-                                   int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
+    public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames,
+                                   ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
+                                   ArrayList<Integer> playerHand, int[] playerAssignedSecretObjectiveCards,
+                                   int playerStartingCard, int playerSecretObjective,
+                                   int[] playerPoints, ArrayList<int[]> playersResourcesSummary,
+                                   ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
+                                   ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
+                                   ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
+                                   int gameGoldDeckSize, int matchStatus,
+                                   ArrayList<String[]> chatHistory, String currentPlayer,
+                                   ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom,
+                                   int goldCardDeckFacingKingdom) {
         this.recipientNickname = recipientNickname;
         this.playerNicknames = playerNicknames;
         this.playerConnected = playerConnected;
         this.playerColours = playerColours;
         this.playerHand = playerHand;
+        this.playerAssignedSecretObjectiveCards = playerAssignedSecretObjectiveCards;
+        this.playerStartingCard = playerStartingCard;
         this.playerSecretObjective = playerSecretObjective;
         this.playerPoints = playerPoints;
         this.playersResourcesSummary = playersResourcesSummary;
@@ -150,6 +165,8 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 ", playerConnected=" + playerConnected.toString() +
                 ", playerColours=" + playerColours.toString() +
                 ", playerHand=" + playerHand.toString() +
+                ", playerAssignedSecretObjectiveCards=" + Arrays.toString(playerAssignedSecretObjectiveCards) +
+                ", playerStartingCard=" + playerStartingCard +
                 ", playerSecretObjective=" + playerSecretObjective +
                 ", playerPoints=" + Arrays.toString(playerPoints) +
                 ", playersResourcesSummary=" + playersResourcesSummary.stream().map(Arrays::toString).toList() +

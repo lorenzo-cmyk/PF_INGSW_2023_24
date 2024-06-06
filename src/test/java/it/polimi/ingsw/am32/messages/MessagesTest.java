@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am32.messages;
 
 import it.polimi.ingsw.am32.chat.ChatMessage;
-import it.polimi.ingsw.am32.message.ServerToClient.*;
+import it.polimi.ingsw.am32.message.ServerToClient.PlayerGameStatusMessage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +22,8 @@ public class MessagesTest {
         ArrayList<Boolean> playerConnected = new ArrayList<>(Arrays.asList(true, true));
         ArrayList<Integer> playerColours = new ArrayList<>(Arrays.asList(1, 2));
         ArrayList<Integer> playerHand = new ArrayList<>(Arrays.asList(1, 2));
+        int[] playerAssignedSecretObjectiveCards = new int[]{1, 2};
+        int playerStartingCard = 1;
         int playerSecretObjective = 1;
         int[] playerPoints = new int[]{1, 2};
         ArrayList<int[]> playersResourcesSummary = new ArrayList<>(Arrays.asList(new int[]{1, 2, 3, 4, 5}, new int[]{1, 2, 3, 4, 5}));
@@ -46,10 +48,11 @@ public class MessagesTest {
 
         // Create a new PlayerGameStatusMessage
         PlayerGameStatusMessage playerGameStatusMessage = new PlayerGameStatusMessage(recipientNickname, playerNicknames,
-                playerConnected, playerColours, playerHand, playerSecretObjective, playerPoints, playersResourcesSummary,
-                playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards,
-                gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistoryRebuild, currentPlayer,
-                newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom);
+                playerConnected, playerColours, playerHand, playerAssignedSecretObjectiveCards, playerStartingCard,
+                playerSecretObjective, playerPoints, playersResourcesSummary, playerFields, playerResources,
+                gameCommonObjectives, gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize,
+                gameGoldDeckSize, matchStatus, chatHistoryRebuild, currentPlayer, newAvailableFieldSpaces,
+                resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom);
 
         // Check that the message is not null and that it can be printed
         assertNotNull(playerGameStatusMessage);
