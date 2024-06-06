@@ -30,7 +30,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
     /**
      * An Array of two integers that represent the server-assigned secret objective cards of the player
      */
-    private final int[] playerAssignedSecretObjectiveCards;
+    private final ArrayList<Integer> playerAssignedSecretObjectiveCards;
     /**
      * The ID of the starting card assigned by the server to the player
      */
@@ -102,7 +102,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
 
     public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames,
                                    ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
-                                   ArrayList<Integer> playerHand, int[] playerAssignedSecretObjectiveCards,
+                                   ArrayList<Integer> playerHand, ArrayList<Integer> playerAssignedSecretObjectiveCards,
                                    int playerStartingCard, int playerSecretObjective,
                                    int[] playerPoints, ArrayList<int[]> playersResourcesSummary,
                                    ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
@@ -167,7 +167,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 ", playerConnected=" + playerConnected.toString() +
                 ", playerColours=" + playerColours.toString() +
                 ", playerHand=" + playerHand.toString() +
-                ", playerAssignedSecretObjectiveCards=" + Arrays.toString(playerAssignedSecretObjectiveCards) +
+                ", playerAssignedSecretObjectiveCards=" + playerAssignedSecretObjectiveCards.toString() +
                 ", playerStartingCard=" + playerStartingCard +
                 ", playerSecretObjective=" + playerSecretObjective +
                 ", playerPoints=" + Arrays.toString(playerPoints) +

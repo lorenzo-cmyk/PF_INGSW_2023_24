@@ -22,7 +22,7 @@ public class MessagesTest {
         ArrayList<Boolean> playerConnected = new ArrayList<>(Arrays.asList(true, true));
         ArrayList<Integer> playerColours = new ArrayList<>(Arrays.asList(1, 2));
         ArrayList<Integer> playerHand = new ArrayList<>(Arrays.asList(1, 2));
-        int[] playerAssignedSecretObjectiveCards = new int[]{1, 2};
+        ArrayList<Integer> playerAssignedSecretObjectiveCards = new ArrayList<>(Arrays.asList(1, 2));
         int playerStartingCard = 1;
         int playerSecretObjective = 1;
         int[] playerPoints = new int[]{1, 2};

@@ -987,9 +987,9 @@ public class GameController {
             // ArrayList containing the hand of the player.
             // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
-            // Array containing the secret objective cards assigned to the player.
+            // ArrayList containing the secret objective cards assigned to the player.
             // EDGE CASE: If the player has not yet chosen his starting card side, so the secret objective cards are not yet assigned, the array is empty.
-            int[] playerAssignedSecretObjectiveCards = model.getSecretObjectiveCardsPlayer(nickname).stream().mapToInt(Integer::intValue).toArray();
+            ArrayList<Integer> playerAssignedSecretObjectiveCards = model.getSecretObjectiveCardsPlayer(nickname);
             // The starting card assigned to the player.
             // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             int playerStartingCard = model.getInitialCardPlayer(nickname);
