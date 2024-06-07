@@ -1,8 +1,6 @@
 package it.polimi.ingsw.am32.controller;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Timer;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import it.polimi.ingsw.am32.utilities.Configuration;
@@ -63,6 +61,10 @@ public class GameController {
      * alreadyEnteredTerminatingPhase: A flag that indicates whether the terminating phase has already been entered; used to notify players when terminating phase is entered
      */
     private boolean alreadyEnteredTerminatingPhase;
+    /**
+     * stuckTurnFlag: A flag that indicates whether the game is stuck due to a player being lonely in the game and having terminated his turn
+     */
+    private boolean stuckTurnFlag;
 
     /**
      * Constructor for the GameController class. Initializes the game controller with the given id and game size.
@@ -294,6 +296,8 @@ public class GameController {
         // Undo the player's placement
         try {
             model.rollbackPlacement();
+            // We also need to roll back the status of the controller to WAITING_CARD_PLACEMENT
+            status = GameControllerStatus.WAITING_CARD_PLACEMENT;
         } catch (RollbackException e) {
             throw new CriticalFailureException("RollbackException when rolling back placement");
         } catch (PlayerNotFoundException e) {
@@ -482,6 +486,11 @@ public class GameController {
             submitVirtualViewMessage(generateResponseGameStatusMessage(nickname)); // Send the player the large message containing all the information about the current game state
         } catch (VirtualViewNotFoundException e) {
             throw new CriticalFailureException("VirtualViewNotFoundException when reconnecting player");
+        }
+
+        // If we were stuck due to a lonely player that terminated his turn, we now have a new player to let play
+        if(stuckTurnFlag){
+            setNextPlayer();
         }
     }
 
@@ -869,8 +878,23 @@ public class GameController {
     private void setNextPlayer() {
         // If all players are disconnected, we don't want to get stuck in an infinite loop.
         // If only one player is connected, we don't want to let him play forever.
-        if (nodeList.stream().filter(PlayerQuadruple::isConnected).count() <= 1) {
+
+        // If the current player is the only one connected, set stuckTurnFlag to true and return immediately.
+        // Same if there are no more connected players.
+        List<String> connectedPlayers = nodeList.stream()
+                .filter(PlayerQuadruple::isConnected)
+                .map(PlayerQuadruple::getNickname)
+                .toList();
+
+        if(connectedPlayers.size() == 1 &&
+                connectedPlayers.getFirst().equals(model.getCurrentPlayerNickname())) {
+            stuckTurnFlag = true;
             return;
+        } else if (connectedPlayers.isEmpty()) {
+            stuckTurnFlag = true;
+            return;
+        } else {
+            stuckTurnFlag = false;
         }
 
         do {
