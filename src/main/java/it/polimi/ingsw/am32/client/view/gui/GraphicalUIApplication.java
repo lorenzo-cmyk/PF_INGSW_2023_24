@@ -25,8 +25,6 @@ public class GraphicalUIApplication extends Application {
         primaryStage.setMinHeight(750);
         primaryStage.setMinWidth(975);
         primaryStage.setScene(new Scene(graphicalUI.getWelcomeRoot(), 975, 750));
-        primaryStage.setScene(new Scene(graphicalUI.getSelectionRoot(), 975, 750));
-
         primaryStage.setOnCloseRequest(e -> {
             Platform.exit();
             System.exit(0);
@@ -34,8 +32,8 @@ public class GraphicalUIApplication extends Application {
 
         primaryStage.show();
     }
-    public void updateScene(Parent parent) {
-        primaryStage.setScene(new Scene(parent));
+    public void updateScene(Parent parent,int x,int y) {
+        primaryStage.setScene(new Scene(parent,x,y));
     }
 
     public Stage getPrimaryStage() {

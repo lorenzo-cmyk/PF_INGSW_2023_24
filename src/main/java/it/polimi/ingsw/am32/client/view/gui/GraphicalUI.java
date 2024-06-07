@@ -270,30 +270,32 @@ public class GraphicalUI extends View {
     }
 
     /**
-     * Get the root of the selection page, which is the page where the player can choose the connection type, choose
-     * the game mode and insert the data needed to create, join or reconnect to a game.
-     */
-    public StackPane getSelectionRoot() {
-        chooseConnection();
-        return selectionPane;
-    }
-
-    /**
      * Set up the welcome page of the GUI, which contains the welcome image and the button to show the rule book.
      */
     @Override
     public void showWelcome() {
         welcomeRoot = new StackPane();
-        Button ruleButton = createButton("[Rule Book]", 30, "#E6DEB3", 0, 300);
+        Button ruleButton = createButton("< Rule", 30, "#E6DEB3", 0, 300);
         welcomeRoot.getChildren().add(ruleButton);
-        ruleButton.setTranslateX(350);
-        ruleButton.setTranslateY(300);
+        ruleButton.setTranslateX(-420);
+        ruleButton.setTranslateY(0);
         ruleButton.setOnAction(e -> showRuleBook());
         Image backgroundWelcomePage = new Image(retrieveResourceURI("WelcomeDisplay.png"));
         BackgroundImage backgroundImg = new BackgroundImage(backgroundWelcomePage, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
         Background background = new Background(backgroundImg);
         welcomeRoot.setBackground(background);
+        // create the start button
+        Button startButton = createButton("Start >", 30, "#E6DEB3", 0, 300);
+        welcomeRoot.getChildren().add(startButton);
+        startButton.setTranslateX(420);
+        startButton.setTranslateY(0);
+        startButton.setOnAction(e ->
+        {   // remove all nodes from the welcome page and show the choose connection page
+            welcomeRoot.getChildren().removeAll();
+            chooseConnection();
+            welcomeRoot.getChildren().add(selectionPane);
+        });
     }
 
     /**
@@ -842,12 +844,12 @@ public class GraphicalUI extends View {
         noticeEventPanel.setVisible(false);
 
 
-        masterPane.getChildren().addAll(topLine, board,returnToMyField,playerInfoPanel, deckArea,deckSize, bottomLine, noticeArea,
-                chatArea.getChatArea(),cardLabels,noticeEventPanel);
+        masterPane.getChildren().addAll(topLine, board,returnToMyField,playerInfoPanel,noticeArea,noticeEventPanel, deckArea,
+                deckSize, bottomLine, chatArea.getChatArea(),cardLabels);
 
         // update the scene of the application with the master pane
         masterPane.setMinWidth(1250);
-        app.updateScene(masterPane);
+        app.updateScene(masterPane,1250,750);
         app.getPrimaryStage().setMinWidth(1250);
     }
 
@@ -1699,7 +1701,7 @@ public class GraphicalUI extends View {
             PointsArea.translateYProperty().bind(endGamePane.heightProperty().subtract(PointsArea.heightProperty()).divide(2));
             PointsArea.setStyle("-fx-background-color:transparent;");
             endGamePane.getChildren().addAll(PointsArea);
-            app.updateScene(endGamePane);
+            app.updateScene(endGamePane,975,750);
             app.getPrimaryStage().setMinWidth(975);
             app.getPrimaryStage().setMaxWidth(975);
             app.getPrimaryStage().show();
