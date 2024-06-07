@@ -27,7 +27,7 @@ public abstract class View{
                              // decrease.
     protected ArrayList<String> players; //save and update the players in the game.
     protected String currentPlayer; //save and update the current player by receiving the message from the server.
-    protected volatile Event currentEvent; //TODO: not sure if this is useful
+    protected volatile Event currentEvent;
     /**
      * Stores the index of the card placed by the player.
      * When draw confirmation is received, the new card is injected into the hand at the index of the card placed.
@@ -60,6 +60,7 @@ public abstract class View{
         this.gameID = 0;
         this.currentEvent = null;
         this.commonObjCards = null;
+        this.secretObjCardSelected = -1;
         this.players = new ArrayList<>();
         this.hand = new ArrayList<>();
         this.publicInfo = new HashMap<>();
