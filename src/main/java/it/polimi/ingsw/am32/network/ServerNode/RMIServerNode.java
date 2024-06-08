@@ -24,7 +24,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private GameController gameController;
     private int pingCount;
     private final RMIClientNodeInt clientNode;
-    private final ServerPingTask serverPingTask;
+    private ServerPingTask serverPingTask;
     private boolean statusIsAlive;
     private boolean destroyCalled;
     private final Object aliveLock;
@@ -132,9 +132,10 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             if(destroyCalled)
                 return;
             destroyCalled = true;
+            serverPingTask.cancel();
         }
 
-        serverPingTask.cancel();
+
 
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
@@ -147,9 +148,13 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                 try {
                     UnicastRemoteObject.unexportObject(this, true);
                 } catch (NoSuchObjectException ignored) {}
+
+                serverPingTask = null;
+
+                logger.info("RMIServerNode destroyed");
             }
         }
-        logger.info("RMIServerNode destroyed");
+
     }
 
     public void setGameController(GameController gameController) {
