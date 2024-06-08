@@ -245,7 +245,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                         outputObtStr.flush();
                         inputObtStr = new ObjectInputStream(socket.getInputStream());
                         socket.setSoTimeout(100);
-                        logger.info("Connection established");
+                        logger.info("Connection established. Personal connection data: {}", socket.getLocalSocketAddress());
 
                     } catch (IOException ignore) {
 
@@ -266,7 +266,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         synchronized (aliveLock) {
             statusIsAlive = true;
             reconnectCalled = false;
-            pongCount = 3;
+            pongCount = PONGMAXCOUNT;
             aliveLock.notifyAll();
             timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
         }
