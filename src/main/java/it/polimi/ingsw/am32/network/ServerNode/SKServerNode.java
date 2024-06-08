@@ -33,8 +33,8 @@ public class SKServerNode implements Runnable, NodeInterface {
     private final ObjectOutputStream outputObtStr;
     private final Socket socket;
     private int pingCount;
-    private final ServerPingTask notLinkedPingTask;
-    private final ServerPingTask serverPingTask;
+    private ServerPingTask notLinkedPingTask;
+    private ServerPingTask serverPingTask;
     private boolean statusIsAlive;
     private boolean destroyCalled;
     private final Object aliveLock;
@@ -411,6 +411,9 @@ public class SKServerNode implements Runnable, NodeInterface {
                     logger.info("SKServerNode destroyed and disconnected from GameController");
                     return;
                 }
+
+                serverPingTask = null;
+                notLinkedPingTask = null;
 
                 logger.info("SKServerNode destroyed");
                 config.purgeTimer();
