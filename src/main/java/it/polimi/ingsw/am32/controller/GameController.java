@@ -331,7 +331,7 @@ public class GameController {
         }
 
         // Update the new current player. The notification is handled internally
-        setNextPlayer();
+        setNextPlayer(Optional.empty());
 
         // Start the timer for winner declaration if only one player remains connected
         handleLastConnectedPlayerIfPresent();
@@ -358,7 +358,7 @@ public class GameController {
         }
 
         // Update the new current player
-        setNextPlayer();
+        setNextPlayer(Optional.empty());
 
         // Start the timer for winner declaration if only one player remains connected
         handleLastConnectedPlayerIfPresent();
@@ -482,15 +482,18 @@ public class GameController {
             handleLastConnectedPlayerIfPresent(); // The check on the connected player count is done inside the method.
         }
 
-        try {
-            submitVirtualViewMessage(generateResponseGameStatusMessage(nickname)); // Send the player the large message containing all the information about the current game state
-        } catch (VirtualViewNotFoundException e) {
-            throw new CriticalFailureException("VirtualViewNotFoundException when reconnecting player");
-        }
-
         // If we were stuck due to a lonely player that terminated his turn, we now have a new player to let play
         if(stuckTurnFlag){
-            setNextPlayer();
+            setNextPlayer(Optional.of(nickname));
+        }
+
+        try {
+            submitVirtualViewMessage(new ReconnectGameConfirmMessage(nickname)); // Notify the player that he has joined the game
+            if(status != GameControllerStatus.GAME_ENDED) {
+                submitVirtualViewMessage(generateResponseGameStatusMessage(nickname)); // Send the player the large message containing all the information about the current game state
+            }
+        } catch (VirtualViewNotFoundException e) {
+            throw new CriticalFailureException("VirtualViewNotFoundException when reconnecting player");
         }
     }
 
@@ -787,7 +790,7 @@ public class GameController {
                 return;
             }
 
-            setNextPlayer();
+            setNextPlayer(Optional.empty());
         } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, e.getMessage()));
@@ -855,7 +858,7 @@ public class GameController {
                 alreadyEnteredTerminatingPhase = true;
             }
 
-            setNextPlayer();
+            setNextPlayer(Optional.empty());
 
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
@@ -874,8 +877,11 @@ public class GameController {
      * Sets the current player, skipping over any disconnected players.
      * Updates the current game status.
      * Notifies all players of any changes in the model status, notifies all players of the newly elected current player.
+     *
+     * @param doNotSendMessagesToThisPlayer (Optional) The nickname of the player that should not be notified from this method (because a BigBoyMessage will be sent later)
      */
-    private void setNextPlayer() {
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void setNextPlayer(Optional<String> doNotSendMessagesToThisPlayer) {
         // If all players are disconnected, we don't want to get stuck in an infinite loop.
         // If only one player is connected, we don't want to let him play forever.
 
@@ -908,7 +914,10 @@ public class GameController {
                     // Notify all players of the new match status
                     for (PlayerQuadruple playerQuadruple : nodeList) {
                         try {
-                            submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                            // Send the message only if the player in this iteration is not the one that we don't want to notify
+                            if (doNotSendMessagesToThisPlayer.isEmpty() || !doNotSendMessagesToThisPlayer.get().equals(playerQuadruple.getNickname())) {
+                                submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                            }
                         } catch (VirtualViewNotFoundException e) {
                             throw new CriticalFailureException("VirtualView for player " + playerQuadruple.getNickname() + " not found");
                         }
@@ -925,7 +934,10 @@ public class GameController {
         // Notify the players of the current player
         for (PlayerQuadruple playerQuadruple : nodeList) {
             try {
-                submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+                // Send the message only if the player in this iteration is not the one that we don't want to notify
+                if (doNotSendMessagesToThisPlayer.isEmpty() || !doNotSendMessagesToThisPlayer.get().equals(playerQuadruple.getNickname())) {
+                    submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+                }
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualView for player " + playerQuadruple.getNickname() + " not found");
             }
