@@ -106,7 +106,7 @@ class GamesManagerMockitoTest {
 
         gamesManager.reconnectToGame("reconnectingPlayer", 1, node);
         verify(gameController, times(1)).reconnect(any(), any());
-        verify(gameController, times(2)).submitVirtualViewMessage(any());
+        verify(gameController, times(1)).submitVirtualViewMessage(any());
     }
 
 }
