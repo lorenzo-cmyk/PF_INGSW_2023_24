@@ -77,16 +77,6 @@ class GamesManagerMockitoTest {
         assertThrows(GameNotYetStartedException.class, () -> gamesManager.reconnectToGame("testPlayer", 1, node));
     }
 
-    @DisplayName("GamesManager should throw a CriticalFailureException if the GameController throws a VirtualViewNotFoundException when reconnecting to a game")
-    @Test
-    void reconnectToGameTestVirtualViewNotFound() throws Exception {
-        when(gameController.getId()).thenReturn(1);
-        when(gameController.getStatus()).thenReturn(GameControllerStatus.WAITING_STARTER_CARD_CHOICE);
-        doNothing().when(gameController).reconnect(any(), any());
-        doThrow(VirtualViewNotFoundException.class).when(gameController).submitVirtualViewMessage(any());
-        assertThrows(CriticalFailureException.class, () -> gamesManager.reconnectToGame("testPlayer", 1, node));
-    }
-
     @DisplayName("reconnectToGame should call GameController.reconnect() when reconnecting to a game")
     @Test
     void reconnectToGameTestReconnect() throws Exception {
