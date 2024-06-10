@@ -5,6 +5,8 @@ import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor;
 import it.polimi.ingsw.am32.network.ClientAcceptor.SKClientAcceptor;
 import it.polimi.ingsw.am32.network.ServerNode.RMIServerNode;
 import it.polimi.ingsw.am32.network.ServerNode.SKServerNode;
+import it.polimi.ingsw.am32.utilities.Log4J2ConfiguratorWrapper;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,6 +60,8 @@ public class Server {
      * @param args usual startup arguments
      */
     public static void main(String[] args){
+        // Configure log4j2 logger to log only info and above
+        Log4J2ConfiguratorWrapper.setLogLevelAndConfigure(Level.INFO);
         logger.info("The server is now starting");
         new Server(args).start();
     }

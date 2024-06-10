@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.model.match;
 import it.polimi.ingsw.am32.model.card.NonObjectiveCard;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.player.Player;
+import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.TestTemplate;
 
 class MatchSimulationTest {
     Match myMatch = new Match(); // Create a new match
-    private static final Logger LOGGER = LogManager.getLogger("MatchSimulationLogger");
+    private static final Logger LOGGER = Log4J2ConfiguratorWrapperTest.createFileLogger(Level.DEBUG, "logs/MatchSimulationTest.log");
 
     @DisplayName("Run a, partial, game simulation in order to test the game mechanics")
     @TestTemplate
