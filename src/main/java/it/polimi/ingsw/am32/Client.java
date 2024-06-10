@@ -3,6 +3,8 @@ package it.polimi.ingsw.am32;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.client.view.gui.GraphicalUI;
 import it.polimi.ingsw.am32.client.view.tui.TextUI;
+import it.polimi.ingsw.am32.utilities.Log4J2ConfiguratorWrapper;
+import org.apache.logging.log4j.Level;
 
 import java.io.PrintStream;
 import java.util.InputMismatchException;
@@ -26,6 +28,8 @@ public class Client {
     private static final PrintStream out= new PrintStream(System.out);
 
     public static void main(String[] args){
+        // Configure log4j2 logger to log only warnings and above
+        Log4J2ConfiguratorWrapper.setLogLevelAndConfigure(Level.WARN);
         out.println("Welcome to Codex Naturalis");
         chooseUI();
     }
