@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
  * <p>
  *     The class includes the following methods, which could be divided into three categories: connection, flow of the
  *     game, and design of printed elements. The connection methods are used to establish the connection between the
- *     client and the server. The flow of the game methods are used to manage the game's flow, such as creating a new
+ *     client and the server. The flow of the game methods is used to manage the game's flow, such as creating a new
  *     game, joining a game, and reconnecting to a game etc. The design methods are used to print the game's elements,
  *     for example, how to print the cards.
  *     To simplify the code, the class includes a method to check the input of the player, a method to clear the command
@@ -37,37 +37,125 @@ import org.apache.logging.log4j.Logger;
  * @author Jie
  */
 public class TextUI extends View{
+    /**
+     * The Logger of the class TextUI
+     */
     private static final Logger logger = LogManager.getLogger(TextUI.class);
+    /**
+     * The scanner used to read the input of the player
+     */
     private final Scanner in;
+    /**
+     * The print stream used to print the output of the game
+     */
     private final PrintStream out;
-    private final IsValid isValid = new IsValid(); // used to check the validity of the input
-    private final HashMap<String, BoardView> boards; // contains the boards of all players in the game
-    // ANSI escape code to set the color of the printed text
+    /**
+     * The object used to check the validity of the input
+     */
+    private final IsValid isValid = new IsValid();
+    /**
+     * Contains the boards of all players in the game
+     */
+    private final HashMap<String, BoardView> boards;
+    /**
+     * ANSI escape codes used to set RESET
+     */
     private static final String ANSI_RESET = "\u001B[0m";
+    /**
+     * ANSI escape codes used to set RED color
+     */
     private static final String ANSI_RED = "\u001B[31m";
+    /**
+     * ANSI escape codes used to set GREEN color
+     */
     private static final String ANSI_GREEN = "\u001B[32m";
+    /**
+     * ANSI escape codes used to set BLUE color
+     */
     private static final String ANSI_BLUE = "\u001B[34m";
+    /**
+     * ANSI escape codes used to set PURPLE color
+     */
     private static final String ANSI_PURPLE = "\u001B[35m";
+    /**
+     * ANSI escape codes used to set YELLOW color
+     */
     private static final String ANSI_YELLOW = "\u001B[33m";
+    /**
+     * ANSI escape codes used to set BLACK color
+     */
     private static final String ANSI_BLACK = "\u001B[30m";
-    // Unicode for the cards and the objects
+    /**
+     * Unicode integer used to represent the icon of the animal kingdom's color
+     */
     private static final int ANIMALCARD = 0X1F7E6;
+    /**
+     * Unicode integer used to represent the icon of the plant kingdom's color
+     */
     private static final int PLANTCARD = 0X1F7E9;
+    /**
+     * Unicode integer used to represent the icon of the fungi kingdom's color
+     */
     private static final int FUNGICARD = 0X1F7E5;
+    /**
+     * Unicode integer used to represent the icon of the insect kingdom's color
+     */
     private static final int INSECARD = 0X1F7EA;
+    /**
+     * Unicode integer used to represent the icon of the starter card's color
+     */
     private static final int STARTERCARD = 0x1F7EB;
+    /**
+     * Unicode characters used to represent the icon INSECT
+     */
     private static final String INSECT = "\uD83E\uDD8B";
+    /**
+     * Unicode characters used to represent the icon PLANT
+     */
     private static final String PLANT = "\uD83C\uDF3F";
+     /**
+     * Unicode characters used to represent the icon FUNGI
+     */
     private static final String FUNGI = "\uD83C\uDF44";
+    /**
+     * Unicode characters used to represent the icon ANIMAL
+     */
     private static final String ANIMAL = "\uD83D\uDC3A";
+    /**
+     * Unicode characters used to represent the icon QUILL
+     */
     private static final String QUILL = "\uD83E\uDEB6";
+    /**
+     * Unicode characters used to represent the icon INKWELL
+     */
     private static final String INKWELL = "\uD83C\uDF6F";
+/**
+     * Unicode characters used to represent the icon MANUSCRIPT
+     */
     private static final String MANUSCRIPT = "\uD83D\uDCDC";
+    /**
+     * Unicode characters used to represent the icon “X”;
+     */
     private static final String NON_COVERABLE = "\u274C";
-    private static final String EMPTY = "  "; // empty space used to remain the layout of the printed cards
-    private static final String BLANK = "   ";// blank space used to print the cells empty for the board
-    private final Object lock = new Object(); // lock object used to synchronize the readInputThread
+    /**
+     * Empty space used to remain the layout of the printed cards
+     */
+    private static final String EMPTY = "  ";
+    /**
+     * The string of space used to represent the blank space in the board
+     */
+    private static final String BLANK = "   ";
+    /**
+     * Lock object used to synchronize the readInputThread
+     */
+    private final Object lock = new Object();
+    /**
+     * HashMap used to store the images designed by the Unicode characters of the cards.
+     */
     protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
+    /**
+     * The thread used to read the input of the player when it is not the player's turn
+     */
     private Thread service;
 
     /**
@@ -83,7 +171,7 @@ public class TextUI extends View{
     /**
      * Method that launches the TextUI and manages the flow of the game. It shows the welcome message and asks
      * the player to choose the connection type, then asks the player to select the game mode: create a new
-     * game, join a game with the game ID, or reconnect to a game. Then uses a loop to manage the flow of the game based
+     * game, join a game with the game ID, or reconnect to a game. Then use a loop to manage the flow of the game based
      * on the updated status and the current event.
      */
     @Override
@@ -199,7 +287,7 @@ public class TextUI extends View{
                 }
                 default: { // If the player's input is not one of the valid options
                     out.println("Invalid input, please select 1 or 2");
-                    continue; // Continue here to avoid printing connection failed message
+                    continue; // Continue here to avoid a printing connection failed message
                 }
             }
 
@@ -389,7 +477,7 @@ public class TextUI extends View{
     }
 
     /**
-     * Method used to update the player's board and public info when the player disconnects from the game after the
+     * The Method used to update the player's board and public info when the player disconnects from the game after the
      * placement of the card.
      * @param playerNickname the nickname of the player whose board should be updated with the rollback
      * @param removedCard the ID of the card that should be removed from the board and the public info of the player
@@ -399,12 +487,12 @@ public class TextUI extends View{
     @Override
     public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
         CardPlacedView LastCard= publicInfo.get(playerNickname).getField().getLast();
-        // get the coordinates of the card from player's field should be removed
+        // get the coordinates of the card from the player's field should be removed
         int x = LastCard.x();
         int y = LastCard.y();
         // get the player's board
         String[][]board = boards.get(playerNickname).getBoard();
-        // conversion of the coordinates of the card in the index of the matrix
+        // conversion of the card's coordinates in the index of the matrix
         int posX = -2 * y + 80;
         int posY = 2 * x + 80;
         // reset the space occupied by the card in the board
@@ -468,10 +556,10 @@ public class TextUI extends View{
         this.Status = Event.getEvent(matchStatus); // update the match status of the player.
         out.println("The match status is: " + Status);
 
-        if(Status.equals(Event.PLAYING)){ // if the match status is PLAYING start the readInputThread.
+        if(Status.equals(Event.PLAYING)){ // if the match status is PLAYING, start the readInputThread.
             readInputThread();
         }
-        if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING show the points of all players.
+        if(Status.equals(Event.TERMINATING)){ // if the match status is TERMINATING, show the points of all players.
             for (String player : players) {
                 showPointsAndResource(player);
             }
@@ -521,7 +609,8 @@ public class TextUI extends View{
         out.println("Your colour of this game is: " + convertToColour(colour));
         // update the available spaces in the field after the placement of the starter card
         availableSpaces = availablePos;
-        // use the updateAfterPlacedCard method to add the starter card in the field of the player, update the resources count
+        // use the updateAfterPlacedCard method to add the starter card in the field of the player,
+        // update the resource count
         updateAfterPlacedCard(thisPlayerNickname, cardID, 0, 0, isUp, availablePos,
                 resources, 0);
         out.println("Your field after placing the starter card is following:");
@@ -618,7 +707,7 @@ public class TextUI extends View{
      * @param gameGoldDeckSize                   the size of the gold deck in the game.
      * @param matchStatus                        the current match status of the game.
      * @param chatHistory                        the chat history of this player in the game.
-     * @param currentPlayer                      indicates the whose turn is now.
+     * @param currentPlayer                      indicates whose turn is now.
      * @param newAvailableFieldSpaces            the available spaces in the field of this player.
      * @param resourceCardDeckFacingKingdom      the type of kingdom of the first card in the resource deck.
      * @param goldCardDeckFacingKingdom          the type of kingdom of the first card in the gold deck.
@@ -708,7 +797,9 @@ public class TextUI extends View{
                         publicInfo.get(playerNicknames.get(finalI)).addToField(new CardPlacedView(card[2],
                                 cardImg.get(card[2]), card[0], card[1], card[3] == 1));
                         // use the updateAfterPlacedCard method to add the card in the field of the player, update the
-                        // resources count, and the points of the player. Also, update the board view of the player with
+                        // resource count,
+                        // and the points of the player.
+                        // Also, update the board view of the player with
                         // the current available spaces in the field.
                         updateAfterPlacedCard(playerNicknames.get(finalI), card[2], card[0], card[1],
                                 card[3] == 1, newAvailableFieldSpaces, playersResourcesSummary.get(finalI), playerPoints[finalI]);
@@ -778,7 +869,7 @@ public class TextUI extends View{
      */
     @Override
     public void updatePlayerTurn(String playerNickname) {
-        // once received the PlayerTurnMessage from the server
+        // once received the PlayerTurnMessage from the server,
         // print the message to notify the player the order of the game and whose turn is now.
         out.println("Order of the game: " + players);
         this.currentPlayer = playerNickname;
@@ -799,7 +890,7 @@ public class TextUI extends View{
     }
 
     /**
-     * A thread that reads the input from the player when it is not the player's turn, will be started when the game
+     * A thread that reads the input from the player when it is not the player's turn will be started when the game
      * enters the playing phase, if the player is the current player, the thread will be waiting until the message
      * PlayerTurnMessage from the server to update the currentPlayer in the game.
      */
@@ -819,7 +910,8 @@ public class TextUI extends View{
                     isInThread = true;
                     getInput();
                     // when the client is in the service mode, and the player's turn is now, the player need to type
-                    // something to exit from the service mode, then the thread will be returned to the waiting state.
+                    // something to exit from the service mode.
+                    // Then the thread will be returned to the waiting state.
                     if(isMyTurn){
                     out.println("Exit from service mode");
                     }
@@ -1042,7 +1134,7 @@ public class TextUI extends View{
         board[posX + 1][posY + 1] = bottomRight;
         board[posX - 1][posY - 1] = topLeft;
         board[posX + 1][posY - 1] = bottomLeft;
-        /* if player is the owner of this UI, store the available positions in the board of the player, and update the
+        /* if a player is the owner of this UI, store the available positions in the board of the player, and update the
         board limits. In this way, the player can see the available positions for the next turn of the placement.*/
         if (playerNickname.equals(thisPlayerNickname)) {
             if(!currentEvent.equals(Event.RECONNECT_GAME)) {
@@ -1104,12 +1196,12 @@ public class TextUI extends View{
         // update the current visible resource cards and gold cards in the game that the player can draw.
         // if the player drew the card from the resource deck
         if(!this.currentResourceCards.contains(currentResourceCards[1])){
-            // player drew the left card from the resource deck
+            // the player drew the left card from the resource deck
             if(this.currentResourceCards.get(1)==currentResourceCards[0]) {
                 this.currentResourceCards.remove(0);
                 this.currentResourceCards.addFirst(currentResourceCards[1]);
             }
-            // player drew the right card from the resource deck
+            // the player drew the right card from the resource deck
             else {
                 this.currentResourceCards.remove(1);
                 this.currentResourceCards.addLast(currentResourceCards[1]);
@@ -1122,7 +1214,7 @@ public class TextUI extends View{
                 this.currentGoldCards.remove(0);
                 this.currentGoldCards.addFirst(currentGoldCards[1]);
             }
-            // player drew the right card from the gold deck
+            // the player drew the right card from the gold deck
             else {
                 this.currentGoldCards.remove(1);
                 this.currentGoldCards.addLast(currentGoldCards[1]);
@@ -1142,7 +1234,7 @@ public class TextUI extends View{
      */
     @Override
     public void startChatting() {
-        chatMode = true; // Flag used to indicate that the player is in chat mode
+        chatMode = true; // The Flag used to indicate that the player is in chat mode
         // When in chat mode, incoming chat messages will be printed out
 
         out.println("You can start chatting now, your chat history is following:");
@@ -1199,12 +1291,12 @@ public class TextUI extends View{
             }
             // Valid message contents, and message recipient have been inputted
 
-            // Send message
-            if (recipient.equals("ALL")) { // Send message in broadcast
+            // Send a message
+            if (recipient.equals("ALL")) { // Send a message in broadcast
                 ChatMessage message = new ChatMessage(thisPlayerNickname, "ALL", true, messageContent);
                 chatHistory.add(message); // FIXME Is this needed? RESOLVED: Yes, it is needed, because in the chat history, the player should be able to see the messages that he sent.
                 notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, true, messageContent));
-            } else { // Send direct message
+            } else { // Send a direct message
                 ChatMessage message = new ChatMessage(thisPlayerNickname, recipient, false, messageContent);
                 chatHistory.add(message); // FIXME Is this needed? RESOLVED: Yes, it is needed, because in the chat history, the player should be able to see the messages that he sent.
                 notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, false, messageContent));
@@ -1464,7 +1556,7 @@ public class TextUI extends View{
             // print the card based on the side
             // if the side is the front side
             cardImage.add(String.format(colour + "+----+------------------+----+" + ANSI_RESET));
-            if (value != 0) { //if the card don't have any value.
+            if (value != 0) { //if the card doesn't have any value.
                 // in particular, with CountResource strategy should print also the type of the resource/object that
                 // should be counted in the field to get the points.
                 if (strategy.equals("|CountResource")) {
@@ -1478,7 +1570,9 @@ public class TextUI extends View{
                     cardImage.add(String.format(colour + "| %s |%s%" + padding1 + "s| %s |" + ANSI_RESET, icon(corner[0]),
                             value + strategy, "", icon(corner[1])));
                 }
-            } else { // if the card don't have any value, print only the corner of the card and the kingdom of the card.
+            } else {
+                // if the card doesn't have any value,
+                // print only the corner of the card and the kingdom of the card.
                 cardImage.add(String.format(colour + "| %s |%18s| %s |" + ANSI_RESET, icon(corner[0]), "", icon(corner[1])));
             }
             cardImage.add(String.format(colour + "+----+%18s+----+", ""));
@@ -1572,7 +1666,7 @@ public class TextUI extends View{
                     cardImage.add(String.format(colour + "+----------------------------+" + ANSI_RESET));
                     break;
                 }
-                // Four type of L Configuration cards
+                // Four types of L Configuration cards
                 case "LConfigurationOne": {
                     description = "2 FUNGI + 1 PLANT cards";
 
@@ -1667,10 +1761,10 @@ public class TextUI extends View{
     }
 
     /**
-     * Method used to convert the integer array of the condition count of the card to a string of icons, using the
+     * The Method used to convert the integer array of the condition count of the card to a string of icons, using the
      * Unicode characters and added it in one string.
      *
-     * @param conditionCount the integer array of the requirement count of the card.
+     * @param conditionCount the integer array of the requirement counts of the card.
      * @return the string of icons which contains the icons of the requirements of the card.
      */
     private static String iconArray(int[] conditionCount) {
@@ -1774,8 +1868,8 @@ public class TextUI extends View{
     //-------------------utilities-------------------
 
     /**
-     * Used method to update the dimensions of the board view of the player after placing a card on the board. The
-     * method is called by the {@link View#updateAfterPlacedCard} method.
+     * Used method to update the dimensions of the player's board view after placing a card on the board.
+     * The method is called by the {@link View#updateAfterPlacedCard} method.
      *
      * @param posX   the x coordinate of the card placed.
      * @param posY   the y coordinate of the card placed.
@@ -1838,7 +1932,7 @@ public class TextUI extends View{
     /**
      * Used method to print the message to notify the player when is necessary.
      * @param event the type of the event that should be handled.
-     * @param nickname the nickname of player, will be used in the message.
+     * @param nickname the nickname of the player will be used in the message.
      */
     @Override
     public void handleEvent(Event event,String nickname) {
@@ -1885,7 +1979,7 @@ public class TextUI extends View{
     }
 
     /**
-     * Method used to get the input from the user and handle the commands that the user can use to interact with the
+     * The Method used to get the input from the user and handle the commands that the user can use to interact with the
      * game in the service mode.
      * @return the input from the user.
      */
@@ -1923,7 +2017,7 @@ public class TextUI extends View{
 
     /**
      * Loops until the user enters a valid single integer.
-     * Inputs such as “string 5”, “4 string”, “string” are all invalid.
+     * Inputs such as “string 5,” “4 string,” “string” are all invalid.
      *
      * @return Integer input from the user
      */
