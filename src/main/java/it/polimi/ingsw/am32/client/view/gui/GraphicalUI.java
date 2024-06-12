@@ -1,11 +1,8 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
-import it.polimi.ingsw.am32.client.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
-import javafx.animation.PauseTransition;
-import javafx.animation.RotateTransition;
-import javafx.animation.ScaleTransition;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -27,9 +24,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.List;
 /**
  * The class GraphicalUI is the class that manages the graphical user interface of the game and interacts with the
  * GUIApplication class. The class extends the abstract class View and implements the methods of the View class.
@@ -88,7 +85,7 @@ public class GraphicalUI extends View {
      * The TextField object which contains the list of players in the lobby. The list is updated when a new player joins
      * the game or a player leaves the game. The list is shown in the waiting page.
      */
-    private TextField playerListView;
+    private TextArea playerListView;
     /**
      * The Label object that shows the status of the game after the login phase. The status can be PREPARATION, PLAYING,
      * TERMINATING, TERMINATED. The status is updated based on the messages received from the server. The label is shown
@@ -297,7 +294,6 @@ public class GraphicalUI extends View {
             welcomeRoot.getChildren().add(selectionPane);
         });
     }
-
     /**
      * Set up the rule book of the game. The player can navigate through the pages of the rule book using the buttons
      * “<” to go to the previous page and “>” to go to the next page.
@@ -657,10 +653,11 @@ public class GraphicalUI extends View {
             Label id = createLabel("ID: " + gameID, -80, -80);
             Label waiting = createLabel("Waiting...", 130, 100);
 
-            playerListView = createTextField(null, 135, 360, 0, 0);
-            playerListView.setText("Players: \n" + String.join("\n", players));
-            playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
+            playerListView = new TextArea();
+            playerListView.setText(players.toString());
+            playerListView.setStyle("-fx-control-inner-background: #e5dfa7;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                    "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-wrap-text: true; " +
+                    "-fx-max-width: 450px;-fx-max-height:100px;");
             playerListView.setTranslateX(0);
             playerListView.setTranslateY(0);
             playerListView.setEditable(false);
@@ -680,18 +677,12 @@ public class GraphicalUI extends View {
      */
     @Override
     public void updatePlayerList(ArrayList<String> players) {
-        this.players = players;
-        // if the LobbyPlayerList message is received after the NewGameConfirmationMessage or the AccessGameConfirmationMessage.
-        if (playerListView == null) {
-            playerListView = createTextField(null, 135, 360, 0, 0);
-            playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
-            playerListView.setTranslateX(0);
-            playerListView.setTranslateY(0);
-            playerListView.setEditable(false);
-        }
-        // update the list of players in the waiting page with the new list of players.
-        playerListView.setText("Players: \n" + String.join(",\n", players));
+        Platform.runLater(() -> {
+            this.players = players;
+            // update the list of players in the waiting page with the new list of players.
+            playerListView.clear();
+            playerListView.setText(players.toString());
+        });
     }
     /**
      * After receiving the GameStarted message from the server, the method is called to set up the view of the players,
@@ -2106,11 +2097,10 @@ public class GraphicalUI extends View {
         Platform.runLater(() -> {
             switch (event) {
                 case Event.NEW_PLAYER_JOIN -> {
-                    this.players.add(message);
-                    Label player = createLabel("Player " + message + " joined the lobby", 18);
+                    Label player = createLabel("Player " + message + " joined", 18);
                     player.setTranslateX(20);
                     player.setTranslateY(50);
-                    selectionPane.getChildren().add(player);
+                    waitingRoot.getChildren().add(player);
                     PauseTransition pause = new PauseTransition(Duration.seconds(3));
                     pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
                     pause.play();
@@ -2126,10 +2116,10 @@ public class GraphicalUI extends View {
                     Label id = createLabel("ID: " + gameID, -80, -80);
                     Label waiting = createLabel("Waiting...", 130, 100);
 
-                    playerListView = createTextField(null, 135, 360, 0, 0);
-                    playerListView.setText("Players: \n" + String.join("\n", players));
-                    playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                            "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
+                    playerListView = new TextArea();
+                    playerListView.setStyle("-fx-control-inner-background: #e5dfa7;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                            "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-wrap-text: true; " +
+                            "-fx-max-width: 450px;-fx-max-height:100px;");
                     playerListView.setTranslateX(0);
                     playerListView.setTranslateY(0);
                     playerListView.setEditable(false);
@@ -2145,6 +2135,7 @@ public class GraphicalUI extends View {
                         Label player = createLabel("Player " + message + " disconnected\n", 18);
                         player.setTranslateX(20);
                         player.setTranslateY(80);
+                        players.remove(message);
                         waitingRoot.getChildren().add(player);
                         PauseTransition pause = new PauseTransition(Duration.seconds(3));
                         pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
