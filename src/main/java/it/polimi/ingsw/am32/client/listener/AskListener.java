@@ -1,151 +1,236 @@
 package it.polimi.ingsw.am32.client.listener;
 
-import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
+import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
 /**
- * The AskListener class is responsible for listening for messages that need to be sent to the server.
- * It is a thread that runs continuously and waits for messages to be added to the queues.
+ * Used to manage the messages that are sent to the server.
+ * Stays in a loop and waits for messages to be added to the queues (according to their type).
+ * When a new message is added, it sends it to the server through the clientNode.
+ *
+ * @author Jie, Antony, Lorenzo
  */
 public class AskListener implements AskListenerInterface, Runnable {
     /**
-     * The logger associated with the AskListener class.
+     * The Logger of the AskListener class.
      */
     private static final Logger logger = LogManager.getLogger(AskListener.class);
     /**
-     * The connection node associated with the listener.
+     * The clientNode associated with the AskListener.
      */
     private final ClientNodeInterface clientNode;
     /**
-     * The queue of lobby messages that need to be sent to the server.
+     * The queue of messages that are to be sent to the server.
      */
-    private final ArrayList<CtoSLobbyMessage> lobbyMessagesBox;
+    private final ArrayList<CtoSMessage> messageQueue;
     /**
-     * The queue of messages that need to be sent to the server.
+     * The queue of messages that are to be sent to the server.
      */
-    private final ArrayList<CtoSMessage> messagesBox;
+    private final ArrayList<CtoSLobbyMessage> lobbyMessageQueue;
+    /**
+     * An object used to synchronize access to the queues.
+     */
+    private final Object queuesLock;
 
     /**
      * Constructor for the AskListener class.
      *
-     * @param clientNode The connection node associated with the listener.
+     * @param clientNode The clientNode associated with the AskListener.
      */
     public AskListener(ClientNodeInterface clientNode) {
-        if (clientNode == null){
-            throw new RuntimeException("Connection node cannot be null");
-        }
-
         this.clientNode = clientNode;
-        this.lobbyMessagesBox = new ArrayList<>();
-        this.messagesBox = new ArrayList<>();
+        // clientNode cannot be null
+        if (clientNode == null) {
+            throw new RuntimeException("clientNode cannot be null");
+        }
+        this.messageQueue = new ArrayList<>();
+        this.lobbyMessageQueue = new ArrayList<>();
+        this.queuesLock = new Object();
     }
 
     /**
-     * The run method of the AskListener class, that the thread will execute continuously.
+     * The run method of the AskListener class.
      */
-    @Override
-    public synchronized void run() {
+    public void run() {
+        logger.debug("AskListener thread has now started");
         while (!Thread.currentThread().isInterrupted()) {
             processMessage();
         }
+        // If we get to this point, the AskListener thread dies
+        logger.error("AskListener thread shut down");
     }
 
-    // Note: The addMessage method is overloaded, to allow for different types of messages to be added to the queues.
-
     /**
-     * Adds a message to the queue associated with that message.
+     * Adds a message to the queue of messages to be sent to the server.
      *
      * @param message The message to be added to the queue.
      */
-    @Override
-    public synchronized void addMessage(CtoSLobbyMessage message) {
+    public void addMessage(CtoSMessage message) {
+        // Message cannot be null
         if (message == null) {
             throw new RuntimeException("Message cannot be null");
         }
-
-        lobbyMessagesBox.add(message);
-        logger.info("{} added to messagesBox", message);
-        notifyAll(); // Wake up the thread
+        synchronized (queuesLock) {
+            messageQueue.add(message);
+            logger.debug("Message added to the AskListener queue: {}", message.getClass());
+            queuesLock.notifyAll(); // Notify the processing thread that a message has been added to the queue
+        }
     }
 
     /**
-     * Adds a message to the queue associated with that message.
+     * Adds a lobbyMessage to the queue of lobbyMessage to be sent to the server.
      *
-     * @param message The message to be added to the queue.
+     * @param lobbyMessage The lobbyMessage to be added to the queue.
      */
-    @Override
-    public synchronized void addMessage(CtoSMessage message) {
-        if (message == null) {
-            throw new RuntimeException("Message cannot be null");
+    public void addMessage(CtoSLobbyMessage lobbyMessage) {
+        // lobbyMessage cannot be null
+        if (lobbyMessage == null) {
+            throw new RuntimeException("lobbyMessage cannot be null");
         }
-
-        messagesBox.add(message);
-        logger.info("{} added to messagesBox", message);
-        notifyAll(); // Wake up the thread
+        synchronized (queuesLock) {
+            lobbyMessageQueue.add(lobbyMessage);
+            logger.debug("lobbyMessage added to the AskListener queue: {}", lobbyMessage.getClass());
+            queuesLock.notifyAll(); // Notify the processing thread that a message has been added to the queue
+        }
     }
 
     /**
-     * Checks if there are messages to be delivered to the server.
-     * If there are no messages, the thread is put into a waiting state.
-     * If there are messages, they are sent to the server and removed from the queues until they are empty.
-     * Lobby messages are always sent before regular messages if present.
+     * Flushes both the message and lobbyMessage queues.
      */
-    protected synchronized void processMessage() {
-        if (lobbyMessagesBox.isEmpty() && messagesBox.isEmpty()) { // Both message queues are empty
-            try {
-                wait(); // Wait until a message is added to one of the queues
-            } catch (InterruptedException e) { // Thread was somehow interrupted
-                Thread.currentThread().interrupt();
-                return; // Exit immediately
-            }
+    public void flushMessages() {
+        synchronized (queuesLock) {
+            lobbyMessageQueue.clear();
+            messageQueue.clear();
         }
+    }
 
-        // Messages are present in at least one of the queues
+    /**
+     * Processes the messages in the queues.
+     * The method will keep running until both queues are empty.
+     * If the queues are empty, the method will wait until a message is added to one of the queues.
+     */
+    private void processMessage() {
+        logger.debug("AskListener thread awake and processing messages");
 
-        while (!lobbyMessagesBox.isEmpty()) { // Empty the lobby message queue first
-            CtoSLobbyMessage message = lobbyMessagesBox.getFirst(); // Get the first message from the lobby queue but don't remove it yet
-            try {
-                clientNode.uploadToServer(message); // Try to send the message to the server
-                lobbyMessagesBox.removeFirst(); // The message was successfully sent, it can be removed from the queue
+        // If there are no messages to be delivered to the server, the thread goes to sleep.
+        // It will be woken up when a message is added to one of the queues.
 
-                logger.info("{} uploaded lobby msg to server successfully", message);
-            } catch (UploadFailureException e) { // If the message cannot be uploaded to the server
+        synchronized (queuesLock) {
+            // Keep waiting until there are messages to be delivered to the server
+            while (messageQueue.isEmpty() && lobbyMessageQueue.isEmpty()) {
                 try {
-                    logger.info("{} upload lobby msg to server failed", message);
-                    wait(); // Wait for server to reconnect or for a new message to be added to a queue
-                    return; // Exit immediately
-                } catch (InterruptedException e1) { // Thread was somehow interrupted
+                    queuesLock.wait();
+                } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    return; // Exit immediately
+                    logger.error("AskListener thread interrupted while waiting for messages");
+                    return;
                 }
             }
         }
 
-        while (!messagesBox.isEmpty()) { // Empty the message queue
-            CtoSMessage message = messagesBox.getFirst(); // Get the first message from the message queue but don't remove it yet
-            try {
-                clientNode.uploadToServer(message); // Try to send the message to the server
-                messagesBox.removeFirst(); // The message was successfully sent, it can be removed from the queue
+        // If we get to this point, there are messages to be delivered to the server.
+        // Keeps delivering messages until both queues are empty.
 
-                logger.info("{} uploaded msg to server successfully", message);
-            } catch (UploadFailureException e) { // If the message cannot be uploaded to the server
-                try {
-                    logger.info("{} upload msg to server failed", message);
-                    wait(); // Wait for server to reconnect or for a new message to be added to a queue
-                    return; // Exit immediately
-                } catch (InterruptedException e1) { // Thread was somehow interrupted
-                    Thread.currentThread().interrupt();
-                    return; // Exit immediately
+        processLobbyMessages();
+        processRegularMessage();
+    }
+
+    /**
+     * Send the regular messages to the server.
+     * The method will keep running until the message queue is empty.
+     * If the queue is empty, the method will return.
+     */
+    private void processRegularMessage() {
+        while(!Thread.currentThread().isInterrupted()){
+            CtoSMessage currentMessage;
+            // Acquire the lock on the message queue to retrieve the next message to be delivered.
+            // If the queue is empty, return early since our work is done.
+            synchronized (queuesLock){
+                if(messageQueue.isEmpty()){
+                    return;
+                }
+                currentMessage = messageQueue.getFirst();
+            }
+            // We have a message, let's try to send it to the server.
+            try {
+                // Acquire the lock on the clientNode and try to send the message.
+                synchronized (clientNode) {
+                    clientNode.uploadToServer(currentMessage);
+                }
+                // If we successfully sent the message, remove it from the queue.
+                synchronized (queuesLock) {
+                    messageQueue.removeFirst();
+                }
+                logger.debug("Message sent to the server: {}", currentMessage.getClass());
+            } catch (UploadFailureException e) {
+                logger.error("Failed to send message to the server: {}", e.getMessage());
+                // If we failed to send the message, we lost connection with the server.
+                // If we want to reconnect we will flush the message queue and send a reconnection message.
+                // Adding a reconnection message to the AskListener queue will wake up the thread.
+                synchronized (queuesLock) {
+                    try {
+                        queuesLock.wait();
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        logger.error("AskListener thread interrupted while awaiting a wake-up signal " +
+                                "after a failed message upload");
+                        return;
+                    }
                 }
             }
         }
+    }
 
-        // If we reach this point, all messages have been sent
+    /**
+     * Send the lobby messages to the server.
+     * The method will keep running until the lobbyMessage queue is empty.
+     * If the queue is empty, the method will return.
+     */
+    private void processLobbyMessages() {
+        while(!Thread.currentThread().isInterrupted()){
+            CtoSLobbyMessage currentLobbyMessage;
+            // Acquire the lock on the lobbyMessage queue to retrieve the next message to be delivered.
+            // If the lobbyMessage queue is empty, return early since our work is done.
+            synchronized (queuesLock){
+                if(lobbyMessageQueue.isEmpty()){
+                    return;
+                }
+                currentLobbyMessage = lobbyMessageQueue.getFirst();
+            }
+            // We have a message, let's try to send it to the server.
+            try {
+                // Acquire the lock on the clientNode and try to send the message.
+                synchronized (clientNode) {
+                    clientNode.uploadToServer(currentLobbyMessage);
+                }
+                // If we successfully sent the message, remove it from the queue.
+                synchronized (queuesLock) {
+                    lobbyMessageQueue.removeFirst();
+                }
+                logger.debug("LobbyMessage sent to the server: {}", currentLobbyMessage.getClass());
+            } catch (UploadFailureException e) {
+                logger.error("Failed to send lobbyMessage to the server: {}", e.getMessage());
+                // If we failed to send the message, we lost connection with the server.
+                // If we want to reconnect we will flush the message queue and send a reconnection message.
+                // Adding a reconnection message to the AskListener queue will wake up the thread.
+                synchronized (queuesLock) {
+                    try {
+                        queuesLock.wait();
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        logger.error("AskListener thread interrupted while awaiting a wake-up signal " +
+                                "after a failed lobbyMessage upload");
+                        return;
+                    }
+                }
+            }
+        }
     }
 }
