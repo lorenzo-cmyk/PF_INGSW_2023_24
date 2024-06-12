@@ -389,6 +389,8 @@ public class GameController {
     protected synchronized void endMatchDueToDisconnection() {
         // Set the Game Controller status to GAME_ENDED
         status = GameControllerStatus.GAME_ENDED;
+        // Set model status to TERMINATED
+        model.enterTerminatedPhase();
 
         // Notify all players that the game was won by the remaining player
         ArrayList<String> players = new ArrayList<>();
