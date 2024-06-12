@@ -50,10 +50,6 @@ public class TextUI extends View{
      */
     private final PrintStream out;
     /**
-     * The object used to check the validity of the input
-     */
-    private final IsValid isValid = new IsValid();
-    /**
      * Contains the boards of all players in the game
      */
     private final HashMap<String, BoardView> boards;
@@ -152,7 +148,19 @@ public class TextUI extends View{
     /**
      * HashMap used to store the images designed by the Unicode characters of the cards.
      */
-    protected final HashMap<Integer, ArrayList<String>> cardImg = setImg();
+    private final HashMap<Integer, ArrayList<String>> cardImg = setImg();
+    /**
+     * The boolean value that indicates if the player is in the chat mode.
+     */
+    private boolean chatMode = false;
+    /**
+     * The boolean value that indicates if it is the player's turn.
+     */
+    protected volatile boolean isMyTurn = true;
+    /**
+     * The boolean value that indicates if the player is in the service mode.
+     */
+    protected volatile boolean isInThread = false;
     /**
      * The thread used to read the input of the player when it is not the player's turn
      */
