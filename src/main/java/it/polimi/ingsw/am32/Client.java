@@ -13,7 +13,7 @@ import java.util.Scanner;
 /**
  * The main class on the client side of the application.
  * Prompts the user to choose whether to play the game in GUI or TUI mode.
- * After the user has chosen, calls the appropriate view object.
+ * After the user has chosen, call the appropriate view object.
  *
  * @author Jie
  */
@@ -27,6 +27,10 @@ public class Client {
      */
     private static final PrintStream out= new PrintStream(System.out);
 
+    /**
+     * The main method displays a welcome message and calls the chooseUI method to prompt the user to choose a UI type.
+     * @param args Command line arguments
+     */
     public static void main(String[] args){
         // Configure log4j2 logger to log only warnings and above
         Log4J2ConfiguratorWrapper.setLogLevelAndConfigure(Level.WARN);
