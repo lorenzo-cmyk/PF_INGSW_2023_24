@@ -197,7 +197,6 @@ public class GamesManager {
                 // Game has not yet ended
                 try {
                     game.reconnect(nickname, node); // Attempt to reconnect the player
-                    game.submitVirtualViewMessage(new ReconnectGameConfirmMessage(nickname)); // Notify the player that he has joined the game
 
                     for (PlayerQuadruple playerQuadruple : game.getNodeList()) {
                         // Also notify all players except player that has just reconnected, that a player has reconnected

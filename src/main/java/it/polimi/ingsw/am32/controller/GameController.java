@@ -1,8 +1,6 @@
 package it.polimi.ingsw.am32.controller;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Timer;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import it.polimi.ingsw.am32.utilities.Configuration;
@@ -63,6 +61,10 @@ public class GameController {
      * alreadyEnteredTerminatingPhase: A flag that indicates whether the terminating phase has already been entered; used to notify players when terminating phase is entered
      */
     private boolean alreadyEnteredTerminatingPhase;
+    /**
+     * stuckTurnFlag: A flag that indicates whether the game is stuck due to a player being lonely in the game and having terminated his turn
+     */
+    private boolean stuckTurnFlag;
 
     /**
      * Constructor for the GameController class. Initializes the game controller with the given id and game size.
@@ -294,6 +296,8 @@ public class GameController {
         // Undo the player's placement
         try {
             model.rollbackPlacement();
+            // We also need to roll back the status of the controller to WAITING_CARD_PLACEMENT
+            status = GameControllerStatus.WAITING_CARD_PLACEMENT;
         } catch (RollbackException e) {
             throw new CriticalFailureException("RollbackException when rolling back placement");
         } catch (PlayerNotFoundException e) {
@@ -327,7 +331,7 @@ public class GameController {
         }
 
         // Update the new current player. The notification is handled internally
-        setNextPlayer();
+        setNextPlayer(Optional.empty());
 
         // Start the timer for winner declaration if only one player remains connected
         handleLastConnectedPlayerIfPresent();
@@ -354,7 +358,7 @@ public class GameController {
         }
 
         // Update the new current player
-        setNextPlayer();
+        setNextPlayer(Optional.empty());
 
         // Start the timer for winner declaration if only one player remains connected
         handleLastConnectedPlayerIfPresent();
@@ -385,6 +389,8 @@ public class GameController {
     protected synchronized void endMatchDueToDisconnection() {
         // Set the Game Controller status to GAME_ENDED
         status = GameControllerStatus.GAME_ENDED;
+        // Set model status to TERMINATED
+        model.enterTerminatedPhase();
 
         // Notify all players that the game was won by the remaining player
         ArrayList<String> players = new ArrayList<>();
@@ -478,8 +484,16 @@ public class GameController {
             handleLastConnectedPlayerIfPresent(); // The check on the connected player count is done inside the method.
         }
 
+        // If we were stuck due to a lonely player that terminated his turn, we now have a new player to let play
+        if(stuckTurnFlag){
+            setNextPlayer(Optional.of(nickname));
+        }
+
         try {
-            submitVirtualViewMessage(generateResponseGameStatusMessage(nickname)); // Send the player the large message containing all the information about the current game state
+            submitVirtualViewMessage(new ReconnectGameConfirmMessage(nickname)); // Notify the player that he has joined the game
+            if(status != GameControllerStatus.GAME_ENDED) {
+                submitVirtualViewMessage(generateResponseGameStatusMessage(nickname)); // Send the player the large message containing all the information about the current game state
+            }
         } catch (VirtualViewNotFoundException e) {
             throw new CriticalFailureException("VirtualViewNotFoundException when reconnecting player");
         }
@@ -778,7 +792,7 @@ public class GameController {
                 return;
             }
 
-            setNextPlayer();
+            setNextPlayer(Optional.empty());
         } catch (InvalidSelectionException | InvalidPositionException | MissingRequirementsException e) {
             try {
                 submitVirtualViewMessage(new PlaceCardFailedMessage(nickname, e.getMessage()));
@@ -846,7 +860,7 @@ public class GameController {
                 alreadyEnteredTerminatingPhase = true;
             }
 
-            setNextPlayer();
+            setNextPlayer(Optional.empty());
 
         } catch (PlayerNotFoundException e) {
             throw new CriticalFailureException("Player " + nickname + " not found");
@@ -865,12 +879,30 @@ public class GameController {
      * Sets the current player, skipping over any disconnected players.
      * Updates the current game status.
      * Notifies all players of any changes in the model status, notifies all players of the newly elected current player.
+     *
+     * @param doNotSendMessagesToThisPlayer (Optional) The nickname of the player that should not be notified from this method (because a BigBoyMessage will be sent later)
      */
-    private void setNextPlayer() {
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void setNextPlayer(Optional<String> doNotSendMessagesToThisPlayer) {
         // If all players are disconnected, we don't want to get stuck in an infinite loop.
         // If only one player is connected, we don't want to let him play forever.
-        if (nodeList.stream().filter(PlayerQuadruple::isConnected).count() <= 1) {
+
+        // If the current player is the only one connected, set stuckTurnFlag to true and return immediately.
+        // Same if there are no more connected players.
+        List<String> connectedPlayers = nodeList.stream()
+                .filter(PlayerQuadruple::isConnected)
+                .map(PlayerQuadruple::getNickname)
+                .toList();
+
+        if(connectedPlayers.size() == 1 &&
+                connectedPlayers.getFirst().equals(model.getCurrentPlayerNickname())) {
+            stuckTurnFlag = true;
             return;
+        } else if (connectedPlayers.isEmpty()) {
+            stuckTurnFlag = true;
+            return;
+        } else {
+            stuckTurnFlag = false;
         }
 
         do {
@@ -884,7 +916,10 @@ public class GameController {
                     // Notify all players of the new match status
                     for (PlayerQuadruple playerQuadruple : nodeList) {
                         try {
-                            submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                            // Send the message only if the player in this iteration is not the one that we don't want to notify
+                            if (doNotSendMessagesToThisPlayer.isEmpty() || !doNotSendMessagesToThisPlayer.get().equals(playerQuadruple.getNickname())) {
+                                submitVirtualViewMessage(new MatchStatusMessage(playerQuadruple.getNickname(), model.getMatchStatus()));
+                            }
                         } catch (VirtualViewNotFoundException e) {
                             throw new CriticalFailureException("VirtualView for player " + playerQuadruple.getNickname() + " not found");
                         }
@@ -901,7 +936,10 @@ public class GameController {
         // Notify the players of the current player
         for (PlayerQuadruple playerQuadruple : nodeList) {
             try {
-                submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+                // Send the message only if the player in this iteration is not the one that we don't want to notify
+                if (doNotSendMessagesToThisPlayer.isEmpty() || !doNotSendMessagesToThisPlayer.get().equals(playerQuadruple.getNickname())) {
+                    submitVirtualViewMessage(new PlayerTurnMessage(playerQuadruple.getNickname(), model.getCurrentPlayerNickname()));
+                }
             } catch (VirtualViewNotFoundException e) {
                 throw new CriticalFailureException("VirtualView for player " + playerQuadruple.getNickname() + " not found");
             }
@@ -967,8 +1005,14 @@ public class GameController {
      */
     protected synchronized PlayerGameStatusMessage generateResponseGameStatusMessage(String nickname) {
         try {
+            // ArrayList containing the nicknames of all players.
+            // EDGE CASE: None. The list of players is always present.
             ArrayList<String> playerNicknames = model.getPlayersNicknames();
+            // ArrayList containing the connection status of all players.
+            // EDGE CASE: None. The list of players is always present.
             ArrayList<Boolean> playerConnected = nodeList.stream().map(PlayerQuadruple::isConnected).collect(Collectors.toCollection(ArrayList::new));
+            // ArrayList containing the colours of all players.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             ArrayList<Integer> playerColours = model.getPlayersNicknames().stream().map(playerNickname -> {
                 try {
                     return model.getPlayerColour(playerNickname);
@@ -978,8 +1022,20 @@ public class GameController {
                     throw new CriticalFailureException("Player " + playerNickname + " has a null colour");
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
+            // ArrayList containing the hand of the player.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             ArrayList<Integer> playerHand = model.getPlayerHand(nickname);
+            // ArrayList containing the secret objective cards assigned to the player.
+            // EDGE CASE: If the player has not yet chosen his starting card side, so the secret objective cards are not yet assigned, the array is empty.
+            ArrayList<Integer> playerAssignedSecretObjectiveCards = model.getSecretObjectiveCardsPlayer(nickname);
+            // The starting card assigned to the player.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
+            int playerStartingCard = model.getInitialCardPlayer(nickname);
+            // The secret objective assigned to the player.
+            // EDGE CASE: Can be -1 if the player has not yet chosen a secret objective.
             int playerSecretObjective = model.getPlayerSecretObjective(nickname);
+            // Array containing the points of all players.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the player has 0 points.
             int[] playerPoints = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerPoints(n);
@@ -987,34 +1043,78 @@ public class GameController {
                     throw new CriticalFailureException("Player " + n + " not found when generating game status message");
                 }
             }).mapToInt(Integer::intValue).toArray();
+            // ArrayList containing the resources summary of all players.
+            // EDGE CASE: If the player has not yet chosen his starting card's side, his field is not yet initialized.
             ArrayList<int[]> playersResourcesSummary = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerResources(n);
                 } catch (PlayerNotFoundException e) {
                     throw new CriticalFailureException("Player " + n + " not found when generating game status message");
+                } catch (NullFieldException e) {
+                    // 7 zeroes represent the resources summary of a player with no resources.
+                    return new int[]{0, 0, 0, 0, 0, 0, 0};
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
+            // ArrayList containing the fields of all players.
+            // EDGE CASE: If a player has not yet chosen his starting card's side, his field is not yet initialized.
             ArrayList<ArrayList<int[]>> playerFields = model.getPlayersNicknames().stream().map(n -> {
                 try {
                     return model.getPlayerField(n);
                 } catch (PlayerNotFoundException e) {
                     throw new CriticalFailureException("Player " + n + " not found when generating game status message");
+                } catch (NullFieldException e) {
+                    return new ArrayList<int[]>();
                 }
             }).collect(Collectors.toCollection(ArrayList::new));
-            int[] playerResources = model.getPlayerResources(nickname);
+            // Array containing the resources of the player.
+            // EDGE CASE: If the player has not yet chosen his starting card's side, his field is not yet initialized.
+            int[] playerResources;
+            try {
+                playerResources = model.getPlayerResources(nickname);
+            } catch (NullFieldException e) {
+                // 7 zeroes represent the resources summary of a player with no resources.
+                playerResources = new int[]{0, 0, 0, 0, 0, 0, 0};
+            }
+            // ArrayList containing the common objectives of the game.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state.
             ArrayList<Integer> gameCommonObjectives = model.getCommonObjectives();
+            // ArrayList containing the current resource cards of the game.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the ArrayList is empty if all cards have been drawn.
             ArrayList<Integer> gameCurrentResourceCards = model.getCurrentResourcesCards();
+            // ArrayList containing the current gold cards of the game.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the ArrayList is empty if all cards have been drawn.
             ArrayList<Integer> gameCurrentGoldCards = model.getCurrentGoldCards();
+            // The size of the resource card deck.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the deck is empty.
             int gameResourcesDeckSize = model.getResourceCardDeckSize();
+            // The kingdom of the next resource card.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. If the deck is empty, the kingdom is -1.
             int gameResourceDeckFacingKingdom = model.getNextResourceCardKingdom().orElse(-1);
+            // The size of the gold card deck.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. In the worst case, the deck is empty.
             int gameGoldDeckSize = model.getGoldCardDeckSize();
+            // The kingdom of the next gold card.
+            // EDGE CASE: None. This method is called after the model has already initialized the basic game state. If the deck is empty, the kingdom is -1.
             int gameGoldDeckFacingKingdom = model.getNextGoldCardKingdom().orElse(-1);
+            // The status of the match.
+            // EDGE CASE: None. The match status is always present.
             int matchStatus = model.getMatchStatus();
-            ArrayList<ChatMessage> playerChatHistory = chat.getPlayerChatHistory(nickname);
+            // The chat history of the player.
+            // EDGE CASE: None. The chat history is always present. In the worst case, the player has no chat history.
+            ArrayList<String[]> playerChatHistory = chat.getPlayerChatHistory(nickname).stream().map(ChatMessage::toArray).collect(Collectors.toCollection(ArrayList::new));
+            // The nickname of the current player.
+            // EDGE CASE: None. The current player is always present.
             String currentPlayer = model.getCurrentPlayerNickname();
-            ArrayList<int[]> newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
+            // The available field spaces of the player.
+            // EDGE CASE: If the player has not yet chosen his starting card's side, his field is not yet initialized.
+            ArrayList<int[]> newAvailableFieldSpaces;
+            try {
+                newAvailableFieldSpaces = model.getAvailableSpacesPlayer(nickname);
+            } catch (NullFieldException e) {
+                newAvailableFieldSpaces = new ArrayList<>();
+            }
 
-            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand,
+            return new PlayerGameStatusMessage(nickname, playerNicknames, playerConnected, playerColours, playerHand, playerAssignedSecretObjectiveCards, playerStartingCard,
                     playerSecretObjective, playerPoints, playersResourcesSummary, playerFields, playerResources, gameCommonObjectives,
                     gameCurrentResourceCards, gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize,
                     matchStatus, playerChatHistory, currentPlayer, newAvailableFieldSpaces,

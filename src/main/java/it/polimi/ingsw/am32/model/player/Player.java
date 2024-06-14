@@ -278,6 +278,11 @@ public class Player {
      * @return ArrayList of couples of integers denoting the x and y coordinates of the available position in the player's field
      */
     public ArrayList<int[]> availableSpacesPlayer() {
+
+        if(gameField == null) {
+            throw new NullFieldException("Attempted to run availableSpacesPlayer() with a null field.");
+        }
+
         ArrayList<int[]> availableCoordinate = new ArrayList<>(); // Create a new ArrayList of int arrays to store the available coordinates
         for (int j = 0; j < getField().getFieldCards().size(); j++) { // Loop through all the cards in the player's field
             int Ax, Ay;

@@ -48,7 +48,6 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private ClientPingTask clientPingTask;
 
     private boolean statusIsAlive;
-    private boolean reconnectCalled;
     private final Object aliveLock;
     private final Object cToSProcessingLock;
     private final Object sToCProcessingLock;

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am32.message.ServerToClient;
 
-import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.View;
 
 import java.util.ArrayList;
@@ -28,6 +27,14 @@ public class PlayerGameStatusMessage implements StoCMessage {
      * List of integers that represent the ids of the cards in the hand of the player
      */
     private final ArrayList<Integer> playerHand;
+    /**
+     * An Array of two integers that represent the server-assigned secret objective cards of the player
+     */
+    private final ArrayList<Integer> playerAssignedSecretObjectiveCards;
+    /**
+     * The ID of the starting card assigned by the server to the player
+     */
+    private final int playerStartingCard;
     /**
      * Integer that represents the id of the chosen secret objective of the player
      */
@@ -83,7 +90,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
     /**
      * List of chat messages that represent the chat history of the game
      */
-    private final ArrayList<ChatMessage> chatHistory;
+    private final ArrayList<String[]> chatHistory;
     /**
      * String that represents the nickname of the current player
      */
@@ -93,18 +100,25 @@ public class PlayerGameStatusMessage implements StoCMessage {
      */
     private final ArrayList<int[]> newAvailableFieldSpaces;
 
-    public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
-                                   ArrayList<Integer> playerHand, int playerSecretObjective, int[] playerPoints, ArrayList<int[]> playersResourcesSummary,
-                                   ArrayList<ArrayList<int[]>> playerFields, int[] playerResources, ArrayList<Integer> gameCommonObjectives,
-                                   ArrayList<Integer> gameCurrentResourceCards, ArrayList<Integer> gameCurrentGoldCards,
-                                   int gameResourcesDeckSize, int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory, String currentPlayer,
-                                   ArrayList<int[]> newAvailableFieldSpaces,
-                                   int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom) {
+    public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames,
+                                   ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
+                                   ArrayList<Integer> playerHand, ArrayList<Integer> playerAssignedSecretObjectiveCards,
+                                   int playerStartingCard, int playerSecretObjective,
+                                   int[] playerPoints, ArrayList<int[]> playersResourcesSummary,
+                                   ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
+                                   ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
+                                   ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
+                                   int gameGoldDeckSize, int matchStatus,
+                                   ArrayList<String[]> chatHistory, String currentPlayer,
+                                   ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom,
+                                   int goldCardDeckFacingKingdom) {
         this.recipientNickname = recipientNickname;
         this.playerNicknames = playerNicknames;
         this.playerConnected = playerConnected;
         this.playerColours = playerColours;
         this.playerHand = playerHand;
+        this.playerAssignedSecretObjectiveCards = playerAssignedSecretObjectiveCards;
+        this.playerStartingCard = playerStartingCard;
         this.playerSecretObjective = playerSecretObjective;
         this.playerPoints = playerPoints;
         this.playersResourcesSummary = playersResourcesSummary;
@@ -129,7 +143,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
                     playerPoints, playerFields, playerResources, gameCommonObjectives, gameCurrentResourceCards,
                     gameCurrentGoldCards, gameResourcesDeckSize, gameGoldDeckSize, matchStatus, chatHistory,
                     currentPlayer, newAvailableFieldSpaces, resourceCardDeckFacingKingdom, goldCardDeckFacingKingdom,
-                    playersResourcesSummary);
+                    playersResourcesSummary,playerAssignedSecretObjectiveCards,playerStartingCard );
     }
 
     @Override
@@ -140,10 +154,12 @@ public class PlayerGameStatusMessage implements StoCMessage {
     @Override
     public String toString(){
         String playerFieldsAsString = playerFields.stream()
-            .map(innerList -> innerList.stream()
-                .map(Arrays::toString)
-                .collect(Collectors.joining(", ", "[", "]")))
-            .collect(Collectors.joining(", ", "[", "]"));
+                .map(innerList -> (innerList != null && !innerList.isEmpty())
+                        ? innerList.stream()
+                        .map(Arrays::toString)
+                        .collect(Collectors.joining(", ", "[", "]"))
+                        : "[]")
+                .collect(Collectors.joining(", ", "[", "]"));
 
         return "PlayerGameStatusMessage:{" +
                 "recipientNickname='" + recipientNickname + '\'' +
@@ -151,6 +167,8 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 ", playerConnected=" + playerConnected.toString() +
                 ", playerColours=" + playerColours.toString() +
                 ", playerHand=" + playerHand.toString() +
+                ", playerAssignedSecretObjectiveCards=" + playerAssignedSecretObjectiveCards.toString() +
+                ", playerStartingCard=" + playerStartingCard +
                 ", playerSecretObjective=" + playerSecretObjective +
                 ", playerPoints=" + Arrays.toString(playerPoints) +
                 ", playersResourcesSummary=" + playersResourcesSummary.stream().map(Arrays::toString).toList() +
@@ -164,7 +182,7 @@ public class PlayerGameStatusMessage implements StoCMessage {
                 ", gameGoldDeckSize=" + gameGoldDeckSize +
                 ", goldCardDeckFacingKingdom=" + goldCardDeckFacingKingdom +
                 ", matchStatus=" + matchStatus +
-                ", chatHistory=" + chatHistory.stream().map(ChatMessage::toString).toList() +
+                ", chatHistory=" + chatHistory.stream().map(Arrays::toString).toList() +
                 ", currentPlayer='" + currentPlayer + '\'' +
                 ", newAvailableFieldSpaces=[" + newAvailableFieldSpaces.stream().map(Arrays::toString).collect(Collectors.joining(", ")) +
                 "]}";

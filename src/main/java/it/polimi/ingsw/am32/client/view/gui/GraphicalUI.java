@@ -1,11 +1,8 @@
 package it.polimi.ingsw.am32.client.view.gui;
 
-import it.polimi.ingsw.am32.chat.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
-import javafx.animation.PauseTransition;
-import javafx.animation.RotateTransition;
-import javafx.animation.ScaleTransition;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -27,9 +24,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.List;
 /**
  * The class GraphicalUI is the class that manages the graphical user interface of the game and interacts with the
  * GUIApplication class. The class extends the abstract class View and implements the methods of the View class.
@@ -88,7 +85,7 @@ public class GraphicalUI extends View {
      * The TextField object which contains the list of players in the lobby. The list is updated when a new player joins
      * the game or a player leaves the game. The list is shown in the waiting page.
      */
-    private TextField playerListView;
+    private TextArea playerListView;
     /**
      * The Label object that shows the status of the game after the login phase. The status can be PREPARATION, PLAYING,
      * TERMINATING, TERMINATED. The status is updated based on the messages received from the server. The label is shown
@@ -270,32 +267,33 @@ public class GraphicalUI extends View {
     }
 
     /**
-     * Get the root of the selection page, which is the page where the player can choose the connection type, choose
-     * the game mode and insert the data needed to create, join or reconnect to a game.
-     */
-    public StackPane getSelectionRoot() {
-        chooseConnection();
-        return selectionPane;
-    }
-
-    /**
      * Set up the welcome page of the GUI, which contains the welcome image and the button to show the rule book.
      */
     @Override
     public void showWelcome() {
         welcomeRoot = new StackPane();
-        Button ruleButton = createButton("[Rule Book]", 30, "#E6DEB3", 0, 300);
+        Button ruleButton = createButton("< Rule", 30, "#E6DEB3", 0, 300);
         welcomeRoot.getChildren().add(ruleButton);
-        ruleButton.setTranslateX(350);
-        ruleButton.setTranslateY(300);
+        ruleButton.setTranslateX(-420);
+        ruleButton.setTranslateY(0);
         ruleButton.setOnAction(e -> showRuleBook());
         Image backgroundWelcomePage = new Image(retrieveResourceURI("WelcomeDisplay.png"));
         BackgroundImage backgroundImg = new BackgroundImage(backgroundWelcomePage, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
         Background background = new Background(backgroundImg);
         welcomeRoot.setBackground(background);
+        // create the start button
+        Button startButton = createButton("Start >", 30, "#E6DEB3", 0, 300);
+        welcomeRoot.getChildren().add(startButton);
+        startButton.setTranslateX(420);
+        startButton.setTranslateY(0);
+        startButton.setOnAction(e ->
+        {   // remove all nodes from the welcome page and show the choose connection page
+            welcomeRoot.getChildren().removeAll();
+            chooseConnection();
+            welcomeRoot.getChildren().add(selectionPane);
+        });
     }
-
     /**
      * Set up the rule book of the game. The player can navigate through the pages of the rule book using the buttons
      * “<” to go to the previous page and “>” to go to the next page.
@@ -655,10 +653,11 @@ public class GraphicalUI extends View {
             Label id = createLabel("ID: " + gameID, -80, -80);
             Label waiting = createLabel("Waiting...", 130, 100);
 
-            playerListView = createTextField(null, 135, 360, 0, 0);
-            playerListView.setText("Players: \n" + String.join("\n", players));
-            playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
+            playerListView = new TextArea();
+            playerListView.setText(players.toString());
+            playerListView.setStyle("-fx-control-inner-background: #e5dfa7;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                    "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-wrap-text: true; " +
+                    "-fx-max-width: 450px;-fx-max-height:100px;");
             playerListView.setTranslateX(0);
             playerListView.setTranslateY(0);
             playerListView.setEditable(false);
@@ -678,18 +677,12 @@ public class GraphicalUI extends View {
      */
     @Override
     public void updatePlayerList(ArrayList<String> players) {
-        this.players = players;
-        // if the LobbyPlayerList message is received after the NewGameConfirmationMessage or the AccessGameConfirmationMessage.
-        if (playerListView == null) {
-            playerListView = createTextField(null, 135, 360, 0, 0);
-            playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                    "-fx-font-size: 25px;-fx-font-family: 'JejuHallasan';");
-            playerListView.setTranslateX(0);
-            playerListView.setTranslateY(0);
-            playerListView.setEditable(false);
-        }
-        // update the list of players in the waiting page with the new list of players.
-        playerListView.setText("Players: \n" + String.join(",\n", players));
+        Platform.runLater(() -> {
+            this.players = players;
+            // update the list of players in the waiting page with the new list of players.
+            playerListView.clear();
+            playerListView.setText(players.toString());
+        });
     }
     /**
      * After receiving the GameStarted message from the server, the method is called to set up the view of the players,
@@ -766,19 +759,12 @@ public class GraphicalUI extends View {
      */
     private void setGameView() {
         // set the master pane
-        Platform.runLater(()->{
         masterPane = new Pane();
         // set the background style of the master pane
         masterPane.setBackground(new Background(new BackgroundFill(Color.rgb(246, 243, 228),
                 new CornerRadii(0), new Insets(0))));
 
-        // set the players info panel
-        VBox playerInfoPanel = createPlayerInfoPanel();
-
-        // set the top line panel
-        HBox topLine = createTopLinePanel();
-
-        // create the board of this player
+            // create the board of this player
         StackPane boardMove = playerField.get(thisPlayerNickname);
         board = new ScrollPane(); // Fixed board where cards are displayed
         board.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
@@ -786,6 +772,16 @@ public class GraphicalUI extends View {
         board.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(50)));
         board.translateXProperty().bind(masterPane.widthProperty().subtract(board.widthProperty().add(20)));
         board.setContent(boardMove);
+        // add the buttons to the return to the thisPlayer's field
+        returnToMyField = createButton("[x] Return to my field", 15, "#3A2111", 0, 0);
+        returnToMyField.translateXProperty().bind(masterPane.widthProperty().subtract(200));
+        returnToMyField.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(80)));
+        returnToMyField.setVisible(false);
+        // set the players info panel
+        VBox playerInfoPanel = createPlayerInfoPanel();
+
+        // set the top line panel
+        HBox topLine = createTopLinePanel();
 
         // create the notification area
         notice = new VBox();
@@ -838,23 +834,14 @@ public class GraphicalUI extends View {
         noticeEventPanel = createNoticeEventPanel();
         noticeEventPanel.setVisible(false);
 
-        // add the buttons to the return to the thisPlayer's field
-        returnToMyField = createButton("[x] Return to my field", 15, "#3A2111", 0, 0);
-        returnToMyField.setOnAction(e -> {
-            board.setContent(this.playerField.get(thisPlayerNickname));
-            returnToMyField.setVisible(false);
-        });
-        returnToMyField.translateXProperty().bind(masterPane.widthProperty().subtract(200));
-        returnToMyField.translateYProperty().bind(masterPane.heightProperty().subtract(masterPane.heightProperty().subtract(80)));
-        returnToMyField.setVisible(false);
 
-        masterPane.getChildren().addAll(topLine, playerInfoPanel, board, deckArea,deckSize, bottomLine, noticeArea,
-                chatArea.getChatArea(),cardLabels,noticeEventPanel,returnToMyField);
+        masterPane.getChildren().addAll(topLine, board,returnToMyField,playerInfoPanel,noticeArea,noticeEventPanel, deckArea,
+                deckSize, bottomLine, chatArea.getChatArea(),cardLabels);
 
         // update the scene of the application with the master pane
-        app.updateScene(masterPane);
+        masterPane.setMinWidth(1250);
+        app.updateScene(masterPane,1250,750);
         app.getPrimaryStage().setMinWidth(1250);
-        });
     }
 
     /**
@@ -862,7 +849,7 @@ public class GraphicalUI extends View {
      * player's score, the player's resources and the player's colour.
      * @return the VBox which contains the player's info area.
      */
-    private VBox createPlayerInfoPanel(){
+    private VBox createPlayerInfoPanel() {
         VBox playerInfoPanel = new VBox();
         for (String player : players) { // for each player in the list of players
             // get the view of the player from the hashmap playerViews
@@ -1309,11 +1296,13 @@ public class GraphicalUI extends View {
      */
     @Override
     public void showPlayersField(String playerNickname) {
-        Platform.runLater(()-> {
             StackPane playerField = this.playerField.get(playerNickname);
             board.setContent(playerField);
             returnToMyField.setVisible(true);
-        });
+            returnToMyField.setOnMouseClicked(e -> {
+            board.setContent(this.playerField.get(thisPlayerNickname));
+            returnToMyField.setVisible(false);
+            });
     }
 
     /**
@@ -1323,11 +1312,13 @@ public class GraphicalUI extends View {
      */
     @Override
     public void showPointsAndResource(String playerNickname) {
-        playerViews.get(playerNickname).getPoints().setEffect(dropShadow);
-        playerViews.get(playerNickname).getNickname().setEffect(dropShadow);
-        for (Label label: playerViews.get(playerNickname).getResourceLabels()) {
-            label.setEffect(dropShadow);
-        }
+        Platform.runLater(()-> {
+            playerViews.get(playerNickname).getPoints().setEffect(dropShadow);
+            playerViews.get(playerNickname).getColour().setEffect(dropShadow);
+            for (Label label : playerViews.get(playerNickname).getResourceLabels()) {
+                label.setEffect(dropShadow);
+            }
+        });
     }
 
     /**
@@ -1338,56 +1329,59 @@ public class GraphicalUI extends View {
      */
     @Override
     public void updatePlayerTurn(String playerNickname) {
-        playerViews.get(this.currentPlayer).getPoints().setEffect(null);
-        playerViews.get(this.currentPlayer).getNickname().setEffect(null);
-        for(Label label: playerViews.get(this.currentPlayer).getResourceLabels()) {
-            label.setEffect(null);
-        }
-        this.currentPlayer = playerNickname;
-        showPointsAndResource(playerNickname);
-        if (this.currentPlayer.equals(thisPlayerNickname)) {
-            // if the player's turn is now, request the player to place the card in the field.
-            currentEvent = Event.PLACE_CARD;
-            requestPlaceCard();
-            noticeEventPanel.setVisible(true);
-            eventLabel.setText("It's your turn!");
-            RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), noticeEventPanel);
-            rotateTransition.setByAngle(360);
-            rotateTransition.setCycleCount(1);
-            rotateTransition.setAxis(Rotate.Y_AXIS);
-            rotateTransition.play();
-
-        } else {
-            noticeEventPanel.setVisible(false);
-            currentEvent = Event.WAITING_FOR_TURN;
-            Platform.runLater(()->notice.getChildren().add(new Label("> It is " + currentPlayer + "'s turn.")));
-        }
+        Platform.runLater(()-> {
+            playerViews.get(this.currentPlayer).getPoints().setEffect(null);
+            playerViews.get(this.currentPlayer).getColour().setEffect(null);
+            for (Label label : playerViews.get(this.currentPlayer).getResourceLabels()) {
+                label.setEffect(null);
+            }
+            this.currentPlayer = playerNickname;
+            showPointsAndResource(playerNickname);
+            if (this.currentPlayer.equals(thisPlayerNickname)) {
+                // if the player's turn is now, request the player to place the card in the field.
+                currentEvent = Event.PLACE_CARD;
+                requestPlaceCard();
+                noticeEventPanel.setVisible(true);
+                eventLabel.setText("It's your turn!");
+                RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), noticeEventPanel);
+                rotateTransition.setByAngle(360);
+                rotateTransition.setCycleCount(1);
+                rotateTransition.setAxis(Rotate.Y_AXIS);
+                rotateTransition.play();
+            } else {
+                noticeEventPanel.setVisible(false);
+                currentEvent = Event.WAITING_FOR_TURN;
+                notice.getChildren().add(new Label("> It is " + currentPlayer + "'s turn."));
+            }
+        });
     }
 
     /**
      * This method is called by processMessage to update the all data of the players in the game when the game enters
      * the playing phase or when the player reconnects to the game.
      *
-     * @param playerNicknames               the nicknames of the players in the game.
-     * @param playerConnected               the connection status of the players in the game.
-     * @param playerColours                 the colours assigned to the players in the game.
-     * @param playerHand                    the hand of this player.
-     * @param playerSecretObjective         the secret objective card selected by this player.
-     * @param playerPoints                  the points of the players in the game.
-     * @param playerFields                  the fields of the players in the game.
-     * @param playerResources               the resources of the players in the game.
-     * @param gameCommonObjectives          the common objective cards of the game.
-     * @param gameCurrentResourceCards      the current visible resource cards in the game that the player can draw.
-     * @param gameCurrentGoldCards          the current visible gold cards in the game that the player can draw.
-     * @param gameResourcesDeckSize         the size of the resource deck in the game.
-     * @param gameGoldDeckSize              the size of the gold deck in the game.
-     * @param matchStatus                   the current match status of the game.
-     * @param chatHistory                   the chat history of this player in the game.
-     * @param currentPlayer                 indicates the whose turn is now.
-     * @param newAvailableFieldSpaces       the available spaces in the field of this player.
-     * @param resourceCardDeckFacingKingdom the type of kingdom of the first card in the resource deck.
-     * @param goldCardDeckFacingKingdom     the type of kingdom of the first card in the gold deck.
-     * @param playersResourcesSummary       the array list of the resources of the players in the game.
+     * @param playerNicknames                    the nicknames of the players in the game.
+     * @param playerConnected                    the connection status of the players in the game.
+     * @param playerColours                      the colours assigned to the players in the game.
+     * @param playerHand                         the hand of this player.
+     * @param playerSecretObjective              the secret objective card selected by this player.
+     * @param playerPoints                       the points of the players in the game.
+     * @param playerFields                       the fields of the players in the game.
+     * @param playerResources                    the resources of the players in the game.
+     * @param gameCommonObjectives               the common objective cards of the game.
+     * @param gameCurrentResourceCards           the current visible resource cards in the game that the player can draw.
+     * @param gameCurrentGoldCards               the current visible gold cards in the game that the player can draw.
+     * @param gameResourcesDeckSize              the size of the resource deck in the game.
+     * @param gameGoldDeckSize                   the size of the gold deck in the game.
+     * @param matchStatus                        the current match status of the game.
+     * @param chatHistory                        the chat history of this player in the game.
+     * @param currentPlayer                      indicates the whose turn is now.
+     * @param newAvailableFieldSpaces            the available spaces in the field of this player.
+     * @param resourceCardDeckFacingKingdom      the type of kingdom of the first card in the resource deck.
+     * @param goldCardDeckFacingKingdom          the type of kingdom of the first card in the gold deck.
+     * @param playersResourcesSummary            the array list of the resources of the players in the game.
+     * @param playerAssignedSecretObjectiveCards the secret objective cards assigned to the players in the game.
+     * @param playerStartingCard                 the ID of the starter card assigned to this player.
      */
     @Override
     public void updatePlayerData(ArrayList<String> playerNicknames, ArrayList<Boolean> playerConnected,
@@ -1396,28 +1390,105 @@ public class GraphicalUI extends View {
                                  ArrayList<ArrayList<int[]>> playerFields, int[] playerResources,
                                  ArrayList<Integer> gameCommonObjectives, ArrayList<Integer> gameCurrentResourceCards,
                                  ArrayList<Integer> gameCurrentGoldCards, int gameResourcesDeckSize,
-                                 int gameGoldDeckSize, int matchStatus, ArrayList<ChatMessage> chatHistory,
-                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces, int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom, ArrayList<int[]> playersResourcesSummary) { // once the player reconnects to the game
-
-        // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
-        startChatting(); // Enable chat area
-
+                                 int gameGoldDeckSize, int matchStatus, ArrayList<String[]> chatHistory,
+                                 String currentPlayer, ArrayList<int[]> newAvailableFieldSpaces,
+                                 int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom,
+                                 ArrayList<int[]> playersResourcesSummary,
+                                 ArrayList<Integer> playerAssignedSecretObjectiveCards, int playerStartingCard) {
+        // Forcefully overwrite the chatHistory to prevent an unwanted use of Server's class inside the Client
+        // We are now rebuilding the ChatMessage object from the ArrayList of Arrays
+        ArrayList<ChatMessage> chatHistoryRebuild = new ArrayList<>();
+        for (String[] messageArray : chatHistory) {
+            ChatMessage messageRebuild = new ChatMessage(messageArray[0], messageArray[1],
+                    Boolean.parseBoolean(messageArray[2]), messageArray[3]);
+            chatHistoryRebuild.add(messageRebuild);
+        }
+        this.chatHistory = chatHistoryRebuild;
+        this.hand = playerHand;
+        this.commonObjCards = gameCommonObjectives;
+        this.secretObjCardSelected = playerSecretObjective;
+        this.currentResourceCards = gameCurrentResourceCards;
+        this.currentGoldCards = gameCurrentGoldCards;
+        this.resourceDeckSize = gameResourcesDeckSize;
+        this.goldDeckSize = gameGoldDeckSize;
+        this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
+        this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
+        this.currentPlayer = currentPlayer;
+        this.players = playerNicknames;
         // store all the data of the game received from the server
         if (currentEvent.equals(Event.RECONNECT_GAME)) {
-            showChatHistory(chatHistory);
-            //TODO
-        } else {
+            this.Status = Event.getEvent(matchStatus);
+            this.players = playerNicknames;
+            setUpPlayersData();
+                if (this.Status.equals(Event.PREPARATION)) {
+                    for (String player : players) {
+                        Platform.runLater(() -> {
+                        publicInfo.get(player).updateOnline(playerConnected.get(playerNicknames.indexOf(player)));
+                        if (!playerConnected.get(playerNicknames.indexOf(player)))
+                            playerViews.get(player).setColour(imagesMap.get("GREY"));
+                        });
+                    }
+                    int thisPlayerIndex = playerNicknames.indexOf(thisPlayerNickname);
+                    // case 1: reconnect before the selection of the starter card
+                    if (playerFields.get(thisPlayerIndex) == null) {
+                        setStarterCard(playerStartingCard); // store the ID of the starter card received from the server
+                    } else {
+                        boolean isUp = playerFields.get(thisPlayerIndex).getFirst()[3] == 1;
+                        updateConfirmStarterCard(playerColours.get(thisPlayerIndex), playerStartingCard, isUp,
+                                newAvailableFieldSpaces, playerResources);
+                        // case 2: reconnect before the selection of the secret objective card
+                        if (playerSecretObjective == -1) {
+                            setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
+                        }
+                        // case 3: reconnect after the secret objective card
+                        else {
+                            setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
+                            updateConfirmSelectedSecretCard(playerSecretObjective);
+                        }
+                    }
+                }
+                // case 4: reconnect after the preparation phase: playing, terminating, last
+                else {
+                        Platform.runLater(() -> {
+                        this.resourceDeckView[0].setImage(imagesMap.get(String.valueOf(resourceCardDeckFacingKingdom)));
+                        this.resourceDeckView[1].setImage(new Image(retrieveResourceURI(convertToImagePath(currentResourceCards.get(0), true)), 120, 80, true, false));
+                        this.resourceDeckView[2].setImage(new Image(retrieveResourceURI(convertToImagePath(currentResourceCards.get(1), true)), 120, 80, true, false));
+                        this.goldDeckView[0].setImage(imagesMap.get(String.valueOf(goldCardDeckFacingKingdom + 4)));
+                        this.goldDeckView[1].setImage(new Image(retrieveResourceURI(convertToImagePath(currentGoldCards.get(0), true)), 120, 80, true, false));
+                        this.goldDeckView[2].setImage(new Image(retrieveResourceURI(convertToImagePath(currentGoldCards.get(1), true)), 120, 80, true, false));
+                        goldSize.setText(String.valueOf(goldDeckSize));
+                        resourceSize.setText(String.valueOf(resourceDeckSize));
+                        ImageView firstPlayer = new ImageView(imagesMap.get("BLACK"));
+                        playerOrder.getChildren().addAll(firstPlayer, createLabel(String.valueOf(playerNicknames), 15));
+                        });
+
+                    setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
+                    updateConfirmSelectedSecretCard(playerSecretObjective);
+                    PlayerPub playerSpecific;
+                    // update the data of the players except this player: set the colour, resources, points, online status,
+                    // and the field.
+                    for (int i = 0; i < players.size(); i++) {
+                        playerSpecific = publicInfo.get(players.get(i));
+                        playerSpecific.updateColour(convertToColour(playerColours.get(i)));
+                        playerSpecific.updateResources(playersResourcesSummary.get(i));
+                        int finalI = i;
+                        PlayerPub finalPlayerSpecific = playerSpecific;
+                        playerFields.get(i).forEach(card -> {
+                            // the current available spaces in the field.
+                            updateAfterPlacedCard(players.get(finalI), card[2], card[0], card[1],
+                                    card[3] == 1, newAvailableFieldSpaces, playersResourcesSummary.get(finalI), playerPoints[finalI]);
+                            playerViews.get(players.get(finalI)).setColour(imagesMap.get(convertToColour(playerColours.get(finalI))));
+                        });
+                    }
+                    updatePlayerTurn(this.currentPlayer);
+                    startChatting(); // Enable chat area
+                    // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
+                }
+            } else {
+            // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
+            startChatting(); // Enable chat area
             // once the game enters the playing phase, the method is called to update a part of the data of the player
             // that not yet updated in the previous phases.
-            this.currentResourceCards = gameCurrentResourceCards;
-            this.currentGoldCards = gameCurrentGoldCards;
-            this.resourceDeckSize = gameResourcesDeckSize;
-            this.goldDeckSize = gameGoldDeckSize;
-            this.resourceCardDeckFacingKingdom = resourceCardDeckFacingKingdom;
-            this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
-            this.chatHistory = chatHistory;
-            this.currentPlayer = currentPlayer;
-            this.players = playerNicknames;
             int[] card;
             this.resourceDeckView[0].setImage(imagesMap.get(String.valueOf(resourceCardDeckFacingKingdom)));
             this.resourceDeckView[1].setImage(new Image(retrieveResourceURI(convertToImagePath(currentResourceCards.get(0),true)), 120, 80, true, false));
@@ -1480,6 +1551,7 @@ public class GraphicalUI extends View {
         String cardIdStr1 = convertToImagePath(hand.get(0), true);
         String cardIdStr2 = convertToImagePath(hand.get(1), true);
         String cardIdStr3 = convertToImagePath(hand.get(2), true);
+        Platform.runLater(()->{
         handView[0].setImage(new Image(retrieveResourceURI(cardIdStr1), 120, 80, true, true));
         handView[1].setImage(new Image(retrieveResourceURI(cardIdStr2), 120, 80, true, true));
         handView[2].setImage(new Image(retrieveResourceURI(cardIdStr3), 120, 80, true, true));
@@ -1488,11 +1560,12 @@ public class GraphicalUI extends View {
         String commonCardIdStr2 = convertToImagePath(common.get(1), true);
         commonObjCardView[0].setImage(new Image(retrieveResourceURI(commonCardIdStr1),120, 80, true, true));
         commonObjCardView[1].setImage(new Image(retrieveResourceURI(commonCardIdStr2), 120, 80, true, true));
-        Platform.runLater(()->{
         notice.getChildren().add(new Label("> Your hand cards and common objective cards are ready in your card area:)\n"));
         notice.getChildren().add(new Label("> Please select your secret objective cards\n"));
+        if(this.secretObjCardSelected == -1) {
+            requestSelectSecretObjectiveCard();
+        }
         });
-        requestSelectSecretObjectiveCard();
     }
 
     /**
@@ -1522,7 +1595,6 @@ public class GraphicalUI extends View {
      */
     @Override
     public void showCard(int ID, boolean isUp) {
-            Platform.runLater(() -> {
             ImageView cardView = new ImageView(new Image(retrieveResourceURI(convertToImagePath(ID, isUp)), 120, 80, true, false));
             VBox cardArea = new VBox(); // Entire selection area
             Label promptLabel = createLabel("Card "+ID+": ", 15);
@@ -1530,7 +1602,7 @@ public class GraphicalUI extends View {
             cardArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
             cardArea.getChildren().addAll(promptLabel, cardView);
             Pane pane;
-            pane = Status.equals(Event.TERMINATED) ? endGamePane : masterPane;
+            pane = currentEvent.equals(Event.TERMINATED) ? endGamePane : masterPane;
             cardArea.translateXProperty().bind(pane.widthProperty().subtract(cardArea.widthProperty()).divide(2)); // Set position of selectionArea
             cardArea.translateYProperty().bind(pane.heightProperty().subtract(cardArea.heightProperty()).divide(2));
             pane.getChildren().add(cardArea);
@@ -1540,8 +1612,6 @@ public class GraphicalUI extends View {
                 cardArea.getChildren().removeAll(promptLabel, cardView);
             });
             pause.play();
-        });
-
     }
 
     /**
@@ -1602,6 +1672,7 @@ public class GraphicalUI extends View {
     public void showMatchWinners(ArrayList<String> players, ArrayList<Integer> points, ArrayList<Integer> secrets,
                                  ArrayList<Integer> pointsGainedFromObj, ArrayList<String> winners) {
         Platform.runLater(()-> {
+            currentEvent = Event.TERMINATED;
             endGamePane = new Pane();
             endGamePane.setBackground(new Background(new BackgroundImage(new Image(retrieveResourceURI("endGameDisplay.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false))));
             Label winnersLabel = createLabel("Winners: " + winners + "\n", 25);
@@ -1621,7 +1692,7 @@ public class GraphicalUI extends View {
             PointsArea.translateYProperty().bind(endGamePane.heightProperty().subtract(PointsArea.heightProperty()).divide(2));
             PointsArea.setStyle("-fx-background-color:transparent;");
             endGamePane.getChildren().addAll(PointsArea);
-            app.updateScene(endGamePane);
+            app.updateScene(endGamePane,975,750);
             app.getPrimaryStage().setMinWidth(975);
             app.getPrimaryStage().setMaxWidth(975);
             app.getPrimaryStage().show();
@@ -1638,7 +1709,16 @@ public class GraphicalUI extends View {
      */
     @Override
     public void updateRollback(String playerNickname, int removedCard, int playerPoints, int[] playerResources) {
-        //TODO
+         PlayerPub player = publicInfo.get(playerNickname);
+         PlayerPubView playerView = playerViews.get(playerNickname);
+         player.updatePoints(playerPoints);
+         player.updateResources(playerResources);
+         player.getField().removeLast();
+         Platform.runLater(()-> {
+         playerView.setPoints(playerPoints);
+         playerView.setResourceLabels(playerResources);
+         playerField.get(playerNickname).getChildren().removeLast();
+         });
     }
 
     /**
@@ -1847,7 +1927,10 @@ public class GraphicalUI extends View {
      */
     @Override
     public void startChatting() {
+        Platform.runLater(() -> {
         chatArea.setActive(true);
+            notice.getChildren().add(new Label("> Chat area is enabled now.\n"));
+        });
     }
 
     /**
@@ -1982,7 +2065,7 @@ public class GraphicalUI extends View {
         publicInfo.get(playerNickname).updatePoints(points); // update the points
         // update the view
         Platform.runLater(()->{
-            playerViews.get(playerNickname).setPoints(points);
+        playerViews.get(playerNickname).setPoints(points);
         playerViews.get(playerNickname).setResourceLabels(resources);
         // represents the sequence of the card placed in the field.
         int posX = 300+x * 95;
@@ -2014,11 +2097,10 @@ public class GraphicalUI extends View {
         Platform.runLater(() -> {
             switch (event) {
                 case Event.NEW_PLAYER_JOIN -> {
-                    this.players.add(message);
-                    Label player = createLabel("Player " + message + " joined the lobby", 18);
+                    Label player = createLabel("Player " + message + " joined", 18);
                     player.setTranslateX(20);
                     player.setTranslateY(50);
-                    selectionPane.getChildren().add(player);
+                    waitingRoot.getChildren().add(player);
                     PauseTransition pause = new PauseTransition(Duration.seconds(3));
                     pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
                     pause.play();
@@ -2034,10 +2116,10 @@ public class GraphicalUI extends View {
                     Label id = createLabel("ID: " + gameID, -80, -80);
                     Label waiting = createLabel("Waiting...", 130, 100);
 
-                    playerListView = createTextField(null, 135, 360, 0, 0);
-                    playerListView.setText("Players: \n" + String.join("\n", players));
-                    playerListView.setStyle("-fx-background-color: transparent;-fx-text-fill: #3A2111;-fx-alignment: center;" +
-                            "-fx-font-size: 30px;-fx-font-family: 'JejuHallasan';");
+                    playerListView = new TextArea();
+                    playerListView.setStyle("-fx-control-inner-background: #e5dfa7;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                            "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-wrap-text: true; " +
+                            "-fx-max-width: 450px;-fx-max-height:100px;");
                     playerListView.setTranslateX(0);
                     playerListView.setTranslateY(0);
                     playerListView.setEditable(false);
@@ -2053,11 +2135,21 @@ public class GraphicalUI extends View {
                         Label player = createLabel("Player " + message + " disconnected\n", 18);
                         player.setTranslateX(20);
                         player.setTranslateY(80);
+                        players.remove(message);
                         waitingRoot.getChildren().add(player);
                         PauseTransition pause = new PauseTransition(Duration.seconds(3));
                         pause.setOnFinished(e -> waitingRoot.getChildren().remove(player));
                         pause.play();
                     }
+                }
+                case Event.PLAYER_RECONNECTED -> {
+                    publicInfo.get(message).updateOnline(true);
+                    if(this.Status.equals(Event.PREPARATION)){
+                        playerViews.get(message).setColour(imagesMap.get("BLACK"));
+                    }else{
+                        playerViews.get(message).setColour(imagesMap.get(publicInfo.get(message).getColour()));
+                    }
+                    notice.getChildren().add(new Label("> Player " + message + " reconnected.\n"));
                 }
             }
         });
@@ -2149,10 +2241,10 @@ public class GraphicalUI extends View {
 
         selectionArea.setBackground(new Background(new BackgroundFill(Color.rgb(230, 222, 179, 0.35), new CornerRadii(0), new Insets(0))));
         selectionArea.setBorder(new Border(new BorderStroke(Color.rgb(230, 222, 179, 0.2), BorderStrokeStyle.SOLID, new CornerRadii(0), new BorderWidths(30))));
-
-        selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(selectionArea.widthProperty()).divide(2)); // Set position of selectionArea
-        selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(selectionArea.heightProperty()).divide(2));
-
+        Platform.runLater(()-> {
+                    selectionArea.translateXProperty().bind(masterPane.widthProperty().subtract(selectionArea.widthProperty()).divide(2)); // Set position of selectionArea
+                    selectionArea.translateYProperty().bind(masterPane.heightProperty().subtract(selectionArea.heightProperty()).divide(2));
+                });
         cardPairArea.setSpacing(20); // Add spacing between cards in the cardPairArea
 
         // Compose elements
