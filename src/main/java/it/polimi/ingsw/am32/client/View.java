@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.client;
 
 
+import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.utilities.IsValid;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
@@ -172,11 +173,11 @@ public abstract class View{
      * @param port The port number of the server.
      * @throws IOException If an I/O error occurs when creating the socket.
      */
-    public void setSocketClient(String serverIP, int port) throws IOException {
+    public void setSocketClient(String serverIP, int port) throws ConnectionSetupFailedException {
         SKClientNode clientNode = new SKClientNode(this,serverIP,port);
         this.clientNode = clientNode;
         clientNode.startConnection();
-        this.askListener = new  AskListener(clientNode);
+        this.askListener = new AskListener(clientNode);
         Thread askListener = new Thread(this.askListener); // Create a new thread listen for messages from the client
         askListener.start();
         //TODO verify if this is correct
@@ -188,7 +189,7 @@ public abstract class View{
      * @param serverIP The IP address of the server.
      * @param port The port number of the server.
      */
-    public void setRMIClient(String serverIP, int port) {
+    public void setRMIClient(String serverIP, int port) throws ConnectionSetupFailedException {
         //TODO verify if this is correct
         try{
             RMIClientNode clientNode = new RMIClientNode(this, serverIP, port);

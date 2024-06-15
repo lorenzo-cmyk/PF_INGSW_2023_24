@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am32.client.view.tui;
 
+import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.utilities.IsValid;
 import it.polimi.ingsw.am32.client.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
@@ -260,7 +261,7 @@ public class TextUI extends View{
                     try {
                         setSocketClient(serverIP, port); // Set the socket client
                         isConnected = true; // Set the connection status to true
-                    } catch (IOException e) { // If an I/O error occurs
+                    } catch (ConnectionSetupFailedException e) { // If an I/O error occurs
                         Thread.currentThread().interrupt(); // Interrupt the current thread
                         // TODO Should probably log this
                     }
@@ -288,8 +289,12 @@ public class TextUI extends View{
                     }
 
                     // TODO mettere exception come
-                    setRMIClient(serverIP, port); // Set the RMI client
-                    isConnected = true; // Set the connection status to true
+                    try {
+                        setRMIClient(serverIP, port); // Set the RMI client
+                        isConnected = true; // Set the connection status to true
+                    } catch (ConnectionSetupFailedException e) {
+                        // TODO gestire eccezione
+                    }
 
                     break;
                 }
@@ -315,7 +320,7 @@ public class TextUI extends View{
      * @throws IOException if an I/O error occurs
      */
     @Override
-    public void setSocketClient(String serverIP, int port) throws IOException {
+    public void setSocketClient(String serverIP, int port) throws ConnectionSetupFailedException {
         super.setSocketClient(serverIP, port);
     }
 
@@ -327,7 +332,7 @@ public class TextUI extends View{
      * @see View#setSocketClient(String, int)
      */
     @Override
-    public void setRMIClient(String serverURL, int port) {
+    public void setRMIClient(String serverURL, int port) throws ConnectionSetupFailedException {
         super.setRMIClient(serverURL, port); // see the method in the superclass
     }
     //-------------------Title-------------------
