@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.client.view.gui;
 
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
+import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -413,7 +414,7 @@ public class GraphicalUI extends View {
             } catch (NumberFormatException ex) {
                 createAlert("Invalid port number");
                 port.clear();
-            } catch (IOException ex) {
+            } catch (ConnectionSetupFailedException ex) {
                 createAlert("Connection failed");
                 ip.clear();
                 port.clear();
@@ -442,11 +443,13 @@ public class GraphicalUI extends View {
             } catch (NumberFormatException ex) {
                 createAlert("Invalid port number");
                 port.clear();
-            } /*catch (IOException ex) { //TODO
+            } catch (ConnectionSetupFailedException ex) { //TODO
+                /*
                 createAlert("Connection failed");
                 ip.clear();
                 port.clear();
-            }*/
+                */
+            }
         });
     }
     /**
@@ -457,11 +460,11 @@ public class GraphicalUI extends View {
      * @throws IOException if the connection to the server fails
      */
     @Override
-    public void setSocketClient(String ServerIP, int portNumber) throws IOException {
+    public void setSocketClient(String ServerIP, int portNumber) throws ConnectionSetupFailedException {
         super.setSocketClient(ServerIP, portNumber);
     }
     @Override
-    public void setRMIClient(String serverURL, int port) {
+    public void setRMIClient(String serverURL, int port) throws ConnectionSetupFailedException {
         super.setRMIClient(serverURL, port); // see the method in the superclass
     }
 
