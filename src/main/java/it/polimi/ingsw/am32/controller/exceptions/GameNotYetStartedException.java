@@ -1,17 +1,20 @@
 package it.polimi.ingsw.am32.controller.exceptions;
 
+import it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageException;
+import it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageExceptionEnumeration;
+
 /**
- * This class represents a custom exception that is thrown when a game operation is attempted
- * before the game has officially started. It extends the Exception class, thereby inheriting
- * its methods and can be used in a try-catch block.
+ * This exception is thrown when a player tries to connect to a game that has not yet started.
  */
-public class GameNotYetStartedException extends Exception {
+public class GameNotYetStartedException extends LobbyMessageException {
     /**
-     * Constructor for the GameNotYetStartedException class.
-     *
-     * @param message The detail message which is saved for later retrieval by the Throwable.getMessage() method.
+     * Creates a new GameNotYetStartedException with the given message.
+     * @param message The message of the exception.
      */
     public GameNotYetStartedException(String message) {
-        super(message);
+        super(
+                LobbyMessageExceptionEnumeration.GAME_NOT_YET_STARTED_EXCEPTION,
+                message
+        );
     }
 }
