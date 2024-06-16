@@ -1,10 +1,8 @@
 package it.polimi.ingsw.am32.network.ClientAcceptor;
 
 import it.polimi.ingsw.am32.controller.GameController;
-import it.polimi.ingsw.am32.controller.exceptions.*;
+import it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageException;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
-import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
-import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNodeInt;
 import it.polimi.ingsw.am32.network.GameTuple;
 import it.polimi.ingsw.am32.network.ServerNode.RMIServerNode;
@@ -22,10 +20,9 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
 
     // TODO export stuff
     @Override
-    public GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message) throws RemoteException,
-            GameAlreadyStartedException, FullLobbyException, InvalidPlayerNumberException, DuplicateNicknameException,
-            GameNotFoundException, GameAlreadyEndedException, PlayerNotFoundException, PlayerAlreadyConnectedException,
-            GameNotYetStartedException {
+    public GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message)
+            throws RemoteException, LobbyMessageException
+    {
 
         logger.info("Received a CtoSLobbyMessage from a RMI client: {}", message.toString());
 
@@ -34,9 +31,8 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
         GameController gameController = null;
         try {
             gameController = message.elaborateMessage(rmiServerNode);
-        } catch (DuplicateNicknameException | InvalidPlayerNumberException | GameAlreadyStartedException |
-                 GameNotYetStartedException | FullLobbyException | GameNotFoundException | GameAlreadyEndedException |
-                 PlayerNotFoundException | PlayerAlreadyConnectedException e) {
+        } catch (LobbyMessageException e) {
+            // TODO: Handle the exception, send ErrorMessage to the client instead
             rmiServerNode.destroy();
             logger.error("GameController access failed: {}", e.getMessage());
             throw e;
