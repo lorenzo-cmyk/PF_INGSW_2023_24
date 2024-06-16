@@ -6,6 +6,5 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RMIClientNodeInt extends Remote {
-
     void uploadStoC(StoCMessage message) throws RemoteException;
 }
