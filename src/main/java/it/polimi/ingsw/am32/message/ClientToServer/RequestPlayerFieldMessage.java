@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am32.message.ClientToServer;
 
 import it.polimi.ingsw.am32.controller.GameController;
-import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 
 /**
  * This class is used to manage the message sent by the client when he wants to see the field of another player.
