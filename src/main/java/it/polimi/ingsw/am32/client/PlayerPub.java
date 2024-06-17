@@ -84,6 +84,7 @@ public class PlayerPub {
     }
     /**
      * Update the points of the player with the points updated received from the message.
+     * @param points the new version of the points.
      */
     public void updatePoints(int points){
         this.points = points;

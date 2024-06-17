@@ -21,7 +21,6 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -457,7 +456,6 @@ public class GraphicalUI extends View {
      *
      * @param ServerIP the IP address of the server
      * @param portNumber the port number of the server
-     * @throws IOException if the connection to the server fails
      */
     @Override
     public void setSocketClient(String ServerIP, int portNumber) throws ConnectionSetupFailedException {
@@ -2190,9 +2188,9 @@ public class GraphicalUI extends View {
 
     /**
      * Generates the selection area for the initial card side selection.
-     * The selection area is composed of a prompt label, 2 cards to choose from
-     *
-     * @return a VBox containing the selection area for the initial card side selection
+     * The selection area is composed of a prompt label, 2 cards to choose from.
+     * @param imageNumber the number of the image to load.
+     * @return a VBox containing the selection area for the initial card side selection.
      */
     public VBox setupInitialCardSideSelectionArea(int imageNumber) {
         VBox selectionArea = new VBox(); // Entire selection area
@@ -2259,8 +2257,9 @@ public class GraphicalUI extends View {
 
     /**
      * Generates the selection area for the secret objective card selection.
-     * The selection area is composed of a prompt label, 2 cards to choose from
-     *
+     * The selection area is composed of a prompt label, 2 cards to choose from.
+     * @param card1 the ID of the first card
+     * @param card2 the ID of the second card
      * @return a VBox containing the selection area for the secret objective card selection
      */
     public VBox setupSecretObjectiveCardSelectionArea(int card1, int card2) {
