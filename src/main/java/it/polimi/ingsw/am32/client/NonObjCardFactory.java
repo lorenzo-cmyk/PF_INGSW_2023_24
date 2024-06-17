@@ -59,6 +59,10 @@ public class NonObjCardFactory {
         this.ConditionCount=ConditionCount;
     }
 
+    /**
+     * This method is used to create the cards from the JSON file.
+     * @return an ArrayList containing the cards
+     */
     public static ArrayList<NonObjCardFactory> setNonObjCardArray() {
         // Initialize the ArrayList to store the cards
         ArrayList<NonObjCardFactory> NonObjCards = new ArrayList<>();
