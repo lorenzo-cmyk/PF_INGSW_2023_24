@@ -2,11 +2,9 @@ package it.polimi.ingsw.am32.client.view.tui;
 
 import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.utilities.IsValid;
-import it.polimi.ingsw.am32.client.ChatMessage;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -32,7 +30,7 @@ import org.apache.logging.log4j.Logger;
  *     For the design of the cards, the class includes a method to print the card, a method to convert the corner type
  *     of the card to an icon and a method to convert the object type of the card to an icon as well. The class uses
  *     Unicode characters to represent the icons of the cards and the objects. In addition, the class
- *     includes ASCI escape codes to set the color of the printed cards and the printed text.
+ *     includes ASCII escape codes to set the color of the printed cards and the printed text.
  *<p>  By the playing phase, players also have the possibility to interact with the chat and use the keyword to interact
  *     with the game, for example, type “SH” to show the hand of the player.
  * @author Jie
@@ -317,7 +315,6 @@ public class TextUI extends View{
      *
      * @param serverIP the server IP entered by the player
      * @param port     the server port entered by the player
-     * @throws IOException if an I/O error occurs
      */
     @Override
     public void setSocketClient(String serverIP, int port) throws ConnectionSetupFailedException {
@@ -1392,7 +1389,7 @@ public class TextUI extends View{
                 SGO: to see the game order.
                 SID: to see the game ID.
                 SCD: to see the deck size and the current visible cards in the game.
-                               
+                
                 """);
     }
     /**
@@ -1735,7 +1732,7 @@ public class TextUI extends View{
                 }
                 case "AllSpecial": {
                     // description of the three objects that should be count in the field.
-                    description = "INSKELL+QUILL+MANUSCRIPT";
+                    description = "INKWELL+QUILL+MANUSCRIPT";
                     paddingDescription = 26 - description.length();
                     paddingIcon = 26 - 3 * icon("INKWELL").length();
                     paddingPoint = 26 - (value + " POINTS" + strategy).length();
@@ -1759,7 +1756,7 @@ public class TextUI extends View{
      * Use this method to set the color of the card based on the kingdom of the card.
      *
      * @param kingdom the kingdom of the card.
-     * @return the string of the color in ASCI escape code.
+     * @return the string of the color in ASCII escape code.
      */
     private static String ColourCard(String kingdom) {
         String colour = "";
@@ -1973,22 +1970,6 @@ public class TextUI extends View{
                 publicInfo.get(nickname).updateOnline(true);
             }
         }
-    }
-
-    /**
-     * Use this method to clear the console screen.
-     */
-    private void clearCMD() { //TODO: ADDED THIS METHOD TO CLEAR THE SCREEN
-        try {
-            if (System.getProperty("os.name").contains("Windows"))
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            else
-                Runtime.getRuntime().exec("clear");
-        } catch (IOException | InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
     }
 
     /**

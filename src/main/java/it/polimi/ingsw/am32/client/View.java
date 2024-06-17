@@ -10,7 +10,6 @@ import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNode;
 import it.polimi.ingsw.am32.network.ClientNode.SKClientNode;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -171,7 +170,7 @@ public abstract class View{
      * Also, it creates a new thread to listen for messages from the client.
      * @param serverIP The IP address of the server.
      * @param port The port number of the server.
-     * @throws IOException If an I/O error occurs when creating the socket.
+     * @throws ConnectionSetupFailedException if the connection setup fails.
      */
     public void setSocketClient(String serverIP, int port) throws ConnectionSetupFailedException {
         SKClientNode clientNode = new SKClientNode(this,serverIP,port);
@@ -188,6 +187,7 @@ public abstract class View{
      * Also, it creates a new thread to listen for messages from the client.
      * @param serverIP The IP address of the server.
      * @param port The port number of the server.
+     * @throws ConnectionSetupFailedException if the connection setup fails.
      */
     public void setRMIClient(String serverIP, int port) throws ConnectionSetupFailedException {
         //TODO verify if this is correct
