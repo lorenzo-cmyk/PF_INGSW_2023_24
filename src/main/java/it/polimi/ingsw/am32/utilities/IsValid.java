@@ -1,5 +1,9 @@
 package it.polimi.ingsw.am32.utilities;
 
+/**
+ * This class provides methods to check if an IP address and a port number are valid.
+ * Used to validate the IP address and port number provided by the user.
+ */
 public class IsValid {
     /**
      * This method checks if the provided IP address is valid.
