@@ -174,6 +174,7 @@ public class GamesManager {
      * @throws CTRPlayerNotFoundException If the player with the given nickname is not found in the game
      * @throws GameNotFoundException If no game with the given code is found
      * @throws PlayerAlreadyConnectedException If the player with the given nickname is already connected to the game
+     * @throws GameNotYetStartedException If the game has not yet started
      */
     public synchronized GameController reconnectToGame(String nickname, int gameCode, NodeInterface node) throws
             GameAlreadyEndedException, CTRPlayerNotFoundException, GameNotFoundException, PlayerAlreadyConnectedException,
