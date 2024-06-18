@@ -173,9 +173,11 @@ public abstract class View{
      * @throws ConnectionSetupFailedException if the connection setup fails.
      */
     public void setSocketClient(String serverIP, int port) throws ConnectionSetupFailedException {
+
         SKClientNode clientNode = new SKClientNode(this,serverIP,port);
         this.clientNode = clientNode;
         clientNode.startConnection();
+
         this.askListener = new AskListener(clientNode);
         Thread askListener = new Thread(this.askListener); // Create a new thread listen for messages from the client
         askListener.start();
@@ -200,7 +202,7 @@ public abstract class View{
             Thread askListenerThread = new Thread(this.askListener);
             askListenerThread.start();
         }catch (RemoteException e) {
-            //TODO
+            throw new ConnectionSetupFailedException();
         }
     }
     /**

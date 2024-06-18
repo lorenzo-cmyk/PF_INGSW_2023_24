@@ -9,6 +9,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptorInt;
 import it.polimi.ingsw.am32.network.GameTuple;
+import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +35,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     private GameTuple gameTuple;
     private final View view;
-    private final String serverURL;
+    private final String ip;
     private final int port;
     private int pongCount;
     private String nickname;
@@ -51,16 +52,34 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private final Object sToCProcessingLock;
 
 
-    public RMIClientNode(View view, String serverURL, int port) throws RemoteException {
+    public RMIClientNode(View view, String ip, int port) throws RemoteException, ConnectionSetupFailedException {
         this.view = view;
-        this.serverURL = serverURL;
+        this.ip = ip;
         this.port = port;
+        pongCount = PONGMAXCOUNT;
+
         logger = LogManager.getLogger(RMIClientNode.class);
+
+        try {
+
+            logger.info("Attempting to connect to the server at {}:{}", ip, port);
+
+            registry = LocateRegistry.getRegistry(ip, port);
+            String remoteObjectName = "Server-CodexNaturalis";
+            rmiClientAcceptor = (RMIClientAcceptorInt) registry.lookup(remoteObjectName);
+            logger.info("RMI-Client-Acceptor found on the server. Connection established");
+
+        } catch (RemoteException | NotBoundException e) {
+
+            logger.info("Connection failed do to wrong parameters or inaccessible server");
+
+            throw new ConnectionSetupFailedException();
+        }
+
         timer = new Timer();
         aliveLock = new Object();
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
-        pongCount = PONGMAXCOUNT;
         executorService = Executors.newCachedThreadPool();
         clientPingTask = new ClientPingTask(this);
     }
@@ -157,14 +176,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     public void startConnection() {
 
-        try {
-            registry = LocateRegistry.getRegistry(serverURL, port);
-            String remoteObjectName = "Server-CodexNaturalis";
-            rmiClientAcceptor = (RMIClientAcceptorInt) registry.lookup(remoteObjectName);
-            logger.info("RMI-Client-Acceptor found on the server. Connection established");
-        } catch (RemoteException | NotBoundException e) {
-            //TODO handle exception
-        }
+        logger.debug("RMIClientNode started");
     }
 
     @Override
