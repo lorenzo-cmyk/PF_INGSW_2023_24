@@ -251,6 +251,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             clientPingTask.cancel();
             timer.purge();
             clientPingTask = new ClientPingTask(this);
+            view.nodeDisconnected();
             return true;
         }
     }
@@ -312,6 +313,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             pongCount = PONGMAXCOUNT;
             aliveLock.notifyAll();
             timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+            view.nodeReconnected();
         }
     }
 
