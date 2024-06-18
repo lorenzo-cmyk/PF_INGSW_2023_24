@@ -50,7 +50,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         this.view = view;
         this.ip = ip;
         this.port = port;
-        statusIsAlive = false;
+        statusIsAlive = true;
         reconnectCalled = false;
         pongCount = PONGMAXCOUNT; // todo fare un config??
 
