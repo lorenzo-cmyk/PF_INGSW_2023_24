@@ -57,6 +57,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         this.ip = ip;
         this.port = port;
         pongCount = PONGMAXCOUNT;
+        nickname = "Unknown";
 
         logger = LogManager.getLogger(RMIClientNode.class);
 

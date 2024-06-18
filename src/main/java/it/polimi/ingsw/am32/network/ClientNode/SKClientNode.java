@@ -53,6 +53,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         statusIsAlive = true;
         reconnectCalled = false;
         pongCount = PONGMAXCOUNT; // todo fare un config??
+        nickname = "Unknown";
 
         logger = LogManager.getLogger(SKClientNode.class);
 
