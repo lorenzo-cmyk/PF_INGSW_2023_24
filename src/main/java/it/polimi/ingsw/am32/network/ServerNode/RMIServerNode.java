@@ -86,9 +86,11 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             clientNode.uploadStoC(message);
             logger.info("StoCMessage sent to client: {}", message.toString());
 
-        } catch (RemoteException e) { // TODO gestire errore RMI interfaccia client??
+        } catch (RemoteException e) { // TODO chiudere il nodo se exception called
             logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
             throw new UploadFailureException();
+        } catch (NodeClosedException e) {
+            // TODO implementare
         }
     }
 
@@ -159,7 +161,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
-        // TODO controllare se il timer può fallire a runtime (controllare con gamecontroller)
+
         gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
     }
 

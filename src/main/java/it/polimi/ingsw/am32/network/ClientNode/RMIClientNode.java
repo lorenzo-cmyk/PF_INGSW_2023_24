@@ -113,7 +113,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
                 serverNode.uploadCtoS(message); // TODO il numero di partita in realtà non server
                 logger.info("Message sent. Type: CtoSMessage: {}", message);
 
-            } catch (NodeClosedException e) { // TODO gestire eccezioni
+            } catch (NodeClosedException e) {
 
                 logger.info("Failed to process CtoSMessage because server node is closed");
 
@@ -156,7 +156,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
                 timer.scheduleAtFixedRate(clientPingTask, 0, PINGINTERVAL);
 
-            } catch (RemoteException e) { // TODO gestire meglio le exxezioni queste exception??
+            } catch (RemoteException e) {
 
                 logger.info("Failed to send CtoSLobbyMessage to server. RemoteException: {}", e.getMessage());
 
@@ -169,13 +169,13 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     }
 
     @Override
-    public void uploadStoC(StoCMessage message) {
+    public void uploadStoC(StoCMessage message) throws NodeClosedException {
 
         synchronized (sToCProcessingLock) {
 
             synchronized (aliveLock) {
-                if(!statusIsAlive);
-                    //TODO lancio eccezione
+                if(!statusIsAlive)
+                    throw new NodeClosedException();
 
                 resetTimeCounter();
             }
