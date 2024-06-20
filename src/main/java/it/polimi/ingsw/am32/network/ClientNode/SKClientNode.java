@@ -101,6 +101,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         aliveLock = new Object();
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
+        timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
     }
 
     public void run() {
@@ -163,7 +164,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     @Override
     public void uploadToServer(CtoSLobbyMessage message) {
 
-        while (true) {
+        while (true) { //TODO cambiare il while
             try {
                 synchronized (cToSProcessingLock) {
                     outputObtStr.writeObject(message);
@@ -183,7 +184,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     @Override
     public void uploadToServer(CtoSMessage message) {
 
-        while (true) {
+        while (true) { //TODO cambiare il while
             try {
                 synchronized (cToSProcessingLock) {
                     outputObtStr.writeObject(message);
@@ -242,7 +243,8 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
             try {
                 aliveLock.wait();
-            } catch (InterruptedException ignore) {}
+            } catch (InterruptedException | IllegalMonitorStateException ignore) {
+            }
 
             return false;
 
