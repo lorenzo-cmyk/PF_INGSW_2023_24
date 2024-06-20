@@ -927,7 +927,7 @@ public class TextUI extends View{
      */
     public void readInputThread() {
         service = new Thread(() -> {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 synchronized (lock) {
                     while (isMyTurn) {
                         try {
