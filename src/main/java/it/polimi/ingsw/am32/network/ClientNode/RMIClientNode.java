@@ -1,14 +1,12 @@
 package it.polimi.ingsw.am32.network.ClientNode;
 
 import it.polimi.ingsw.am32.client.View;
-import it.polimi.ingsw.am32.controller.exceptions.*;
+import it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageException;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
-import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptorInt;
 import it.polimi.ingsw.am32.network.GameTuple;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
@@ -85,7 +83,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
                 logger.info("Message sent. Type: CtoSMessage: {}", message);
             } catch (NodeClosedException e) { // TODO gestire eccezioni
                 throw new RuntimeException(e);
-            } catch (PlayerNotFoundException | RemoteException e) {
+            } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -114,10 +112,8 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
             } catch (RemoteException e) { // TODO come gestisco queste exception??
                 throw new RuntimeException(e);
-            } catch (GameAlreadyStartedException | FullLobbyException | InvalidPlayerNumberException |
-                     DuplicateNicknameException | GameNotFoundException | GameAlreadyEndedException |
-                     PlayerNotFoundException | PlayerAlreadyConnectedException | GameNotYetStartedException e) {
-
+            } catch (LobbyMessageException e) {
+                // TODO: Handle exception correctly
                 // view.failureCtoSLobby
             }
         }

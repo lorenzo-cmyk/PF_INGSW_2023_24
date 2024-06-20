@@ -2,6 +2,7 @@ package it.polimi.ingsw.am32.client.view.gui;
 
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
+import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -20,7 +21,6 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -354,7 +354,10 @@ public class GraphicalUI extends View {
      */
     @Override
     public void chooseConnection() {
+        // set the current event to CHOOSE_CONNECTION
         currentEvent = Event.CHOOSE_CONNECTION;
+
+        // create the selectionPane and the connectionRoot
         selectionPane = new StackPane();
         connectionRoot = new StackPane();
 
@@ -390,13 +393,14 @@ public class GraphicalUI extends View {
         Button OkRMIButton = createButton("[OK]", 160, 0); // create the button Ok to confirm the input.
         RMIRoot.getChildren().addAll(OkRMIButton, labelRMIIP, RMIIp, RMIPort); // the view when the player choose the socket connection
 
-        // set the action of the buttons
+        // set the action of the buttons (Socket)
         socketButton.setOnAction(e -> {
             selectionPane.getChildren().remove(connectionRoot); // exit from the choose connection page
             selectionPane.getChildren().add(socketRoot); // enter the socket connection page
         });
 
         OkButton.setOnAction(e -> {
+            OkButton.setDisable(true);
             String ServerIP = ip.getText(); // Read the player's input and save it the server IP address
             String ServerPort = port.getText();
             try {
@@ -406,26 +410,29 @@ public class GraphicalUI extends View {
                     selectionPane.getChildren().remove(socketRoot);
                     askSelectGameMode();
                 } else {
-                    createAlert("Invalid IP/port number");
+                    createAlert("Invalid IP or PORT number!");
                     ip.clear();
                     port.clear();
                 }
             } catch (NumberFormatException ex) {
-                createAlert("Invalid port number");
+                createAlert("Invalid PORT number!");
                 port.clear();
-            } catch (IOException ex) {
-                createAlert("Connection failed");
+            } catch (ConnectionSetupFailedException ex) {
+                createAlert("Connection failed! You can try again!");
                 ip.clear();
                 port.clear();
             }
+            OkButton.setDisable(false);
         });
-        // set the action of the buttons
+
+        // set the action of the buttons (RMI)
         rmiButton.setOnAction(e -> {
             selectionPane.getChildren().remove(connectionRoot); // exit from the choose connection page
             selectionPane.getChildren().add(RMIRoot); // enter the socket connection page
         });
 
         OkRMIButton.setOnAction(e -> {
+            OkRMIButton.setDisable(true);
             String ServerIP = RMIIp.getText(); // Read the player's input and save it the server IP address
             String ServerPort = RMIPort.getText();
             try {
@@ -436,35 +443,40 @@ public class GraphicalUI extends View {
                         askSelectGameMode();
                 } else {
                     createAlert("Invalid IP/port number");
-                    ip.clear();
-                    port.clear();
+                    RMIIp.clear();
+                    RMIPort.clear();
                 }
             } catch (NumberFormatException ex) {
                 createAlert("Invalid port number");
-                port.clear();
-            } /*catch (IOException ex) { //TODO
-                createAlert("Connection failed");
-                ip.clear();
-                port.clear();
-            }*/
+                RMIPort.clear();
+            } catch (ConnectionSetupFailedException ex) {
+                createAlert("Connection failed! You can try again!");
+                RMIIp.clear();
+                RMIPort.clear();
+            }
+            OkRMIButton.setDisable(false);
         });
     }
+
     /**
      * Set the socket connection between the client and the server.
-     *
      * @param ServerIP the IP address of the server
      * @param portNumber the port number of the server
-     * @throws IOException if the connection to the server fails
      */
     @Override
-    public void setSocketClient(String ServerIP, int portNumber) throws IOException {
+    public void setSocketClient(String ServerIP, int portNumber) throws ConnectionSetupFailedException {
         super.setSocketClient(ServerIP, portNumber);
     }
-    @Override
-    public void setRMIClient(String serverURL, int port) {
-        super.setRMIClient(serverURL, port); // see the method in the superclass
-    }
 
+    /**
+     * Set the RMI connection between the client and the server.
+     * @param serverURL the URL of the server
+     * @param port the port number of the server
+     */
+    @Override
+    public void setRMIClient(String serverURL, int port) throws ConnectionSetupFailedException {
+        super.setRMIClient(serverURL, port);
+    }
 
     /**
      * Set the page where the player can select the game mode. The player can choose between creating a new game, joining
@@ -2187,9 +2199,9 @@ public class GraphicalUI extends View {
 
     /**
      * Generates the selection area for the initial card side selection.
-     * The selection area is composed of a prompt label, 2 cards to choose from
-     *
-     * @return a VBox containing the selection area for the initial card side selection
+     * The selection area is composed of a prompt label, 2 cards to choose from.
+     * @param imageNumber the number of the image to load.
+     * @return a VBox containing the selection area for the initial card side selection.
      */
     public VBox setupInitialCardSideSelectionArea(int imageNumber) {
         VBox selectionArea = new VBox(); // Entire selection area
@@ -2256,8 +2268,9 @@ public class GraphicalUI extends View {
 
     /**
      * Generates the selection area for the secret objective card selection.
-     * The selection area is composed of a prompt label, 2 cards to choose from
-     *
+     * The selection area is composed of a prompt label, 2 cards to choose from.
+     * @param card1 the ID of the first card
+     * @param card2 the ID of the second card
      * @return a VBox containing the selection area for the secret objective card selection
      */
     public VBox setupSecretObjectiveCardSelectionArea(int card1, int card2) {
@@ -2346,4 +2359,11 @@ public class GraphicalUI extends View {
     public String getThisPlayerNickname() {
         return thisPlayerNickname;
     }
+
+    // TODO implementare metodo
+    public void nodeDisconnected(){}
+
+    // TODO implementare metodo
+    public void nodeReconnected(){}
+
 }

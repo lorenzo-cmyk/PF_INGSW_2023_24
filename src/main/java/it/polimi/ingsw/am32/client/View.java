@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.client;
 
 
+import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.utilities.IsValid;
 import it.polimi.ingsw.am32.client.listener.AskListener;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
@@ -9,7 +10,6 @@ import it.polimi.ingsw.am32.network.ClientNode.ClientNodeInterface;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNode;
 import it.polimi.ingsw.am32.network.ClientNode.SKClientNode;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -170,16 +170,16 @@ public abstract class View{
      * Also, it creates a new thread to listen for messages from the client.
      * @param serverIP The IP address of the server.
      * @param port The port number of the server.
-     * @throws IOException If an I/O error occurs when creating the socket.
+     * @throws ConnectionSetupFailedException if the connection setup fails.
      */
-    public void setSocketClient(String serverIP, int port) throws IOException {
+    public void setSocketClient(String serverIP, int port) throws ConnectionSetupFailedException {
         SKClientNode clientNode = new SKClientNode(this,serverIP,port);
         this.clientNode = clientNode;
         clientNode.startConnection();
-        this.askListener = new  AskListener(clientNode);
+
+        this.askListener = new AskListener(clientNode);
         Thread askListener = new Thread(this.askListener); // Create a new thread listen for messages from the client
         askListener.start();
-        //TODO verify if this is correct
     }
 
     /**
@@ -187,9 +187,9 @@ public abstract class View{
      * Also, it creates a new thread to listen for messages from the client.
      * @param serverIP The IP address of the server.
      * @param port The port number of the server.
+     * @throws ConnectionSetupFailedException if the connection setup fails.
      */
-    public void setRMIClient(String serverIP, int port) {
-        //TODO verify if this is correct
+    public void setRMIClient(String serverIP, int port) throws ConnectionSetupFailedException {
         try{
             RMIClientNode clientNode = new RMIClientNode(this, serverIP, port);
             this.clientNode = clientNode;
@@ -199,7 +199,7 @@ public abstract class View{
             Thread askListenerThread = new Thread(this.askListener);
             askListenerThread.start();
         }catch (RemoteException e) {
-            //TODO
+            throw new ConnectionSetupFailedException();
         }
     }
     /**
@@ -514,6 +514,10 @@ public abstract class View{
      * @param nickname The nickname of the player will be used to handle the event.
      */
     public abstract void handleEvent(Event event, String nickname);
+
+    public abstract void nodeDisconnected();
+
+    public abstract void nodeReconnected();
 }
 
 

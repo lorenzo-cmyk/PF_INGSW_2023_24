@@ -1,57 +1,41 @@
-# Software Engineering Project - A.A. 2023/2024
+# Codex Naturalis 🌿🍄🦋🐺
 
-## AM32 Group
+## About
 
-Group members:
+<img src=".github/images/Cover.png" width=369px height=auto align="right"/>
 
+Codex Naturalis is the final project of the "Software Engineering" course held at Politecnico di Milano (A.Y. 2023/2024).
+
+The group members are:
+
+- Matteo Bergagna
 - Antony Brun
 - Lorenzo Chiroli
 - Jie Chen
-- Matteo Bergagna
+
+## Game Screenshot
+<p align="center">
+    <img src=".github/images/GUI.png" width=738px height=auto>
+</p>
 
 ## Project Status
 
-### General
+| Satisfied Requirements                                                                              | Maximum Grade | Status |
+|-----------------------------------------------------------------------------------------------------|---------------|--------|
+| Simplified Rules + TUI + RMI or Socket                                                              | 18            | ☑️     |
+| Complete Rules + TUI + RMI or Socket                                                                | 20            | ☑️     |
+| Complete Rules + TUI + RMI or Socket + 1 FA (Chat)                                                  | 22            | ☑️     |
+| Complete Rules + TUI + GUI + RMI or Socket + 1 FA (Chat)                                            | 24            | ☑️     |
+| Complete Rules + TUI + GUI + RMI + Socket + 1 FA (Chat)                                             | 27            | ☑️     |
+| Complete Rules + TUI + GUI + RMI + Socket + 2 FA (Chat & Multiple match)                            | 30            | ☑️     |
+| Complete Rules + TUI + GUI + RMI + Socket + 3 FA (Chat & Multiple match & Disconnection resilience) | 30L           | ⚠️     |
 
-| Tasks                  | Status | Notes                           |
-|------------------------|--------|---------------------------------|
-| UML (Class Diagram)    | ☑️     | Model + Controller + Networking |
-| UML (Sequence Diagram) | ☑️     | Communication Protocol          |
-| Peer Review 1          | ☑️     | Model                           |
-| Peer Review 2          | ☑️     | Communication Protocol          |
+### Currently Known Issues
 
-### Server
-
-| Feature    | Status | Notes          |
-|------------|--------|----------------|
-| Model      | ☑️     | Complete Rules |
-| Controller | ☑️     | N/A            |
-| Networking | ☑️     | RMI + Socket   |
-
-| Advanced Features            | Status | Notes                 |
-|------------------------------|--------|-----------------------|
-| Multiple Matches             | ☑️     | N/A                   |
-| Resilience to Disconnections | ☑️     | N/A                   |
-| Chat                         | ☑️     | N/A                   |
-
-### Client
-
-| Feature    | Status | Notes            |
-|------------|--------|------------------|
-| Networking | 🕑     | Socket only RN!  |
-| TUI        | ☑️     | N/A              |
-| GUI        | ‼️     | Not yet started! |
-
-| Advanced Features            | Status | Notes          |
-|------------------------------|--------|----------------|
-| Multiple Matches             | ☑️     | N/A            |
-| Resilience to Disconnections | 🕑     | Working on it! |
-| Chat                         | ☑️     | N/A            |
+- 🟨 The branch with the correct version of the network stack is not yet merged. Therefore, the network is not informing the View if the initial connection was successful or not.
+- 🟥 The branch with the correct version of the network stack is not yet merged. Therefore, the network is not activating the PingTask that allows (in both Client & Server) the disconnection discovery in RMI.
 
 ## Code Coverage
 
-| Package     | Role                 | Coverage (%Methods) | Coverage (%Line) | Testing Status |
-|-------------|----------------------|---------------------|------------------|----------------|
-| .model      | Game Model           | 100%                | 97%              | Completed ☑️   |
-| .chat       | Chat Model           | 100%                | 100%             | Completed ☑️   |
-| .controller | Game+Chat Controller | 90%                 | 63%              | Ongoing 🕑     |
+The average code coverage, between Model and Controller, is 96% for methods and 85% for lines, all (known) edge cases are covered.
+The coverage is calculated using the IntelliJ IDEA built-in tool.

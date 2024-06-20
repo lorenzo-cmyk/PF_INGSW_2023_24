@@ -6,7 +6,11 @@ import javafx.scene.layout.*;
 
 import java.util.ArrayList;
 
-
+/**
+ * This class represents the chat area in the GUI.
+ * It contains the message display area, the message input area, and the submit button.
+ * It also contains a combo box that allows the user to select a recipient for the message.
+ */
 public class ChatArea {
     /**
      * An object representing the chat area in the GUI
@@ -45,7 +49,7 @@ public class ChatArea {
 
     /**
      * Constructor for the ChatArea class
-     *
+     * @param gui A reference to the GUI
      * @param X X coordinate of the chat area
      * @param Y Y coordinate of the chat area
      * @param width Width of the chat area
@@ -136,8 +140,8 @@ public class ChatArea {
      * Adds an incoming message to the chat area send from another player.
      * The message is appended to the end of the message display area.
      * Called by outside classes to add messages to the chat area.
-     *
-     * @param message The message to be added
+     * @param message The message to be added.
+     * @param senderNickname The nickname of the player who sent the message.
      */
     public void addIncomingMessageToChat(String message, String senderNickname) {
         String sender = senderNickname.equals(gui.getThisPlayerNickname())?"Yourself": senderNickname;
