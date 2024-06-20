@@ -166,6 +166,11 @@ public class TextUI extends View{
     private Thread service;
 
     /**
+     * A boolean that represents if the TUI is disconnected from the server.
+     */
+    private volatile boolean isDisconnected = false;
+
+    /**
      * Constructor of the class TextUI
      * @implSpec NON-BLOCKING
      */
@@ -365,6 +370,7 @@ public class TextUI extends View{
     /**
      *  The method prints the menu of the game mode and asks the player to select the action to perform. The player can
      *  create a new game, join a game with the game ID, or reconnect to a game.
+     *  @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     @Override
     public void askSelectGameMode() {
@@ -397,6 +403,7 @@ public class TextUI extends View{
     /**
      * Method that asks the player to insert the nickname they want to use in the game.
      * Nickname limited to 20 characters.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     private void askNickname() {
         while (true) {
@@ -418,6 +425,7 @@ public class TextUI extends View{
     /**
      * Method that asks the player to insert the number of players and the nickname desired to create a new game.
      * Then notify the listener with the NewGameMessage.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     @Override
     public void askCreateGame() {
@@ -437,12 +445,15 @@ public class TextUI extends View{
         }
 
         // Notify the listener with the new game message
-        notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
+        if(!isDisconnected) {
+            notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
+        }
     }
 
     /**
      * Method that asks the player to insert the nickname they want to use in the game and the Access ID of the game
      * they want to join. Then notify the listener with the AccessGameMessage.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     @Override
     public void askJoinGame() {
@@ -454,12 +465,15 @@ public class TextUI extends View{
         gameID = getInputInt();
 
         // notify the listener with the access game message
-        notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+        if(!isDisconnected) {
+            notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+        }
     }
 
     /**
      * Use this method to ask the player if they want to reconnect to the game. Then notify the listener with the
      * ReconnectGameMessage.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     @Override
     public void askReconnectGame() {
@@ -468,7 +482,9 @@ public class TextUI extends View{
         out.println("Insert the game ID you want to reconnect to:");
         gameID = getInputInt();
         // notify the listener with the reconnect game message
-        notifyAskListener(new ReconnectGameMessage(thisPlayerNickname,gameID));
+        if(!isDisconnected) {
+            notifyAskListener(new ReconnectGameMessage(thisPlayerNickname, gameID));
+        }
     }
 
     /**
@@ -596,6 +612,7 @@ public class TextUI extends View{
      * Once the player receives the AssignedStarterCardMessage from the server, the method is called by processMessage
      * to request the player to select the side of the starter card they want to use. The player will be able to see
      * the front and back side of the card and select the side they want to use.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      * @param ID the ID of the starter card received from the server and assigned to the player.
      */
     @Override
@@ -612,7 +629,9 @@ public class TextUI extends View{
             side = in.nextLine();
         }
         // If we get to this point, the player has written either FRONT or BACK
-        notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side.equals("FRONT")));
+        if(!isDisconnected) {
+            notifyAskListener(new SelectedStarterCardSideMessage(thisPlayerNickname, side.equals("FRONT")));
+        }
         out.println("Please wait for the other players to select the side of the starter card");
         currentEvent = Event.SELECTED_STARTER_CARD_SIDE;
     }
@@ -684,6 +703,7 @@ public class TextUI extends View{
      * When the current event is SELECT_SECRET_OBJ_CARD, the method is called to request the player to select the secret
      * objective card they want to use. The player will be able to see the two secret objective cards received from the
      * server and select the card they want to use.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     @Override
     public void requestSelectSecretObjectiveCard() {
@@ -698,7 +718,9 @@ public class TextUI extends View{
         }
 
         // notify the listener with the selected secret objective card message
-        notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname,cardID.equals("LEFT") ? secretObjCards.get(0) : secretObjCards.get(1)));
+        if(!isDisconnected) {
+            notifyAskListener(new SelectedSecretObjectiveCardMessage(thisPlayerNickname,cardID.equals("LEFT") ? secretObjCards.get(0) : secretObjCards.get(1)));
+        }
         out.println("Please wait for the other players to select the secret objective card");
         currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
     }
@@ -924,6 +946,7 @@ public class TextUI extends View{
      * A thread that reads the input from the player when it is not the player's turn will be started when the game
      * enters the playing phase, if the player is the current player, the thread will be waiting until the message
      * PlayerTurnMessage from the server to update the currentPlayer in the game.
+     * @implSpec BLOCKING, THREAD, INTERRUPTIBLE
      */
     public void readInputThread() {
         service = new Thread(() -> {
@@ -958,6 +981,7 @@ public class TextUI extends View{
      * Use this method to request the player to place a card in the field. The player will be able to see the board
      * before and after placing the card. Also, the player will be able to see the cards in the hand and select one
      * card to place in the field.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     @Override
     public void requestPlaceCard() {
@@ -1016,8 +1040,10 @@ public class TextUI extends View{
            pos = getInput();
        }
        String [] posArray = pos.split(",");
-       notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(indexCardPlaced),Integer.parseInt(posArray[0]),
-               Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
+       if(!isDisconnected) {
+           notifyAskListener(new PlaceCardMessage(thisPlayerNickname, hand.get(indexCardPlaced),Integer.parseInt(posArray[0]),
+                   Integer.parseInt(posArray[1]), isUp.equals("FRONT")));
+       }
        currentEvent = Event.CARD_PLACED;
     }
 
@@ -1056,6 +1082,7 @@ public class TextUI extends View{
      * Once the player receives the DrawCardMessage from the server, the method is called by processMessage to request
      * the player to draw a card from the deck. The player will be able to see the current visible resource cards and
      * gold cards in the game and select one card to add to the hand.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     @Override
     public void requestDrawCard() {
@@ -1078,15 +1105,15 @@ public class TextUI extends View{
             choice = getInput();
         }
         // based on the choice of the player, edit the message to send to the server.
-        if (choice.equals("R1") || choice.equals("R2")) {
+        if ((choice.equals("R1") || choice.equals("R2")) && !isDisconnected) {
             notifyAskListener(new DrawCardMessage(thisPlayerNickname, 2, choice.equals("R1") ?
                     currentResourceCards.get(0) : currentResourceCards.get(1)));
             out.println(currentResourceCards.get(0)+currentResourceCards.get(1));
-        } else if (choice.equals("G1") || choice.equals("G2")) {
+        } else if ((choice.equals("G1") || choice.equals("G2")) && !isDisconnected) {
             notifyAskListener(new DrawCardMessage(thisPlayerNickname, 3, choice.equals("G1") ?
                     currentGoldCards.get(0) : currentGoldCards.get(1)));
             out.println(currentGoldCards.get(0)+currentGoldCards.get(1));
-        } else {
+        } else if(!isDisconnected){
             notifyAskListener(new DrawCardMessage(thisPlayerNickname, choice.equals("R") ? 0 : 1, -1));
         }
         currentEvent = Event.CARD_DRAWN;
@@ -1266,7 +1293,7 @@ public class TextUI extends View{
      * Method called when player opens chat from getInput method.
      * Enables the user to select a player to chat with, or chat with all players.
      * The user can also exit the chat.
-     * @implSpec BLOCKING-BUT-RAN-FROM-RIT
+     * @implSpec BLOCKING, NON-ALTER-STATUS, FREE-OF-SIDE-EFFECT
      */
     @Override
     public void startChatting() {
@@ -1331,11 +1358,15 @@ public class TextUI extends View{
             if (recipient.equals("ALL")) { // Send a message in broadcast
                 ChatMessage message = new ChatMessage(thisPlayerNickname, "ALL", true, messageContent);
                 chatHistory.add(message); // FIXME Is this needed? RESOLVED: Yes, it is needed, because in the chat history, the player should be able to see the messages that he sent.
-                notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, true, messageContent));
+                if(!isDisconnected) {
+                    notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, true, messageContent));
+                }
             } else { // Send a direct message
                 ChatMessage message = new ChatMessage(thisPlayerNickname, recipient, false, messageContent);
                 chatHistory.add(message); // FIXME Is this needed? RESOLVED: Yes, it is needed, because in the chat history, the player should be able to see the messages that he sent.
-                notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, false, messageContent));
+                if(!isDisconnected) {
+                    notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, false, messageContent));
+                }
             }
 
             // Loop back up and ask user to insert another chat message
@@ -2024,6 +2055,7 @@ public class TextUI extends View{
     /**
      * The Method used to get the input from the user and handle the commands that the user can use to interact with the
      * game in the service mode.
+     * @implSpec BLOCKING, NON-ALTER-STATUS, NO-SIDE-EFFECT
      * @return the input from the user.
      */
     private synchronized String getInput() {
@@ -2061,7 +2093,7 @@ public class TextUI extends View{
     /**
      * Loops until the user enters a valid single integer.
      * Inputs such as “string 5,” “4 string,” “string” are all invalid.
-     *
+     * @implSpec BLOCKING, NON-ALTER-STATUS, NO-SIDE-EFFECT
      * @return Integer input from the user
      */
     private int getInputInt() {
