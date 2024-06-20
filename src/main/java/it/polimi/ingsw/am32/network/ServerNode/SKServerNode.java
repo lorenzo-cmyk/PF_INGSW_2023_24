@@ -125,10 +125,12 @@ public class SKServerNode implements Runnable, NodeInterface {
             }
         } catch (IOException | ClassNotFoundException e) {
 
+            logger.error("Critical ObjectInputStream error while reading: {}" +
+                    " . Socket Closed", e.getMessage());
+
+            //TODO risolvere meglio gli errori
             destroy();
 
-            logger.error("Critical ObjectInputStream error while reading: {}" +
-                    " . Socket Closed", e.getMessage()); //TODO risolvere meglio gli errori
         } catch (NodeClosedException e) {
             return;
         }

@@ -3,9 +3,12 @@ package it.polimi.ingsw.am32.network.ClientAcceptor;
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageException;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.ErrorMessage;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNodeInt;
 import it.polimi.ingsw.am32.network.GameTuple;
 import it.polimi.ingsw.am32.network.ServerNode.RMIServerNode;
+import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
+import it.polimi.ingsw.am32.utilities.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,14 +35,24 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
         try {
             gameController = message.elaborateMessage(rmiServerNode);
         } catch (LobbyMessageException e) {
-            // TODO: Handle the exception, send ErrorMessage to the client instead
-            rmiServerNode.destroy();
+
+            Configuration.getInstance().getExecutorService().submit(() -> {
+                try {
+                    rmiServerNode.uploadToClient(new ErrorMessage(e.getMessage(), "PLAYER", e.getExceptionType().getValue()));
+                } catch (UploadFailureException ignore) {}
+                rmiServerNode.destroy();
+            });
+
             logger.error("GameController access failed: {}", e.getMessage());
             throw e;
+
         } catch (Exception e) {
             // We can't lose the visibility of the RuntimeExceptions that are thrown by the elaboration of the message.
             // The Server will not crash because how the thread is managed, but we need to know what happened to fix it in the future.
             // Do not remove this catch block. Remove the throws clause if needed but keep the logger.
+
+            // TODO mandiamo ErrorMessage anche qui?
+
             rmiServerNode.destroy();
             logger.fatal("GameController access failed due to a critical exception: {}", e.getMessage());
             throw e;
