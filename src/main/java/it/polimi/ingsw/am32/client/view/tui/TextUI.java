@@ -169,6 +169,10 @@ public class TextUI extends View{
      * A boolean that represents if the TUI is disconnected from the server.
      */
     private volatile boolean isDisconnected = false;
+    /**
+     * A boolean that represents if the TUI can be reconnected to the server.
+     */
+    private volatile boolean canAttemptReconnection = false;
 
     /**
      * Constructor of the class TextUI
@@ -195,6 +199,13 @@ public class TextUI extends View{
 
         boolean isEnd = false;
         while (!isEnd) { // TODO think about a better way to handle the flow of the game
+
+            while(isDisconnected) {
+                if(canAttemptReconnection) {
+                    askIfWantToReconnect();
+                }
+            }
+
             switch (Status) {
                 case WELCOME -> {
                     switch (currentEvent) {
@@ -2117,9 +2128,87 @@ public class TextUI extends View{
         }
     }
 
-    // TODO implementare metodo
-    public void nodeDisconnected(){}
+    /**
+     * Method called by the Network to notify that the Client has lost connection with the Server.
+     * @implSpec NON-BLOCKING, NO-SIDE-EFFECT, NON-ALTER-STATUS
+     */
+    public void nodeDisconnected(){
+        if(service != null) { service.interrupt(); }
 
-    // TODO implementare metodo
-    public void nodeReconnected(){}
-}
+        out.println("The connection with the server is lost, an attempt to reconnect will be made shortly.");
+        askListener.flushMessages();
+        isDisconnected = true;
+        canAttemptReconnection = false;
+    }
+
+    /**
+     * Method called by the Network to notify that the Client has reconnected with the Server.
+     * @implSpec NON-BLOCKING, NO-SIDE-EFFECT, NON-ALTER-STATUS
+     */
+    public void nodeReconnected(){
+        if(service != null) { service.interrupt(); }
+
+        canAttemptReconnection = true;
+        isDisconnected = true;
+        askListener.flushMessages();
+        out.println("The connection with the server is restored. Please perform the last action (it will have no effect) to continue.");
+    }
+
+    /**
+     * Method to use to return the TUI in a state where the user can attempt to reconnect to the match.
+     * @implSpec NON-BLOCKING, NO-SIDE-EFFECT, NON-ALTER-STATUS
+     */
+    private void askIfWantToReconnect() {
+        // If the readInputThread is running stop it to avoid conflicts.
+        if(service != null) { service.interrupt(); }
+
+        // Reset the flags and the status of the TUI
+        canAttemptReconnection = false;
+        isDisconnected = false;
+
+        out.println("The system is attempting to reconnect to the match itself.");
+
+        // Based on the current status of the TUI we need to decide what to do next.
+        if(Status.equals(Event.WELCOME)) {
+            switch(currentEvent) {
+                case Event.CREATE_GAME -> {
+                    currentEvent = Event.CREATE_GAME_FAILURE;
+                    // If we are here we don't even know which game to join/reconnect.
+                    // It will handled by the launch() loop.
+                }
+                case Event.JOIN_GAME -> {
+                    // If we know the gameID we can attempt to reconnect to that lobby.
+                    if(gameID != 0 && !thisPlayerNickname.isEmpty()) {
+                        currentEvent = Event.JOIN_GAME;
+                        notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+                    } else {
+                        currentEvent = Event.JOIN_GAME_FAILURE;
+                        // If we don't know the gameID we can't reconnect to the lobby.
+                        // It will handled by the launch() loop.
+                    }
+                }
+                case Event.RECONNECT_GAME -> {
+                    // If we know the gameID we can attempt to reconnect to that game.
+                    if(gameID != 0 && !thisPlayerNickname.isEmpty()) {
+                        currentEvent = Event.RECONNECT_GAME;
+                        notifyAskListener(new ReconnectGameMessage(thisPlayerNickname, gameID));
+                    } else {
+                        currentEvent = Event.RECONNECT_GAME_FAILURE;
+                        // If we don't know the gameID we can't reconnect to the game.
+                        // It will handled by the launch() loop.
+                    }
+                }
+            }
+        } else if (Status.equals(Event.LOBBY)) {
+            // If we were in the lobby, we can attempt to reconnect to that lobby.
+            currentEvent = Event.JOIN_GAME;
+            notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+            // If this fails the TUI will be put again in askJoinGame() where the user can try again.
+        } else {
+            // If we were in the game, we can attempt to reconnect to that game.
+            currentEvent = Event.RECONNECT_GAME;
+            notifyAskListener(new ReconnectGameMessage(thisPlayerNickname,gameID));
+            // If this fails the TUI will be put again in askReconnectGame() where the user can try again.
+        }
+    }
+ }
