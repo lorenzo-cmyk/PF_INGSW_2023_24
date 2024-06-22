@@ -884,8 +884,11 @@ public class TextUI extends View{
                     isMyTurn = false;
                     out.println("It is " + currentPlayer + "'s turn" + "\n");
                     // wake up the readInputThread to get the input from the player when it is not the player's turn.
-                    synchronized (lock) {
-                        lock.notify();
+                    // if the thread is already running I don't need to wake it up...
+                    if(!isInThread) {
+                        synchronized (lock) {
+                            lock.notify();
+                        }
                     }
                 }
             }
