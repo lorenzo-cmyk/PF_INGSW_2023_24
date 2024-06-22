@@ -22,7 +22,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.Arrays;
 
 public class SKServerNode implements Runnable, NodeInterface {
 
@@ -126,11 +125,8 @@ public class SKServerNode implements Runnable, NodeInterface {
             }
         } catch (IOException | ClassNotFoundException e) {
 
-            logger.error("Critical ObjectInputStream error while reading.\n" +
-                    "Exception message: {}\n" +
-                    "Exception local message: {}\n" +
-                    "Stack Trace: {}\n",
-                    e.getMessage(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
+            logger.error("Critical ObjectInputStream error while reading: {}" +
+                    " . Socket Closed", e.getMessage());
 
             //TODO risolvere meglio gli errori
             destroy();
@@ -265,7 +261,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                 logger.info("StoCMessage sent to client: {}", msg.toString());
 
             } catch (IOException e) {
-
                 logger.error("Failed to send StoCMessage to client: {}", e.getMessage());
 
                 destroy();
@@ -355,7 +350,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 serverPingTask = null;
                 notLinkedPingTask = null;
 
-                logger.info("SKServerNode destroyed: Stack Trace" + Arrays.toString(Thread.currentThread().getStackTrace()));
+                logger.info("SKServerNode destroyed");
                 config.purgeTimer();
             }
         }

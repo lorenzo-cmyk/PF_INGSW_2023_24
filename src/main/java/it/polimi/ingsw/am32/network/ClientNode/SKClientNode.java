@@ -141,7 +141,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
         if(message instanceof PongMessage) {
 
-            logger.info("PongMessage received");
+            logger.debug("PongMessage received");
             return;
         }
 
@@ -322,7 +322,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     public void startConnection(){
 
         executorService.submit(this);
-        logger.info("SKClientNode started");
+        logger.debug("SKClientNode started");
     }
 
     @Override
@@ -336,7 +336,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
             pongCount--;
 
-            logger.info("Pong time overdue. Pong count: {}", pongCount);
+            logger.debug("Pong time overdue. Pong count: {}", pongCount);
 
             if(pongCount <= 0) {
                 logger.info("Pong count reached minimum. Trying to check connection");
@@ -352,7 +352,6 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         executorService.submit(() -> {synchronized (cToSProcessingLock) {
             try {
                 outputObtStr.writeObject(new PingMessage(nickname));
-                logger.info("PingMessage sent");
             } catch (IOException | NullPointerException ignore) {}
         }});
     }
@@ -367,6 +366,6 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             pongCount = PONGMAXCOUNT; // TODO modificare se si aggiunge config
         }
 
-        logger.info("Pong count reset");
+        logger.debug("Pong count reset");
     }
 }
