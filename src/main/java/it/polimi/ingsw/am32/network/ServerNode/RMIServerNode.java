@@ -114,9 +114,11 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
             pingCount--;
 
+            logger.debug("Ping time overdue. Ping count: {}", pingCount);
+
             if(pingCount <= 0){
                 statusIsAlive = false;
-                logger.debug("Ping time overdue, set statusIsAlive to false");
+                logger.debug("Ping count reached minimum, starting destruction process");
             }
 
         }
@@ -134,7 +136,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             if(!statusIsAlive)
                 return;
 
-            pingCount = config.getMaxPingCount();
+            // pingCount = config.getMaxPingCount();
         }
     }
 
@@ -147,8 +149,6 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             destroyCalled = true;
             serverPingTask.cancel();
         }
-
-
 
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
