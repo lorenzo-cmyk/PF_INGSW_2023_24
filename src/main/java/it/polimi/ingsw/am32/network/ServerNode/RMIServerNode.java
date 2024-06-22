@@ -86,11 +86,22 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             clientNode.uploadStoC(message);
             logger.info("StoCMessage sent to client: {}", message.toString());
 
-        } catch (RemoteException e) { // TODO chiudere il nodo se exception called
+        } catch (RemoteException e) {
+
             logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
+            synchronized (aliveLock) {
+                statusIsAlive = false;
+            }
+            config.getExecutorService().submit(this::destroy);
             throw new UploadFailureException();
+
         } catch (NodeClosedException e) {
-            // TODO implementare
+
+            synchronized (aliveLock) {
+                statusIsAlive = false;
+            }
+            config.getExecutorService().submit(this::destroy);
+            throw new UploadFailureException();
         }
     }
 
