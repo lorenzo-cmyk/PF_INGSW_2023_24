@@ -83,6 +83,8 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             throw new ConnectionSetupFailedException();
         }
 
+        statusIsAlive = true;
+
         timer = new Timer();
         aliveLock = new Object();
         cToSProcessingLock = new Object();
