@@ -160,7 +160,7 @@ public class SKServerNode implements Runnable, NodeInterface {
             if (message instanceof PingMessage) {
                 config.getExecutorService().submit(() -> {
                     try {
-                        logger.info("PingMessage received");
+                        logger.debug("PingMessage received");
                         uploadToClient(new PongMessage(null));
                     } catch (UploadFailureException e) {
                         logger.error("Failed to send PongMessage to client");
@@ -286,7 +286,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             pingCount--;
 
-            logger.info("Ping time overdue. Ping count: {}", pingCount);
+            logger.debug("Ping time overdue. Ping count: {}", pingCount);
 
             if(pingCount <= 0) {
                 statusIsAlive = false;
@@ -309,7 +309,7 @@ public class SKServerNode implements Runnable, NodeInterface {
                 return;
 
             pingCount = config.getMaxPingCount();
-            logger.info("Ping count reset");
+            logger.debug("Ping count reset");
         }
     }
 
