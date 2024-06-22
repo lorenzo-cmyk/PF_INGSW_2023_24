@@ -295,10 +295,8 @@ public abstract class View{
      * This abstract method is used to handle a failure case when receiving a failure message from the server.
      * @param event The event type that caused the failure.
      * @param reason The reason for the failure.
-     * @param errorType The type of error occurred.
-     * @see it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageExceptionEnumeration
      */
-    public abstract void handleFailureCase(Event event, String reason, int errorType);
+    public abstract void handleFailureCase(Event event, String reason);
 
     /**
      * This abstract method is used to start a chat mode.
