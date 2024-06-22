@@ -1989,9 +1989,11 @@ public class TextUI extends View{
      * @implSpec NON-BLOCKING
      * @param event the event that failed.
      * @param reason the reason of the failure.
+     * @param errorType the type of the error occurred.
+     * @see it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageExceptionEnumeration
      */
     @Override
-    public void handleFailureCase(Event event, String reason){
+    public void handleFailureCase(Event event, String reason, int errorType){
         switch (event){
             case CREATE_GAME-> { // Should never happen!
                 out.println("Please try again! Reason: " + reason);

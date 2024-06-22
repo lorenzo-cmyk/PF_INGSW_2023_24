@@ -1909,9 +1909,11 @@ public class GraphicalUI extends View {
      *
      * @param event the event that has failed
      * @param reason the reason for the failure
+     * @param errorType the type of the error occurred
+     * @see it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageExceptionEnumeration
      */
     @Override
-    public void handleFailureCase(Event event, String reason) {
+    public void handleFailureCase(Event event, String reason, int errorType) {
         createAlert(reason);
         // in case of create game failure, join game failure, reconnect game failure just notify the player with the reason of the failure.
         switch (event){

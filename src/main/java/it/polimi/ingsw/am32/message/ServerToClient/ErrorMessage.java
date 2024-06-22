@@ -15,7 +15,7 @@ public class ErrorMessage implements StoCMessage{
 
     @Override
     public void processMessage(View view) {
-        view.handleFailureCase(view.getEvent(), message);
+        view.handleFailureCase(view.getEvent(), message, errorType);
     }
 
     @Override
