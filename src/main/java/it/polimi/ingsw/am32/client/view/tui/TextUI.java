@@ -1992,36 +1992,54 @@ public class TextUI extends View{
      */
     @Override
     public void handleFailureCase(Event event, String reason){
+        // Deals with the failure messages received from the server and asks the user to try again.
         switch (event){
-            case CREATE_GAME-> { // Should never happen!
+            case CREATE_GAME-> {
+                // Technically, this should never happen as there are no reasons for the game creation to fail.
+                // However, if it does, the player should be redirected to the askCreateGame() method.
+                // Implemented to keep the code consistent.
                 out.println("Please try again! Reason: " + reason);
+                Status = Event.WELCOME;
                 currentEvent = Event.CREATE_GAME_FAILURE;
             }
             case JOIN_GAME-> {
+                // If the join game fails because the game is already started, the player should be redirected
+                // to the askReconnect() method instead of the askJoinGame() method. This check is done in the
+                // ErrorMessage class itself in order to avoid code duplication and to not alter the current method.
                 out.println("Please try again! Reason: " + reason);
+                Status = Event.WELCOME;
                 currentEvent = Event.JOIN_GAME_FAILURE;
             }
             case RECONNECT_GAME -> {
+                // If the reconnection fails, the player should be redirected to the askReconnect() method.
                 out.println("Please try again! Reason: " + reason);
+                Status = Event.WELCOME;
                 currentEvent = Event.RECONNECT_GAME_FAILURE;
             }
             case PLACE_CARD_FAILURE -> {
+                // If the card placement fails, the player should be redirected to the askPlaceCard() method.
                 out.println("Please try again! Reason: " + reason);
                 currentEvent = Event.PLACE_CARD;
             }
             case DRAW_CARD_FAILURE -> {
+                // If the card drawing fails, the player should be redirected to the askDrawCard() method.
                 out.println("Please try again! Reason: " + reason);
                 currentEvent = Event.DRAW_CARD;
             }
             case SELECT_SECRET_OBJ_CARD_FAILURE -> {
+                // If the selection of the secret objective card fails, the player should be redirected to the
+                // askSelectSecretObjCard() method.
                 out.println("Please try again! Reason: " + reason);
                 currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
             }
             case SELECT_STARTER_CARD_SIDE_FAILURE -> {
+                // If the selection of the side of the starter card fails, the player should be redirected to the
+                // askSelectStarterCardSide() method.
                 out.println("Please try again! Reason: " + reason);
                 currentEvent = Event.SELECT_STARTER_CARD_SIDE;
             }
             case CHAT_ERROR -> {
+                // If the last message was not sent, add a notice to the chat history and print the reason.
                 out.println("The last message was not sent! Reason: " + reason);
                 ChatMessage error = new ChatMessage("NOTICE", thisPlayerNickname, false,"The last message was not sent! " + reason);
                 chatHistory.add(error);
