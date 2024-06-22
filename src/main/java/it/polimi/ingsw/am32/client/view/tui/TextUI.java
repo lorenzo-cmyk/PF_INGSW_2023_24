@@ -164,6 +164,10 @@ public class TextUI extends View{
      * The thread used to read the input of the player when it is not the player's turn
      */
     private Thread service;
+    /**
+     * An object used as a lock for the shared getInput() method
+     */
+    private final Object lockInput = new Object();
 
     /**
      * A boolean that represents if the TUI is disconnected from the server.
@@ -2087,11 +2091,12 @@ public class TextUI extends View{
      * @implSpec BLOCKING, NON-ALTER-STATUS, NO-SIDE-EFFECT
      * @return the input from the user.
      */
-    private synchronized String getInput() {
-        String input = "";
-        if (!Status.equals(Event.TERMINATED)) {
-         input= in.nextLine();
-        }
+    private String getInput() {
+        synchronized (lockInput) {
+            String input = "";
+            if (!Status.equals(Event.TERMINATED)) {
+                input= in.nextLine();
+            }
             switch (input) {
                 case "HELP" -> showHelpInfo();
                 case "QUIT" -> System.exit(0);
@@ -2116,7 +2121,8 @@ public class TextUI extends View{
                 case "SID" -> out.println("The game ID is: " + gameID);
                 case "SCD" -> showDeck();
             }
-        return input;
+            return input;
+        }
     }
 
     /**
