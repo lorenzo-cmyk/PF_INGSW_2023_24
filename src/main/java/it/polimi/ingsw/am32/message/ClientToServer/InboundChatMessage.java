@@ -24,6 +24,17 @@ public class InboundChatMessage implements CtoSMessage {
      */
     private final String content;
 
+    /**
+     * Constructor: a message representing a chat message sent by a player to another player or to all the players in
+     *              the game.
+     *
+     * @param senderNickname the nickname of the player who wants to send the message
+     * @param recipientNickname the nickname of the player who will receive the message
+     * @param multicastFlag the flag that indicates if the message is for all the players in the game or for a single
+     *                      player: true if the message is for all the players, false if the message is for a single
+     *                      player
+     * @param content the content of the message
+     */
     public InboundChatMessage(String senderNickname, String recipientNickname, boolean multicastFlag, String content) {
         this.senderNickname = senderNickname;
         this.recipientNickname = recipientNickname;

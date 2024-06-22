@@ -11,11 +11,18 @@ public class PingMessage implements CtoSMessage {
      */
     private final String senderNickname;
 
+    /**
+     * Constructor: a message representing a ping message sent by a player to the server.
+     * @param senderNickname the nickname of the player who wants to ping the server
+     */
     public PingMessage(String senderNickname) {
         this.senderNickname = senderNickname;
     }
 
-    // TODO Need javadoc
+    /**
+     * This method is called when a player wants to ping the server.
+     * @param gameController The game controller with which the message should be elaborated
+     */
     @Override
     public void elaborateMessage(GameController gameController) {
         gameController.pongPlayer(senderNickname);

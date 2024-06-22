@@ -20,7 +20,11 @@ public class AccessGameMessage implements CtoSLobbyMessage {
      * The nickname of the player who wants to join the game
      */
     private final String senderNickname;
-
+    /**
+     * Constructor: a message containing the id of the game and the nickname of the player who wants to join the game
+     * @param matchId the id of the game the player wants to join
+     * @param senderNickname the nickname of the player who requests to join the game
+     */
     public AccessGameMessage(int matchId, String senderNickname) {
         this.matchId = matchId;
         this.senderNickname = senderNickname;
