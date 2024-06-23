@@ -497,7 +497,8 @@ public class GraphicalUI extends View {
      */
     @Override
     public void askSelectGameMode() {
-        // TODO: Why are we not updating the currentEvent here?
+        Status = Event.WELCOME;
+        currentEvent = Event.SELECT_GAME_MODE;
         StackPane gameModeRoot = new StackPane();
         Label label = createLabel("Game \n Mode", 150, 10);
         VBox gameMode = new VBox();
