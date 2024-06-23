@@ -1313,7 +1313,7 @@ public class GraphicalUI extends View {
 
     /**
      * Create a stylized Alert pop-up window with the specified reason.
-     * @implNote GUI-NON-CORE
+     * @implSpec GUI-NON-CORE
      * @param reason the reason of the error alert
      */
     private void createAlert(String reason) {
