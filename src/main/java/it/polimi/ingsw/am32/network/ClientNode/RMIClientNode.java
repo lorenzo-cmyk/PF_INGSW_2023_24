@@ -29,7 +29,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
 
     private static final int PONGMAXCOUNT = 3;
-    private static final int THREADSLEEPINTERVAL = 500;
+    private static final int THREADSLEEPINTERVAL = 1000;
     private static final int PINGINTERVAL = 5000;
     private static final String REMOTEOBJECTNAME = "Server-CodexNaturalis";
 
@@ -49,8 +49,10 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     private final Timer timer;
     private ClientPingTask clientPingTask;
+    private ClientPingTask prePingTask;
 
     private boolean statusIsAlive;
+    private boolean nodePreState;
     private boolean reconnectCalled;
     private final Object aliveLock;
     private final Object cToSProcessingLock;
@@ -84,6 +86,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
 
         statusIsAlive = true;
+        nodePreState = true;
 
         timer = new Timer();
         aliveLock = new Object();
@@ -166,7 +169,10 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
                 throw new UploadFailureException();
 
-            } catch (LobbyMessageException ignore) {}
+            } catch (LobbyMessageException ignore) {
+
+                // TODO come faccio la parte in cui il node è ancora connesso
+            }
         }
     }
 
@@ -206,6 +212,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private void requestReconnection() {
 
         synchronized (aliveLock) {
+
             if(!statusIsAlive && reconnectCalled) {
                 return;
             }
