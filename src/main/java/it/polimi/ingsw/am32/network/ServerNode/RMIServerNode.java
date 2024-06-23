@@ -136,7 +136,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             if(!statusIsAlive)
                 return;
 
-            // pingCount = config.getMaxPingCount();
+            pingCount = config.getMaxPingCount();
         }
     }
 
