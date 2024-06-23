@@ -88,10 +88,10 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
         } catch (RemoteException e) {
 
-            logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
             synchronized (aliveLock) {
                 statusIsAlive = false;
             }
+            logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
             config.getExecutorService().submit(this::destroy);
             throw new UploadFailureException();
 
@@ -100,6 +100,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             synchronized (aliveLock) {
                 statusIsAlive = false;
             }
+            logger.info("Failed to send StoCMessage to client because client node is closed");
             config.getExecutorService().submit(this::destroy);
             throw new UploadFailureException();
         }
