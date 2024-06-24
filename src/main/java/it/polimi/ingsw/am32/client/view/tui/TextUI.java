@@ -955,8 +955,10 @@ public class TextUI extends View{
             out.println("It is " + currentPlayer + "'s turn");
             // wake up the readInputThread to get the input from the player when it is not the player's turn. In this
             // case, the player can insert the keyword to use the service mode of the game.
-            synchronized (lock) {
-                lock.notify();
+            if(!isInThread) {
+                synchronized (lock) {
+                    lock.notify();
+                }
             }
         }
     }
