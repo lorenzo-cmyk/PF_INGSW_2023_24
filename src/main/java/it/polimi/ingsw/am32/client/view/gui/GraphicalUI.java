@@ -1521,7 +1521,6 @@ public class GraphicalUI extends View {
                         playerSpecific.updateColour(convertToColour(playerColours.get(i)));
                         playerSpecific.updateResources(playersResourcesSummary.get(i));
                         int finalI = i;
-                        PlayerPub finalPlayerSpecific = playerSpecific;
                         playerFields.get(i).forEach(card -> {
                             // the current available spaces in the field.
                             updateAfterPlacedCard(players.get(finalI), card[2], card[0], card[1],
@@ -1530,9 +1529,10 @@ public class GraphicalUI extends View {
                         });
                     }
                     updatePlayerTurn(this.currentPlayer);
-                    startChatting(); // Enable chat area
+                    startChatting();// Enable chat area
                     // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
                 }
+                currentEvent = Status;  // update the current event of the player based on the match status of the game.
             } else {
             // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
             startChatting(); // Enable chat area
