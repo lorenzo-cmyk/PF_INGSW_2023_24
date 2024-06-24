@@ -497,31 +497,39 @@ public class GraphicalUI extends View {
      */
     @Override
     public void askSelectGameMode() {
-        Status = Event.WELCOME;
-        currentEvent = Event.SELECT_GAME_MODE;
-        StackPane gameModeRoot = new StackPane();
-        Label label = createLabel("Game \n Mode", 150, 10);
-        VBox gameMode = new VBox();
-        gameMode.setSpacing(10);
-        Button newGameButton = createButton("[New Game]");
-        Button joinGameButton = createButton("[Join Game]");
-        Button reconnectGameButton = createButton("[Reconnect]");
-        gameMode.getChildren().addAll(newGameButton, joinGameButton, reconnectGameButton);
-        gameMode.setTranslateX(300);
-        gameMode.setTranslateY(300);
-        gameModeRoot.getChildren().addAll(label, gameMode);
-        selectionPane.getChildren().add(gameModeRoot);
-        newGameButton.setOnAction(e -> {
-            selectionPane.getChildren().remove(gameModeRoot);
-            askCreateGame();
-        });
-        joinGameButton.setOnAction(e -> {
-            selectionPane.getChildren().remove(gameModeRoot);
-            askJoinGame();
-        });
-        reconnectGameButton.setOnAction(e -> {
-            selectionPane.getChildren().remove(gameModeRoot);
-            askReconnectGame();
+        Platform.runLater(() -> {
+            if(attemptingReconnection) {
+                resetSelectionPaneContext();
+                selectionPane.getChildren().removeAll();
+                attemptingReconnection = false;
+            }
+
+            Status = Event.WELCOME;
+            currentEvent = Event.SELECT_GAME_MODE;
+            StackPane gameModeRoot = new StackPane();
+            Label label = createLabel("Game \n Mode", 150, 10);
+            VBox gameMode = new VBox();
+            gameMode.setSpacing(10);
+            Button newGameButton = createButton("[New Game]");
+            Button joinGameButton = createButton("[Join Game]");
+            Button reconnectGameButton = createButton("[Reconnect]");
+            gameMode.getChildren().addAll(newGameButton, joinGameButton, reconnectGameButton);
+            gameMode.setTranslateX(300);
+            gameMode.setTranslateY(300);
+            gameModeRoot.getChildren().addAll(label, gameMode);
+            selectionPane.getChildren().add(gameModeRoot);
+            newGameButton.setOnAction(e -> {
+                selectionPane.getChildren().remove(gameModeRoot);
+                askCreateGame();
+            });
+            joinGameButton.setOnAction(e -> {
+                selectionPane.getChildren().remove(gameModeRoot);
+                askJoinGame();
+            });
+            reconnectGameButton.setOnAction(e -> {
+                selectionPane.getChildren().remove(gameModeRoot);
+                askReconnectGame();
+            });
         });
     }
 
@@ -531,52 +539,60 @@ public class GraphicalUI extends View {
      */
     @Override
     public void askCreateGame() {
-        currentEvent = Event.CREATE_GAME;
-        StackPane createGameRoot = new StackPane();
-
-        Label labelNickname = createLabel("Nickname", -90, -80);
-        Label labelPlayers = createLabel("Players number", -60, 30);
-
-        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
-
-        Button twoButton = createButton("[2]", 30, "#3A2111", -150, 70);
-        Button threeButton = createButton("[3]", 30, "#3A2111", -70, 70);
-        Button fourButton = createButton("[4]", 30, "#3A2111", 10, 70);
-        Button createButton = createButton("[Create]", 140, 65);
-        Light.Distant light = new Light.Distant();
-        light.setColor(Color.CHOCOLATE);
-        Lighting lighting = new Lighting();
-        lighting.setLight(light);
-        createGameRoot.getChildren().addAll(labelNickname, labelPlayers, nickname, twoButton, threeButton, fourButton, createButton);
-        twoButton.setOnAction(e -> {
-            playerNum = 2;
-            handleButtonClick(twoButton, threeButton, fourButton, lighting);
-        });
-        threeButton.setOnAction(e -> {
-            playerNum = 3;
-            handleButtonClick(threeButton, twoButton, fourButton,lighting);
-        });
-        fourButton.setOnAction(e -> {
-            playerNum = 4;
-            handleButtonClick(fourButton, threeButton, twoButton,lighting);
-        });
-        createButton.setOnAction(e -> {
-            thisPlayerNickname = nickname.getText();
-            if (thisPlayerNickname.isBlank()) {
-                createAlert("Nickname cannot be left blank");
-                nickname.clear();
-            } else if (thisPlayerNickname.length() > 20) {
-                createAlert("Nickname must be less than 20 characters");
-                nickname.clear();
-            } else {
-                if (playerNum == 2 || playerNum == 3 || playerNum == 4) {
-                    notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
-                } else {
-                    createAlert("Please select the number");
-                }
+        Platform.runLater(() -> {
+            if(attemptingReconnection) {
+                resetSelectionPaneContext();
+                selectionPane.getChildren().removeAll();
+                attemptingReconnection = false;
             }
+
+            currentEvent = Event.CREATE_GAME;
+            StackPane createGameRoot = new StackPane();
+
+            Label labelNickname = createLabel("Nickname", -90, -80);
+            Label labelPlayers = createLabel("Players number", -60, 30);
+
+            TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+
+            Button twoButton = createButton("[2]", 30, "#3A2111", -150, 70);
+            Button threeButton = createButton("[3]", 30, "#3A2111", -70, 70);
+            Button fourButton = createButton("[4]", 30, "#3A2111", 10, 70);
+            Button createButton = createButton("[Create]", 140, 65);
+            Light.Distant light = new Light.Distant();
+            light.setColor(Color.CHOCOLATE);
+            Lighting lighting = new Lighting();
+            lighting.setLight(light);
+            createGameRoot.getChildren().addAll(labelNickname, labelPlayers, nickname, twoButton, threeButton, fourButton, createButton);
+            twoButton.setOnAction(e -> {
+                playerNum = 2;
+                handleButtonClick(twoButton, threeButton, fourButton, lighting);
+            });
+            threeButton.setOnAction(e -> {
+                playerNum = 3;
+                handleButtonClick(threeButton, twoButton, fourButton,lighting);
+            });
+            fourButton.setOnAction(e -> {
+                playerNum = 4;
+                handleButtonClick(fourButton, threeButton, twoButton,lighting);
+            });
+            createButton.setOnAction(e -> {
+                thisPlayerNickname = nickname.getText();
+                if (thisPlayerNickname.isBlank()) {
+                    createAlert("Nickname cannot be left blank");
+                    nickname.clear();
+                } else if (thisPlayerNickname.length() > 20) {
+                    createAlert("Nickname must be less than 20 characters");
+                    nickname.clear();
+                } else {
+                    if (playerNum == 2 || playerNum == 3 || playerNum == 4) {
+                        notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
+                    } else {
+                        createAlert("Please select the number");
+                    }
+                }
+            });
+            selectionPane.getChildren().add(createGameRoot);
         });
-        selectionPane.getChildren().add(createGameRoot);
     }
 
     /**
@@ -585,20 +601,28 @@ public class GraphicalUI extends View {
      */
     @Override
     public void askJoinGame() {
-        currentEvent = Event.JOIN_GAME;
-        StackPane joinGameRoot = new StackPane();
+        Platform.runLater(() -> {
+            if(attemptingReconnection) {
+                resetSelectionPaneContext();
+                selectionPane.getChildren().removeAll();
+                attemptingReconnection = false;
+            }
 
-        Label labelNickname = createLabel("Nickname&GameID", -80, -80);
+            currentEvent = Event.JOIN_GAME;
+            StackPane joinGameRoot = new StackPane();
 
-        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
-        TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
+            Label labelNickname = createLabel("Nickname&GameID", -80, -80);
 
-        Button joinButton = createButton("[Join]", 140, 65);
+            TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+            TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
 
-        joinGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+            Button joinButton = createButton("[Join]", 140, 65);
 
-        joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
-        selectionPane.getChildren().add(joinGameRoot);
+            joinGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+
+            joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
+            selectionPane.getChildren().add(joinGameRoot);
+        });
     }
 
     /**
@@ -607,20 +631,28 @@ public class GraphicalUI extends View {
      */
     @Override
     public void askReconnectGame() {
-        currentEvent = Event.RECONNECT_GAME;
-        StackPane reconnectGameRoot = new StackPane();
+        Platform.runLater(() -> {
+            if(attemptingReconnection) {
+                resetSelectionPaneContext();
+                selectionPane.getChildren().removeAll();
+                attemptingReconnection = false;
+            }
 
-        Label labelNickname = createLabel("Nickname&GameID", -80, -80);
+            currentEvent = Event.RECONNECT_GAME;
+            StackPane reconnectGameRoot = new StackPane();
 
-        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
-        TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
+            Label labelNickname = createLabel("Nickname&GameID", -80, -80);
 
-        Button joinButton = createButton("[Reconnect]", 140, 65);
+            TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+            TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
 
-        reconnectGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+            Button joinButton = createButton("[Reconnect]", 140, 65);
 
-        joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
-        selectionPane.getChildren().add(reconnectGameRoot);
+            reconnectGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+
+            joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
+            selectionPane.getChildren().add(reconnectGameRoot);
+        });
     }
 
     /**
@@ -873,6 +905,9 @@ public class GraphicalUI extends View {
         masterPane.setMinWidth(1250);
         app.updateScene(masterPane,1250,750);
         app.getPrimaryStage().setMinWidth(1250);
+        app.getPrimaryStage().setMinHeight(750);
+        app.getPrimaryStage().setMaxWidth(1250);
+        app.getPrimaryStage().setMaxHeight(750);
     }
 
     /**
@@ -1444,6 +1479,8 @@ public class GraphicalUI extends View {
                                  int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom,
                                  ArrayList<int[]> playersResourcesSummary,
                                  ArrayList<Integer> playerAssignedSecretObjectiveCards, int playerStartingCard) {
+        // Reset the flag attemptingReconnection to indicate that the player has successfully reconnected
+        attemptingReconnection = false;
         // Forcefully overwrite the chatHistory to prevent an unwanted use of Server's class inside the Client
         // We are now rebuilding the ChatMessage object from the ArrayList of Arrays
         ArrayList<ChatMessage> chatHistoryRebuild = new ArrayList<>();
@@ -1955,6 +1992,24 @@ public class GraphicalUI extends View {
      */
     @Override
     public void handleFailureCase(Event event, String reason) {
+        if(attemptingReconnection) {
+            switch (event) {
+                case RECONNECT_GAME -> {
+                    // If the reconnection fails we just have to try again!
+                    askSelectGameMode(); // This method will in itself consume the attemptingReconnection flag
+                }
+                case JOIN_GAME -> {
+                    // If the join game fails we just have to try again!
+                    askJoinGame(); // This method will in itself consume the attemptingReconnection flag
+                }
+                case CREATE_GAME -> {
+                    // If the game creation fails we just have to try again!
+                    askCreateGame(); // This method will in itself consume the attemptingReconnection flag
+                }
+            }
+            return;
+        }
+
         createAlert(reason);
         // in case of create game failure, join game failure, reconnect game failure just notify the player with the reason of the failure.
         switch (event){
@@ -2167,6 +2222,10 @@ public class GraphicalUI extends View {
                 }
                 case Event.GAME_START -> Platform.runLater(()-> notice.getChildren().add(new Label("> The game starts now!\n")));
                 case Event.GAME_JOINED -> {
+                    if(attemptingReconnection) {
+                        resetSelectionPaneContext();
+                        attemptingReconnection = false;
+                    }
                     selectionPane.getChildren().removeLast();
                     waitingRoot = new StackPane();
                     this.players.add(thisPlayerNickname);
@@ -2410,10 +2469,167 @@ public class GraphicalUI extends View {
         return thisPlayerNickname;
     }
 
-    // TODO implementare metodo
-    public void nodeDisconnected(){}
 
-    // TODO implementare metodo
-    public void nodeReconnected(){}
+    private DialogPane networkIsDown;
+
+    private volatile boolean isDisconnected = false;
+    private volatile boolean attemptingReconnection = false;
+
+    /**
+     * Method called when the node disconnects from the game.
+     * Called from the Network to notify the View that the connection to the server is lost.
+     */
+    public void nodeDisconnected(){
+        // Set isDisconnected flag to true
+        isDisconnected = true;
+
+        // Flush the askListener
+        askListener.flushMessages();
+
+        // Configure the dialog pane networkIsDown to let the user know that the connection is down
+        // Run this in the JavaFX thread to be able to interact with the GUI
+        Platform.runLater(() -> {
+            networkIsDown = new DialogPane();
+            networkIsDown.setStyle("-fx-pref-height: 180px;-fx-pref-width: 600px;-fx-background-image: " +
+                    "url('" + retrieveResourceURI("NoticeDisplay.png") + "');-fx-background-position: center;-fx-background-size: 600px 180px;");
+            Label label1 = new Label("The connection with the server is lost.\nAn attempt to reconnect will be made shortly.");
+            label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+            networkIsDown.setContent(label1);
+
+            networkIsDown.setMinHeight(180);
+            networkIsDown.setMinWidth(600);
+            networkIsDown.setMaxHeight(180);
+            networkIsDown.setMaxWidth(600);
+
+            // Show now the dialogPane networkIsDown
+            app.updateScene(networkIsDown, 600, 180);
+            app.getPrimaryStage().setMinWidth(600);
+            app.getPrimaryStage().setMaxWidth(600);
+            app.getPrimaryStage().setMinHeight(180);
+            app.getPrimaryStage().setMaxHeight(180);
+            app.getPrimaryStage().show();
+        });
+    }
+
+    /**
+     * Method called when the node reconnects to the game.
+     * Called from the Network to notify the View that the connection to the server is restored.
+     */
+    public void nodeReconnected(){
+        // Set isDisconnected flag to false
+        isDisconnected = false;
+
+        // Set attemptingReconnection flag to true
+        attemptingReconnection = true;
+
+        // Flush the askListener
+        askListener.flushMessages();
+
+        // Configure the dialog pane networkIsDown to let the user know that the connection is now restored
+        // Run this in the JavaFX thread to be able to interact with the GUI
+        Platform.runLater(() -> {
+            networkIsDown = new DialogPane();
+            networkIsDown.setStyle("-fx-pref-height: 180px;-fx-pref-width: 600px;-fx-background-image: " +
+                    "url('" + retrieveResourceURI("NoticeDisplay.png") + "');-fx-background-position: center;-fx-background-size: 600px 180px;");
+            Label label1 = new Label("The connection with the server is restored.\nThe system is going to try to rejoin the match.");
+            label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+            networkIsDown.setContent(label1);
+
+            networkIsDown.setMinHeight(180);
+            networkIsDown.setMinWidth(600);
+            networkIsDown.setMaxHeight(180);
+            networkIsDown.setMaxWidth(600);
+
+            // Show now the dialogPane networkIsDown
+            app.updateScene(networkIsDown, 600, 180);
+            app.getPrimaryStage().setMinWidth(600);
+            app.getPrimaryStage().setMaxWidth(600);
+            app.getPrimaryStage().setMinHeight(180);
+            app.getPrimaryStage().setMaxHeight(180);
+            app.getPrimaryStage().show();
+        });
+
+        // Try to rejoin the match itself (do this in an ephemeral thread to avoid blocking the Network thread)
+        Thread ephemeralThread = new Thread(() -> {
+            // Sleep for 1.5s to let the user see the message
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Attempt the reconnection to the match itself
+            if(Status.equals(Event.WELCOME)) {
+                switch (currentEvent) {
+                    case Event.CREATE_GAME -> {
+                        askCreateGame();
+                    }
+                    case Event.JOIN_GAME -> {
+                        // If we know the gameID we can attempt to reconnect to that game.
+                        if(gameID != 0 && !thisPlayerNickname.isEmpty()) {
+                            currentEvent = Event.JOIN_GAME;
+                            notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+                            // When an answer is received, the processMessage will handle the reconnection and the GUI will be updated accordingly.
+                            // The flag attemptingReconnection will be set to false in the processMessage method.
+                        } else {
+                            askJoinGame();
+                        }
+                    }
+                    case Event.RECONNECT_GAME -> {
+                        // If we know the gameID we can attempt to reconnect to that game.
+                        if(gameID != 0 && !thisPlayerNickname.isEmpty()) {
+                            currentEvent = Event.RECONNECT_GAME;
+                            notifyAskListener(new ReconnectGameMessage(thisPlayerNickname, gameID));
+                            // When an answer is received, the processMessage will handle the reconnection and the GUI will be updated accordingly.
+                            // The flag attemptingReconnection will be set to false in the processMessage method.
+                        } else {
+                            askReconnectGame();
+                        }
+                    }
+                    default -> {
+                        askSelectGameMode();
+                    }
+                }
+            } else if (Status.equals(Event.LOBBY)) {
+                // If we were in the lobby, we can attempt to reconnect to that lobby.
+                currentEvent = Event.JOIN_GAME;
+                notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+                // When an answer is received, the processMessage will handle the reconnection and the GUI will be updated accordingly.
+                // The flag attemptingReconnection will be set to false in the processMessage method.
+            } else {
+                // If we were in the game, we can attempt to reconnect to that game.
+                currentEvent = Event.RECONNECT_GAME;
+                notifyAskListener(new ReconnectGameMessage(thisPlayerNickname, gameID));
+                // When an answer is received, the processMessage will handle the reconnection and the GUI will be updated accordingly.
+                // The flag attemptingReconnection will be set to false in the processMessage method.
+            }
+        });
+
+        ephemeralThread.start();
+    }
+
+    private void resetSelectionPaneContext() {
+        // Re-initialize the selectionPane
+        selectionPane = new StackPane();
+
+        // Set the background image of the selectionPane
+        Image backgroundSelectionPage = new Image(retrieveResourceURI("SelectionDisplay.png"));
+        BackgroundImage backgroundImg = new BackgroundImage(backgroundSelectionPage, BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
+        Background background = new Background(backgroundImg);
+        selectionPane.setBackground(background);
+
+        // Add a dummy pane as a children of the selectionPane
+        Pane dummyPane = new Pane();
+        selectionPane.getChildren().add(dummyPane);
+
+        // Show the selectionPane on the GUI
+        selectionPane.setMinWidth(975);
+        app.updateScene(selectionPane,975,750);
+        app.getPrimaryStage().setMinWidth(975);
+        app.getPrimaryStage().setMinHeight(750);
+        app.getPrimaryStage().setMaxWidth(975);
+        app.getPrimaryStage().setMaxHeight(750);
+    }
 
 }
