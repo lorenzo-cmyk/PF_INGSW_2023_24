@@ -852,6 +852,7 @@ public class TextUI extends View{
                     }
                 }
             }
+            currentEvent = Status; // update the current event of the player based on the match status of the game.
         }else {
             // that not yet updated in the previous phases.
             this.currentResourceCards = gameCurrentResourceCards;
