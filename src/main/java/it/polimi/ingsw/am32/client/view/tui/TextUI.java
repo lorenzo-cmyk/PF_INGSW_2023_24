@@ -784,11 +784,11 @@ public class TextUI extends View{
                             newAvailableFieldSpaces, playerResources);
                     setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
                 // case 2: reconnect before the selection of the secret objective card
-                    if (playerSecretObjective == -1) {
+                    if (!playerAssignedSecretObjectiveCards.isEmpty()&& playerSecretObjective == -1) {
                         currentEvent = Event.SELECT_SECRET_OBJ_CARD;
                     }
                 // case 3: reconnect after the secret objective card
-                    else {
+                    else if(!playerAssignedSecretObjectiveCards.isEmpty()){
                         currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
                         updateConfirmSelectedSecretCard(playerSecretObjective);
                         out.println("Please wait for the other players to select the secret objective card");
