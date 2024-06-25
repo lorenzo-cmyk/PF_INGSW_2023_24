@@ -1443,6 +1443,7 @@ public class GraphicalUI extends View {
                     int thisPlayerIndex = playerNicknames.indexOf(thisPlayerNickname);
                     // case 1: reconnect before the selection of the starter card
                     if (playerFields.get(thisPlayerIndex) == null) {
+                        currentEvent = Event.SELECT_STARTER_CARD_SIDE;
                         setStarterCard(playerStartingCard); // store the ID of the starter card received from the server
                     } else {
                         boolean isUp = playerFields.get(thisPlayerIndex).getFirst()[3] == 1;
@@ -1450,10 +1451,12 @@ public class GraphicalUI extends View {
                                 newAvailableFieldSpaces, playerResources);
                         // case 2: reconnect before the selection of the secret objective card
                         if (!playerAssignedSecretObjectiveCards.isEmpty()&& playerSecretObjective == -1) {
+                            currentEvent = Event.SELECT_SECRET_OBJ_CARD;
                             setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
                         }
                         // case 3: reconnect after the secret objective card
                         else if(!playerAssignedSecretObjectiveCards.isEmpty()){
+                            currentEvent = Event.WAITING_FOR_TURN;
                             setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
                             updateConfirmSelectedSecretCard(playerSecretObjective);
                         }
@@ -1494,8 +1497,8 @@ public class GraphicalUI extends View {
                     updatePlayerTurn(this.currentPlayer);
                     startChatting();// Enable chat area
                     // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
+                    currentEvent = Status;  // update the current event of the player based on the match status of the game.
                 }
-                currentEvent = Status;  // update the current event of the player based on the match status of the game.
             } else {
             // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
             startChatting(); // Enable chat area
