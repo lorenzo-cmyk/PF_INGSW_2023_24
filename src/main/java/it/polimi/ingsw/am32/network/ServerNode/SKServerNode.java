@@ -214,10 +214,11 @@ public class SKServerNode implements Runnable, NodeInterface {
                 try {
                     gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
                     // TODO forse è meglio mettere il messaggio di errore nell'exception
-
+                    // TODO sincronizzare ??
                     notLinkedPingTask.cancel();
                     config.purgeTimer();
-                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
+                    gameController.getTimer().scheduleAtFixedRate(serverPingTask,
+                            Configuration.getInstance().getPingTimeInterval(), Configuration.getInstance().getPingTimeInterval());
 
                     logger.info("Elaborated CtoSLobbyMessage received: {}", message.toString());
                 } catch (LobbyMessageException e) {

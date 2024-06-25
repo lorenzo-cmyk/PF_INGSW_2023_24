@@ -95,7 +95,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         executorService = Executors.newCachedThreadPool();
         clientPingTask = new ClientPingTask(this);
         prePingTask = new ClientPingTask(this);
-        timer.schedule(prePingTask, 0, PINGINTERVAL);
+        timer.scheduleAtFixedRate(prePingTask, PINGINTERVAL, PINGINTERVAL);
     }
 
     @Override
@@ -167,7 +167,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
                 logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
 
-                timer.scheduleAtFixedRate(clientPingTask, 0, PINGINTERVAL);
+                timer.scheduleAtFixedRate(clientPingTask, PINGINTERVAL, PINGINTERVAL);
 
             } catch (RemoteException e) {
 
@@ -274,7 +274,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             nodePreState = true;
             statusIsAlive = true;
             pongCount = PONGMAXCOUNT;
-            timer.schedule(prePingTask, 0, PINGINTERVAL);
+            timer.scheduleAtFixedRate(prePingTask, PINGINTERVAL, PINGINTERVAL);
             logger.info("Connection established");
             view.nodeReconnected();
         }

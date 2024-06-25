@@ -174,7 +174,8 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
 
-        gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
+        gameController.getTimer().scheduleAtFixedRate(serverPingTask,
+                Configuration.getInstance().getPingTimeInterval(), Configuration.getInstance().getPingTimeInterval());
     }
 
 }

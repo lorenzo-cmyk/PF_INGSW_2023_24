@@ -23,6 +23,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     private static final int PONGMAXCOUNT = 3;
     private static final int SOCKETTIMEOUT = 100;
+    private static final int PINGINTERVAL = 5000;
 
     private final Logger logger;
     private final ExecutorService executorService;
@@ -101,7 +102,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         aliveLock = new Object();
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
-        timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+        timer.scheduleAtFixedRate(clientPingTask, PINGINTERVAL, PINGINTERVAL);
     }
 
     public void run() {
@@ -314,7 +315,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             reconnectCalled = false;
             pongCount = PONGMAXCOUNT;
             aliveLock.notifyAll();
-            timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+            timer.scheduleAtFixedRate(clientPingTask, PINGINTERVAL, PINGINTERVAL);
             view.nodeReconnected();
         }
     }
