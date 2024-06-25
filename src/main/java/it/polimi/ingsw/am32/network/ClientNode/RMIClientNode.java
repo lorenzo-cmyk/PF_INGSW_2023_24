@@ -236,7 +236,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             prePingTask = new ClientPingTask(this);
             view.nodeDisconnected();
 
-            executorService.execute(this::resetConnection);
+            executorService.submit(this::resetConnection);
         }
     }
 

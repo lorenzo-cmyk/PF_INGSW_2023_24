@@ -64,6 +64,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             logger.info("Attempting to connect to the server at {}:{}", ip, port);
 
             socket = new Socket(ip, port);
+            //socket.setSoTimeout(SOCKETTIMEOUT*100); // Time out sulle read sulla input stream in caso qualcosa vada storto
             outputObtStr = new ObjectOutputStream(socket.getOutputStream());
             outputObtStr.flush();
             inputObtStr = new ObjectInputStream(socket.getInputStream());
