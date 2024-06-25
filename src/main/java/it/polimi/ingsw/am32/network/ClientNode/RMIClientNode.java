@@ -8,7 +8,8 @@ import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptorInt;
-import it.polimi.ingsw.am32.network.GameTuple;
+import it.polimi.ingsw.am32.network.ServerNode.RMIServerNodeInt;
+import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.apache.logging.log4j.LogManager;
@@ -28,13 +29,17 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
 
     private static final int PONGMAXCOUNT = 3;
+    private static final int THREADSLEEPINTERVAL = 1000;
+    private static final int PINGINTERVAL = 5000;
+    private static final String REMOTEOBJECTNAME = "Server-CodexNaturalis";
+
 
     private final ExecutorService executorService;
     private final Logger logger;
 
-    private GameTuple gameTuple;
+    private RMIServerNodeInt serverNode;
     private final View view;
-    private final String serverURL;
+    private final String ip;
     private final int port;
     private int pongCount;
     private String nickname;
@@ -44,47 +49,92 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     private final Timer timer;
     private ClientPingTask clientPingTask;
+    private ClientPingTask prePingTask;
 
     private boolean statusIsAlive;
+    private boolean nodePreState;
+    private boolean reconnectCalled;
     private final Object aliveLock;
     private final Object cToSProcessingLock;
     private final Object sToCProcessingLock;
 
 
-    public RMIClientNode(View view, String serverURL, int port) throws RemoteException {
+    public RMIClientNode(View view, String ip, int port) throws RemoteException, ConnectionSetupFailedException {
         this.view = view;
-        this.serverURL = serverURL;
+        this.ip = ip;
         this.port = port;
+        pongCount = PONGMAXCOUNT;
+        nickname = "Unknown";
+        reconnectCalled = false;
+
         logger = LogManager.getLogger(RMIClientNode.class);
+
+        try {
+
+            logger.info("Attempting to connect to the server at {}:{}", ip, port);
+
+            registry = LocateRegistry.getRegistry(ip, port);
+
+            rmiClientAcceptor = (RMIClientAcceptorInt) registry.lookup(REMOTEOBJECTNAME);
+            logger.info("RMI-Client-Acceptor found on the server. Connection established");
+
+        } catch (RemoteException | NotBoundException e) {
+
+            logger.info("Connection failed do to wrong parameters or inaccessible server");
+
+            throw new ConnectionSetupFailedException();
+        }
+
+        statusIsAlive = true;
+        nodePreState = true;
+
         timer = new Timer();
         aliveLock = new Object();
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
-        pongCount = PONGMAXCOUNT;
         executorService = Executors.newCachedThreadPool();
         clientPingTask = new ClientPingTask(this);
+        prePingTask = new ClientPingTask(this);
+        timer.schedule(prePingTask, 0, PINGINTERVAL);
     }
 
     @Override
     public void uploadToServer(CtoSMessage message) throws UploadFailureException {
 
-        synchronized (aliveLock) {
-            if(gameTuple == null) {
-
-                // TODO aggiungere di dire errore alla view
-                throw new UploadFailureException();
-            }
-        }
-
         synchronized (cToSProcessingLock) {
 
+            synchronized (aliveLock) {
+
+                if(serverNode == null) {
+
+                    logger.error("Attempt to send CtoSMessage before CtoSLobbyMessage. Upload rejected. Message: {}", message);
+                    // TODO aggiungere di dire errore alla view
+                    throw new UploadFailureException();
+                }
+
+                if(!statusIsAlive)
+                    throw new UploadFailureException();
+            }
+
             try {
-                gameTuple.getNode().uploadCtoS(message); // TODO il numero di partita in realtà non server
+                serverNode.uploadCtoS(message); // TODO il numero di partita in realtà non server
                 logger.info("Message sent. Type: CtoSMessage: {}", message);
-            } catch (NodeClosedException e) { // TODO gestire eccezioni
-                throw new RuntimeException(e);
+
+            } catch (NodeClosedException e) {
+
+                logger.info("Failed to process CtoSMessage because server node is closed");
+
+                requestReconnection();
+
+                throw new UploadFailureException();
+
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+
+                logger.info("Failed to send CtoSMessage to server. RemoteException: {}", e.getMessage());
+
+                requestReconnection();
+
+                throw new UploadFailureException();
             }
         }
     }
@@ -92,110 +142,198 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     @Override
     public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
 
-        synchronized (aliveLock) {
-            if(gameTuple != null) {
-
-                // TODO aggiungere di dire errore alla view
-                throw new UploadFailureException();
-            }
-        }
-
         synchronized (cToSProcessingLock) {
+
+            synchronized (aliveLock) {
+                if(serverNode != null) {
+
+                    logger.error("Attempt to send second CtoSLobbyMessage while RMIServerNode still valid. Upload rejected. Message: {}", message);
+                    // TODO aggiungere di dire errore alla view
+                    throw new UploadFailureException();
+                }
+
+                if(!statusIsAlive)
+                    throw new UploadFailureException();
+            }
 
             try {
                 // TODO ritorniamo solo l'interfaccia RMI e non il num di partita perchè non serve??
-                gameTuple = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
+                serverNode = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message).getNode();
+
+                synchronized (aliveLock){
+                    nodePreState = false;
+                    prePingTask.cancel();
+                }
+
                 logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
 
+                timer.scheduleAtFixedRate(clientPingTask, 0, PINGINTERVAL);
 
-                timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+            } catch (RemoteException e) {
 
-            } catch (RemoteException e) { // TODO come gestisco queste exception??
-                throw new RuntimeException(e);
-            } catch (LobbyMessageException e) {
-                // TODO: Handle exception correctly
-                // view.failureCtoSLobby
+                logger.info("Failed to send CtoSLobbyMessage to server. RemoteException: {}", e.getMessage());
+
+                requestReconnection();
+
+                throw new UploadFailureException();
+
+            } catch (LobbyMessageException ignore) {
+
+                // TODO come faccio la parte in cui il node è ancora connesso
             }
         }
     }
 
     @Override
-    public void uploadStoC(StoCMessage message) {
+    public void uploadStoC(StoCMessage message) throws NodeClosedException {
 
-        resetTimeCounter();
+        synchronized (sToCProcessingLock) {
 
-        if(message == null) {
-            logger.error("Null message received");
-            return;
+            synchronized (aliveLock) {
+                if(!statusIsAlive)
+                    throw new NodeClosedException();
+
+                resetTimeCounter();
+            }
+
+            if (message == null) {
+                logger.error("Null message received");
+                return;
+            }
+
+            if (message instanceof PongMessage) {
+                logger.debug("PongMessage received");
+                return;
+            }
+
+            try {
+                logger.info("Message received. Type: StoCMessage. Processing: {}", message);
+                message.processMessage(view);
+
+            } catch (Exception e) {
+                logger.fatal("Critical Runtime Exception:\nException Type: {}\nLocal Message: {}\nStackTrace: {}",
+                        e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
+            }
         }
+    }
 
-        if(message instanceof PongMessage) {
-            logger.debug("PongMessage received");
-            return;
-        }
+    private void requestReconnection() {
 
-        try {
-            logger.info("Message received. Type: StoCMessage. Processing: {}", message);
-            message.processMessage(view);
-        } catch (Exception e) {
-            logger.fatal("Critical Runtime Exception:\nException Type: {}\nLocal Message: {}\nStackTrace: {}",
-                    e.getClass(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
+        synchronized (aliveLock) {
+
+            if(!statusIsAlive && reconnectCalled) {
+                return;
+            }
+
+            reconnectCalled = true;
+            statusIsAlive = false;
+            nodePreState = false;
+            serverNode = null;
+            clientPingTask.cancel();
+            prePingTask.cancel();
+            timer.purge();
+            clientPingTask = new ClientPingTask(this);
+            prePingTask = new ClientPingTask(this);
+            view.nodeDisconnected();
+
+            executorService.execute(this::resetConnection);
         }
     }
 
     private void resetConnection () {
 
-        gameTuple = null;
-        clientPingTask.cancel();
-        timer.purge();
-        clientPingTask = new ClientPingTask(this);
-        // TODO aggiungere alla view
-        //TODO view.disconnected();
+        while(true){
 
+            try {
+                rmiClientAcceptor = (RMIClientAcceptorInt) registry.lookup(REMOTEOBJECTNAME);
+                logger.debug("RMI-Client-Acceptor found on the server. Connection established");
+                break;
+            } catch (RemoteException | NotBoundException e) {
 
+                logger.debug("RMI-Client-Acceptor not found on the server. searching for registry");
+
+                while (true) {
+
+                    try {
+                        registry = LocateRegistry.getRegistry(ip, port);
+                        logger.debug("Registry found on the server. Searching for RMIClientAcceptor");
+                        break;
+                    } catch (RemoteException ignored) {}
+
+                    logger.debug("Registry not found. Trying again later");
+
+                    try {
+                        Thread.sleep(THREADSLEEPINTERVAL);
+                    } catch (InterruptedException ignore) {}
+                }
+            }
+        }
+
+        synchronized (aliveLock) {
+            reconnectCalled = false;
+            nodePreState = true;
+            statusIsAlive = true;
+            pongCount = PONGMAXCOUNT;
+            timer.schedule(prePingTask, 0, PINGINTERVAL);
+            logger.info("Connection established");
+            view.nodeReconnected();
+        }
     }
 
     public void startConnection() {
 
-        try {
-            registry = LocateRegistry.getRegistry(serverURL, port);
-            String remoteObjectName = "Server-CodexNaturalis";
-            rmiClientAcceptor = (RMIClientAcceptorInt) registry.lookup(remoteObjectName);
-            logger.info("RMI-Client-Acceptor found on the server. Connection established");
-        } catch (RemoteException | NotBoundException e) {
-            //TODO handle exception
-        }
+        logger.debug("RMIClientNode started");
     }
 
     @Override
     public void pongTimeOverdue() {
 
         boolean toReset = false;
+        boolean preState = false;
 
         synchronized (aliveLock){
+
             if(!statusIsAlive)
                 return;
 
-            pongCount--;
+            if(nodePreState){
+                preState = true;
+                logger.debug("Pong time overdue node pre-game");
 
-            logger.debug("Pong time overdue. Pong count: {}", pongCount);
+            } else {
+                pongCount--;
 
-            if(pongCount <= 0) {
-                logger.info("Pong count reached minimum. Trying to check connection");
-                toReset = true;
+                logger.debug("Pong time overdue. Pong count: {}", pongCount);
+
+                if (pongCount <= 0) {
+                    logger.info("Pong count reached minimum. Trying to check connection");
+                    toReset = true;
+                }
             }
         }
 
         if(toReset){
-            // resetConnection(); // TODO risolvere
+            requestReconnection();
             return;
         }
 
-        executorService.submit(() -> {
-            try {
-                uploadToServer(new PingMessage(nickname));
-            } catch (UploadFailureException ignore) {}
-        });
+        if(preState){
+            executorService.submit(() -> {
+                try {
+                    rmiClientAcceptor.extraPing();
+                    logger.debug("Calling extraPing method on RMIClientAcceptor");
+                } catch (RemoteException e) {
+                    requestReconnection();
+                }
+            });
+
+        } else {
+            executorService.submit(() -> {
+                try {
+                    uploadToServer(new PingMessage(nickname));
+                } catch (UploadFailureException ignore) {}
+            });
+        }
     }
 
     public void resetTimeCounter() {
