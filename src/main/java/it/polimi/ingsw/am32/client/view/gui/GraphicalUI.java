@@ -847,8 +847,8 @@ public class GraphicalUI extends View {
         noticeEventPanel.setVisible(false);
 
 
-        masterPane.getChildren().addAll(topLine, board,returnToMyField,playerInfoPanel,noticeArea,noticeEventPanel, deckArea,
-                deckSize, bottomLine, chatArea.getChatArea(),cardLabels);
+        masterPane.getChildren().addAll(topLine, board,returnToMyField,playerInfoPanel,noticeArea,noticeEventPanel,
+                deckArea, deckSize, bottomLine, chatArea.getChatArea(),cardLabels);
 
         // update the scene of the application with the master pane
         masterPane.setMinWidth(1250);
@@ -1443,17 +1443,20 @@ public class GraphicalUI extends View {
                     int thisPlayerIndex = playerNicknames.indexOf(thisPlayerNickname);
                     // case 1: reconnect before the selection of the starter card
                     if (playerFields.get(thisPlayerIndex) == null) {
+                        currentEvent = Event.SELECT_STARTER_CARD_SIDE;
                         setStarterCard(playerStartingCard); // store the ID of the starter card received from the server
                     } else {
                         boolean isUp = playerFields.get(thisPlayerIndex).getFirst()[3] == 1;
                         updateConfirmStarterCard(playerColours.get(thisPlayerIndex), playerStartingCard, isUp,
                                 newAvailableFieldSpaces, playerResources);
                         // case 2: reconnect before the selection of the secret objective card
-                        if (playerSecretObjective == -1) {
+                        if (!playerAssignedSecretObjectiveCards.isEmpty()&& playerSecretObjective == -1) {
+                            currentEvent = Event.SELECT_SECRET_OBJ_CARD;
                             setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
                         }
                         // case 3: reconnect after the secret objective card
-                        else {
+                        else if(!playerAssignedSecretObjectiveCards.isEmpty()){
+                            currentEvent = Event.WAITING_FOR_TURN;
                             setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
                             updateConfirmSelectedSecretCard(playerSecretObjective);
                         }
@@ -1484,7 +1487,6 @@ public class GraphicalUI extends View {
                         playerSpecific.updateColour(convertToColour(playerColours.get(i)));
                         playerSpecific.updateResources(playersResourcesSummary.get(i));
                         int finalI = i;
-                        PlayerPub finalPlayerSpecific = playerSpecific;
                         playerFields.get(i).forEach(card -> {
                             // the current available spaces in the field.
                             updateAfterPlacedCard(players.get(finalI), card[2], card[0], card[1],
@@ -1493,8 +1495,9 @@ public class GraphicalUI extends View {
                         });
                     }
                     updatePlayerTurn(this.currentPlayer);
-                    startChatting(); // Enable chat area
+                    startChatting();// Enable chat area
                     // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
+                    currentEvent = Status;  // update the current event of the player based on the match status of the game.
                 }
             } else {
             // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
@@ -1796,7 +1799,9 @@ public class GraphicalUI extends View {
     @Override
     public void updateConfirmStarterCard(int colour, int cardID, boolean isUp, ArrayList<int[]> availablePos, int[] resources) {
         Platform.runLater(() -> {
-            masterPane.getChildren().removeLast();
+            if(currentEvent.equals(Event.SELECT_STARTER_CARD_SIDE)) { // Remove the previous starter card selection area
+                masterPane.getChildren().removeLast();
+            }
             String colourReceived = convertToColour(colour);
             publicInfo.get(thisPlayerNickname).updateColour(colourReceived);
             playerViews.get(thisPlayerNickname).setColour(imagesMap.get(colourReceived));
@@ -2009,7 +2014,9 @@ public class GraphicalUI extends View {
     public void updateConfirmSelectedSecretCard(int chosenSecretObjectiveCard) {
         secretObjCardSelected = chosenSecretObjectiveCard;
         Platform.runLater(() -> {
-            masterPane.getChildren().removeLast();
+            if(currentEvent.equals(Event.SELECT_SECRET_OBJ_CARD)) {
+                masterPane.getChildren().removeLast();
+            }
             String cardIdStr = chosenSecretObjectiveCard > 99 ? String.valueOf(chosenSecretObjectiveCard) : "0" + chosenSecretObjectiveCard;
             secretObjCardView.setImage(new Image(retrieveResourceURI("cards_front_" + cardIdStr + ".png"), 120, 80, true, true));
         });

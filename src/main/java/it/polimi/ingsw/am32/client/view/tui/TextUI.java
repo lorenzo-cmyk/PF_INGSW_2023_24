@@ -782,13 +782,14 @@ public class TextUI extends View{
                     boolean isUp = playerFields.get(thisPlayerIndex).getFirst()[3] == 1;
                     updateConfirmStarterCard(playerColours.get(thisPlayerIndex), playerStartingCard, isUp,
                             newAvailableFieldSpaces, playerResources);
-                    setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
                 // case 2: reconnect before the selection of the secret objective card
-                    if (playerSecretObjective == -1) {
+                    if (!playerAssignedSecretObjectiveCards.isEmpty()&& playerSecretObjective == -1) {
+                        setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
                         currentEvent = Event.SELECT_SECRET_OBJ_CARD;
                     }
                 // case 3: reconnect after the secret objective card
-                    else {
+                    else if(!playerAssignedSecretObjectiveCards.isEmpty()){
+                        setCardsReceived(playerAssignedSecretObjectiveCards, gameCommonObjectives, playerHand);
                         currentEvent = Event.SELECTED_SECRET_OBJ_CARD;
                         updateConfirmSelectedSecretCard(playerSecretObjective);
                         out.println("Please wait for the other players to select the secret objective card");
@@ -852,7 +853,7 @@ public class TextUI extends View{
                     }
                 }
             }
-        }else {
+        } else {
             // that not yet updated in the previous phases.
             this.currentResourceCards = gameCurrentResourceCards;
             this.currentGoldCards = gameCurrentGoldCards;
