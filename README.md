@@ -32,8 +32,7 @@ The group members are:
 
 ### Currently Known Issues
 
-- 🟨 The branch with the correct version of the network stack is not yet merged. Therefore, the network is not informing the View if the initial connection was successful or not.
-- 🟥 The branch with the correct version of the network stack is not yet merged. Therefore, the network is not activating the PingTask that allows (in both Client & Server) the disconnection discovery in RMI.
+- 🟥 The client must set its own IP address in the Client.java file in order to make RMI work.
 
 ## Code Coverage
 
