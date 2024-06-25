@@ -31,7 +31,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     private final View view;
     private final String ip;
     private final int port;
-    private String nickname;
+    private final String nickname;
     private int pongCount;
 
     private Socket socket;

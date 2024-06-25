@@ -33,6 +33,7 @@ public class SKServerNode implements Runnable, NodeInterface {
     private final ObjectOutputStream outputObtStr;
     private final Socket socket;
     private int pingCount;
+    private final String nickname;
     private ServerPingTask notLinkedPingTask;
     private ServerPingTask serverPingTask;
     private boolean statusIsAlive;
@@ -49,6 +50,7 @@ public class SKServerNode implements Runnable, NodeInterface {
         aliveLock = new Object();
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
+        nickname = "Unknown";
 
         this.logger = LogManager.getLogger(SKServerNode.class);
 
@@ -161,16 +163,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             // Check type of message received
 
-            if (message instanceof PingMessage) {
-                config.getExecutorService().submit(() -> {
-                    try {
-                        logger.debug("PingMessage received");
-                        uploadToClient(new PongMessage(null));
-                    } catch (UploadFailureException e) {
-                        logger.error("Failed to send PongMessage to client");
-                    }
-                }); // Create a new thread that sends a PongMessage back to the client
-            }
+            if (message instanceof PingMessage) {return;}
             else if (message instanceof CtoSMessage) {
                 if (gameController == null) { // It should never happen that the gameController hasn't yet been assigned when a CtoSMessage is received
                     try {
@@ -303,7 +296,14 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         if(tmpDestroy)
             destroy();
-
+        else
+            config.getExecutorService().submit(() -> {
+                try {
+                    uploadToClient(new PongMessage(nickname));
+                } catch (UploadFailureException e) {
+                    logger.error("Failed to send PongMessage to client");
+                }
+            }); // Create a new thread that sends a PongMessage back to the client
     }
 
     @Override

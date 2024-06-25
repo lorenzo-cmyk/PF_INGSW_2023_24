@@ -23,6 +23,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private final Configuration config;
     private GameController gameController;
     private int pingCount;
+    private final String nickname;
     private final RMIClientNodeInt clientNode;
     private ServerPingTask serverPingTask;
     private boolean statusIsAlive;
@@ -39,6 +40,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         aliveLock = new Object();
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
+        nickname = "Unknown";
 
         statusIsAlive = true;
         destroyCalled = false;
@@ -55,17 +57,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                 resetTimeCounter();
             }
 
-            if(message instanceof PingMessage) {
-                config.getExecutorService().submit(() -> {
-                    try {
-                        logger.debug("PingMessage received");
-                        uploadToClient(new PongMessage(null));
-                    } catch (UploadFailureException e) {
-                        logger.error("Failed to send PongMessage to client");
-                    }
-                });
-                return;
-            }
+            if(message instanceof PingMessage) {return;}
 
             // We can't risk to lose the observability of potential RuntimeExceptions thrown by GameController and Model
             // The server will not crash if such exceptions are thrown, thanks to how the threads are managed, but
@@ -108,6 +100,8 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     public void pingTimeOverdue() {
 
+        boolean tmpDestroy = false;
+
         synchronized (aliveLock) {
 
             if(!statusIsAlive)
@@ -120,12 +114,21 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             if(pingCount <= 0){
                 statusIsAlive = false;
                 logger.debug("Ping count reached minimum, starting destruction process");
+                tmpDestroy = true;
             }
 
         }
 
-        if(!statusIsAlive)
+        if(tmpDestroy)
             destroy();
+        else
+            config.getExecutorService().submit(() -> {
+                try {
+                    uploadToClient(new PongMessage(nickname));
+                } catch (UploadFailureException e) {
+                    logger.error("Failed to send PongMessage to client");
+                }
+            });
 
     }
 
