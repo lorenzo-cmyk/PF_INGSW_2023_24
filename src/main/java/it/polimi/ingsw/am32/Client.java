@@ -32,6 +32,8 @@ public class Client {
      * @param args Command line arguments
      */
     public static void main(String[] args){
+        // FIXME: Set here the IP address of the Client in order to allow RMI to work
+        System.setProperty("java.rmi.server.hostname", "192.168.178.118");
         // Configure log4j2 logger to log only warnings and above
         Log4J2ConfiguratorWrapper.setLogLevelAndConfigure(Level.WARN);
         out.println("Welcome to Codex Naturalis");

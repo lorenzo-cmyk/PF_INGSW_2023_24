@@ -29,7 +29,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
 
     private static final int PONGMAXCOUNT = 3;
-    private static final int THREADSLEEPINTERVAL = 500;
+    private static final int THREADSLEEPINTERVAL = 1000;
     private static final int PINGINTERVAL = 5000;
     private static final String REMOTEOBJECTNAME = "Server-CodexNaturalis";
 
@@ -49,8 +49,10 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     private final Timer timer;
     private ClientPingTask clientPingTask;
+    private ClientPingTask prePingTask;
 
     private boolean statusIsAlive;
+    private boolean nodePreState;
     private boolean reconnectCalled;
     private final Object aliveLock;
     private final Object cToSProcessingLock;
@@ -83,12 +85,17 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             throw new ConnectionSetupFailedException();
         }
 
+        statusIsAlive = true;
+        nodePreState = true;
+
         timer = new Timer();
         aliveLock = new Object();
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
         executorService = Executors.newCachedThreadPool();
         clientPingTask = new ClientPingTask(this);
+        prePingTask = new ClientPingTask(this);
+        timer.schedule(prePingTask, 0, PINGINTERVAL);
     }
 
     @Override
@@ -152,6 +159,12 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             try {
                 // TODO ritorniamo solo l'interfaccia RMI e non il num di partita perchè non serve??
                 serverNode = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message).getNode();
+
+                synchronized (aliveLock){
+                    nodePreState = false;
+                    prePingTask.cancel();
+                }
+
                 logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
 
                 timer.scheduleAtFixedRate(clientPingTask, 0, PINGINTERVAL);
@@ -164,7 +177,10 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
                 throw new UploadFailureException();
 
-            } catch (LobbyMessageException ignore) {}
+            } catch (LobbyMessageException ignore) {
+
+                // TODO come faccio la parte in cui il node è ancora connesso
+            }
         }
     }
 
@@ -204,16 +220,20 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private void requestReconnection() {
 
         synchronized (aliveLock) {
+
             if(!statusIsAlive && reconnectCalled) {
                 return;
             }
 
             reconnectCalled = true;
             statusIsAlive = false;
+            nodePreState = false;
             serverNode = null;
             clientPingTask.cancel();
+            prePingTask.cancel();
             timer.purge();
             clientPingTask = new ClientPingTask(this);
+            prePingTask = new ClientPingTask(this);
             view.nodeDisconnected();
 
             executorService.execute(this::resetConnection);
@@ -222,25 +242,40 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
     private void resetConnection () {
 
-        boolean notDone = true;
-
-        while(notDone){
+        while(true){
 
             try {
                 rmiClientAcceptor = (RMIClientAcceptorInt) registry.lookup(REMOTEOBJECTNAME);
-                notDone = false;
+                logger.debug("RMI-Client-Acceptor found on the server. Connection established");
+                break;
             } catch (RemoteException | NotBoundException e) {
 
-                try {
-                    Thread.sleep(THREADSLEEPINTERVAL);
-                } catch (InterruptedException ignore) {}
-            } // TODO mettiamo ricerca registy??
+                logger.debug("RMI-Client-Acceptor not found on the server. searching for registry");
+
+                while (true) {
+
+                    try {
+                        registry = LocateRegistry.getRegistry(ip, port);
+                        logger.debug("Registry found on the server. Searching for RMIClientAcceptor");
+                        break;
+                    } catch (RemoteException ignored) {}
+
+                    logger.debug("Registry not found. Trying again later");
+
+                    try {
+                        Thread.sleep(THREADSLEEPINTERVAL);
+                    } catch (InterruptedException ignore) {}
+                }
+            }
         }
 
         synchronized (aliveLock) {
             reconnectCalled = false;
+            nodePreState = true;
             statusIsAlive = true;
             pongCount = PONGMAXCOUNT;
+            timer.schedule(prePingTask, 0, PINGINTERVAL);
+            logger.info("Connection established");
             view.nodeReconnected();
         }
     }
@@ -254,18 +289,26 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     public void pongTimeOverdue() {
 
         boolean toReset = false;
+        boolean preState = false;
 
         synchronized (aliveLock){
+
             if(!statusIsAlive)
                 return;
 
-            pongCount--;
+            if(nodePreState){
+                preState = true;
+                logger.debug("Pong time overdue node pre-game");
 
-            logger.debug("Pong time overdue. Pong count: {}", pongCount);
+            } else {
+                pongCount--;
 
-            if(pongCount <= 0) {
-                logger.info("Pong count reached minimum. Trying to check connection");
-                toReset = true;
+                logger.debug("Pong time overdue. Pong count: {}", pongCount);
+
+                if (pongCount <= 0) {
+                    logger.info("Pong count reached minimum. Trying to check connection");
+                    toReset = true;
+                }
             }
         }
 
@@ -274,11 +317,23 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             return;
         }
 
-        executorService.submit(() -> {
-            try {
-                uploadToServer(new PingMessage(nickname));
-            } catch (UploadFailureException ignore) {}
-        });
+        if(preState){
+            executorService.submit(() -> {
+                try {
+                    rmiClientAcceptor.extraPing();
+                    logger.debug("Calling extraPing method on RMIClientAcceptor");
+                } catch (RemoteException e) {
+                    requestReconnection();
+                }
+            });
+
+        } else {
+            executorService.submit(() -> {
+                try {
+                    uploadToServer(new PingMessage(nickname));
+                } catch (UploadFailureException ignore) {}
+            });
+        }
     }
 
     public void resetTimeCounter() {

@@ -63,4 +63,8 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
         logger.info("RMIServerNode successfully created and added to the GameController ID {}", gameController.getId());
         return new GameTuple(rmiServerNode, gameController.getId());
     }
+
+    public void extraPing(){
+        logger.trace("extraPing");
+    }
 }

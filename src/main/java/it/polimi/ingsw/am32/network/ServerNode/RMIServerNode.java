@@ -86,11 +86,23 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             clientNode.uploadStoC(message);
             logger.info("StoCMessage sent to client: {}", message.toString());
 
-        } catch (RemoteException e) { // TODO chiudere il nodo se exception called
+        } catch (RemoteException e) {
+
+            synchronized (aliveLock) {
+                statusIsAlive = false;
+            }
             logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
+            config.getExecutorService().submit(this::destroy);
             throw new UploadFailureException();
+
         } catch (NodeClosedException e) {
-            // TODO implementare
+
+            synchronized (aliveLock) {
+                statusIsAlive = false;
+            }
+            logger.info("Failed to send StoCMessage to client because client node is closed");
+            config.getExecutorService().submit(this::destroy);
+            throw new UploadFailureException();
         }
     }
 
@@ -103,9 +115,11 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
             pingCount--;
 
+            logger.debug("Ping time overdue. Ping count: {}", pingCount);
+
             if(pingCount <= 0){
                 statusIsAlive = false;
-                logger.debug("Ping time overdue, set statusIsAlive to false");
+                logger.debug("Ping count reached minimum, starting destruction process");
             }
 
         }
@@ -136,8 +150,6 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             destroyCalled = true;
             serverPingTask.cancel();
         }
-
-
 
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
