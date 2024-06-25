@@ -8,6 +8,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
+import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -163,42 +164,50 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     }
 
     @Override
-    public void uploadToServer(CtoSLobbyMessage message) {
+    public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
 
-        while (true) { //TODO cambiare il while
-            try {
-                synchronized (cToSProcessingLock) {
-                    outputObtStr.writeObject(message);
+        try {
+            synchronized (cToSProcessingLock) {
+                outputObtStr.writeObject(message);
 
-                    try {
-                        outputObtStr.flush();
-                    } catch (IOException ignore) {}
-                }
-                logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
-                break;
-            } catch (IOException | NullPointerException e) {
-                resetConnection();
+                try {
+                    outputObtStr.flush();
+                } catch (IOException ignore) {}
             }
+
+            logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
+
+        } catch (IOException | NullPointerException e) {
+
+            logger.info("Failed to send CtoSLobbyMessage to server. Exception: {}", e.getMessage());
+
+            executorService.submit(this::resetConnection);
+
+            throw new UploadFailureException();
         }
     }
 
     @Override
-    public void uploadToServer(CtoSMessage message) {
+    public void uploadToServer(CtoSMessage message) throws UploadFailureException {
 
-        while (true) { //TODO cambiare il while
-            try {
-                synchronized (cToSProcessingLock) {
-                    outputObtStr.writeObject(message);
+        try {
+            synchronized (cToSProcessingLock) {
+                outputObtStr.writeObject(message);
 
-                    try {
-                        outputObtStr.flush();
-                    } catch (IOException ignore) {}
-                }
-                logger.info("Message sent. Type: CtoSMessage: {}", message);
-                break;
-            } catch (IOException | NullPointerException e) {
-                resetConnection();
+                try {
+                    outputObtStr.flush();
+                } catch (IOException ignore) {}
             }
+
+            logger.info("Message sent. Type: CtoSMessage: {}", message);
+
+        } catch (IOException | NullPointerException e) {
+
+            logger.info("Failed to send CtoSMessage to server. Exception: {}", e.getMessage());
+
+            executorService.submit(this::resetConnection);
+
+            throw new UploadFailureException();
         }
     }
 
