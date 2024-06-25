@@ -2476,10 +2476,20 @@ public class GraphicalUI extends View {
         return thisPlayerNickname;
     }
 
+    // <-- Method and flags needed for automatic reconnection -->
 
+    /**
+     * DialogPane displayed when the network is down.
+     * It is used to notify the user that the connection with the server is lost.
+     */
     private DialogPane networkIsDown;
-
+    /**
+     * Flag used to state if the node is disconnected from the server.
+     */
     private volatile boolean isDisconnected = false;
+    /**
+     * Flag used to state if the node is attempting to reconnect to the server.
+     */
     private volatile boolean attemptingReconnection = false;
 
     /**
@@ -2615,6 +2625,9 @@ public class GraphicalUI extends View {
         ephemeralThread.start();
     }
 
+    /**
+     * Method called when needing to reset the selectionPane context.
+     */
     private void resetSelectionPaneContext() {
         // Re-initialize the selectionPane
         selectionPane = new StackPane();
