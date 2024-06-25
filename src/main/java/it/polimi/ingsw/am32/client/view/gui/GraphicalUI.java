@@ -1573,7 +1573,6 @@ public class GraphicalUI extends View {
                     // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
                     currentEvent = Status;  // update the current event of the player based on the match status of the game.
                 }
-                currentEvent = Status;  // update the current event of the player based on the match status of the game.
             } else {
             // Since this method is called both when the game enters the playing phase, and when the player reconnects to the game, we enable the chat here
             startChatting(); // Enable chat area
