@@ -141,6 +141,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                 return;
 
             pingCount = config.getMaxPingCount();
+            logger.debug("Ping count reset");
         }
     }
 
