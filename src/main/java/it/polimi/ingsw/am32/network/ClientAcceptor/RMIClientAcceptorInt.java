@@ -10,9 +10,9 @@ import java.rmi.RemoteException;
 
 /**
  * The interface {@code RMIClientAcceptorInt} exposes the RMI methods that a
- * {@link it.polimi.ingsw.am32.network.ClientNode.RMIClientNode} class can invoke on the server when the client hasn't
- * already join a game. <br>
- * On the server a {@link RMIClientAcceptor} will implement this interface to process the invocation of the method
+ * {@link it.polimi.ingsw.am32.network.ClientNode.RMIClientNode} instance can invoke on the server when the client hasn't
+ * joined yet a game. <br>
+ * On the server a {@link RMIClientAcceptor} will implement this interface to process the invocation of the methods
  * included in this interface.
  *
  * @author Matteo
@@ -26,7 +26,7 @@ public interface RMIClientAcceptorInt extends Remote {
      * if a {@link LobbyMessageException} is thrown the server will notify the client through the {@link RMIClientNodeInt}
      *
      * @param node an instance of {@code RMIClientNodeInt} that exports methods that the server can invoke on the client
-     * @param message a CtoSLobbyMessage that the server has to process
+     * @param message a {@link CtoSLobbyMessage} that the server has to process
      * @return an instance of {@link RMIServerNodeInt} on which the client can invoke other methods
      * @throws RemoteException thrown if the method couldn't be invoked on the server
      * @throws LobbyMessageException thrown if the client that invoked this method couldn't create or access a game
