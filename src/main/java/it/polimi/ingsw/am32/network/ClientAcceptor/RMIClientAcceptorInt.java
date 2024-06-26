@@ -19,6 +19,9 @@ import java.rmi.RemoteException;
  */
 public interface RMIClientAcceptorInt extends Remote {
 
+    //---------------------------------------------------------------------------------------------
+    // Methods
+
     /**
      * The server will process the message according to its content. This can lead to the client creating a new game or
      * accessing an existing game

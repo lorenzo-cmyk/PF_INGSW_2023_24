@@ -16,6 +16,9 @@ import java.rmi.RemoteException;
  */
 public interface RMIClientNodeInt extends Remote {
 
+    //---------------------------------------------------------------------------------------------
+    // Methods
+
     /**
      * The client will process the message according to its content. <br>
      * if a {@link RemoteException} or {@link NodeClosedException} is thrown, the ServerNode will start the termination

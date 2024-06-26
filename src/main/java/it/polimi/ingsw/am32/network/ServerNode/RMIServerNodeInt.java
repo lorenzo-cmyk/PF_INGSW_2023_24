@@ -18,6 +18,9 @@ import java.rmi.RemoteException;
  */
 public interface RMIServerNodeInt extends Remote {
 
+    //---------------------------------------------------------------------------------------------
+    // Methods
+
     /**
      * The server will process the message according to its content. <br>
      * if a {@link RemoteException} or {@link NodeClosedException} is thrown, the ClientNode will reset automatically the
