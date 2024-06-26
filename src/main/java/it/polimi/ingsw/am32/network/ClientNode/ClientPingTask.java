@@ -32,7 +32,7 @@ public class ClientPingTask extends TimerTask {
     // Methods
 
     /**
-     * Invoke the method {@link ClientNodeInterface#pongTimeOverdue()} on the ClientNode stored in the object
+     * Invoke the method {@link ClientNodeInterface#pongTimeOverdue()} on the ClientNode stored in the object.
      */
     public void run() {
         node.pongTimeOverdue();

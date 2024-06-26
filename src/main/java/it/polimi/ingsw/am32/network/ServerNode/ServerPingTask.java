@@ -39,7 +39,7 @@ public class ServerPingTask extends TimerTask {
     // Methods
 
     /**
-     * Invoke the method {@link ServerNodeInterface#pingTimeOverdue()} on the ServerNode stored in the object
+     * Invoke the method {@link ServerNodeInterface#pingTimeOverdue()} on the ServerNode stored in the object.
      */
     public void run() {
         // logger.debug("ServerPingTask started. The node {} will be checked for ping time.", node);  // Logging disabled to avoid spamming
