@@ -319,6 +319,7 @@ public class TextUI extends View{
 
                     try {
                         System.setProperty("java.rmi.server.hostname", localIP); // Workaround for RMI
+                        out.println("Set RMI localIP to " + localIP);
                         setRMIClient(serverIP, port); // Set the RMI client
                         isConnected = true; // Set the connection status to true
                     } catch (ConnectionSetupFailedException e) {
