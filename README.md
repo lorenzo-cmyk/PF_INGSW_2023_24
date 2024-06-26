@@ -28,11 +28,9 @@ The group members are:
 | Complete Rules + TUI + GUI + RMI or Socket + 1 FA (Chat)                                            | 24            | ☑️     |
 | Complete Rules + TUI + GUI + RMI + Socket + 1 FA (Chat)                                             | 27            | ☑️     |
 | Complete Rules + TUI + GUI + RMI + Socket + 2 FA (Chat & Multiple match)                            | 30            | ☑️     |
-| Complete Rules + TUI + GUI + RMI + Socket + 3 FA (Chat & Multiple match & Disconnection resilience) | 30L           | ⚠️     |
+| Complete Rules + TUI + GUI + RMI + Socket + 3 FA (Chat & Multiple match & Disconnection resilience) | 30L           | ☑️     |
 
 ### Currently Known Issues
-
-- 🟥 The client must set its own IP address in the Client.java file in order to make RMI work.
 
 ## Code Coverage
 
