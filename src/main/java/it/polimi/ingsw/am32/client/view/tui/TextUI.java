@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am32.client.view.tui;
 
 import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
+import it.polimi.ingsw.am32.utilities.IPAddressFinder;
 import it.polimi.ingsw.am32.utilities.IsValid;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
@@ -314,7 +315,10 @@ public class TextUI extends View{
                         port = getInputInt(); // Ask the player to re-enter the port number
                     }
 
+                    String localIP = askForLocalIPAddress(); // Ask the player to choose the correct IPv4 address
+
                     try {
+                        System.setProperty("java.rmi.server.hostname", localIP); // Workaround for RMI
                         setRMIClient(serverIP, port); // Set the RMI client
                         isConnected = true; // Set the connection status to true
                     } catch (ConnectionSetupFailedException e) {
@@ -335,6 +339,33 @@ public class TextUI extends View{
                 out.println("Connection failed, you are free to try again!"); // Print an error message
             }
         } while (!isConnected); // Keep looping until the connection is established
+    }
+
+    /**
+     * Method used to ask the player the correct IP address associated with the current machine.
+     * If the list of IPv4 addresses is empty, the method will return "127.0.0.1" aka localhost.
+     * @return The correct IPv4 address associated with the current machine
+     */
+    private String askForLocalIPAddress() {
+        // We are going to use IPAddressFinder.getIPv4Addresses() to get the list of IPv4 addresses associated with the current machine
+        List<String> ipv4Addresses = IPAddressFinder.getIPv4Addresses();
+        // If the list is empty, we will return localhost aka "127.0.0.1"
+        if (ipv4Addresses.isEmpty()) {
+            return "127.0.0.1";
+        }
+        // If the list is not empty, we will ask the user to choose one of the IPv4 addresses
+        out.println("Choose the correct IPv4 address associated with the current machine:");
+        for (int i = 0; i < ipv4Addresses.size(); i++) {
+            out.println((i + 1) + ". " + ipv4Addresses.get(i));
+        }
+        int choice = getInputInt();
+        // We will keep asking the user to choose a valid number until they do so
+        while (choice < 1 || choice > ipv4Addresses.size()) {
+            out.println("Invalid choice, please select a number between 1 and " + ipv4Addresses.size());
+            choice = getInputInt();
+        }
+        // We will return the chosen IPv4 address
+        return ipv4Addresses.get(choice - 1);
     }
 
     /**
