@@ -11,6 +11,11 @@ import java.io.Serializable;
  * It contains a single method to elaborate the message
  */
 public interface CtoSLobbyMessage extends Serializable {
+    /**
+     * Elaborates the message associated with the specified nodeInterface.
+     * @param nodeInterface the serverNode of the player
+     * @return The game controller that will manage the game
+     */
     GameController elaborateMessage(NodeInterface nodeInterface) throws LobbyMessageException;
     String toString(); // Used for debugging purposes
 }

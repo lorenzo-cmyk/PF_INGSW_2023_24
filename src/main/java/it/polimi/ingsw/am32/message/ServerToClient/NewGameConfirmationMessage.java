@@ -2,15 +2,37 @@ package it.polimi.ingsw.am32.message.ServerToClient;
 
 import it.polimi.ingsw.am32.client.Event;
 import it.polimi.ingsw.am32.client.View;
-
+/**
+ * This class is used to manage the message sent by the server to the client to confirm the creation of a new game.
+ */
 public class NewGameConfirmationMessage implements StoCMessage {
+    /**
+     * The nickname of the recipient who requested to create a new game and received the confirmation message.
+     */
     private final String recipientNickname;
+    /**
+     * The id of the match created.
+     */
     private final int matchId;
 
+    /**
+     * The constructor of the class: it creates a new NewGameConfirmationMessage with the nickname of the recipient who
+     * requested to create a new game and the id of the match returned by the server.
+     * @param recipientNickname the nickname of the player who will receive the confirmation message for his request to
+     *                          create a new game.
+     * @param matchId the id of the match created and returned by the server.
+     */
     public NewGameConfirmationMessage(String recipientNickname, int matchId) {
         this.recipientNickname = recipientNickname;
         this.matchId = matchId;
     }
+
+    /**
+     * This method is used to process the message to the client when the creation of a new game is confirmed,
+     * updating view with data related to the new game created and the current event of the game, notifying the player
+     * that the game is created correctly.
+     * @param view the view of the player who will receive the message and should be updated.
+     */
 
     @Override
     public void processMessage(View view){

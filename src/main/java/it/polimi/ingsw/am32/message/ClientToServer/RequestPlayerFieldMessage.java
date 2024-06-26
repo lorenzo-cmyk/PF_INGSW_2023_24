@@ -15,6 +15,12 @@ public class RequestPlayerFieldMessage implements CtoSMessage {
      */
     private final String playerNickname;
 
+    /**
+     * Constructor: a message representing a request for the field of another player sent by a player.
+     * @param senderNickname the nickname of the player who wants to see the field of another player
+     * @param playerNickname the nickname of the player whose field the player requests to see
+     */
+
     public RequestPlayerFieldMessage(String senderNickname, String playerNickname) {
         this.senderNickname = senderNickname;
         this.playerNickname = playerNickname;

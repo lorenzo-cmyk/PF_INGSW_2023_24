@@ -11,6 +11,11 @@ public class RequestGameStatusMessage implements CtoSMessage {
      */
     private final String senderNickname;
 
+    /**
+     * Constructor: a message representing a request for the status of the game sent by a player.
+     * @param senderNickname the nickname of the player who wants to know the status of the game
+     *
+     */
     public RequestGameStatusMessage(String senderNickname) {
         this.senderNickname = senderNickname;
     }

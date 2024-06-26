@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * This class is used to manage the message sent to notify the player of the game status
+ */
 public class PlayerGameStatusMessage implements StoCMessage {
     /**
      * Nickname of the recipient of the message
@@ -137,6 +140,11 @@ public class PlayerGameStatusMessage implements StoCMessage {
         this.goldCardDeckFacingKingdom = goldCardDeckFacingKingdom;
     }
 
+    /**
+     * This method is used to process the message to the client when the game status is updated,
+     * updating the view of the player with the new game status.
+     * @param view the view of the player who will receive the message and should be updated.
+     */
     @Override
     public void processMessage(View view) {
             view.updatePlayerData(playerNicknames, playerConnected,playerColours, playerHand, playerSecretObjective,
@@ -146,6 +154,10 @@ public class PlayerGameStatusMessage implements StoCMessage {
                     playersResourcesSummary,playerAssignedSecretObjectiveCards,playerStartingCard );
     }
 
+    /**
+     * This method is used to get the nickname of the recipient of the message
+     * @return the nickname of the player who will receive the message
+     */
     @Override
     public String getRecipientNickname() {
         return recipientNickname;

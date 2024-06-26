@@ -15,6 +15,12 @@ public class SelectedStarterCardSideMessage implements CtoSMessage {
      */
     private final boolean isUp;
 
+    /**
+     * Constructor: a message containing the nickname of the player who selected the side of the starter card and
+     * the side selected.
+     * @param senderNickname the nickname of the player who selected the side of the starter card
+     * @param isUp the side of the starter card selected by the player
+     */
     public SelectedStarterCardSideMessage(String senderNickname, boolean isUp) {
         this.senderNickname = senderNickname;
         this.isUp = isUp;
