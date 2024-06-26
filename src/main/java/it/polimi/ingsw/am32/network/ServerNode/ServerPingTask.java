@@ -9,9 +9,9 @@ public class ServerPingTask extends TimerTask {
 
     private static final Logger logger = LogManager.getLogger(ServerPingTask.class);
 
-    private NodeInterface node;
+    private ServerNodeInterface node;
 
-    public ServerPingTask(NodeInterface node) {
+    public ServerPingTask(ServerNodeInterface node) {
         this.node = node;
     }
 

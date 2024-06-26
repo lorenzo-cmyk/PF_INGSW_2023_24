@@ -24,7 +24,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
-public class SKServerNode implements Runnable, NodeInterface {
+public class SKServerNode implements Runnable, ServerNodeInterface {
 
     private final Logger logger;
     private final Configuration config;

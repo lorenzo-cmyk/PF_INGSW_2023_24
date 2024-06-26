@@ -2,15 +2,15 @@ package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerQuadrupleTest {
 
-    // NodeInterface and VirtualView stubs. They are not relevant for the test, so they can be mocked.
-    private static class NodeInterfaceStub implements NodeInterface {
+    // ServerNodeInterface and VirtualView stubs. They are not relevant for the test, so they can be mocked.
+    private static class NodeInterfaceStub implements ServerNodeInterface {
         // Fake Methods
         public void uploadToClient(StoCMessage message) {}
         public void pingTimeOverdue() {}
@@ -22,7 +22,7 @@ class PlayerQuadrupleTest {
 
     private static class VirtualViewStub extends VirtualView {
         // Fake Constructor
-        public VirtualViewStub(NodeInterface node) {
+        public VirtualViewStub(ServerNodeInterface node) {
             super(node);
         }
     }
@@ -30,7 +30,7 @@ class PlayerQuadrupleTest {
     @DisplayName("Should create a player quadruple when parameters are valid")
     @Test
     void shouldCreatePlayerQuadrupleWhenParametersAreValid() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualViewStub(node);
         PlayerQuadruple playerQuadruple = new PlayerQuadruple(node, "nickname", true, virtualView);
 
@@ -43,7 +43,7 @@ class PlayerQuadrupleTest {
     @DisplayName("Should throw exception when node is null")
     @Test
     void shouldThrowExceptionWhenNodeIsNull() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualViewStub(node);
         assertThrows(CriticalFailureException.class, () -> new PlayerQuadruple(null, "nickname", true, virtualView));
     }
@@ -51,7 +51,7 @@ class PlayerQuadrupleTest {
     @DisplayName("Should throw exception when nickname is null")
     @Test
     void shouldThrowExceptionWhenNicknameIsNull() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualViewStub(node);
         assertThrows(CriticalFailureException.class, () -> new PlayerQuadruple(node, null, true, virtualView));
     }
@@ -59,7 +59,7 @@ class PlayerQuadrupleTest {
     @DisplayName("Should throw exception when nickname is empty")
     @Test
     void shouldThrowExceptionWhenNicknameIsEmpty() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualViewStub(node);
         assertThrows(CriticalFailureException.class, () -> new PlayerQuadruple(node, "", true, virtualView));
     }
@@ -67,14 +67,14 @@ class PlayerQuadrupleTest {
     @DisplayName("Should throw exception when virtual view is null")
     @Test
     void shouldThrowExceptionWhenVirtualViewIsNull() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         assertThrows(CriticalFailureException.class, () -> new PlayerQuadruple(node, "nickname", true, null));
     }
 
     @DisplayName("Should change connection status when setConnected is called")
     @Test
     void shouldChangeConnectionStatusWhenSetConnectedIsCalled() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualViewStub(node);
         PlayerQuadruple playerQuadruple = new PlayerQuadruple(node, "nickname", true, virtualView);
 
@@ -85,11 +85,11 @@ class PlayerQuadrupleTest {
     @DisplayName("Should change node when setNode is called")
     @Test
     void shouldChangeNodeWhenSetNodeIsCalled() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualViewStub(node);
         PlayerQuadruple playerQuadruple = new PlayerQuadruple(node, "nickname", true, virtualView);
 
-        NodeInterface newNode = new NodeInterfaceStub();
+        ServerNodeInterface newNode = new NodeInterfaceStub();
         playerQuadruple.setNode(newNode);
         assertEquals(newNode, playerQuadruple.getNode());
     }
@@ -97,7 +97,7 @@ class PlayerQuadrupleTest {
     @DisplayName("Should throw exception when setNode is called with null")
     @Test
     void shouldThrowExceptionWhenSetNodeIsCalledWithNull() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualViewStub(node);
         PlayerQuadruple playerQuadruple = new PlayerQuadruple(node, "nickname", true, virtualView);
 

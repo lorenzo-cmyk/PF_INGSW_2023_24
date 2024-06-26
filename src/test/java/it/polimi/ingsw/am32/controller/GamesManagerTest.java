@@ -2,7 +2,7 @@ package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.*;
 import it.polimi.ingsw.am32.message.ServerToClient.*;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GamesManagerTest {
-    // Stub class for NodeInterface. This class is used to test the GameController class.
-    private static class NodeInterfaceStub implements NodeInterface {
+    // Stub class for ServerNodeInterface. This class is used to test the GameController class.
+    private static class NodeInterfaceStub implements ServerNodeInterface {
         private final ArrayList<StoCMessage> internalMessages;
         public NodeInterfaceStub() {
             internalMessages = new ArrayList<>();
@@ -39,8 +39,8 @@ class GamesManagerTest {
         }
     }
 
-    // NodeInterface instance
-    private NodeInterface node;
+    // ServerNodeInterface instance
+    private ServerNodeInterface node;
     // GamesManager instance
     private GamesManager gamesManager;
 

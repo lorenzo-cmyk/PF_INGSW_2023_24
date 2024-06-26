@@ -6,7 +6,7 @@ import it.polimi.ingsw.am32.controller.exceptions.CTRDuplicateNicknameException;
 import it.polimi.ingsw.am32.controller.exceptions.FullLobbyException;
 import it.polimi.ingsw.am32.controller.exceptions.GameAlreadyStartedException;
 import it.polimi.ingsw.am32.controller.exceptions.GameNotFoundException;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 
 /**
  * This class is used to manage the message sent by the client when he wants to join a game.
@@ -41,7 +41,7 @@ public class AccessGameMessage implements CtoSLobbyMessage {
      * @throws CTRDuplicateNicknameException if the nickname is already in use
      */
     @Override
-    public GameController elaborateMessage(NodeInterface nodeInterface) throws GameAlreadyStartedException,
+    public GameController elaborateMessage(ServerNodeInterface nodeInterface) throws GameAlreadyStartedException,
             FullLobbyException, GameNotFoundException, CTRDuplicateNicknameException {
         return GamesManager.getInstance().accessGame(senderNickname, matchId, nodeInterface);
     }
