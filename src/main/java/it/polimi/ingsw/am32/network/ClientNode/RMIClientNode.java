@@ -5,6 +5,7 @@ import it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageExcept
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
+import it.polimi.ingsw.am32.message.ServerToClient.ErrorMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptorInt;
@@ -157,7 +158,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             }
 
             try {
-
+                // TODO synch??
                 serverNode = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
 
                 synchronized (aliveLock){
@@ -192,6 +193,9 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             synchronized (aliveLock) {
                 if(!statusIsAlive)
                     throw new NodeClosedException();
+                if(nodePreState && !(message instanceof ErrorMessage)) {
+                    throw new NodeClosedException();
+                }
 
                 resetTimeCounter();
             }
