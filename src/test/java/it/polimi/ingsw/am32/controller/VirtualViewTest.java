@@ -3,7 +3,7 @@ package it.polimi.ingsw.am32.controller;
 import it.polimi.ingsw.am32.client.View;
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class VirtualViewTest {
 
-    // Stub class for NodeInterface and StoCMessage. Used to test VirtualView.
-    private static class NodeInterfaceStub implements NodeInterface {
+    // Stub class for ServerNodeInterface and StoCMessage. Used to test VirtualView.
+    private static class NodeInterfaceStub implements ServerNodeInterface {
         private int messageCount;
         public void uploadToClient(StoCMessage message) throws UploadFailureException { messageCount++; }
         public void pingTimeOverdue() {}
@@ -41,10 +41,10 @@ class VirtualViewTest {
     @DisplayName("Should change connection node when changeNode is called")
     @Test
     void shouldChangeConnectionNodeWhenChangeNodeIsCalled() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
 
-        NodeInterface newNode = new NodeInterfaceStub();
+        ServerNodeInterface newNode = new NodeInterfaceStub();
         virtualView.changeNode(newNode);
         assertEquals(newNode, virtualView.getConnectionNode());
     }
@@ -52,7 +52,7 @@ class VirtualViewTest {
     @DisplayName("Should throw exception when addMessage is called with null")
     @Test
     void shouldThrowExceptionWhenAddMessageIsCalledWithNull() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
 
         assertThrows(CriticalFailureException.class, () -> virtualView.addMessage(null));
@@ -61,7 +61,7 @@ class VirtualViewTest {
     @DisplayName("Should add message to queue when addMessage is called")
     @Test
     void shouldAddMessageToQueueWhenAddMessageIsCalled() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
         StoCMessage message = new StoCMessageStub();
 
@@ -72,7 +72,7 @@ class VirtualViewTest {
     @DisplayName("Should remove message from queue when processMessage is called")
     @Test
     void shouldRemoveMessageFromQueueWhenProcessMessageIsCalled() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
         StoCMessage message = new StoCMessageStub();
 
@@ -84,7 +84,7 @@ class VirtualViewTest {
     @DisplayName("Should clear message queue when flushMessages is called")
     @Test
     void shouldClearMessageQueueWhenFlushMessagesIsCalled() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
         StoCMessage message = new StoCMessageStub();
 
@@ -96,7 +96,7 @@ class VirtualViewTest {
     @DisplayName("Should handle multiple messages being added concurrently")
     @Test
     void shouldHandleMultipleMessagesBeingAddedConcurrently() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
         StoCMessage message1 = new StoCMessageStub();
         StoCMessage message2 = new StoCMessageStub();
@@ -121,7 +121,7 @@ class VirtualViewTest {
     @DisplayName("Should handle multiple threads calling flushMessages concurrently")
     @Test
     void shouldHandleMultipleThreadsCallingFlushMessagesConcurrently() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
         StoCMessage message1 = new StoCMessageStub();
         StoCMessage message2 = new StoCMessageStub();
@@ -147,10 +147,10 @@ class VirtualViewTest {
     @DisplayName("Should handle multiple threads calling changeNode concurrently")
     @Test
     void shouldHandleMultipleThreadsCallingChangeNodeConcurrently() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
-        NodeInterface newNode1 = new NodeInterfaceStub();
-        NodeInterface newNode2 = new NodeInterfaceStub();
+        ServerNodeInterface newNode1 = new NodeInterfaceStub();
+        ServerNodeInterface newNode2 = new NodeInterfaceStub();
         // Create two threads that change the connection node
         Thread thread1 = new Thread(() -> virtualView.changeNode(newNode1));
         Thread thread2 = new Thread(() -> virtualView.changeNode(newNode2));
@@ -164,14 +164,14 @@ class VirtualViewTest {
         } catch (InterruptedException e) {
             fail();
         }
-        NodeInterface finalNode = virtualView.getConnectionNode();
+        ServerNodeInterface finalNode = virtualView.getConnectionNode();
         assertTrue(finalNode == newNode1 || finalNode == newNode2);
     }
 
     @DisplayName("Should process message when submitted to ThreadPoolExecutor")
     @Test
     void shouldProcessMessageWhenSubmittedToThreadPoolExecutor() {
-        NodeInterface node = new NodeInterfaceStub();
+        ServerNodeInterface node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
         StoCMessage message = new StoCMessageStub();
         // Create a ThreadPoolExecutor with a single thread: the VirtualView
@@ -201,8 +201,8 @@ class VirtualViewTest {
     @DisplayName("Should wait when UploadFailureException is thrown")
     @Test
     void shouldWaitWhenUploadFailureExceptionIsThrown() {
-        // Create a VirtualView with a NodeInterface that throws UploadFailureException
-        NodeInterface node = new NodeInterfaceStub() {
+        // Create a VirtualView with a ServerNodeInterface that throws UploadFailureException
+        ServerNodeInterface node = new NodeInterfaceStub() {
             @Override
             public void uploadToClient(StoCMessage message) throws UploadFailureException {
                 throw new UploadFailureException();
@@ -232,7 +232,7 @@ class VirtualViewTest {
     @DisplayName("Should be able to handle multiple messages being added concurrently")
     @Test
     void shouldBeAbleToHandleMessagesBurst(){
-        // Create a VirtualView with a NodeInterface that throws UploadFailureException
+        // Create a VirtualView with a ServerNodeInterface that throws UploadFailureException
         NodeInterfaceStub node = new NodeInterfaceStub();
         VirtualView virtualView = new VirtualView(node);
 

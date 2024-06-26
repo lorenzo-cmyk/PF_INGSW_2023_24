@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,13 +15,13 @@ import static org.mockito.Mockito.*;
 
 class VirtualViewMockitoTest {
 
-    private NodeInterface nodeInterface;
+    private ServerNodeInterface nodeInterface;
     private VirtualView virtualView;
     private StoCMessage message;
 
     @BeforeEach
     void setUp() {
-        nodeInterface = mock(NodeInterface.class);
+        nodeInterface = mock(ServerNodeInterface.class);
         virtualView = new VirtualView(nodeInterface);
         message = mock(StoCMessage.class);
     }

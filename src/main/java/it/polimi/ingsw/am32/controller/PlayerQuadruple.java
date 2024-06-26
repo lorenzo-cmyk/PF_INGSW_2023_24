@@ -1,14 +1,14 @@
 package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 
 /**
  * This class represents a player in the game. It contains information about the player's
  * connection status, nickname, and the virtual view associated with the player.
  */
 public class PlayerQuadruple {
-    private NodeInterface node;
+    private ServerNodeInterface node;
     private final String nickname;
     private boolean connected;
     private final VirtualView virtualView;
@@ -22,7 +22,7 @@ public class PlayerQuadruple {
      * @param virtualView the virtual view associated with the player
      * @throws CriticalFailureException if any of the parameters are null or if the nickname is empty
      */
-    public PlayerQuadruple(NodeInterface node, String nickname, boolean connected, VirtualView virtualView) {
+    public PlayerQuadruple(ServerNodeInterface node, String nickname, boolean connected, VirtualView virtualView) {
         this.node = node;
         this.nickname = nickname;
         this.connected = connected;
@@ -38,7 +38,7 @@ public class PlayerQuadruple {
      * @param node the new node
      * @throws CriticalFailureException if the node is null
      */
-    public void setNode(NodeInterface node) {
+    public void setNode(ServerNodeInterface node) {
         if (node == null) {
             throw new CriticalFailureException("Node cannot be null");
         }
@@ -50,7 +50,7 @@ public class PlayerQuadruple {
      *
      * @return the node
      */
-    public NodeInterface getNode() {
+    public ServerNodeInterface getNode() {
         return node;
     }
 

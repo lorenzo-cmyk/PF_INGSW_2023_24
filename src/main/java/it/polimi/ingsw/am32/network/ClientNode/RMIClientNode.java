@@ -117,7 +117,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             }
 
             try {
-                serverNode.uploadCtoS(message); // TODO il numero di partita in realtà non server
+                serverNode.uploadCtoS(message);
                 logger.info("Message sent. Type: CtoSMessage: {}", message);
 
             } catch (NodeClosedException e) {
@@ -157,7 +157,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             }
 
             try {
-                // TODO ritorniamo solo l'interfaccia RMI e non il num di partita perchè non serve??
+
                 serverNode = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
 
                 synchronized (aliveLock){

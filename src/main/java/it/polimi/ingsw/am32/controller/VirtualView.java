@@ -2,7 +2,7 @@ package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.CriticalFailureException;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +24,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
     /**
      * The connection node associated with the VirtualView.
      */
-    private NodeInterface connectionNode;
+    private ServerNodeInterface connectionNode;
     /**
      * The queue of messages that are to be sent to the client.
      */
@@ -44,7 +44,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      *
      * @param connectionNode The connection node associated with the VirtualView.
      */
-    public VirtualView(NodeInterface connectionNode) {
+    public VirtualView(ServerNodeInterface connectionNode) {
         this.connectionNode = connectionNode;
         // Connection node cannot be null
         if (connectionNode == null) {
@@ -72,7 +72,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      *
      * @param node The new connection node to associate with the VirtualView.
      */
-    public void changeNode(NodeInterface node) {
+    public void changeNode(ServerNodeInterface node) {
         synchronized (connectionNodeLock) {
             connectionNode = node;
         }
@@ -201,7 +201,7 @@ public class VirtualView implements VirtualViewInterface, Runnable {
      *
      * @return The connection node associated with the VirtualView.
      */
-    protected NodeInterface getConnectionNode() {
+    protected ServerNodeInterface getConnectionNode() {
         synchronized (connectionNodeLock) {
             return connectionNode;
         }

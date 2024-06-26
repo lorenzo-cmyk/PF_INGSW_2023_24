@@ -16,7 +16,7 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeInt, NodeInterface {
+public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeInt, ServerNodeInterface {
 
     private final static Logger logger = LogManager.getLogger(RMIServerNode.class);
 
