@@ -449,12 +449,14 @@ public class GraphicalUI extends View {
             String ServerPort = RMIPort.getText();
             try {
                 int portNumber = Integer.parseInt(ServerPort);
-                if (isValid.isIpValid(ServerIP) && isValid.isPortValid(portNumber)) { // Check if the IP address is valid
+                if (isValid.isIpValid(ServerIP) && isValid.isPortValid(portNumber)
+                        && localIPAddress.getValue() != null) {
+                    System.setProperty("java.rmi.server.hostname", localIPAddress.getValue());
                     setRMIClient(ServerIP, portNumber);
-                        selectionPane.getChildren().remove(RMIRoot);
-                        askSelectGameMode();
+                    selectionPane.getChildren().remove(RMIRoot);
+                    askSelectGameMode();
                 } else {
-                    createAlert("Invalid IP/port number");
+                    createAlert("Check the configuration and try again!");
                     RMIIp.clear();
                     RMIPort.clear();
                 }
