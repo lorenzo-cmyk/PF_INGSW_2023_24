@@ -158,7 +158,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
             try {
                 // TODO ritorniamo solo l'interfaccia RMI e non il num di partita perchè non serve??
-                serverNode = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message).getNode();
+                serverNode = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
 
                 synchronized (aliveLock){
                     nodePreState = false;

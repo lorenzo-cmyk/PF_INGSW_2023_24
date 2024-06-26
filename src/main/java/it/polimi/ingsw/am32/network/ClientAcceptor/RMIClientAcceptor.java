@@ -5,8 +5,8 @@ import it.polimi.ingsw.am32.controller.exceptions.abstraction.LobbyMessageExcept
 import it.polimi.ingsw.am32.message.ClientToServer.CtoSLobbyMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.ErrorMessage;
 import it.polimi.ingsw.am32.network.ClientNode.RMIClientNodeInt;
-import it.polimi.ingsw.am32.network.GameTuple;
 import it.polimi.ingsw.am32.network.ServerNode.RMIServerNode;
+import it.polimi.ingsw.am32.network.ServerNode.RMIServerNodeInt;
 import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import it.polimi.ingsw.am32.utilities.Configuration;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +23,7 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
 
     // TODO export stuff
     @Override
-    public GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message)
+    public RMIServerNodeInt uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message)
             throws RemoteException, LobbyMessageException
     {
 
@@ -61,7 +61,7 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
         rmiServerNode.setGameController(gameController);
 
         logger.info("RMIServerNode successfully created and added to the GameController ID {}", gameController.getId());
-        return new GameTuple(rmiServerNode, gameController.getId());
+        return (RMIServerNodeInt) rmiServerNode;
     }
 
     public void extraPing(){
