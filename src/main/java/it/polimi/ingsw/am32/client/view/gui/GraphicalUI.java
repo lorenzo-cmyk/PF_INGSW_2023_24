@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.client.view.gui;
 import it.polimi.ingsw.am32.client.*;
 import it.polimi.ingsw.am32.message.ClientToServer.*;
 import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
+import it.polimi.ingsw.am32.utilities.IPAddressFinder;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -398,10 +399,11 @@ public class GraphicalUI extends View {
         // create the RMI connection root
         StackPane RMIRoot = new StackPane();
         Label labelRMIIP = createLabel("RMI", -80, -80); // add the title
-        TextField RMIIp = createTextField("Enter the IP", 35, 250, -50, -30); // create the text field asks the player to enter the IP address
-        TextField RMIPort = createTextField("Enter the port", 35, 250, -50, 50); // create the text field asks the player to enter the port number
+        TextField RMIIp = createTextField("Server IP", 30, 250, -50, -35); // create the text field asks the player to enter the IP address
+        TextField RMIPort = createTextField("Server Port", 30, 250, -50, 30); // create the text field asks the player to enter the port number
         Button OkRMIButton = createButton("[OK]", 160, 0); // create the button Ok to confirm the input.
-        RMIRoot.getChildren().addAll(OkRMIButton, labelRMIIP, RMIIp, RMIPort); // the view when the player choose the socket connection
+        ComboBox<String> localIPAddress = createComboBox(IPAddressFinder.getIPv4Addresses(), "Select Client IP",25, 250, -50, 90); // ComboBox used to select the correct IPv4 address associated with the current machine
+        RMIRoot.getChildren().addAll(OkRMIButton, labelRMIIP, RMIIp, RMIPort, localIPAddress); // the view when the player choose the socket connection
 
         // set the action of the buttons (Socket)
         socketButton.setOnAction(e -> {
@@ -1369,6 +1371,34 @@ public class GraphicalUI extends View {
             alert.getButtonTypes().setAll(ButtonType.OK);
             alert.showAndWait();
         });
+    }
+
+    /**
+     * Create a stylized ComboBox with the specified content, text, size and position.
+     * @implSpec GUI-NON-CORE
+     * @param content the content of the ComboBox
+     * @param text the text of the ComboBox
+     * @param MaxHeight the maximum height of the ComboBox
+     * @param MaxWidth the maximum width of the ComboBox
+     * @param X the X coordinate of the ComboBox
+     * @param Y the Y coordinate of the ComboBox
+     * @return The ComboBox created
+     */
+    private ComboBox<String> createComboBox(List<String> content, String text,
+                                            int MaxHeight, int MaxWidth, int X, int Y){
+        ComboBox<String> newComboBox = new ComboBox<>();
+        for(String string : content){
+            newComboBox.getItems().add(string);
+        }
+        newComboBox.setStyle("-fx-background-color: #E6DEB3;-fx-text-fill: #3A2111;-fx-alignment: center;" +
+                "-fx-font-size: 20px;-fx-font-family: 'JejuHallasan';-fx-effect: dropshadow( gaussian , " +
+                "rgba(58,33,17,100,0.2) , 10,0,0,10 );-fx-border-color: #3A2111; -fx-border-width: 2px; " +
+                "-fx-border-radius: 5px; -fx-background-radius: 5px;");
+        newComboBox.setPromptText(text);
+        newComboBox.setMaxSize(MaxWidth, MaxHeight);
+        newComboBox.setTranslateX(X);
+        newComboBox.setTranslateY(Y);
+        return newComboBox;
     }
 
     /**
