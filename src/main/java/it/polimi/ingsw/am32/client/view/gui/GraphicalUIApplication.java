@@ -24,6 +24,7 @@ public class GraphicalUIApplication extends Application {
      * The primary stage of the application
      */
     private Stage primaryStage;
+
     /**
      * The constructor of the class
      */
@@ -84,6 +85,7 @@ public class GraphicalUIApplication extends Application {
     protected Stage getPrimaryStage() {
         return primaryStage;
     }
+
     /**
      * Launches the application with the given arguments
      * @param args the arguments to be passed to the application

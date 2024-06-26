@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * The class GraphicalUI is the class that manages the graphical user interface of the game and interacts with the
  * GUIApplication class. The class extends the abstract class View and implements the methods of the View class.
@@ -220,8 +221,10 @@ public class GraphicalUI extends View {
             "codex_rulebook_it_04.png", "codex_rulebook_it_05.png", "codex_rulebook_it_06.png", "codex_rulebook_it_07.png",
             "codex_rulebook_it_08.png", "codex_rulebook_it_09.png", "codex_rulebook_it_10.png", "codex_rulebook_it_11.png",
             "codex_rulebook_it_12.png"};
+
     /**
      * Method used to retrieve dynamically a resource URI from the correct context folder.
+     * @implSpec GUI-NON-CORE
      * @param resourceName The name of the resource to retrieve.
      * @return The URI of the resource converted to a String object to be used with JavaFX image loader.
      */
@@ -235,6 +238,7 @@ public class GraphicalUI extends View {
 
     /**
      * Used to launch the GUIApplication class.
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void launch() {
@@ -243,6 +247,7 @@ public class GraphicalUI extends View {
 
     /**
      * Constructor of the class.
+     * @implSpec GUI-NON-CORE
      */
     public GraphicalUI() {
         super();
@@ -251,7 +256,7 @@ public class GraphicalUI extends View {
     /**
      * Set the connection between the GUI and the GUIApplication. In this way the GUI can update the scene of the
      * GUIApplication using the reference of the GUIApplication and the methods of the GUIApplication.
-     *
+     * @implSpec GUI-NON-CORE
      * @param app The GUIApplication with which the GUI will be connected.
      */
     protected void setApp(GraphicalUIApplication app) {
@@ -260,6 +265,7 @@ public class GraphicalUI extends View {
 
     /**
      * Get the root of the welcome page, which is the first page shown to the player.
+     * @implSpec GUI-NON-CORE
      */
     protected StackPane getWelcomeRoot() {
         showWelcome();
@@ -268,6 +274,7 @@ public class GraphicalUI extends View {
 
     /**
      * Set up the welcome page of the GUI, which contains the welcome image and the button to show the rule book.
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void showWelcome() {
@@ -294,9 +301,11 @@ public class GraphicalUI extends View {
             welcomeRoot.getChildren().add(selectionPane);
         });
     }
+
     /**
      * Set up the rule book of the game. The player can navigate through the pages of the rule book using the buttons
      * “<” to go to the previous page and “>” to go to the next page.
+     * @implSpec GUI-NON-CORE
      */
     private void showRuleBook() {
         StackPane ruleBookRoot = new StackPane();
@@ -326,7 +335,7 @@ public class GraphicalUI extends View {
 
     /**
      * Get the buttons to navigate through the pages of the rule book and set the action of the buttons.
-     *
+     * @implSpec GUI-NON-CORE
      * @param ruleBook The image view of the rule book.
      * @return The array of buttons to navigate through the pages of the rule book.
      */
@@ -351,6 +360,7 @@ public class GraphicalUI extends View {
 
     /**
      * Set the connection page of the GUI. The player can choose the connection type between socket and RMI.
+     * @implSpec GUI-CORE
      */
     @Override
     public void chooseConnection() {
@@ -460,6 +470,7 @@ public class GraphicalUI extends View {
 
     /**
      * Set the socket connection between the client and the server.
+     * @implSpec GUI-NON-CORE
      * @param ServerIP the IP address of the server
      * @param portNumber the port number of the server
      */
@@ -470,6 +481,7 @@ public class GraphicalUI extends View {
 
     /**
      * Set the RMI connection between the client and the server.
+     * @implSpec GUI-NON-CORE
      * @param serverURL the URL of the server
      * @param port the port number of the server
      */
@@ -485,136 +497,172 @@ public class GraphicalUI extends View {
      */
     @Override
     public void askSelectGameMode() {
-        StackPane gameModeRoot = new StackPane();
-        Label label = createLabel("Game \n Mode", 150, 10);
-        VBox gameMode = new VBox();
-        gameMode.setSpacing(10);
-        Button newGameButton = createButton("[New Game]");
-        Button joinGameButton = createButton("[Join Game]");
-        Button reconnectGameButton = createButton("[Reconnect]");
-        gameMode.getChildren().addAll(newGameButton, joinGameButton, reconnectGameButton);
-        gameMode.setTranslateX(300);
-        gameMode.setTranslateY(300);
-        gameModeRoot.getChildren().addAll(label, gameMode);
-        selectionPane.getChildren().add(gameModeRoot);
-        newGameButton.setOnAction(e -> {
-            selectionPane.getChildren().remove(gameModeRoot);
-            askCreateGame();
-        });
-        joinGameButton.setOnAction(e -> {
-            selectionPane.getChildren().remove(gameModeRoot);
-            askJoinGame();
-        });
-        reconnectGameButton.setOnAction(e -> {
-            selectionPane.getChildren().remove(gameModeRoot);
-            askReconnectGame();
+        Platform.runLater(() -> {
+            if(attemptingReconnection) {
+                resetSelectionPaneContext();
+                selectionPane.getChildren().removeAll();
+                attemptingReconnection = false;
+            }
+
+            Status = Event.WELCOME;
+            currentEvent = Event.SELECT_GAME_MODE;
+            StackPane gameModeRoot = new StackPane();
+            Label label = createLabel("Game \n Mode", 150, 10);
+            VBox gameMode = new VBox();
+            gameMode.setSpacing(10);
+            Button newGameButton = createButton("[New Game]");
+            Button joinGameButton = createButton("[Join Game]");
+            Button reconnectGameButton = createButton("[Reconnect]");
+            gameMode.getChildren().addAll(newGameButton, joinGameButton, reconnectGameButton);
+            gameMode.setTranslateX(300);
+            gameMode.setTranslateY(300);
+            gameModeRoot.getChildren().addAll(label, gameMode);
+            selectionPane.getChildren().add(gameModeRoot);
+            newGameButton.setOnAction(e -> {
+                selectionPane.getChildren().remove(gameModeRoot);
+                askCreateGame();
+            });
+            joinGameButton.setOnAction(e -> {
+                selectionPane.getChildren().remove(gameModeRoot);
+                askJoinGame();
+            });
+            reconnectGameButton.setOnAction(e -> {
+                selectionPane.getChildren().remove(gameModeRoot);
+                askReconnectGame();
+            });
         });
     }
 
     /**
      * Set the page which asks the player to insert the nickname and the players number to create a new game.
+     * @implSpec GUI-CORE
      */
     @Override
     public void askCreateGame() {
-        currentEvent = Event.CREATE_GAME;
-        StackPane createGameRoot = new StackPane();
-
-        Label labelNickname = createLabel("Nickname", -90, -80);
-        Label labelPlayers = createLabel("Players number", -60, 30);
-
-        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
-
-        Button twoButton = createButton("[2]", 30, "#3A2111", -150, 70);
-        Button threeButton = createButton("[3]", 30, "#3A2111", -70, 70);
-        Button fourButton = createButton("[4]", 30, "#3A2111", 10, 70);
-        Button createButton = createButton("[Create]", 140, 65);
-        Light.Distant light = new Light.Distant();
-        light.setColor(Color.CHOCOLATE);
-        Lighting lighting = new Lighting();
-        lighting.setLight(light);
-        createGameRoot.getChildren().addAll(labelNickname, labelPlayers, nickname, twoButton, threeButton, fourButton, createButton);
-        twoButton.setOnAction(e -> {
-            playerNum = 2;
-            handleButtonClick(twoButton, threeButton, fourButton, lighting);
-        });
-        threeButton.setOnAction(e -> {
-            playerNum = 3;
-            handleButtonClick(threeButton, twoButton, fourButton,lighting);
-        });
-        fourButton.setOnAction(e -> {
-            playerNum = 4;
-            handleButtonClick(fourButton, threeButton, twoButton,lighting);
-        });
-        createButton.setOnAction(e -> {
-            thisPlayerNickname = nickname.getText();
-            if (thisPlayerNickname.isBlank()) {
-                createAlert("Nickname cannot be left blank");
-                nickname.clear();
-            } else if (thisPlayerNickname.length() > 20) {
-                createAlert("Nickname must be less than 20 characters");
-                nickname.clear();
-            } else {
-                if (playerNum == 2 || playerNum == 3 || playerNum == 4) {
-                    notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
-                } else {
-                    createAlert("Please select the number");
-                }
+        Platform.runLater(() -> {
+            if(attemptingReconnection) {
+                resetSelectionPaneContext();
+                selectionPane.getChildren().removeAll();
+                attemptingReconnection = false;
             }
+
+            currentEvent = Event.CREATE_GAME;
+            StackPane createGameRoot = new StackPane();
+
+            Label labelNickname = createLabel("Nickname", -90, -80);
+            Label labelPlayers = createLabel("Players number", -60, 30);
+
+            TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+
+            Button twoButton = createButton("[2]", 30, "#3A2111", -150, 70);
+            Button threeButton = createButton("[3]", 30, "#3A2111", -70, 70);
+            Button fourButton = createButton("[4]", 30, "#3A2111", 10, 70);
+            Button createButton = createButton("[Create]", 140, 65);
+            Light.Distant light = new Light.Distant();
+            light.setColor(Color.CHOCOLATE);
+            Lighting lighting = new Lighting();
+            lighting.setLight(light);
+            createGameRoot.getChildren().addAll(labelNickname, labelPlayers, nickname, twoButton, threeButton, fourButton, createButton);
+            twoButton.setOnAction(e -> {
+                playerNum = 2;
+                handleButtonClick(twoButton, threeButton, fourButton, lighting);
+            });
+            threeButton.setOnAction(e -> {
+                playerNum = 3;
+                handleButtonClick(threeButton, twoButton, fourButton,lighting);
+            });
+            fourButton.setOnAction(e -> {
+                playerNum = 4;
+                handleButtonClick(fourButton, threeButton, twoButton,lighting);
+            });
+            createButton.setOnAction(e -> {
+                thisPlayerNickname = nickname.getText();
+                if (thisPlayerNickname.isBlank()) {
+                    createAlert("Nickname cannot be left blank");
+                    nickname.clear();
+                } else if (thisPlayerNickname.length() > 20) {
+                    createAlert("Nickname must be less than 20 characters");
+                    nickname.clear();
+                } else {
+                    if (playerNum == 2 || playerNum == 3 || playerNum == 4) {
+                        notifyAskListener(new NewGameMessage(thisPlayerNickname, playerNum));
+                    } else {
+                        createAlert("Please select the number");
+                    }
+                }
+            });
+            selectionPane.getChildren().add(createGameRoot);
         });
-        selectionPane.getChildren().add(createGameRoot);
     }
 
     /**
      * Set the page which asks the player to insert the nickname and the game ID to reconnect to a game.
+     * @implSpec GUI-CORE
      */
     @Override
     public void askJoinGame() {
-        currentEvent = Event.JOIN_GAME;
-        StackPane joinGameRoot = new StackPane();
+        Platform.runLater(() -> {
+            if(attemptingReconnection) {
+                resetSelectionPaneContext();
+                selectionPane.getChildren().removeAll();
+                attemptingReconnection = false;
+            }
 
-        Label labelNickname = createLabel("Nickname&GameID", -80, -80);
+            currentEvent = Event.JOIN_GAME;
+            StackPane joinGameRoot = new StackPane();
 
-        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
-        TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
+            Label labelNickname = createLabel("Nickname&GameID", -80, -80);
 
-        Button joinButton = createButton("[Join]", 140, 65);
+            TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+            TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
 
-        joinGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+            Button joinButton = createButton("[Join]", 140, 65);
 
-        joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
-        selectionPane.getChildren().add(joinGameRoot);
+            joinGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+
+            joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
+            selectionPane.getChildren().add(joinGameRoot);
+        });
     }
 
     /**
      * Set the page which asks the player to insert the nickname and the game ID to reconnect to a game.
+     * @implSpec GUI-CORE
      */
     @Override
     public void askReconnectGame() {
-        currentEvent = Event.RECONNECT_GAME;
-        StackPane reconnectGameRoot = new StackPane();
+        Platform.runLater(() -> {
+            if(attemptingReconnection) {
+                resetSelectionPaneContext();
+                selectionPane.getChildren().removeAll();
+                attemptingReconnection = false;
+            }
 
-        Label labelNickname = createLabel("Nickname&GameID", -80, -80);
+            currentEvent = Event.RECONNECT_GAME;
+            StackPane reconnectGameRoot = new StackPane();
 
-        TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
-        TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
+            Label labelNickname = createLabel("Nickname&GameID", -80, -80);
 
-        Button joinButton = createButton("[Reconnect]", 140, 65);
+            TextField nickname = createTextField("Enter the nickname", 35, 350, -40, -30);
+            TextField accessID = createTextField("Game ID", 35, 220, -100, 35);
 
-        reconnectGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+            Button joinButton = createButton("[Reconnect]", 140, 65);
 
-        joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
-        selectionPane.getChildren().add(reconnectGameRoot);
+            reconnectGameRoot.getChildren().addAll(labelNickname, nickname, accessID, joinButton);
+
+            joinButton.setOnAction(e -> handleButtonJoinAndReconnectClick(nickname,accessID));
+            selectionPane.getChildren().add(reconnectGameRoot);
+        });
     }
 
     /**
      * Handle the click on the confirmation button of the join game and reconnect game page. The method checks if the
      * nickname is valid and the game ID is a number. If the nickname is valid and the game ID is a number, the method
      * generates the AccessGameMessage or the ReconnectGameMessage based on the current event and notifies the listener.
-     *
+     * @implSpec GUI-NON-CORE
      * @param nickname the text field where the player inserts the nickname.
      * @param accessID the text field where the player inserts the game ID.
      */
-
     public void handleButtonJoinAndReconnectClick(TextField nickname, TextField accessID){
             thisPlayerNickname = nickname.getText();
             String ID = accessID.getText();
@@ -638,16 +686,16 @@ public class GraphicalUI extends View {
                 }
             }
     }
+
     /**
      * Once the player receives the NewGameConfirmationMessage from the server, the method is called by processMessage
      * to store the gameID, the nickname of the player who created the game, and add it in the list of players.
      * In addition, the method sets the currentEvent to WAITING_FOR_START and the Status to LOBBY, then it creates the
      * waiting page where the player can see the gameID and the list of players who joined the game.
-     *
+     * @implSpec GUI-CORE
      * @param gameID the game ID returned by the server after the confirmation of the new game
      * @param recipientNickname the nickname of the player who asked to create the new game
      */
-
     @Override
     public void updateNewGameConfirm(int gameID, String recipientNickname) {
         // use Platform.runLater to run the code in the JavaFX Application Thread
@@ -684,7 +732,7 @@ public class GraphicalUI extends View {
     /**
      * Once the player receives the LobbyPlayerList message from the server, the method is called by
      * processMessage, to update the player's list in the Lobby phase and print the player's list updated.
-     *
+     * @implSpec GUI-NON-CORE
      * @param players the list updated of players in the game.
      */
     @Override
@@ -696,10 +744,12 @@ public class GraphicalUI extends View {
             playerListView.setText(players.toString());
         });
     }
+
     /**
      * After receiving the GameStarted message from the server, the method is called to set up the view of the players,
      * to load the images which will be used to set up the game view, to set up the player's data and call the method
      * setGameView to set the view of the game in the preparation phase.
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void setUpPlayersData() {
@@ -768,6 +818,7 @@ public class GraphicalUI extends View {
      * notifications of the game. The hand area contains the common objective cards, secret objective cards and the
      * hand cards of the player. The chat area lets the player send messages to the other players and view the messages
      * received.
+     * @implSpec GUI-NON-CORE
      */
     private void setGameView() {
         // set the master pane
@@ -854,11 +905,15 @@ public class GraphicalUI extends View {
         masterPane.setMinWidth(1250);
         app.updateScene(masterPane,1250,750);
         app.getPrimaryStage().setMinWidth(1250);
+        app.getPrimaryStage().setMinHeight(750);
+        app.getPrimaryStage().setMaxWidth(1250);
+        app.getPrimaryStage().setMaxHeight(750);
     }
 
     /**
      * Method create VBox to store the player's info area. The player's info area contains the player's nickname, the
      * player's score, the player's resources and the player's colour.
+     * @implSpec GUI-NON-CORE
      * @return the VBox which contains the player's info area.
      */
     private VBox createPlayerInfoPanel() {
@@ -918,6 +973,7 @@ public class GraphicalUI extends View {
     /**
      * Create the top line panel of the master pane. The top line panel contains the label indicating the nickname of
      * thisPlayer, the game ID, the status of the match, the player order, the rules button and the help button.
+     * @implSpec GUI-NON-CORE
      * @return the HBox which contains the components needed.
      */
     private HBox createTopLinePanel(){
@@ -946,6 +1002,7 @@ public class GraphicalUI extends View {
     /**
      * Method create the deck area of the player. The deck area contains the resource deck and the gold deck. The player
      * can draw a card from the deck by clicking on the card in the deck.
+     * @implSpec GUI-NON-CORE
      * @return the VBox which contains the array of the resource deck and the gold deck.
      */
     private VBox createDeckArea() {
@@ -959,7 +1016,6 @@ public class GraphicalUI extends View {
                 new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false)),
                 new ImageView(new Image(retrieveResourceURI("placeholder.png"), 120, 80, true, false))
         };
-
 
         deckArea = new VBox();
         deckArea.setSpacing(10);
@@ -980,6 +1036,7 @@ public class GraphicalUI extends View {
     /**
      * Method create the bottom line panel of the master pane. The bottom line panel contains the common objective cards,
      * the secret objective cards and the hand cards of the player.
+     * @implSpec GUI-NON-CORE
      * @return the HBox which contains the components needed.
      */
     private HBox createBottomLinePanel() {
@@ -1002,12 +1059,13 @@ public class GraphicalUI extends View {
         handleHandClicks();
         return bottomLine;
     }
+
     /**
      * Method create the notification event panel. The notification event panel is used to notify the player that it's
      * his turn to play.
+     * @implSpec GUI-NON-CORE
      * @return the Group which contains the notification panel and the label of the content of the notification.
      */
-
     private Group createNoticeEventPanel() {
         Group root = new Group();
         root.setAutoSizeChildren(true);
@@ -1029,6 +1087,8 @@ public class GraphicalUI extends View {
     /**
      * Method to handle the click action of the notification event panel. The player can rotate the notification panel
      * for 360 degrees.
+     * @implSpec GUI-NON-CORE
+     * @param root the group which contains the notification panel.
      */
     private void handleNoticeClicks(Group root) {
         RotateTransition rotateTransition = new RotateTransition(Duration.seconds(0.5), root);
@@ -1036,11 +1096,12 @@ public class GraphicalUI extends View {
         rotateTransition.setCycleCount(1);
         rotateTransition.setAxis(Rotate.Y_AXIS);
         rotateTransition.play();
-
     }
+
     /**
      * Method set the click action of the player's field. The player can zoom in/out the field using the mouse wheel
      * and move the field using the drag action.
+     * @implSpec GUI-NON-CORE
      * @param boardReal the board of the player
      */
     private void handleBoardAction(StackPane boardReal) {
@@ -1064,9 +1125,11 @@ public class GraphicalUI extends View {
             boardReal.setTranslateY(e.getSceneY() - dragPos[1]);
         }); // Enable translating of player field when mouse button is held down
     }
+
     /**
      * Method set the click action of the player's nickname. The player can see the field of the player that he wants
      * to see by clicking on the nickname of the player.
+     * @implSpec GUI-NON-CORE
      * @param player the nickname of the player that thisPlayer wants to see the field.
      */
     private void handlePlayerNicknameClick(String player) {
@@ -1081,7 +1144,7 @@ public class GraphicalUI extends View {
     /**
      * Method set the click action of the cards in the deck. The player can draw a card from the deck by clicking on the
      * card in the deck.
-     *
+     * @implSpec GUI-NON-CORE
      * @param cardView the view of the card in the deck.
      * @param cardID the ID of the card.
      * @param cardType the type of the deck where the card is drawn.
@@ -1104,6 +1167,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method to set the click action of the cards in the drawing area.
+     * @implSpec GUI-NON-CORE
      */
     private void handleDeckClicks() {
         handleDeckCardsClicks(resourceDeckView[0],-1, 0);
@@ -1116,6 +1180,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method to set the click action of the cards in the hand.
+     * @implSpec GUI-NON-CORE
      */
     private void handleHandClicks() {
         for (int i = 0; i < 3; i++) { // For all cards in the player's hand
@@ -1154,6 +1219,7 @@ public class GraphicalUI extends View {
      * update the match status of the player, and update the player of the current match status.
      * If the match status is TERMINATING, the method is called to show the points of all players in the game with
      * a pop-up window.
+     * @implSpec GUI-CORE
      * @param matchStatus the current match status received from the server
      */
     @Override
@@ -1169,13 +1235,12 @@ public class GraphicalUI extends View {
         });
     }
 
-
     // Methods to create the components of the GUI
 
     /**
      * Create a stylized label with the specified text and size.
      * Used anywhere a stylized label is needed.
-     *
+     * @implSpec GUI-NON-CORE
      * @param text The text contained inside the label
      * @param size The size of the font
      * @return The label created
@@ -1191,7 +1256,7 @@ public class GraphicalUI extends View {
     /**
      * Create a stylized label with the specified text, X and Y coordinates.
      * This version of the method is used in starting page.
-     *
+     * @implSpec GUI-NON-CORE
      * @param text The text contained inside the label
      * @param X    The X coordinate of the label
      * @param Y    The Y coordinate of the label
@@ -1209,6 +1274,7 @@ public class GraphicalUI extends View {
 
     /**
      * Create a stylized button with the specified text.
+     * @implSpec GUI-NON-CORE
      * @param buttonName the text contained inside the button
      * @return the button created
      */
@@ -1222,6 +1288,7 @@ public class GraphicalUI extends View {
 
     /**
      * Create a stylized button with the specified text, X and Y coordinates.
+     * @implSpec GUI-NON-CORE
      * @param buttonName the text contained inside the button
      * @param X the X coordinate of the button
      * @param Y the Y coordinate of the button
@@ -1239,7 +1306,7 @@ public class GraphicalUI extends View {
 
     /**
      * Create a stylized button with the specified text, size and color, and X and Y coordinates.
-     *
+     * @implSpec GUI-NON-CORE
      * @param buttonName the text contained inside the button
      * @param size the size of the text inside the button
      * @param color the color of the text inside the button
@@ -1258,6 +1325,7 @@ public class GraphicalUI extends View {
 
     /**
      * Create a text field with the specified prompt text, maximum height, maximum width, X and Y coordinates.
+     * @implSpec GUI-NON-CORE
      * @param promptText the prompt text of the text field
      * @param MaxHeight the maximum height of the text field
      * @param MaxWidth the maximum width of the text field
@@ -1281,6 +1349,7 @@ public class GraphicalUI extends View {
 
     /**
      * Create a stylized Alert pop-up window with the specified reason.
+     * @implSpec GUI-NON-CORE
      * @param reason the reason of the error alert
      */
     private void createAlert(String reason) {
@@ -1304,6 +1373,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method used to show the field of the player whose nickname is passed as a parameter.
+     * @implSpec GUI-NON-CORE
      * @param playerNickname the nickname of the player whose field should be shown in the board area.
      */
     @Override
@@ -1320,6 +1390,7 @@ public class GraphicalUI extends View {
     /**
      * Method used to make the highlight effect on the player's points and resources when the player's turn is now or
      * the match status is TERMINATING.
+     * @implSpec GUI-NON-CORE
      * @param playerNickname the nickname of the player whose points and resources should be shown.
      */
     @Override
@@ -1337,6 +1408,7 @@ public class GraphicalUI extends View {
      * Once the player receives the PlayerTurnMessage from the server, the method is called by processMessage to update
      * the currentPlayer in the game and print the message to notify the player whose turn is now, also, the method
      * notifies players the order of the turn in the game.
+     * @implSpec GUI-CORE
      * @param playerNickname the nickname of the player who should be able to place the card and draw card in the field.
      */
     @Override
@@ -1371,7 +1443,7 @@ public class GraphicalUI extends View {
     /**
      * This method is called by processMessage to update the all data of the players in the game when the game enters
      * the playing phase or when the player reconnects to the game.
-     *
+     * @implSpec GUI-CORE
      * @param playerNicknames                    the nicknames of the players in the game.
      * @param playerConnected                    the connection status of the players in the game.
      * @param playerColours                      the colours assigned to the players in the game.
@@ -1407,6 +1479,8 @@ public class GraphicalUI extends View {
                                  int resourceCardDeckFacingKingdom, int goldCardDeckFacingKingdom,
                                  ArrayList<int[]> playersResourcesSummary,
                                  ArrayList<Integer> playerAssignedSecretObjectiveCards, int playerStartingCard) {
+        // Reset the flag attemptingReconnection to indicate that the player has successfully reconnected
+        attemptingReconnection = false;
         // Forcefully overwrite the chatHistory to prevent an unwanted use of Server's class inside the Client
         // We are now rebuilding the ChatMessage object from the ArrayList of Arrays
         ArrayList<ChatMessage> chatHistoryRebuild = new ArrayList<>();
@@ -1540,6 +1614,7 @@ public class GraphicalUI extends View {
     /**
      * Method to convert the integer value of the cardID and the boolean value of the side of the card to the specific
      * image path of the card.
+     * @implSpec GUI-NON-CORE
      * @param cardID the ID of the card shown in the image
      * @param isUp the side of the card shown in the image
      * @return the image path of the card given the cardID and the side of the card.
@@ -1553,7 +1628,7 @@ public class GraphicalUI extends View {
      * Once the player receives the AssignedSecretObjectiveCardMessage from the server, the method is called by
      * processMessage to request the player to select the secret objective card they want to use. In addition, the
      * method is called to update the player's hand cards and the common objective cards of the game.
-     *
+     * @implSpec GUI-NON-CORE
      * @param secrets the secret objective cards received from the server and assigned to the player.
      * @param common the common objective cards of the game received from the server.
      * @param hand the three cards received from the server and should be stored in the player's hand.
@@ -1585,6 +1660,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method to show the hand of the player in the GUI adding the highlight effect on the cards in the hand.
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void showHand() {
@@ -1605,6 +1681,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method to show the image of the card in the GUI with the specified ID and side.
+     * @implSpec GUI-NON-CORE
      * @param ID the ID of the card should be shown in the image.
      * @param isUp the side of the card should be shown in the image.
      */
@@ -1631,7 +1708,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method called by the processMessage to update the player's field after receiving confirmation from the server that the card placement was successful.
-     *
+     * @implSpec GUI-CORE
      * @param playerNickname the nickname of the player
      * @param placedCard the ID of the card placed in the field
      * @param placedCardCoordinates the coordinates of the card placed in the field
@@ -1676,7 +1753,7 @@ public class GraphicalUI extends View {
 
     /**
      * Used to display the winners of the game and the final points of the players after the game has ended.
-     *
+     * @implSpec GUI-CORE
      * @param players the nicknames of the players
      * @param points the points of the players
      * @param secrets the secret objective card of the players
@@ -1717,6 +1794,7 @@ public class GraphicalUI extends View {
     /**
      * Method used to update the player's board and public info when the player disconnects from the game after the
      * placement of the card.
+     * @implSpec GUI-NON-CORE
      * @param playerNickname the nickname of the player whose board should be updated with the rollback
      * @param removedCard the ID of the card that should be removed from the board and the public info of the player
      * @param playerPoints the points of the player after the rollback
@@ -1738,7 +1816,7 @@ public class GraphicalUI extends View {
 
     /**
      * Used to print out the entire chat history when the player reconnects to the game.
-     *
+     * @implSpec GUI-NON-CORE
      * @param chatHistory the chat history of the game
      */
     @Override
@@ -1750,6 +1828,7 @@ public class GraphicalUI extends View {
 
     /**
      * Called when a chat message is received from the server.
+     * @implSpec GUI-NON-CORE
      * @param recipientString the nickname of the recipient of the message
      * @param senderNickname the nickname of the sender of the message
      * @param content the content of the message
@@ -1767,7 +1846,7 @@ public class GraphicalUI extends View {
     /**
      * Called when the player receives the starting card id from the server.
      * Saves the received starting card, and calls other methods to display card side selection
-     *
+     * @implSpec GUI-NON-CORE
      * @param cardId the ID of the card
      */
     @Override
@@ -1778,7 +1857,7 @@ public class GraphicalUI extends View {
 
     /**
      * Support method used to prompt the user to select a starting card side
-     *
+     * @implSpec GUI-NON-CORE
      * @param ID the ID of the starter card
      */
     @Override
@@ -1789,7 +1868,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method called by the processMessage after receiving confirmation from the server that the starter card side was selected.
-     *
+     * @implSpec GUI-NON-CORE
      * @param colour the colour assigned to the player
      * @param cardID the ID of the starter card
      * @param isUp the side of the starter card
@@ -1819,6 +1898,7 @@ public class GraphicalUI extends View {
     /**
      * Method called when place card confirmation is received from server.
      * Enable drawing from deck
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void requestDrawCard() {
@@ -1828,7 +1908,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method called by the processMessage after receiving confirmation from the server that the card was drawn successfully.
-     *
+     * @implSpec GUI-NON-CORE
      * @param hand the updated hand of the player after the draw
      */
     @Override
@@ -1847,7 +1927,7 @@ public class GraphicalUI extends View {
 
     /**
      * Used to update the decks after a player has drawn a card
-     *
+     * @implSpec GUI-NON-CORE
      * @param resourceDeckSize the new size of the resource deck
      * @param goldDeckSize the new size of the gold deck
      * @param currentResourceCards the current resource cards in the game that the player can draw
@@ -1911,12 +1991,30 @@ public class GraphicalUI extends View {
 
     /**
      * Used to handle the failure cases of the events in the game.
-     *
+     * @implSpec GUI-CORE
      * @param event the event that has failed
      * @param reason the reason for the failure
      */
     @Override
     public void handleFailureCase(Event event, String reason) {
+        if(attemptingReconnection) {
+            switch (event) {
+                case RECONNECT_GAME -> {
+                    // If the reconnection fails we just have to try again!
+                    askSelectGameMode(); // This method will in itself consume the attemptingReconnection flag
+                }
+                case JOIN_GAME -> {
+                    // If the join game fails we just have to try again!
+                    askJoinGame(); // This method will in itself consume the attemptingReconnection flag
+                }
+                case CREATE_GAME -> {
+                    // If the game creation fails we just have to try again!
+                    askCreateGame(); // This method will in itself consume the attemptingReconnection flag
+                }
+            }
+            return;
+        }
+
         createAlert(reason);
         // in case of create game failure, join game failure, reconnect game failure just notify the player with the reason of the failure.
         switch (event){
@@ -1941,6 +2039,7 @@ public class GraphicalUI extends View {
 
     /**
      * Used to active chat area, once big boy message is received from the server.
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void startChatting() {
@@ -1952,6 +2051,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method to handle effect when deck label is clicked
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void showDeck() {
@@ -1964,6 +2064,7 @@ public class GraphicalUI extends View {
 
     /**
      * Used to display help information when help button is clicked during the game
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void showHelpInfo() {
@@ -1998,6 +2099,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method called by the processMessage after receiving confirmation from the server that the secret objective card was selected.
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void requestSelectSecretObjectiveCard() {
@@ -2007,7 +2109,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method called by the processMessage after receiving confirmation from the server that the secret objective card was selected.
-     *
+     * @implSpec GUI-NON-CORE
      * @param chosenSecretObjectiveCard the ID of the secret objective card selected by the player
      */
     @Override
@@ -2024,6 +2126,7 @@ public class GraphicalUI extends View {
 
     /**
      * Method called by the processMessage after receiving confirmation from the server that the secret objective card was selected.
+     * @implSpec GUI-NON-CORE
      */
     @Override
     public void requestPlaceCard() {
@@ -2051,7 +2154,7 @@ public class GraphicalUI extends View {
     /**
      * Method set to handle the click action of the available space in the field.
      * When a player clicks on the available space, the method notifies the listener to place the card in the field.
-     *
+     * @implSpec GUI-NON-CORE
      * @param availableSpace the image view of the available space the player has clicked on
      * @param x the x coordinate of the available space (field coordinates)
      * @param y the y coordinate of the available space (field coordinates)
@@ -2066,7 +2169,7 @@ public class GraphicalUI extends View {
 
     /**
      * Updates the player's data after a card has been placed.
-     *
+     * @implSpec GUI-NON-CORE
      * @param playerNickname the nickname of the player
      * @param cardID the ID of the card placed in the field
      * @param x the x coordinate of the card placed in the field
@@ -2107,7 +2210,7 @@ public class GraphicalUI extends View {
 
     /**
      * Handles changes in the state of the game.
-     *
+     * @implSpec GUI-CORE
      * @param event the event to handle
      * @param message the message to display
      */
@@ -2126,6 +2229,10 @@ public class GraphicalUI extends View {
                 }
                 case Event.GAME_START -> Platform.runLater(()-> notice.getChildren().add(new Label("> The game starts now!\n")));
                 case Event.GAME_JOINED -> {
+                    if(attemptingReconnection) {
+                        resetSelectionPaneContext();
+                        attemptingReconnection = false;
+                    }
                     selectionPane.getChildren().removeLast();
                     waitingRoot = new StackPane();
                     this.players.add(thisPlayerNickname);
@@ -2176,7 +2283,7 @@ public class GraphicalUI extends View {
 
     /**
      * Used to convert the integer representation of the colour to the string representation.
-     *
+     * @implSpec GUI-NON-CORE
      * @param colour the integer representation of the colour
      * @return the string representation of the colour
      */
@@ -2207,6 +2314,7 @@ public class GraphicalUI extends View {
     /**
      * Generates the selection area for the initial card side selection.
      * The selection area is composed of a prompt label, 2 cards to choose from.
+     * @implSpec GUI-NON-CORE
      * @param imageNumber the number of the image to load.
      * @return a VBox containing the selection area for the initial card side selection.
      */
@@ -2276,6 +2384,7 @@ public class GraphicalUI extends View {
     /**
      * Generates the selection area for the secret objective card selection.
      * The selection area is composed of a prompt label, 2 cards to choose from.
+     * @implSpec GUI-NON-CORE
      * @param card1 the ID of the first card
      * @param card2 the ID of the second card
      * @return a VBox containing the selection area for the secret objective card selection
@@ -2346,7 +2455,7 @@ public class GraphicalUI extends View {
 
     /**
      * Used to handle the click action on buttons used to select game size when creating a new game
-     *
+     * @implSpec GUI-NON-CORE
      * @param clickedButton the button that was clicked
      * @param button1 the first button
      * @param button3 the third button
@@ -2360,17 +2469,187 @@ public class GraphicalUI extends View {
 
     /**
      * Getter method.
-     *
+     * @implSpec GUI-NON-CORE
      * @return the nickname of the player
      */
     public String getThisPlayerNickname() {
         return thisPlayerNickname;
     }
 
-    // TODO implementare metodo
-    public void nodeDisconnected(){}
+    // <-- Method and flags needed for automatic reconnection -->
 
-    // TODO implementare metodo
-    public void nodeReconnected(){}
+    /**
+     * DialogPane displayed when the network is down.
+     * It is used to notify the user that the connection with the server is lost.
+     */
+    private DialogPane networkIsDown;
+    /**
+     * Flag used to state if the node is disconnected from the server.
+     */
+    private volatile boolean isDisconnected = false;
+    /**
+     * Flag used to state if the node is attempting to reconnect to the server.
+     */
+    private volatile boolean attemptingReconnection = false;
+
+    /**
+     * Method called when the node disconnects from the game.
+     * Called from the Network to notify the View that the connection to the server is lost.
+     */
+    public void nodeDisconnected(){
+        // Set isDisconnected flag to true
+        isDisconnected = true;
+
+        // Flush the askListener
+        askListener.flushMessages();
+
+        // Configure the dialog pane networkIsDown to let the user know that the connection is down
+        // Run this in the JavaFX thread to be able to interact with the GUI
+        Platform.runLater(() -> {
+            networkIsDown = new DialogPane();
+            networkIsDown.setStyle("-fx-pref-height: 180px;-fx-pref-width: 600px;-fx-background-image: " +
+                    "url('" + retrieveResourceURI("NoticeDisplay.png") + "');-fx-background-position: center;-fx-background-size: 600px 180px;");
+            Label label1 = new Label("The connection with the server is lost.\nAn attempt to reconnect will be made shortly.");
+            label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+            networkIsDown.setContent(label1);
+
+            networkIsDown.setMinHeight(180);
+            networkIsDown.setMinWidth(600);
+            networkIsDown.setMaxHeight(180);
+            networkIsDown.setMaxWidth(600);
+
+            // Show now the dialogPane networkIsDown
+            app.updateScene(networkIsDown, 600, 180);
+            app.getPrimaryStage().setMinWidth(600);
+            app.getPrimaryStage().setMaxWidth(600);
+            app.getPrimaryStage().setMinHeight(180);
+            app.getPrimaryStage().setMaxHeight(180);
+            app.getPrimaryStage().show();
+        });
+    }
+
+    /**
+     * Method called when the node reconnects to the game.
+     * Called from the Network to notify the View that the connection to the server is restored.
+     */
+    public void nodeReconnected(){
+        // Set isDisconnected flag to false
+        isDisconnected = false;
+
+        // Set attemptingReconnection flag to true
+        attemptingReconnection = true;
+
+        // Flush the askListener
+        askListener.flushMessages();
+
+        // Configure the dialog pane networkIsDown to let the user know that the connection is now restored
+        // Run this in the JavaFX thread to be able to interact with the GUI
+        Platform.runLater(() -> {
+            networkIsDown = new DialogPane();
+            networkIsDown.setStyle("-fx-pref-height: 180px;-fx-pref-width: 600px;-fx-background-image: " +
+                    "url('" + retrieveResourceURI("NoticeDisplay.png") + "');-fx-background-position: center;-fx-background-size: 600px 180px;");
+            Label label1 = new Label("The connection with the server is restored.\nThe system is going to try to rejoin the match.");
+            label1.setStyle("-fx-text-fill: #3A2111;-fx-alignment: center; -fx-font-size: 15px;-fx-font-family: 'JejuHallasan';");
+            networkIsDown.setContent(label1);
+
+            networkIsDown.setMinHeight(180);
+            networkIsDown.setMinWidth(600);
+            networkIsDown.setMaxHeight(180);
+            networkIsDown.setMaxWidth(600);
+
+            // Show now the dialogPane networkIsDown
+            app.updateScene(networkIsDown, 600, 180);
+            app.getPrimaryStage().setMinWidth(600);
+            app.getPrimaryStage().setMaxWidth(600);
+            app.getPrimaryStage().setMinHeight(180);
+            app.getPrimaryStage().setMaxHeight(180);
+            app.getPrimaryStage().show();
+        });
+
+        // Try to rejoin the match itself (do this in an ephemeral thread to avoid blocking the Network thread)
+        Thread ephemeralThread = new Thread(() -> {
+            // Sleep for 1.5s to let the user see the message
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Attempt the reconnection to the match itself
+            if(Status.equals(Event.WELCOME)) {
+                switch (currentEvent) {
+                    case Event.CREATE_GAME -> {
+                        askCreateGame();
+                    }
+                    case Event.JOIN_GAME -> {
+                        // If we know the gameID we can attempt to reconnect to that game.
+                        if(gameID != 0 && !thisPlayerNickname.isEmpty()) {
+                            currentEvent = Event.JOIN_GAME;
+                            notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+                            // When an answer is received, the processMessage will handle the reconnection and the GUI will be updated accordingly.
+                            // The flag attemptingReconnection will be set to false in the processMessage method.
+                        } else {
+                            askJoinGame();
+                        }
+                    }
+                    case Event.RECONNECT_GAME -> {
+                        // If we know the gameID we can attempt to reconnect to that game.
+                        if(gameID != 0 && !thisPlayerNickname.isEmpty()) {
+                            currentEvent = Event.RECONNECT_GAME;
+                            notifyAskListener(new ReconnectGameMessage(thisPlayerNickname, gameID));
+                            // When an answer is received, the processMessage will handle the reconnection and the GUI will be updated accordingly.
+                            // The flag attemptingReconnection will be set to false in the processMessage method.
+                        } else {
+                            askReconnectGame();
+                        }
+                    }
+                    default -> {
+                        askSelectGameMode();
+                    }
+                }
+            } else if (Status.equals(Event.LOBBY)) {
+                // If we were in the lobby, we can attempt to reconnect to that lobby.
+                currentEvent = Event.JOIN_GAME;
+                notifyAskListener(new AccessGameMessage(gameID, thisPlayerNickname));
+                // When an answer is received, the processMessage will handle the reconnection and the GUI will be updated accordingly.
+                // The flag attemptingReconnection will be set to false in the processMessage method.
+            } else {
+                // If we were in the game, we can attempt to reconnect to that game.
+                currentEvent = Event.RECONNECT_GAME;
+                notifyAskListener(new ReconnectGameMessage(thisPlayerNickname, gameID));
+                // When an answer is received, the processMessage will handle the reconnection and the GUI will be updated accordingly.
+                // The flag attemptingReconnection will be set to false in the processMessage method.
+            }
+        });
+
+        ephemeralThread.start();
+    }
+
+    /**
+     * Method called when needing to reset the selectionPane context.
+     */
+    private void resetSelectionPaneContext() {
+        // Re-initialize the selectionPane
+        selectionPane = new StackPane();
+
+        // Set the background image of the selectionPane
+        Image backgroundSelectionPage = new Image(retrieveResourceURI("SelectionDisplay.png"));
+        BackgroundImage backgroundImg = new BackgroundImage(backgroundSelectionPage, BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(975, 925, false, false, false, false));
+        Background background = new Background(backgroundImg);
+        selectionPane.setBackground(background);
+
+        // Add a dummy pane as a children of the selectionPane
+        Pane dummyPane = new Pane();
+        selectionPane.getChildren().add(dummyPane);
+
+        // Show the selectionPane on the GUI
+        selectionPane.setMinWidth(975);
+        app.updateScene(selectionPane,975,750);
+        app.getPrimaryStage().setMinWidth(975);
+        app.getPrimaryStage().setMinHeight(750);
+        app.getPrimaryStage().setMaxWidth(975);
+        app.getPrimaryStage().setMaxHeight(750);
+    }
 
 }

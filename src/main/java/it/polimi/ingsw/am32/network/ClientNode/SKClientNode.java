@@ -295,7 +295,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
                     } catch (IOException ignore) {
 
-                        logger.error("Failed to connect to {}:{}", ip, port);
+                        logger.debug("Failed to connect to {}:{}", ip, port);
                         try {
                             Thread.sleep(100); // TODO parametrizzazione con config?
                         } catch (InterruptedException ignore2) {}

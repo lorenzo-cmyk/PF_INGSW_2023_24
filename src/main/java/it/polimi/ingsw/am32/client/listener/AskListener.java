@@ -212,7 +212,9 @@ public class AskListener implements AskListenerInterface, Runnable {
                 }
                 // If we successfully sent the message, remove it from the queue.
                 synchronized (queuesLock) {
-                    lobbyMessageQueue.removeFirst();
+                    if(!lobbyMessageQueue.isEmpty()) {
+                        lobbyMessageQueue.removeFirst();
+                    }
                 }
                 logger.debug("LobbyMessage sent to the server: {}", currentLobbyMessage.getClass());
             } catch (UploadFailureException e) {
