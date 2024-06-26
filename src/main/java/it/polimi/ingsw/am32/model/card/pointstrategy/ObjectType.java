@@ -9,16 +9,44 @@ package it.polimi.ingsw.am32.model.card.pointstrategy;
  * @author Antony
  */
 public enum ObjectType {
+    /**
+     * Plant object type indicates that the object is a plant resource.
+     */
     PLANT(0),
+    /**
+     * Fungi object type indicates that the object is a fungi resource.
+     */
     FUNGI(1),
+    /**
+     * Animal object type indicates that the object is an animal resource.
+     */
     ANIMAL(2),
+    /**
+     * Insect object type indicates that the object is an insect resource.
+     */
     INSECT(3),
+    /**
+     * Quill object type indicates that the object is a quill object.
+     */
     QUILL(4),
+    /**
+     * Inkwell object type indicates that the object is an inkwell object.
+     */
     INKWELL(5),
+    /**
+     * Manuscript object type indicates that the object is a manuscript object.
+     */
     MANUSCRIPT(6);
 
+    /**
+     * The integer value associated with the object type.
+     */
     private final int value;
 
+    /**
+     * Constructor for the ObjectType enum.
+     * @param value The integer value associated with the object type.
+     */
     ObjectType(int value) {
         this.value = value;
     }

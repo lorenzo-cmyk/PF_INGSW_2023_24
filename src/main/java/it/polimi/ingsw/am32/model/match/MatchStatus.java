@@ -6,20 +6,34 @@ package it.polimi.ingsw.am32.model.match;
  * @author Lorenzo
  */
 public enum MatchStatus {
-    // The match is in the lobby state, waiting for players to join.
+    /**
+     * The match is in the lobby state, waiting for players to join.
+     */
     LOBBY(0),
-    // The match is in the preparation state, players are setting up their game.
+    /**
+     * The match is in the preparation state, players are setting up their game.
+     */
     PREPARATION(1),
-    // The match is in the playing state, the game is in progress.
+    /**
+     * The match is in the playing state, the game is in progress.
+     */
     PLAYING(2),
-    // The match is in the terminating state, the game is about to end.
+    /**
+     * The match is in the terminating state, the game is about to end.
+     */
     TERMINATING(3),
-    // The match is in the last turn state, the last turn of the game is in progress.
+    /**
+     * The match is in the last turn state, the last turn of the game is in progress.
+     */
     LAST_TURN(4),
-    // The match is in the terminated state, the game has ended.
+    /**
+     * The match is in the terminated state, the game has ended.
+     */
     TERMINATED(5);
 
-    // The integer value associated with each state.
+    /**
+     * The integer value associated with the state.
+     */
     private final int value;
 
     /**
