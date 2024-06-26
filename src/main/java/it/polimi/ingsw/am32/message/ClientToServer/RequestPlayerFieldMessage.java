@@ -36,6 +36,14 @@ public class RequestPlayerFieldMessage implements CtoSMessage {
         gameController.sendPlayerField(senderNickname, playerNickname);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the RequestPlayerFieldMessage object.
+     * The string includes the message type, the senderNickname and the playerNickname properties of the object.
+
+     */
     @Override
     public String toString() {
         return "RequestPlayerFieldMessage:{" +

@@ -35,6 +35,13 @@ public class SelectedStarterCardSideMessage implements CtoSMessage {
         gameController.chooseStarterCardSide(senderNickname, isUp);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the SelectedStarterCardSideMessage object.
+     * The string includes the message type, the senderNickname and the isUp properties of the object.
+     */
     @Override
     public String toString() {
         return "SelectedStarterCardSideMessage:{" +

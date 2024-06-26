@@ -41,11 +41,21 @@ public class NewGameConfirmationMessage implements StoCMessage {
         view.updateCurrentEvent(Event.WAITING_FOR_START); // enter the waiting for start event
     }
 
+    /**
+     * This method is used to get the nickname of the player that will receive the message.
+     * @return the nickname of the player that will receive the message.
+     */
     @Override
     public String getRecipientNickname() {
         return recipientNickname;
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the NewGameConfirmationMessage object.
+     */
     @Override
     public String toString() {
         return "NewGameConfirmationMessage:{" +

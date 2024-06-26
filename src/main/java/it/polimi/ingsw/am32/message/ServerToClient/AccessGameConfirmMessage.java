@@ -41,6 +41,13 @@ public class AccessGameConfirmMessage implements StoCMessage {
         return recipientNickname;
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the AccessGameConfirmMessage object.
+     * It contains the nickname of the recipient who requested to access the game before.
+     */
     @Override
     public String toString() {
         return "AccessGameConfirmMessage:{" +

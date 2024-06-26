@@ -47,6 +47,12 @@ public class ConfirmSelectedSecretObjectiveCardMessage implements StoCMessage {
         view.updateConfirmSelectedSecretCard(chosenSecretObjectiveCard);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the ConfirmSelectedSecretObjectiveCardMessage object.
+     */
     @Override
     public String toString() {
         return "ConfirmSelectedSecretObjectiveCardMessage:{" +

@@ -81,6 +81,12 @@ public class ConfirmStarterCardSideSelectionMessage implements StoCMessage {
         view.updateConfirmStarterCard(playerColour,startingCardId,side, availableSpaces, playerResources);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the ConfirmStarterCardSideSelectionMessage object.
+     */
     @Override
     public String toString() {
         return "ConfirmStarterCardSideSelectionMessage:{" +

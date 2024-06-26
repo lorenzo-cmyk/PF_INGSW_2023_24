@@ -32,11 +32,11 @@ public class ReconnectGameMessage implements CtoSLobbyMessage {
      * Creates a new GameController and adds the player and updates the data of the player and the game.
      * @param  nodeInterface the serverNode of the player
      * @return the game controller of the game the player wants to join
-     * @throws GameAlreadyStartedException if the game has already started
-     * @throws GameNotFoundException if the game was not found
+     * @throws GameAlreadyEndedException if the game has already ended
+     * @throws GameNotFoundException if the game was not found with given id
      * @throws PlayerAlreadyConnectedException if the player is already connected to the game
      * @throws GameNotYetStartedException if the game has not yet started, in lobby phase
-     * @throws CTRDuplicateNicknameException if the nickname is already in use
+     * @throws CTRPlayerNotFoundException if the player was not found with given nickname
      *
      */
     @Override
@@ -45,6 +45,13 @@ public class ReconnectGameMessage implements CtoSLobbyMessage {
         return GamesManager.getInstance().reconnectToGame(senderNickname, matchId, nodeInterface);
     }
 
+   /**
+    * This method overrides the default toString method.
+    * It provides a string representation of a message object, which can be useful for debugging purposes.
+    *
+    * @return A string representation of the ReconnectGameMessage object.
+    * The string includes the message type, the matchId and the senderNickname properties of the object.
+    */
     @Override
     public String toString() {
         return "ReconnectGameMessage:{" +

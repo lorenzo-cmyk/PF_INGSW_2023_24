@@ -45,6 +45,12 @@ public class LobbyPlayerListMessage implements StoCMessage {
         return recipientNickname;
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the LobbyPlayerListMessage object.
+     */
     @Override
     public String toString() {
         return "LobbyPlayerListMessage:{" +

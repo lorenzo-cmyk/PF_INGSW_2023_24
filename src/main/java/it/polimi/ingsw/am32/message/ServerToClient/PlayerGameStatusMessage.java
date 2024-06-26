@@ -103,6 +103,33 @@ public class PlayerGameStatusMessage implements StoCMessage {
      */
     private final ArrayList<int[]> newAvailableFieldSpaces;
 
+    /**
+     * Constructor: a message containing all the data necessary to update the view when the game enters a playing phase
+     * or when the player reconnects to the game.
+     * @param recipientNickname the nickname of the player who will receive the message and his view should be updated.
+     * @param playerNicknames the nicknames of the players in the game.
+     * @param playerConnected the connection status of the players in the game.
+     * @param playerColours the colours of the players in the game.
+     * @param playerHand the cards in the hand of the player.
+     * @param playerAssignedSecretObjectiveCards the secret objective cards assigned to the player.
+     * @param playerStartingCard the starting card assigned to the player.
+     * @param playerSecretObjective the secret objective chosen by the player.
+     * @param playerPoints the points of the players in the game.
+     * @param playersResourcesSummary the resources of the players in the game.
+     * @param playerFields the fields data of the players in the game.
+     * @param playerResources the resources of the player who will receive the message.
+     * @param gameCommonObjectives the common objectives of the game.
+     * @param gameCurrentResourceCards the resource cards visible in the game.
+     * @param gameCurrentGoldCards the gold cards visible in the game.
+     * @param gameResourcesDeckSize the size of the resource deck.
+     * @param gameGoldDeckSize the size of the gold deck.
+     * @param matchStatus the status of the match.
+     * @param chatHistory the chat history of players in the game.
+     * @param currentPlayer the nickname of the current player.
+     * @param newAvailableFieldSpaces the available field spaces for the player to place a card.
+     * @param resourceCardDeckFacingKingdom the kingdom type of the card facing up in the resource deck.
+     * @param goldCardDeckFacingKingdom the kingdom type of the card facing up in the gold deck.
+     */
     public PlayerGameStatusMessage(String recipientNickname, ArrayList<String> playerNicknames,
                                    ArrayList<Boolean> playerConnected, ArrayList<Integer> playerColours,
                                    ArrayList<Integer> playerHand, ArrayList<Integer> playerAssignedSecretObjectiveCards,
@@ -163,6 +190,12 @@ public class PlayerGameStatusMessage implements StoCMessage {
         return recipientNickname;
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the PlayerGameStatusMessage object.
+     */
     @Override
     public String toString(){
         String playerFieldsAsString = playerFields.stream()

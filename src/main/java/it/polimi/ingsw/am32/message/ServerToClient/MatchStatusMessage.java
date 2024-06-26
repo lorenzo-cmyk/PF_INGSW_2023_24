@@ -43,6 +43,12 @@ public class MatchStatusMessage implements StoCMessage {
         return recipientNickname;
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the MatchStatusMessage object.
+     */
     @Override
     public String toString() {
         return "MatchStatusMessage:{" +

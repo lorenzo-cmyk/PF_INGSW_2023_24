@@ -35,6 +35,13 @@ public class SelectedSecretObjectiveCardMessage implements CtoSMessage {
         gameController.chooseSecretObjectiveCard(senderNickname, cardId);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the SelectedSecretObjectiveCardMessage object.
+     * The string includes the message type, the senderNickname and the cardId properties of the object.
+     */
     @Override
     public String toString() {
         return "SelectedSecretObjectiveCardMessage:{" +

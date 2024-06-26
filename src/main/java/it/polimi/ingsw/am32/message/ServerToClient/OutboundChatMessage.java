@@ -49,6 +49,12 @@ public class OutboundChatMessage implements StoCMessage {
         return recipientString;
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the OutboundChatMessage object.
+     */
     @Override
     public String toString() {
         return "OutboundChatMessage:{" +

@@ -56,7 +56,14 @@ public class PlaceCardMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.placeCard(senderNickname, cardId, row, column, isUp);
     }
-
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the PlaceCardMessage object.
+     * The string includes the message type, the senderNickname, the cardId, the row, the column and the isUp properties
+     * of the object.
+     */
     @Override
     public String toString() {
         return "PlaceCardMessage:{" +

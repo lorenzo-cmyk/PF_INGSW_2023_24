@@ -52,6 +52,14 @@ public class InboundChatMessage implements CtoSMessage {
         gameController.submitChatMessage(new ChatMessage(senderNickname, recipientNickname, multicastFlag, content));
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the InboundChatMessage object.
+     * The string includes the message type, the senderNickname, the recipientNickname, the multicastFlag and the
+     * content properties of the object.
+     */
     @Override
     public String toString() {
         return "InboundChatMessage:{" +
