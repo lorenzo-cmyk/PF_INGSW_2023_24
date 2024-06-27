@@ -15,7 +15,6 @@ module it.polimi.ingsw.am32 {
     opens it.polimi.ingsw.am32 to javafx.fxml;
     exports it.polimi.ingsw.am32;
     exports it.polimi.ingsw.am32.network.ClientAcceptor to java.rmi;
-    exports it.polimi.ingsw.am32.network to java.rmi;
     exports it.polimi.ingsw.am32.model.exceptions to java.rmi;
     exports it.polimi.ingsw.am32.controller.exceptions.abstraction to java.rmi;
     exports it.polimi.ingsw.am32.controller to java.rmi;

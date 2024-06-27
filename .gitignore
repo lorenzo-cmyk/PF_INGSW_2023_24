@@ -98,6 +98,8 @@ local.properties
 
 # Package Files #
 *.jar
+!deliverables/JARs/IS24-AM32-0.1-CLIENT.jar
+!deliverables/JARs/IS24-AM32-0.1-SERVER.jar
 *.war
 *.nar
 *.ear

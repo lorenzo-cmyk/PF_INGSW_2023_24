@@ -219,8 +219,6 @@ public class Configuration {
      */
     protected String serverIpValidator(String ipToValidate , String lastValidIp) {
 
-        // TODO rivalutare algoritmo
-
         char[] workingIp = ipToValidate.toCharArray();
         int prevIndex = 0;
         int counter = 0;
@@ -363,7 +361,7 @@ public class Configuration {
      * @param serverPingTask is the {@code ServerPingTask} to be scheduled
      */
     public void addTimerTask(ServerPingTask serverPingTask) {
-        notLinkedSocketTimer.scheduleAtFixedRate(serverPingTask, 0, pingTimeInterval);
+        notLinkedSocketTimer.scheduleAtFixedRate(serverPingTask, pingTimeInterval, pingTimeInterval);
     }
 
     /**

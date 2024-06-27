@@ -11,10 +11,37 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * The class {@code SKClientAcceptor} manages the new requests of connection to the server by the clients using socket
+ * as network protocol. <br>
+ * Only one instance of this class is required to be created when the server is run.
+ * Because this class is an implementation of the interface {@link Runnable}, is preferable to assign its instance to a
+ * new thread to maximise parallelization. <br>
+ * Alternatively the method {@link SKClientAcceptor#run()} can be invoked directly. Doing this, however, will result in
+ * the caller being stuck, waiting for new incoming connections.
+ *
+ * @author Matteo
+ */
 public class SKClientAcceptor implements Runnable {
 
+    //---------------------------------------------------------------------------------------------
+    // Variables and Constants
+
+    /**
+     * Variables used for service purposes
+     */
     private static final Logger logger = LogManager.getLogger(SKClientAcceptor.class);
 
+
+    //---------------------------------------------------------------------------------------------
+    // Methods
+
+    /**
+     * Invoking this method will lead to the creation of a {@link ServerSocket} that will wait for new incoming
+     * connections. <br>
+     * When a client attempt to establish a connection with the server, a new instance of {@link SKServerNode} will be
+     * created and the connection will be handled by this instance.
+     */
     public void run() {
 
         ExecutorService executorService = Configuration.getInstance().getExecutorService();

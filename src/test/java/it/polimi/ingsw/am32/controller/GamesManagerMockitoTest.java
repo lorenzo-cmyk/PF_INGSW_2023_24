@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am32.controller;
 
 import it.polimi.ingsw.am32.controller.exceptions.*;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ class GamesManagerMockitoTest {
     private GameController gameController;
 
     @Mock
-    private NodeInterface node;
+    private ServerNodeInterface node;
 
     @Mock
     private VirtualView virtualView;

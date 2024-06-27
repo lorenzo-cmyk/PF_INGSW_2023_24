@@ -3,6 +3,7 @@ package it.polimi.ingsw.am32.controller;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 import it.polimi.ingsw.am32.utilities.Configuration;
 import it.polimi.ingsw.am32.chat.Chat;
 import it.polimi.ingsw.am32.chat.ChatMessage;
@@ -11,7 +12,6 @@ import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.*;
 import it.polimi.ingsw.am32.model.match.Match;
 import it.polimi.ingsw.am32.model.match.MatchStatus;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
 import it.polimi.ingsw.am32.model.ModelInterface;
 
 /**
@@ -173,7 +173,7 @@ public class GameController {
      *
      * @param node The node of the player that has disconnected
      */
-    public synchronized void disconnect(NodeInterface node) {
+    public synchronized void disconnect(ServerNodeInterface node) {
         PlayerQuadruple playerQuadruple = nodeList.stream().filter(pq -> pq.getNode().equals(node)).findFirst().orElse(null); // Get the player quadruple associated with the disconnected player
 
         if (playerQuadruple == null) { // The player quadruple could not be found
@@ -443,7 +443,7 @@ public class GameController {
      * @throws PlayerNotFoundException If the player could not be found in the list of players
      * @throws PlayerAlreadyConnectedException If the player is already connected when attempting to reconnect
      */
-    public synchronized void reconnect(String nickname, NodeInterface node) throws PlayerNotFoundException, PlayerAlreadyConnectedException {
+    public synchronized void reconnect(String nickname, ServerNodeInterface node) throws PlayerNotFoundException, PlayerAlreadyConnectedException {
         // Throw exception if nickname is not present in the list of players
         if (nodeList.stream().noneMatch(pq -> pq.getNickname().equals(nickname))) {
             throw new PlayerNotFoundException("Player " + nickname + " not found when reconnecting");
@@ -507,7 +507,7 @@ public class GameController {
      * @param node The node of the player to add
      * @throws FullLobbyException If the lobby is already full
      */
-    protected synchronized void addPlayer(String nickname, NodeInterface node) throws FullLobbyException, DuplicateNicknameException {
+    protected synchronized void addPlayer(String nickname, ServerNodeInterface node) throws FullLobbyException, DuplicateNicknameException {
         if (model.getPlayersNicknames().size() == gameSize) throw new FullLobbyException("Lobby is full"); // Lobby is full
 
         model.addPlayer(nickname); // Add the player to the actual match instance

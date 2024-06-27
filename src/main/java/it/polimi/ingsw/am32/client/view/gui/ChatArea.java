@@ -157,7 +157,6 @@ public class ChatArea {
      * Called when the user clicks the submit button.
      */
     private void submitChatMessage() {
-        // FIXME Need to show sent message only after server confirms it
 
         if (inputMessageField.getText().isEmpty()) return; // Do not send empty messages (or messages with only whitespace characters)
         String recipient = playerList.getValue().equals(gui.getThisPlayerNickname())?"Yourself": playerList.getValue();

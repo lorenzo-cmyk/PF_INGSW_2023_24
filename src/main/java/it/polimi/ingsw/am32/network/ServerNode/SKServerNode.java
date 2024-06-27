@@ -24,23 +24,72 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
-public class SKServerNode implements Runnable, NodeInterface {
+/**
+ * Each instance of class {@code SKServerNode} handles a socket connection with a client. <br>
+ * If, at some point, the connection were to go down, this instance will begin automatically a termination process. <br>
+ * The class implements the {@code Runnable} interface to allow the instance to be run in a separate thread. <br>
+ *
+ * @author Matteo
+ */
+public class SKServerNode implements Runnable, ServerNodeInterface {
 
+    //---------------------------------------------------------------------------------------------
+    // Variables and Constants
+
+    /**
+     * Variables used for service purposes
+     */
     private final Logger logger;
     private final Configuration config;
+
+    /**
+     * Variables used to communicate with the {@code GameController}
+     */
     private GameController gameController;
+
+    /**
+     * Variables used to manage the connection with the server
+     */
+    private int pingCount;
+    private final String nickname;
+
+    /**
+     * Variables used to communicate with the client
+     */
+    private final Socket socket;
     private final ObjectInputStream inputObtStr;
     private final ObjectOutputStream outputObtStr;
-    private final Socket socket;
-    private int pingCount;
+
+    /**
+     * Variables used to verify and maintain active the connection with the client
+     */
     private ServerPingTask notLinkedPingTask;
     private ServerPingTask serverPingTask;
+
+    /**
+     * Variables used to manage the state of the connection and the instance
+     */
     private boolean statusIsAlive;
     private boolean destroyCalled;
     private final Object aliveLock;
     private final Object ctoSProcessingLock;
     private final Object stoCProcessingLock;
 
+
+    //---------------------------------------------------------------------------------------------
+    // Constructor
+
+    /**
+     * Standard constructor of the class. <br>
+     * It creates a new instance of {@code SKServerNode} and initializes the input and output streams. <br>
+     * It also sets the socket timeout. <br>
+     * A temporary ping task is created to check if the client is still alive while the gameController is not yet assigned
+     * Throwing an exception implies that this class is not correctly initialized and should be destroyed. This also
+     * implies that the socket and its streams are closed.
+     *
+     * @param socket
+     * @throws UninitializedException thrown if, during the instantiation, there were some problems
+     */
     public SKServerNode(Socket socket) throws UninitializedException {
         this.gameController = null;
         this.socket = socket;
@@ -49,6 +98,7 @@ public class SKServerNode implements Runnable, NodeInterface {
         aliveLock = new Object();
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
+        nickname = "Unknown";
 
         this.logger = LogManager.getLogger(SKServerNode.class);
 
@@ -112,6 +162,17 @@ public class SKServerNode implements Runnable, NodeInterface {
         config.addTimerTask(notLinkedPingTask);
     }
 
+
+    //---------------------------------------------------------------------------------------------
+    // Methods
+
+    /**
+     * Method that starts the reading of the incoming messages from the input stream of the client. <br>
+     * This method will process the incoming messages and will call the appropriate method of the {@code GameController}
+     * to handle the message. <br>
+     * If at some point, the instance of {@code SKServerNode} is not alive, the thread will terminate. <br>
+     * Any problem with the input stream will cause the destruction of the {@code SKServerNode}. <br>
+     */
     public void run() {
         logger.debug("SKServerNode thread started");
         try {
@@ -132,7 +193,6 @@ public class SKServerNode implements Runnable, NodeInterface {
                     "Stack Trace: {}\n",
                     e.getMessage(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
 
-            //TODO risolvere meglio gli errori
             destroy();
 
         } catch (NodeClosedException e) {
@@ -140,6 +200,23 @@ public class SKServerNode implements Runnable, NodeInterface {
         }
     }
 
+    /**
+     * Method that listens for incoming messages from the client. <br>
+     * The method will wait until a message is received from the client. <br>
+     * When a message is received, the method will check the type of the message: <br>
+     * - If the message is a {@link PingMessage}, the method will return immediately. <br>
+     * - If the message is a {@link CtoSMessage} and a {@link GameController} is already set, the method will call the
+     * {@code elaborateMessage} method on the message. <br>
+     * - If the message is a {@link CtoSLobbyMessage} and a {@link GameController} is not yet set, the method will call
+     * the {@code elaborateMessage} method on the message and set the {@code GameController} to the one returned by the
+     * method. <br>
+     * - If the message is not recognized, the method will send an {@link ErrorMessage} to the client. <br>
+     * If the method encounters any problem while processing the message, it will throw an exception. <br>
+     *
+     * @throws IOException exception thrown if there are problems with the input stream
+     * @throws ClassNotFoundException exception thrown if the class of the object received from the input stream is not found
+     * @throws NodeClosedException exception thrown if the instance of {@code SKServerNode} is not alive
+     */
     private void listenForIncomingMessages() throws IOException, ClassNotFoundException, NodeClosedException {
         Object message; // Variable containing the message object received from the client
 
@@ -161,16 +238,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             // Check type of message received
 
-            if (message instanceof PingMessage) {
-                config.getExecutorService().submit(() -> {
-                    try {
-                        logger.debug("PingMessage received");
-                        uploadToClient(new PongMessage(null));
-                    } catch (UploadFailureException e) {
-                        logger.error("Failed to send PongMessage to client");
-                    }
-                }); // Create a new thread that sends a PongMessage back to the client
-            }
+            if (message instanceof PingMessage) {return;}
             else if (message instanceof CtoSMessage) {
                 if (gameController == null) { // It should never happen that the gameController hasn't yet been assigned when a CtoSMessage is received
                     try {
@@ -213,11 +281,11 @@ public class SKServerNode implements Runnable, NodeInterface {
                 // As expected, the gameController has not yet been assigned
                 try {
                     gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
-                    // TODO forse è meglio mettere il messaggio di errore nell'exception
 
                     notLinkedPingTask.cancel();
                     config.purgeTimer();
-                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
+                    gameController.getTimer().scheduleAtFixedRate(serverPingTask,
+                            Configuration.getInstance().getPingTimeInterval(), Configuration.getInstance().getPingTimeInterval());
 
                     logger.info("Elaborated CtoSLobbyMessage received: {}", message.toString());
                 } catch (LobbyMessageException e) {
@@ -251,6 +319,15 @@ public class SKServerNode implements Runnable, NodeInterface {
         }
     }
 
+    /**
+     * Method that sends a {@link StoCMessage} to the client. <br>ù
+     * If the client is not alive or the connection had issues and the message couldn't reach the client, a
+     * {@link UploadFailureException} will be thrown. <br>
+     * If the client wasn't reachable, the method will start the destruction process. <br>
+     *
+     * @param msg is the message that the server wants to send
+     * @throws UploadFailureException if the message couldn't be sent to the client or the ServerNode is not alive
+     */
     public void uploadToClient(StoCMessage msg) throws UploadFailureException {
 
         synchronized (stoCProcessingLock) {
@@ -279,6 +356,14 @@ public class SKServerNode implements Runnable, NodeInterface {
         }
     }
 
+    /**
+     * Method that should be called at regular intervals. <br>
+     * If the {@code SKServerNode} is not alive, the method will return immediately. <br>
+     * If the {@code SKServerNode} is alive, the ping count will be decremented. <br>
+     * If the ping count reaches 0, the {@code SKServerNode} will start the destruction process. <br>
+     * On the other hand, if the ping count is still more than 0 after decrementing, the server will send a
+     * {@link PongMessage} to the client. <br>
+     */
     @Override
     public void pingTimeOverdue() {
 
@@ -302,9 +387,19 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         if(tmpDestroy)
             destroy();
-
+        else
+            config.getExecutorService().submit(() -> {
+                try {
+                    uploadToClient(new PongMessage(nickname));
+                } catch (UploadFailureException e) {
+                    logger.error("Failed to send PongMessage to client");
+                }
+            }); // Create a new thread that sends a PongMessage back to the client
     }
 
+    /**
+     * Method that resets the ping counter to its maximum value if the {@code SKServerNode} is alive. <br>
+     */
     @Override
     public void resetTimeCounter() {
 
@@ -318,6 +413,15 @@ public class SKServerNode implements Runnable, NodeInterface {
         }
     }
 
+    /**
+     * Method that destroys the instance of {@code SKServerNode}. <br>
+     * It closes the input and output streams and the socket. <br>
+     * If the {@code SKServerNode} is linked to a {@code GameController}, it will disconnect from it. <br>
+     * It also cancels all ping tasks and then purges the timer of the {@code Configuration} class and
+     * {@code GameController}. <br>
+     * The method will also set the status of the {@code SKServerNode} to not alive. <br>
+     *
+     */
     public void destroy(){
 
         synchronized (aliveLock) {

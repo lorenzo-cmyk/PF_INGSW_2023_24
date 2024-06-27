@@ -7,6 +7,7 @@ import it.polimi.ingsw.am32.utilities.Log4J2ConfiguratorWrapper;
 import org.apache.logging.log4j.Level;
 
 import java.io.PrintStream;
+import java.rmi.Remote;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -32,6 +33,7 @@ public class Client {
      * @param args Command line arguments
      */
     public static void main(String[] args){
+
         // Configure log4j2 logger to log only warnings and above
         Log4J2ConfiguratorWrapper.setLogLevelAndConfigure(Level.WARN);
         out.println("Welcome to Codex Naturalis");
