@@ -18,10 +18,21 @@ public class Field {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
+    /**
+     * The list of cards placed in the field.
+     */
     private final ArrayList<CardPlaced> fieldCards;
+    /**
+     * The resources currently owned by the player
+     */
     private final int[] activeRes;
+    /**
+     * The number of resources in the game
+     */
     private static final int resourcesSize = 7;
-
+    /**
+     * The resources owned by the player before the last card was placed; used for rollback
+     */
     private final int[] oldActiveRes;
 
     //---------------------------------------------------------------------------------------------
