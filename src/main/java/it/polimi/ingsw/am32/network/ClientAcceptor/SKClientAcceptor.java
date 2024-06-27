@@ -27,6 +27,9 @@ public class SKClientAcceptor implements Runnable {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
+    /**
+     * Variables used for service purposes
+     */
     private static final Logger logger = LogManager.getLogger(SKClientAcceptor.class);
 
 
