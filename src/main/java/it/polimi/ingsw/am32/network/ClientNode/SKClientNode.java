@@ -6,6 +6,7 @@ import it.polimi.ingsw.am32.message.ClientToServer.CtoSMessage;
 import it.polimi.ingsw.am32.message.ClientToServer.PingMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
+import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,7 @@ import java.util.concurrent.Executors;
 public class SKClientNode implements ClientNodeInterface, Runnable {
 
     private static final int PONGMAXCOUNT = 3;
+    private static final int SOCKETTIMEOUT = 100;
 
     private final Logger logger;
     private final ExecutorService executorService;
@@ -44,20 +46,62 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     private final Object cToSProcessingLock;
     private final Object sToCProcessingLock;
 
-    public SKClientNode(View view, String ip, int port) {
+    public SKClientNode(View view, String ip, int port) throws ConnectionSetupFailedException {
         this.view = view;
-        executorService = Executors.newCachedThreadPool();
         this.ip = ip;
         this.port = port;
+        statusIsAlive = true;
+        reconnectCalled = false;
+        pongCount = PONGMAXCOUNT; // todo fare un config??
+        nickname = "Unknown";
+
+        logger = LogManager.getLogger(SKClientNode.class);
+
+        try {
+
+            logger.info("Attempting to connect to the server at {}:{}", ip, port);
+
+            socket = new Socket(ip, port);
+            outputObtStr = new ObjectOutputStream(socket.getOutputStream());
+            outputObtStr.flush();
+            inputObtStr = new ObjectInputStream(socket.getInputStream());
+            socket.setSoTimeout(SOCKETTIMEOUT);
+
+            logger.info("Connection established. Personal connection data: {}", socket.getLocalSocketAddress());
+
+        } catch (IOException e) {
+
+            if (inputObtStr != null) {
+                try {
+                    inputObtStr.close();
+                } catch (IOException ignore) {}
+            }
+
+            if (outputObtStr != null) {
+                try {
+                    outputObtStr.close();
+                } catch (IOException ignore) {}
+            }
+
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException ignore) {}
+            }
+
+            //System.out.println("Connection failed do to wrong parameters or inaccessible server");
+            logger.info("Connection failed do to wrong parameters or inaccessible server");
+
+            throw new ConnectionSetupFailedException();
+        }
+
+        executorService = Executors.newCachedThreadPool();
         clientPingTask = new ClientPingTask(this);
         timer = new Timer();
         aliveLock = new Object();
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
-        statusIsAlive = false;
-        pongCount = PONGMAXCOUNT; // todo fare un config??
-        logger = LogManager.getLogger(SKClientNode.class);
-        reconnectCalled = false;
+        timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
     }
 
     public void run() {
@@ -120,7 +164,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     @Override
     public void uploadToServer(CtoSLobbyMessage message) {
 
-        while (true) {
+        while (true) { //TODO cambiare il while
             try {
                 synchronized (cToSProcessingLock) {
                     outputObtStr.writeObject(message);
@@ -140,7 +184,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     @Override
     public void uploadToServer(CtoSMessage message) {
 
-        while (true) {
+        while (true) { //TODO cambiare il while
             try {
                 synchronized (cToSProcessingLock) {
                     outputObtStr.writeObject(message);
@@ -199,7 +243,8 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
             try {
                 aliveLock.wait();
-            } catch (InterruptedException ignore) {}
+            } catch (InterruptedException | IllegalMonitorStateException ignore) {
+            }
 
             return false;
 
@@ -208,6 +253,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             clientPingTask.cancel();
             timer.purge();
             clientPingTask = new ClientPingTask(this);
+            view.nodeDisconnected();
             return true;
         }
     }
@@ -244,12 +290,12 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
                         outputObtStr = new ObjectOutputStream(socket.getOutputStream());
                         outputObtStr.flush();
                         inputObtStr = new ObjectInputStream(socket.getInputStream());
-                        socket.setSoTimeout(100);
+                        socket.setSoTimeout(SOCKETTIMEOUT);
                         logger.info("Connection established. Personal connection data: {}", socket.getLocalSocketAddress());
 
                     } catch (IOException ignore) {
 
-                        logger.error("Failed to connect to {}:{}", ip, port);
+                        logger.debug("Failed to connect to {}:{}", ip, port);
                         try {
                             Thread.sleep(100); // TODO parametrizzazione con config?
                         } catch (InterruptedException ignore2) {}
@@ -269,6 +315,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             pongCount = PONGMAXCOUNT;
             aliveLock.notifyAll();
             timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+            view.nodeReconnected();
         }
     }
 

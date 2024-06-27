@@ -28,12 +28,9 @@ The group members are:
 | Complete Rules + TUI + GUI + RMI or Socket + 1 FA (Chat)                                            | 24            | ☑️     |
 | Complete Rules + TUI + GUI + RMI + Socket + 1 FA (Chat)                                             | 27            | ☑️     |
 | Complete Rules + TUI + GUI + RMI + Socket + 2 FA (Chat & Multiple match)                            | 30            | ☑️     |
-| Complete Rules + TUI + GUI + RMI + Socket + 3 FA (Chat & Multiple match & Disconnection resilience) | 30L           | ⚠️     |
+| Complete Rules + TUI + GUI + RMI + Socket + 3 FA (Chat & Multiple match & Disconnection resilience) | 30L           | ☑️     |
 
 ### Currently Known Issues
-
-- 🟨 The branch with the correct version of the network stack is not yet merged. Therefore, the network is not informing the View if the initial connection was successful or not.
-- 🟥 The branch with the correct version of the network stack is not yet merged. Therefore, the network is not activating the PingTask that allows (in both Client & Server) the disconnection discovery in RMI.
 
 ## Code Coverage
 

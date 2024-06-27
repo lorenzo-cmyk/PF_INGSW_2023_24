@@ -19,6 +19,14 @@ public class DrawCardMessage implements CtoSMessage {
      */
     private final int cardId;
 
+    /**
+     * Constructor: a message used to request to draw a card during the player's turn
+     * @param senderNickname the nickname of the player who drawn the card
+     * @param deckType the type of deck drawn by player: 0 for resource deck, 1 for gold deck,
+     *                 2 for resource card visible, 3 for gold card visible
+     *
+     * @param cardId the id of the card drawn by the player
+     */
     public DrawCardMessage(String senderNickname, int deckType, int cardId) {
         this.senderNickname = senderNickname;
         this.deckType = deckType;
@@ -35,6 +43,13 @@ public class DrawCardMessage implements CtoSMessage {
         gameController.drawCard(senderNickname, deckType, cardId);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the DrawCardMessage object.
+     * The string includes the message type, the senderNickname, the deckType and the cardId properties of the object.
+     */
     @Override
     public String toString() {
         return "DrawCardMessage:{" +

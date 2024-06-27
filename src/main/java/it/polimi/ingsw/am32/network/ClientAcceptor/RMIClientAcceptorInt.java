@@ -11,4 +11,6 @@ import java.rmi.RemoteException;
 public interface RMIClientAcceptorInt extends Remote {
     GameTuple uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message)
             throws RemoteException, LobbyMessageException;
+
+    void extraPing() throws RemoteException;
 }

@@ -42,6 +42,14 @@ public class NewGameMessage implements CtoSLobbyMessage {
         return GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the NewGameMessage object.
+     * The string includes the message type, the senderNickname and the playerNum properties of the object.
+
+     */
     @Override
     public String toString() {
         return "NewGameMessage:{" +

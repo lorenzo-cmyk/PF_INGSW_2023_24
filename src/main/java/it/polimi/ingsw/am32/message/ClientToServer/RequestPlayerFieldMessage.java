@@ -15,6 +15,12 @@ public class RequestPlayerFieldMessage implements CtoSMessage {
      */
     private final String playerNickname;
 
+    /**
+     * Constructor: a message representing a request for the field of another player sent by a player.
+     * @param senderNickname the nickname of the player who wants to see the field of another player
+     * @param playerNickname the nickname of the player whose field the player requests to see
+     */
+
     public RequestPlayerFieldMessage(String senderNickname, String playerNickname) {
         this.senderNickname = senderNickname;
         this.playerNickname = playerNickname;
@@ -30,6 +36,14 @@ public class RequestPlayerFieldMessage implements CtoSMessage {
         gameController.sendPlayerField(senderNickname, playerNickname);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the RequestPlayerFieldMessage object.
+     * The string includes the message type, the senderNickname and the playerNickname properties of the object.
+
+     */
     @Override
     public String toString() {
         return "RequestPlayerFieldMessage:{" +

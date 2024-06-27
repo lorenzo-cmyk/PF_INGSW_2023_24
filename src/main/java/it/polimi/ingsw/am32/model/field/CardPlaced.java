@@ -15,9 +15,21 @@ public class CardPlaced {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
+    /**
+     * The card that player decided to place.
+     */
     private final NonObjectiveCard placedCard;
+    /**
+     * The x coordinate of the placed card.
+     */
     private final int x;
+    /**
+     * The y coordinate of the placed card.
+     */
     private final int y;
+    /**
+     * A boolean representing the face of the card that player want to use.
+     */
     private final boolean isUp;
 
     //---------------------------------------------------------------------------------------------

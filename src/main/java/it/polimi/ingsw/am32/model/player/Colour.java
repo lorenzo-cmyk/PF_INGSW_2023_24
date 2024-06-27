@@ -6,13 +6,31 @@ package it.polimi.ingsw.am32.model.player;
  * @author Matteo
  */
 public enum Colour {
-    RED(0),    // Represents the colour red, associated with the value 0
-    GREEN(1),  // Represents the colour green, associated with the value 1
-    BLUE(2),   // Represents the colour blue, associated with the value 2
-    YELLOW(3), // Represents the colour yellow, associated with the value 3
-    BLACK(4);  // Represents the colour black, associated with the value 4
+    /**
+     * Represents the red color that a player can identify with and is associated with value 0.
+     */
+    RED(0),
+    /**
+     * Represents the green color that a player can identify with and is associated with value 1.
+     */
+    GREEN(1),
+    /**
+     * Represents the blue color that a player can identify with and is associated with value 2.
+     */
+    BLUE(2),
+    /**
+     * Represents the yellow color that a player can identify with and is associated with value 3.
+     */
+    YELLOW(3),
+    /**
+     * Represents the black color that a player can identify with and is associated with value 4.
+     */
+    BLACK(4);
 
-    private final int value;  // The unique integer value associated with the colour
+    /**
+     * The unique integer value associated with the color.
+     */
+    private final int value;
 
     /**
      * Constructor for the Colour enum.

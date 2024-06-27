@@ -15,6 +15,12 @@ public class SelectedSecretObjectiveCardMessage implements CtoSMessage {
      */
     private final int cardId;
 
+    /**
+     * Constructor: a message containing the nickname of the player who selected the secret objective card and the id
+     * of the card selected.
+     * @param senderNickname the nickname of the player who selected the secret objective card
+     * @param cardId the id of the secret objective card selected by the player
+     */
     public SelectedSecretObjectiveCardMessage(String senderNickname, int cardId) {
         this.senderNickname = senderNickname;
         this.cardId = cardId;
@@ -29,6 +35,13 @@ public class SelectedSecretObjectiveCardMessage implements CtoSMessage {
         gameController.chooseSecretObjectiveCard(senderNickname, cardId);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the SelectedSecretObjectiveCardMessage object.
+     * The string includes the message type, the senderNickname and the cardId properties of the object.
+     */
     @Override
     public String toString() {
         return "SelectedSecretObjectiveCardMessage:{" +

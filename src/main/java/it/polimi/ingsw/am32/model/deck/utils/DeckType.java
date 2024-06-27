@@ -8,9 +8,21 @@ package it.polimi.ingsw.am32.model.deck.utils;
  * @author Lorenzo
  */
 public enum DeckType {
+    /**
+     * The deck that contains the resource cards.
+     */
     RESOURCE("/it/polimi/ingsw/am32/model/deck/ResourceCards.json"),
+    /**
+     * The deck that contains the gold cards.
+     */
     GOLD("/it/polimi/ingsw/am32/model/deck/GoldCards.json"),
+    /**
+     * The deck that contains the starting cards.
+     */
     STARTING("/it/polimi/ingsw/am32/model/deck/StartingCards.json"),
+    /**
+     * The deck that contains the objective cards.
+     */
     OBJECTIVE("/it/polimi/ingsw/am32/model/deck/ObjectiveCards.json");
 
     /**
@@ -18,6 +30,11 @@ public enum DeckType {
      */
     private final String JSONPath;
 
+    /**
+     * Constructor for the DeckType enum.
+     *
+     * @param JSONPath The path to the JSON file that contains the card data for the deck.
+     */
     DeckType(String JSONPath) {
         this.JSONPath = JSONPath;
     }

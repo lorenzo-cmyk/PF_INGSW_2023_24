@@ -15,6 +15,12 @@ public class SelectedStarterCardSideMessage implements CtoSMessage {
      */
     private final boolean isUp;
 
+    /**
+     * Constructor: a message containing the nickname of the player who selected the side of the starter card and
+     * the side selected.
+     * @param senderNickname the nickname of the player who selected the side of the starter card
+     * @param isUp the side of the starter card selected by the player
+     */
     public SelectedStarterCardSideMessage(String senderNickname, boolean isUp) {
         this.senderNickname = senderNickname;
         this.isUp = isUp;
@@ -29,6 +35,13 @@ public class SelectedStarterCardSideMessage implements CtoSMessage {
         gameController.chooseStarterCardSide(senderNickname, isUp);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the SelectedStarterCardSideMessage object.
+     * The string includes the message type, the senderNickname and the isUp properties of the object.
+     */
     @Override
     public String toString() {
         return "SelectedStarterCardSideMessage:{" +

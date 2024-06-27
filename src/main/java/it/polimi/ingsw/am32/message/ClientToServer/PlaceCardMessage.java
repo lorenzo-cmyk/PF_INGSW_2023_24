@@ -27,6 +27,18 @@ public class PlaceCardMessage implements CtoSMessage {
      */
     private final boolean isUp;
 
+    /**
+     * Constructor: a message containing the nickname of the player who wants to place the card, the id of the card the
+     * player wants to place, the x and y coordinates of the position in the field where the player wants to place the
+     * card and a flag that indicates if the card is placed face up or face down.
+     * @param senderNickname the nickname of the player who wants to place the card
+     * @param cardId the id of the card the player wants to place
+     * @param row the row of the field where the player wants to place the card
+     * @param column the colum of the field where the player wants to place the card
+     * @param isUp indicates if the card is placed face up or face down:
+     *             true if the card is placed face up, false otherwise
+     */
+
     public PlaceCardMessage(String senderNickname, int cardId, int row, int column, boolean isUp) {
         this.senderNickname = senderNickname;
         this.cardId = cardId;
@@ -44,7 +56,14 @@ public class PlaceCardMessage implements CtoSMessage {
     public void elaborateMessage(GameController gameController) {
         gameController.placeCard(senderNickname, cardId, row, column, isUp);
     }
-
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the PlaceCardMessage object.
+     * The string includes the message type, the senderNickname, the cardId, the row, the column and the isUp properties
+     * of the object.
+     */
     @Override
     public String toString() {
         return "PlaceCardMessage:{" +

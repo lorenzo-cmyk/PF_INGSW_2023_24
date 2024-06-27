@@ -515,8 +515,16 @@ public abstract class View{
      */
     public abstract void handleEvent(Event event, String nickname);
 
+    /**
+     * Method called when the node disconnects from the game.
+     * Called from the Network to notify the View that the connection to the server is lost.
+     */
     public abstract void nodeDisconnected();
 
+    /**
+     * Method called when the node reconnects to the game.
+     * Called from the Network to notify the View that the connection to the server is restored.
+     */
     public abstract void nodeReconnected();
 }
 

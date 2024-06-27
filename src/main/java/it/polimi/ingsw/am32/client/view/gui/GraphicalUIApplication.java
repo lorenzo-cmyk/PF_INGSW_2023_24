@@ -4,9 +4,12 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Objects;
 
 /**
  * The GraphicalUIApplication class extends the Application class from JavaFX. It interacts with the GraphicalUI
@@ -21,6 +24,7 @@ public class GraphicalUIApplication extends Application {
      * The primary stage of the application
      */
     private Stage primaryStage;
+
     /**
      * The constructor of the class
      */
@@ -39,8 +43,19 @@ public class GraphicalUIApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         this.primaryStage = primaryStage;
-        // set the title, the minimum height and width and the scene
+        // set the title of the application
         primaryStage.setTitle("Codex Naturalis");
+        // set the icon of the application
+        String iconPath;
+        try {
+            iconPath = Objects.requireNonNull(GraphicalUI.class.getResource("codexNaturalis.png")).toURI().toString();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        Image icon = new Image(iconPath);
+        primaryStage.getIcons().add(icon);
+
+        // set the minimum height and width and the beginning scene of the application
         primaryStage.setMinHeight(750);
         primaryStage.setMinWidth(975);
         primaryStage.setScene(new Scene(graphicalUI.getWelcomeRoot(), 975, 750));
@@ -70,6 +85,7 @@ public class GraphicalUIApplication extends Application {
     protected Stage getPrimaryStage() {
         return primaryStage;
     }
+
     /**
      * Launches the application with the given arguments
      * @param args the arguments to be passed to the application

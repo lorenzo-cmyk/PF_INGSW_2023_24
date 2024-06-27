@@ -11,6 +11,11 @@ public class RequestGameStatusMessage implements CtoSMessage {
      */
     private final String senderNickname;
 
+    /**
+     * Constructor: a message representing a request for the status of the game sent by a player.
+     * @param senderNickname the nickname of the player who wants to know the status of the game
+     *
+     */
     public RequestGameStatusMessage(String senderNickname) {
         this.senderNickname = senderNickname;
     }
@@ -25,6 +30,13 @@ public class RequestGameStatusMessage implements CtoSMessage {
         gameController.sendGameStatus(senderNickname);
     }
 
+    /**
+     * This method overrides the default toString method.
+     * It provides a string representation of a message object, which can be useful for debugging purposes.
+     *
+     * @return A string representation of the RequestGameStatusMessage object.
+     * The string includes the message type and the senderNickname properties of the object.
+     */
     @Override
     public String toString() {
         return "RequestGameStatusMessage:{" +

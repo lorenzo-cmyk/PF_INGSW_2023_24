@@ -6,17 +6,29 @@ package it.polimi.ingsw.am32.controller;
  * @author Anto
  */
 public enum GameControllerStatus {
-    // The game controller is in the lobby state, waiting for players to join.
+    /**
+     * The game controller is in the lobby state, waiting for players to join.
+     */
     LOBBY(0),
-    // The game controller is waiting for all cards to make a selection for the starter card side.
+    /**
+     * The game controller is waiting for all cards to make a selection for the starter card side.
+     */
     WAITING_STARTER_CARD_CHOICE(1),
-    // The game controller is waiting for all players to make a selection for the secret objective card.
+    /**
+     * The game controller is waiting for all players to make a selection for the secret objective card.
+     */
     WAITING_SECRET_OBJECTIVE_CARD_CHOICE(2),
-    // The game controller is waiting for the current player to place a card on the board.
+    /**
+     * The game controller is waiting for the current player to place a card on the board.
+     */
     WAITING_CARD_PLACEMENT(3),
-    // The game controller is waiting for the current player to draw a card from the deck.
+    /**
+     * The game controller is waiting for the current player to draw a card from the deck.
+     */
     WAITING_CARD_DRAW(4),
-    // The game controller is in the ended state, meaning that the game has ended.
+    /**
+     * The game controller is in the ended state, meaning that the game has ended.
+     */
     GAME_ENDED(5);
 
     /**

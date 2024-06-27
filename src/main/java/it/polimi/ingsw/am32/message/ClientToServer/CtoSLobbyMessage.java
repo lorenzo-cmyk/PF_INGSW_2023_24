@@ -11,6 +11,19 @@ import java.io.Serializable;
  * It contains a single method to elaborate the message
  */
 public interface CtoSLobbyMessage extends Serializable {
+    /**
+     * Elaborates the message associated with the specified nodeInterface.
+     * @param nodeInterface the serverNode of the player
+     * @return The game controller that will manage the game
+     * @throws LobbyMessageException represents an exception that can be thrown during the elaboration of a generic
+     * Lobby-Message.
+     */
     GameController elaborateMessage(NodeInterface nodeInterface) throws LobbyMessageException;
+    /**
+     * This method provides a string representation of a message object, which can be useful for debugging purposes.
+     * It will be overridden by the classes that implement the StoCMessage interface.
+     *
+     * @return A string representation of the CtoSLobbyMessage object.
+     */
     String toString(); // Used for debugging purposes
 }

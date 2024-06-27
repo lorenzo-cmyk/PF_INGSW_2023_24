@@ -86,8 +86,22 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             clientNode.uploadStoC(message);
             logger.info("StoCMessage sent to client: {}", message.toString());
 
-        } catch (RemoteException e) { // TODO gestire errore RMI interfaccia client??
+        } catch (RemoteException e) {
+
+            synchronized (aliveLock) {
+                statusIsAlive = false;
+            }
             logger.error("Failed to send StoCMessage to client: {}",  e.getMessage());
+            config.getExecutorService().submit(this::destroy);
+            throw new UploadFailureException();
+
+        } catch (NodeClosedException e) {
+
+            synchronized (aliveLock) {
+                statusIsAlive = false;
+            }
+            logger.info("Failed to send StoCMessage to client because client node is closed");
+            config.getExecutorService().submit(this::destroy);
             throw new UploadFailureException();
         }
     }
@@ -101,9 +115,11 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
             pingCount--;
 
+            logger.debug("Ping time overdue. Ping count: {}", pingCount);
+
             if(pingCount <= 0){
                 statusIsAlive = false;
-                logger.debug("Ping time overdue, set statusIsAlive to false");
+                logger.debug("Ping count reached minimum, starting destruction process");
             }
 
         }
@@ -135,8 +151,6 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             serverPingTask.cancel();
         }
 
-
-
         synchronized (ctoSProcessingLock) {
             synchronized (stoCProcessingLock) {
 
@@ -159,7 +173,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
-        // TODO controllare se il timer può fallire a runtime (controllare con gamecontroller)
+
         gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
     }
 
