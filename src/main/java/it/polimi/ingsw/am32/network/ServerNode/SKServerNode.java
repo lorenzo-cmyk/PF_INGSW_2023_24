@@ -33,21 +33,51 @@ import java.util.Arrays;
  */
 public class SKServerNode implements Runnable, ServerNodeInterface {
 
+    //---------------------------------------------------------------------------------------------
+    // Variables and Constants
+
+    /**
+     * Variables used for service purposes
+     */
     private final Logger logger;
     private final Configuration config;
+
+    /**
+     * Variables used to communicate with the {@code GameController}
+     */
     private GameController gameController;
-    private final ObjectInputStream inputObtStr;
-    private final ObjectOutputStream outputObtStr;
-    private final Socket socket;
+
+    /**
+     * Variables used to manage the connection with the server
+     */
     private int pingCount;
     private final String nickname;
+
+    /**
+     * Variables used to communicate with the client
+     */
+    private final Socket socket;
+    private final ObjectInputStream inputObtStr;
+    private final ObjectOutputStream outputObtStr;
+
+    /**
+     * Variables used to verify and maintain active the connection with the client
+     */
     private ServerPingTask notLinkedPingTask;
     private ServerPingTask serverPingTask;
+
+    /**
+     * Variables used to manage the state of the connection and the instance
+     */
     private boolean statusIsAlive;
     private boolean destroyCalled;
     private final Object aliveLock;
     private final Object ctoSProcessingLock;
     private final Object stoCProcessingLock;
+
+
+    //---------------------------------------------------------------------------------------------
+    // Constructor
 
     /**
      * Standard constructor of the class. <br>
@@ -131,6 +161,10 @@ public class SKServerNode implements Runnable, ServerNodeInterface {
         notLinkedPingTask = new ServerPingTask(this);
         config.addTimerTask(notLinkedPingTask);
     }
+
+
+    //---------------------------------------------------------------------------------------------
+    // Methods
 
     /**
      * Method that starts the reading of the incoming messages from the input stream of the client. <br>

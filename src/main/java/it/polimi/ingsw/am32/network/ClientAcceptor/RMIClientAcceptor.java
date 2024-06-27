@@ -30,6 +30,9 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
+    /**
+     * Variables used for service purposes
+     */
     private static final Logger logger = LogManager.getLogger(RMIClientAcceptor.class);
 
 
