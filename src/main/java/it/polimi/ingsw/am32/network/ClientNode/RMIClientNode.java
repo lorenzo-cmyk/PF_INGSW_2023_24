@@ -35,36 +35,63 @@ import java.util.concurrent.Executors;
  */
 public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInterface, RMIClientNodeInt {
 
+    //---------------------------------------------------------------------------------------------
+    // Variables and Constants
 
+    /**
+     * Constants used in the class
+     */
     private static final int PONGMAXCOUNT = 3;
     private static final int THREADSLEEPINTERVAL = 1000;
     private static final int PINGINTERVAL = 5000;
     private static final String REMOTEOBJECTNAME = "Server-CodexNaturalis";
 
-
+    /**
+     * Variables used for service purposes
+     */
     private final ExecutorService executorService;
     private final Logger logger;
 
-    private RMIServerNodeInt serverNode;
-    private final View view;
+    /**
+     * Variables used to manage the connection with the server
+     */
     private final String ip;
     private final int port;
     private int pongCount;
     private final String nickname;
 
+    /**
+     * Variables used to communicate with the view
+     */
+    private final View view;
+
+    /**
+     * Variables used to communicate with the server
+     */
     private Registry registry;
     private RMIClientAcceptorInt rmiClientAcceptor;
+    private RMIServerNodeInt serverNode;
 
+    /**
+     * Variables used to verify and maintain active the connection with the server
+     */
     private final Timer timer;
     private ClientPingTask clientPingTask;
     private ClientPingTask prePingTask;
 
+    /**
+     * Variables used to manage the state of the connection and the instance
+     */
     private boolean statusIsAlive;
     private boolean nodePreState;
     private boolean reconnectCalled;
     private final Object aliveLock;
     private final Object cToSProcessingLock;
     private final Object sToCProcessingLock;
+
+
+    //---------------------------------------------------------------------------------------------
+    // Constructor
 
     /**
      * Standard constructor of the class. <br>
@@ -118,6 +145,10 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         prePingTask = new ClientPingTask(this);
         timer.scheduleAtFixedRate(prePingTask, PINGINTERVAL, PINGINTERVAL);
     }
+
+
+    //---------------------------------------------------------------------------------------------
+    // Methods
 
     /**
      * Check if the {@code RMIClientNode} is not alive or if the {@code RMIClientNode} is in pre-game state. <br>

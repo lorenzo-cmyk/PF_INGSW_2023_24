@@ -27,14 +27,36 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
+    /**
+     * Variables used for service purposes
+     */
     private final static Logger logger = LogManager.getLogger(RMIServerNode.class);
-
     private final Configuration config;
+
+    /**
+     * Variables used to communicate with the {@code GameController}
+     */
     private GameController gameController;
+
+    /**
+     * Variables used to manage the connection with the server
+     */
     private int pingCount;
     private final String nickname;
+
+    /**
+     * Variables used to communicate with the client
+     */
     private final RMIClientNodeInt clientNode;
+
+    /**
+     * Variables used to verify and maintain active the connection with the client
+     */
     private ServerPingTask serverPingTask;
+
+    /**
+     * Variables used to manage the state of the connection and the instance
+     */
     private boolean statusIsAlive;
     private boolean destroyCalled;
     private final Object aliveLock;

@@ -22,8 +22,8 @@ import java.util.concurrent.Executors;
 
 /**
  * SKClientNode is the class that manage the connection with the server. <br>
- * It implements the {@link ClientNodeInterface} interface and the method {@link #run()} tho handle the messages
- * incoming from the server. <br>
+ * It implements the {@link ClientNodeInterface} interface and the method {@link #run()} of {@link Runnable} interface
+ * to handle the messages incoming from the server. <br>
  * Is necessary and enough to instantiate one instance of this class to connect to the server. <br>
  * If the connection were to go down, the instance will automatically try to reset and reconnect. <br>
  *
@@ -34,26 +34,48 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
+    /**
+     * Constants used in the class
+     */
     private static final int PONGMAXCOUNT = 3;
     private static final int SOCKETTIMEOUT = 100;
     private static final int PINGINTERVAL = 5000;
 
+    /**
+     * Variables used for service purposes
+     */
     private final Logger logger;
     private final ExecutorService executorService;
 
+    /**
+     * Variables used to communicate with the view
+     */
     private final View view;
+
+    /**
+     * Variables used to manage the connection with the server
+     */
     private final String ip;
     private final int port;
     private final String nickname;
     private int pongCount;
 
+    /**
+     * Variables used to communicate with the server
+     */
     private Socket socket;
     private ObjectOutputStream outputObtStr;
     private ObjectInputStream inputObtStr;
 
+    /**
+     * Variables used to verify and maintain active the connection with the server
+     */
     private ClientPingTask clientPingTask;
     private final Timer timer;
 
+    /**
+     * Variables used to manage the state of the connection and the instance
+     */
     private boolean statusIsAlive;
     private boolean reconnectCalled;
     private final Object aliveLock;
@@ -480,7 +502,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     }
 
     /**
-     * Reset the pong count to the maximum value if the server is alive. <br>
+     * Reset the pong count to the maximum value if the {@code SKClientNode} is alive. <br>
      */
     public void resetTimeCounter() {
 
