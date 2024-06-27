@@ -7,8 +7,17 @@ package it.polimi.ingsw.am32.network.exceptions;
  * @see it.polimi.ingsw.am32.message.ServerToClient.ErrorMessage
  */
 public enum ErrorMessageCode {
+    /**
+     * StoCMessage sent before StoCLobbyMessage.
+     */
     STOCMESSAGE_SENT_BEFORE_STOCLOBBYMESSAGE(128),
+    /**
+     * StoCLobbyMessage sent but GameController already present.
+     */
     STOCLOBBYMESSAGE_SENT_BUT_GAMECONTROLLER_ALREADY_PRESENT(127),
+    /**
+     * Message type not recognized.
+     */
     MESSAGE_TYPE_NOT_RECOGNIZED(126);
 
     /**
