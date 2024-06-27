@@ -32,13 +32,13 @@ public interface RMIClientAcceptorInt extends Remote {
      * @param message a {@link CtoSLobbyMessage} that the server has to process
      * @return an instance of {@link RMIServerNodeInt} on which the client can invoke other methods
      * @throws RemoteException thrown if the method couldn't be invoked on the server
-     * @throws LobbyMessageException thrown if the client that invoked this method couldn't create or access a game
+     * @throws LobbyMessageException thrown if the client that invoked this method couldn't create or join a game
      */
     RMIServerNodeInt uploadToServer(RMIClientNodeInt node, CtoSLobbyMessage message)
             throws RemoteException, LobbyMessageException;
 
     /**
-     * A simple method used only to verify if the server is reachable.
+     * A simple method used only to verify if the server is reachable by the client.
      *
      * @throws RemoteException thrown if the method couldn't be invoked on the server
      */
