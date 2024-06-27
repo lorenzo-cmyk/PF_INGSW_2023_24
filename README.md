@@ -20,17 +20,15 @@ The group members are:
 
 ## Project Status
 
-| Satisfied Requirements                                                                              | Maximum Grade | Status |
-|-----------------------------------------------------------------------------------------------------|---------------|--------|
-| Simplified Rules + TUI + RMI or Socket                                                              | 18            | ☑️     |
-| Complete Rules + TUI + RMI or Socket                                                                | 20            | ☑️     |
-| Complete Rules + TUI + RMI or Socket + 1 FA (Chat)                                                  | 22            | ☑️     |
-| Complete Rules + TUI + GUI + RMI or Socket + 1 FA (Chat)                                            | 24            | ☑️     |
-| Complete Rules + TUI + GUI + RMI + Socket + 1 FA (Chat)                                             | 27            | ☑️     |
-| Complete Rules + TUI + GUI + RMI + Socket + 2 FA (Chat & Multiple match)                            | 30            | ☑️     |
-| Complete Rules + TUI + GUI + RMI + Socket + 3 FA (Chat & Multiple match & Disconnection resilience) | 30L           | ☑️     |
-
-### Currently Known Issues
+| Satisfied Requirements                                                                              | Status |
+|-----------------------------------------------------------------------------------------------------|--------|
+| Simplified Rules + TUI + RMI or Socket                                                              | ☑️     |
+| Complete Rules + TUI + RMI or Socket                                                                | ☑️     |
+| Complete Rules + TUI + RMI or Socket + 1 FA (Chat)                                                  | ☑️     |
+| Complete Rules + TUI + GUI + RMI or Socket + 1 FA (Chat)                                            | ☑️     |
+| Complete Rules + TUI + GUI + RMI + Socket + 1 FA (Chat)                                             | ☑️     |
+| Complete Rules + TUI + GUI + RMI + Socket + 2 FA (Chat & Multiple match)                            | ☑️     |
+| Complete Rules + TUI + GUI + RMI + Socket + 3 FA (Chat & Multiple match & Disconnection resilience) | ☑️     |
 
 ## Code Coverage
 
