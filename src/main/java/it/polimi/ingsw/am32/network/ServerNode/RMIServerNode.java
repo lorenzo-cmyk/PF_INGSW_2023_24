@@ -16,6 +16,12 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+/**
+ * Each instance of class {@code RMIServerNode} handle une RMI connection with a client.
+ * If, at some point, the connection were to go down, this instance while begin automatically a termination process
+ *
+ * @author Matteo
+ */
 public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeInt, ServerNodeInterface {
 
     private final static Logger logger = LogManager.getLogger(RMIServerNode.class);
@@ -32,6 +38,13 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private final Object ctoSProcessingLock;
     private final Object stoCProcessingLock;
 
+    /**
+     * Standard constructor of the class
+     *
+     * @param clientNode is the instance of {@code RMIClientNodeInt} the {@code RMIServerNode} will use to send messages
+     *                   to che client
+     * @throws RemoteException thrown if, during the instantiation, there were some problems
+     */
     public RMIServerNode(RMIClientNodeInt clientNode) throws RemoteException {
         this.clientNode = clientNode;
         serverPingTask = new ServerPingTask(this);
@@ -175,6 +188,14 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     }
 
+    /**
+     * Set the {@code GameController} associated with this {@code RMIServerNode}. All incoming messages will be
+     * processed by this {@code GameController}.
+     * Invoking this method will also add a new {@link ServerPingTask} to the {@code GameController} timer for pinging
+     * the client
+     *
+     * @param gameController the instance of {@code GameController}
+     */
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
 
