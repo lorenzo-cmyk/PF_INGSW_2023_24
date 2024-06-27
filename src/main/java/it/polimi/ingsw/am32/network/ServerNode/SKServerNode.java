@@ -24,7 +24,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
-public class SKServerNode implements Runnable, NodeInterface {
+public class SKServerNode implements Runnable, ServerNodeInterface {
 
     private final Logger logger;
     private final Configuration config;
@@ -33,6 +33,7 @@ public class SKServerNode implements Runnable, NodeInterface {
     private final ObjectOutputStream outputObtStr;
     private final Socket socket;
     private int pingCount;
+    private final String nickname;
     private ServerPingTask notLinkedPingTask;
     private ServerPingTask serverPingTask;
     private boolean statusIsAlive;
@@ -49,6 +50,7 @@ public class SKServerNode implements Runnable, NodeInterface {
         aliveLock = new Object();
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
+        nickname = "Unknown";
 
         this.logger = LogManager.getLogger(SKServerNode.class);
 
@@ -161,16 +163,7 @@ public class SKServerNode implements Runnable, NodeInterface {
 
             // Check type of message received
 
-            if (message instanceof PingMessage) {
-                config.getExecutorService().submit(() -> {
-                    try {
-                        logger.debug("PingMessage received");
-                        uploadToClient(new PongMessage(null));
-                    } catch (UploadFailureException e) {
-                        logger.error("Failed to send PongMessage to client");
-                    }
-                }); // Create a new thread that sends a PongMessage back to the client
-            }
+            if (message instanceof PingMessage) {return;}
             else if (message instanceof CtoSMessage) {
                 if (gameController == null) { // It should never happen that the gameController hasn't yet been assigned when a CtoSMessage is received
                     try {
@@ -214,10 +207,11 @@ public class SKServerNode implements Runnable, NodeInterface {
                 try {
                     gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
                     // TODO forse è meglio mettere il messaggio di errore nell'exception
-
+                    // TODO sincronizzare ??
                     notLinkedPingTask.cancel();
                     config.purgeTimer();
-                    gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
+                    gameController.getTimer().scheduleAtFixedRate(serverPingTask,
+                            Configuration.getInstance().getPingTimeInterval(), Configuration.getInstance().getPingTimeInterval());
 
                     logger.info("Elaborated CtoSLobbyMessage received: {}", message.toString());
                 } catch (LobbyMessageException e) {
@@ -302,7 +296,14 @@ public class SKServerNode implements Runnable, NodeInterface {
 
         if(tmpDestroy)
             destroy();
-
+        else
+            config.getExecutorService().submit(() -> {
+                try {
+                    uploadToClient(new PongMessage(nickname));
+                } catch (UploadFailureException e) {
+                    logger.error("Failed to send PongMessage to client");
+                }
+            }); // Create a new thread that sends a PongMessage back to the client
     }
 
     @Override

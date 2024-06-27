@@ -16,13 +16,20 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeInt, NodeInterface {
+/**
+ * Each instance of class {@code RMIServerNode} handle une RMI connection with a client.
+ * If, at some point, the connection were to go down, this instance while begin automatically a termination process
+ *
+ * @author Matteo
+ */
+public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeInt, ServerNodeInterface {
 
     private final static Logger logger = LogManager.getLogger(RMIServerNode.class);
 
     private final Configuration config;
     private GameController gameController;
     private int pingCount;
+    private final String nickname;
     private final RMIClientNodeInt clientNode;
     private ServerPingTask serverPingTask;
     private boolean statusIsAlive;
@@ -31,6 +38,13 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private final Object ctoSProcessingLock;
     private final Object stoCProcessingLock;
 
+    /**
+     * Standard constructor of the class
+     *
+     * @param clientNode is the instance of {@code RMIClientNodeInt} the {@code RMIServerNode} will use to send messages
+     *                   to che client
+     * @throws RemoteException thrown if, during the instantiation, there were some problems
+     */
     public RMIServerNode(RMIClientNodeInt clientNode) throws RemoteException {
         this.clientNode = clientNode;
         serverPingTask = new ServerPingTask(this);
@@ -39,6 +53,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         aliveLock = new Object();
         ctoSProcessingLock = new Object();
         stoCProcessingLock = new Object();
+        nickname = "Unknown";
 
         statusIsAlive = true;
         destroyCalled = false;
@@ -55,17 +70,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                 resetTimeCounter();
             }
 
-            if(message instanceof PingMessage) {
-                config.getExecutorService().submit(() -> {
-                    try {
-                        logger.debug("PingMessage received");
-                        uploadToClient(new PongMessage(null));
-                    } catch (UploadFailureException e) {
-                        logger.error("Failed to send PongMessage to client");
-                    }
-                });
-                return;
-            }
+            if(message instanceof PingMessage) {return;}
 
             // We can't risk to lose the observability of potential RuntimeExceptions thrown by GameController and Model
             // The server will not crash if such exceptions are thrown, thanks to how the threads are managed, but
@@ -108,6 +113,8 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     public void pingTimeOverdue() {
 
+        boolean tmpDestroy = false;
+
         synchronized (aliveLock) {
 
             if(!statusIsAlive)
@@ -120,12 +127,21 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
             if(pingCount <= 0){
                 statusIsAlive = false;
                 logger.debug("Ping count reached minimum, starting destruction process");
+                tmpDestroy = true;
             }
 
         }
 
-        if(!statusIsAlive)
+        if(tmpDestroy)
             destroy();
+        else
+            config.getExecutorService().submit(() -> {
+                try {
+                    uploadToClient(new PongMessage(nickname));
+                } catch (UploadFailureException e) {
+                    logger.error("Failed to send PongMessage to client");
+                }
+            });
 
     }
 
@@ -138,6 +154,7 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
                 return;
 
             pingCount = config.getMaxPingCount();
+            logger.debug("Ping count reset");
         }
     }
 
@@ -171,10 +188,19 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     }
 
+    /**
+     * Set the {@code GameController} associated with this {@code RMIServerNode}. All incoming messages will be
+     * processed by this {@code GameController}.
+     * Invoking this method will also add a new {@link ServerPingTask} to the {@code GameController} timer for pinging
+     * the client
+     *
+     * @param gameController the instance of {@code GameController}
+     */
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
 
-        gameController.getTimer().scheduleAtFixedRate(serverPingTask, 0, Configuration.getInstance().getPingTimeInterval());
+        gameController.getTimer().scheduleAtFixedRate(serverPingTask,
+                Configuration.getInstance().getPingTimeInterval(), Configuration.getInstance().getPingTimeInterval());
     }
 
 }

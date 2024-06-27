@@ -95,7 +95,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         executorService = Executors.newCachedThreadPool();
         clientPingTask = new ClientPingTask(this);
         prePingTask = new ClientPingTask(this);
-        timer.schedule(prePingTask, 0, PINGINTERVAL);
+        timer.scheduleAtFixedRate(prePingTask, PINGINTERVAL, PINGINTERVAL);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             }
 
             try {
-                serverNode.uploadCtoS(message); // TODO il numero di partita in realtà non server
+                serverNode.uploadCtoS(message);
                 logger.info("Message sent. Type: CtoSMessage: {}", message);
 
             } catch (NodeClosedException e) {
@@ -157,8 +157,8 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             }
 
             try {
-                // TODO ritorniamo solo l'interfaccia RMI e non il num di partita perchè non serve??
-                serverNode = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message).getNode();
+
+                serverNode = rmiClientAcceptor.uploadToServer((RMIClientNodeInt) this, message);
 
                 synchronized (aliveLock){
                     nodePreState = false;
@@ -167,7 +167,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
                 logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
 
-                timer.scheduleAtFixedRate(clientPingTask, 0, PINGINTERVAL);
+                timer.scheduleAtFixedRate(clientPingTask, PINGINTERVAL, PINGINTERVAL);
 
             } catch (RemoteException e) {
 
@@ -236,7 +236,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             prePingTask = new ClientPingTask(this);
             view.nodeDisconnected();
 
-            executorService.execute(this::resetConnection);
+            executorService.submit(this::resetConnection);
         }
     }
 
@@ -274,7 +274,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             nodePreState = true;
             statusIsAlive = true;
             pongCount = PONGMAXCOUNT;
-            timer.schedule(prePingTask, 0, PINGINTERVAL);
+            timer.scheduleAtFixedRate(prePingTask, PINGINTERVAL, PINGINTERVAL);
             logger.info("Connection established");
             view.nodeReconnected();
         }

@@ -3,7 +3,7 @@ package it.polimi.ingsw.am32.message.ClientToServer;
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.controller.GamesManager;
 import it.polimi.ingsw.am32.controller.exceptions.*;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 /**
  * This class is used to manage the message sent by the client when he wants to reconnect to a game.
  */
@@ -40,7 +40,7 @@ public class ReconnectGameMessage implements CtoSLobbyMessage {
      *
      */
     @Override
-    public GameController elaborateMessage(NodeInterface nodeInterface) throws GameAlreadyEndedException,
+    public GameController elaborateMessage(ServerNodeInterface nodeInterface) throws GameAlreadyEndedException,
             GameNotFoundException, PlayerAlreadyConnectedException, GameNotYetStartedException, CTRPlayerNotFoundException {
         return GamesManager.getInstance().reconnectToGame(senderNickname, matchId, nodeInterface);
     }

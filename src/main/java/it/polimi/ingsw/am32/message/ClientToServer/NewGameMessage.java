@@ -3,7 +3,7 @@ package it.polimi.ingsw.am32.message.ClientToServer;
 import it.polimi.ingsw.am32.controller.GameController;
 import it.polimi.ingsw.am32.controller.GamesManager;
 import it.polimi.ingsw.am32.controller.exceptions.InvalidPlayerNumberException;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 
 /**
  * This class represents a message that is sent from the client to the server when a new game is created.
@@ -38,7 +38,7 @@ public class NewGameMessage implements CtoSLobbyMessage {
      * @throws InvalidPlayerNumberException If the player count is not between 2 and 4
      */
     @Override
-    public GameController elaborateMessage(NodeInterface nodeInterface) throws InvalidPlayerNumberException {
+    public GameController elaborateMessage(ServerNodeInterface nodeInterface) throws InvalidPlayerNumberException {
         return GamesManager.getInstance().createGame(senderNickname, playerNum, nodeInterface);
     }
 

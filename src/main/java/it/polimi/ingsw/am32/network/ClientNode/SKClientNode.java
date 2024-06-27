@@ -8,6 +8,7 @@ import it.polimi.ingsw.am32.message.ServerToClient.PongMessage;
 import it.polimi.ingsw.am32.message.ServerToClient.StoCMessage;
 import it.polimi.ingsw.am32.network.exceptions.ConnectionSetupFailedException;
 import it.polimi.ingsw.am32.network.exceptions.NodeClosedException;
+import it.polimi.ingsw.am32.network.exceptions.UploadFailureException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,6 +24,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
     private static final int PONGMAXCOUNT = 3;
     private static final int SOCKETTIMEOUT = 100;
+    private static final int PINGINTERVAL = 5000;
 
     private final Logger logger;
     private final ExecutorService executorService;
@@ -30,7 +32,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     private final View view;
     private final String ip;
     private final int port;
-    private String nickname;
+    private final String nickname;
     private int pongCount;
 
     private Socket socket;
@@ -62,6 +64,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             logger.info("Attempting to connect to the server at {}:{}", ip, port);
 
             socket = new Socket(ip, port);
+            //socket.setSoTimeout(SOCKETTIMEOUT*100); // Time out sulle read sulla input stream in caso qualcosa vada storto
             outputObtStr = new ObjectOutputStream(socket.getOutputStream());
             outputObtStr.flush();
             inputObtStr = new ObjectInputStream(socket.getInputStream());
@@ -101,7 +104,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         aliveLock = new Object();
         cToSProcessingLock = new Object();
         sToCProcessingLock = new Object();
-        timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+        timer.scheduleAtFixedRate(clientPingTask, PINGINTERVAL, PINGINTERVAL);
     }
 
     public void run() {
@@ -162,42 +165,50 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
     }
 
     @Override
-    public void uploadToServer(CtoSLobbyMessage message) {
+    public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
 
-        while (true) { //TODO cambiare il while
-            try {
-                synchronized (cToSProcessingLock) {
-                    outputObtStr.writeObject(message);
+        try {
+            synchronized (cToSProcessingLock) {
+                outputObtStr.writeObject(message);
 
-                    try {
-                        outputObtStr.flush();
-                    } catch (IOException ignore) {}
-                }
-                logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
-                break;
-            } catch (IOException | NullPointerException e) {
-                resetConnection();
+                try {
+                    outputObtStr.flush();
+                } catch (IOException ignore) {}
             }
+
+            logger.info("Message sent. Type: CtoSLobbyMessage. Content: {}", message);
+
+        } catch (IOException | NullPointerException e) {
+
+            logger.info("Failed to send CtoSLobbyMessage to server. Exception: {}", e.getMessage());
+
+            executorService.submit(this::resetConnection);
+
+            throw new UploadFailureException();
         }
     }
 
     @Override
-    public void uploadToServer(CtoSMessage message) {
+    public void uploadToServer(CtoSMessage message) throws UploadFailureException {
 
-        while (true) { //TODO cambiare il while
-            try {
-                synchronized (cToSProcessingLock) {
-                    outputObtStr.writeObject(message);
+        try {
+            synchronized (cToSProcessingLock) {
+                outputObtStr.writeObject(message);
 
-                    try {
-                        outputObtStr.flush();
-                    } catch (IOException ignore) {}
-                }
-                logger.info("Message sent. Type: CtoSMessage: {}", message);
-                break;
-            } catch (IOException | NullPointerException e) {
-                resetConnection();
+                try {
+                    outputObtStr.flush();
+                } catch (IOException ignore) {}
             }
+
+            logger.info("Message sent. Type: CtoSMessage: {}", message);
+
+        } catch (IOException | NullPointerException e) {
+
+            logger.info("Failed to send CtoSMessage to server. Exception: {}", e.getMessage());
+
+            executorService.submit(this::resetConnection);
+
+            throw new UploadFailureException();
         }
     }
 
@@ -314,7 +325,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             reconnectCalled = false;
             pongCount = PONGMAXCOUNT;
             aliveLock.notifyAll();
-            timer.scheduleAtFixedRate(clientPingTask, 0, 5000);
+            timer.scheduleAtFixedRate(clientPingTask, PINGINTERVAL, PINGINTERVAL);
             view.nodeReconnected();
         }
     }

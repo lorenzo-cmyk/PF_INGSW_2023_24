@@ -7,7 +7,7 @@ import it.polimi.ingsw.am32.controller.exceptions.VirtualViewNotFoundException;
 import it.polimi.ingsw.am32.message.ServerToClient.*;
 import it.polimi.ingsw.am32.model.exceptions.DuplicateNicknameException;
 import it.polimi.ingsw.am32.model.exceptions.PlayerNotFoundException;
-import it.polimi.ingsw.am32.network.ServerNode.NodeInterface;
+import it.polimi.ingsw.am32.network.ServerNode.ServerNodeInterface;
 import org.junit.jupiter.api.*;
 
 import java.lang.reflect.Field;
@@ -21,8 +21,8 @@ public class GameControllerTest {
     // GameController objects used for testing
     private GameController gameController;
 
-    // Stub class for NodeInterface. This class is used to test the GameController class.
-    private static class NodeInterfaceStub implements NodeInterface {
+    // Stub class for ServerNodeInterface. This class is used to test the GameController class.
+    private static class NodeInterfaceStub implements ServerNodeInterface {
         private final ArrayList<StoCMessage> internalMessages;
         public NodeInterfaceStub() {
             internalMessages = new ArrayList<>();

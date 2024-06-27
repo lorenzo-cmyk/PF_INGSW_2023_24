@@ -363,7 +363,7 @@ public class Configuration {
      * @param serverPingTask is the {@code ServerPingTask} to be scheduled
      */
     public void addTimerTask(ServerPingTask serverPingTask) {
-        notLinkedSocketTimer.scheduleAtFixedRate(serverPingTask, 0, pingTimeInterval);
+        notLinkedSocketTimer.scheduleAtFixedRate(serverPingTask, pingTimeInterval, pingTimeInterval);
     }
 
     /**
