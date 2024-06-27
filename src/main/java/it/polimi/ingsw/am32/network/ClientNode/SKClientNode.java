@@ -39,6 +39,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
      */
     private static final int PONGMAXCOUNT = 3;
     private static final int SOCKETTIMEOUT = 100;
+    private static final int THREADSLEEPINTERVAL = 100;
     private static final int PINGINTERVAL = 5000;
 
     /**
@@ -104,7 +105,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
         this.port = port;
         statusIsAlive = true;
         reconnectCalled = false;
-        pongCount = PONGMAXCOUNT; // todo fare un config??
+        pongCount = PONGMAXCOUNT;
         nickname = "Unknown";
 
         logger = LogManager.getLogger(SKClientNode.class);
@@ -213,8 +214,6 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             // logger.debug("Socket timeout exception"); Disabled because it's too verbose
             return;
         }
-
-        // TODO server sync??
 
         resetTimeCounter();
 
@@ -431,7 +430,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
 
                         logger.debug("Failed to connect to {}:{}", ip, port);
                         try {
-                            Thread.sleep(100); // TODO parametrizzazione con config?
+                            Thread.sleep(THREADSLEEPINTERVAL);
                         } catch (InterruptedException ignore2) {}
 
                         continue;
@@ -511,7 +510,7 @@ public class SKClientNode implements ClientNodeInterface, Runnable {
             if (!statusIsAlive)
                 return;
 
-            pongCount = PONGMAXCOUNT; // TODO modificare se si aggiunge config
+            pongCount = PONGMAXCOUNT;
         }
 
         logger.debug("Pong count reset");

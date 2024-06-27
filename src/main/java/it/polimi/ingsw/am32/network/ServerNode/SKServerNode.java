@@ -193,7 +193,6 @@ public class SKServerNode implements Runnable, ServerNodeInterface {
                     "Stack Trace: {}\n",
                     e.getMessage(), e.getLocalizedMessage(), Arrays.toString(e.getStackTrace()));
 
-            //TODO risolvere meglio gli errori
             destroy();
 
         } catch (NodeClosedException e) {
@@ -282,8 +281,7 @@ public class SKServerNode implements Runnable, ServerNodeInterface {
                 // As expected, the gameController has not yet been assigned
                 try {
                     gameController = ((CtoSLobbyMessage) message).elaborateMessage(this);
-                    // TODO forse è meglio mettere il messaggio di errore nell'exception
-                    // TODO sincronizzare ??
+
                     notLinkedPingTask.cancel();
                     config.purgeTimer();
                     gameController.getTimer().scheduleAtFixedRate(serverPingTask,

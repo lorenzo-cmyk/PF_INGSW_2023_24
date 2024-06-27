@@ -170,7 +170,6 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
                 if(serverNode == null) {
 
                     logger.error("Attempt to send CtoSMessage before CtoSLobbyMessage. Upload rejected. Message: {}", message);
-                    // TODO aggiungere di dire errore alla view
                     throw new UploadFailureException();
                 }
 
@@ -221,7 +220,6 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
                 if(serverNode != null) {
 
                     logger.error("Attempt to send second CtoSLobbyMessage while RMIServerNode still valid. Upload rejected. Message: {}", message);
-                    // TODO aggiungere di dire errore alla view
                     throw new UploadFailureException();
                 }
 
@@ -250,10 +248,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
 
                 throw new UploadFailureException();
 
-            } catch (LobbyMessageException ignore) {
-
-                // TODO come faccio la parte in cui il node è ancora connesso
-            }
+            } catch (LobbyMessageException ignore) {}
         }
     }
 
@@ -458,7 +453,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
             if (!statusIsAlive)
                 return;
 
-            pongCount = PONGMAXCOUNT; // TODO modificare se si aggiunge config
+            pongCount = PONGMAXCOUNT;
         }
 
         logger.debug("Pong count reset");

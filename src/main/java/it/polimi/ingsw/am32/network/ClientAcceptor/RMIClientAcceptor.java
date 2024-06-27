@@ -93,8 +93,6 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
             // The Server will not crash because how the thread is managed, but we need to know what happened to fix it in the future.
             // Do not remove this catch block. Remove the throws clause if needed but keep the logger.
 
-            // TODO mandiamo ErrorMessage anche qui?
-
             rmiServerNode.destroy();
             logger.fatal("GameController access failed due to a critical exception: {}", e.getMessage());
             throw e;
