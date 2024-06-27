@@ -203,7 +203,7 @@ public class TextUI extends View{
         askSelectGameMode();
 
         boolean isEnd = false;
-        while (!isEnd) { // TODO think about a better way to handle the flow of the game
+        while (!isEnd) {
 
             while(isDisconnected) {
                 if(canAttemptReconnection) {
@@ -226,7 +226,7 @@ public class TextUI extends View{
                         requestSelectSecretObjectiveCard();
                     }
                 }
-                case PLAYING, TERMINATING -> { // TODO Double check what to do when terminating
+                case PLAYING, TERMINATING -> {
                     switch (currentEvent) {
                         case PLACE_CARD -> requestPlaceCard();
                         case DRAW_CARD -> requestDrawCard();
@@ -582,7 +582,7 @@ public class TextUI extends View{
         int posX = -2 * y + 80;
         int posY = 2 * x + 80;
         // reset the space occupied by the card in the board
-        board[posX][posY] = BLANK; //TODO CHECK PRINT WITH THE TEMPORARY
+        board[posX][posY] = BLANK;
         board[posX - 1][posY] = BLANK;
         board[posX + 1][posY] = BLANK;
         board[posX][posY - 1] = BLANK;
@@ -1251,7 +1251,7 @@ public class TextUI extends View{
         board limits. In this way, the player can see the available positions for the next turn of the placement.*/
         if (playerNickname.equals(thisPlayerNickname)) {
             if(!currentEvent.equals(Event.RECONNECT_GAME)) {
-                availableSpaces.removeIf(pos -> pos[0] == x && pos[1] == y); //TODO check if exists another way to do this
+                availableSpaces.removeIf(pos -> pos[0] == x && pos[1] == y);
                 for (int[] pos : availableSpaces) { // delete the old available positions in the board.
                     posX = -2 * pos[1] + 80;
                     posY = 2 * pos[0] + 80;
@@ -1410,13 +1410,13 @@ public class TextUI extends View{
             // Send a message
             if (recipient.equals("ALL")) { // Send a message in broadcast
                 ChatMessage message = new ChatMessage(thisPlayerNickname, "ALL", true, messageContent);
-                chatHistory.add(message); // FIXME Is this needed? RESOLVED: Yes, it is needed, because in the chat history, the player should be able to see the messages that he sent.
+                chatHistory.add(message);
                 if(!isDisconnected) {
                     notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, true, messageContent));
                 }
             } else { // Send a direct message
                 ChatMessage message = new ChatMessage(thisPlayerNickname, recipient, false, messageContent);
-                chatHistory.add(message); // FIXME Is this needed? RESOLVED: Yes, it is needed, because in the chat history, the player should be able to see the messages that he sent.
+                chatHistory.add(message);
                 if(!isDisconnected) {
                     notifyAskListener(new InboundChatMessage(thisPlayerNickname, recipient, false, messageContent));
                 }
