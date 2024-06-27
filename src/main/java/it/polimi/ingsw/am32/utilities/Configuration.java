@@ -219,8 +219,6 @@ public class Configuration {
      */
     protected String serverIpValidator(String ipToValidate , String lastValidIp) {
 
-        // TODO rivalutare algoritmo
-
         char[] workingIp = ipToValidate.toCharArray();
         int prevIndex = 0;
         int counter = 0;

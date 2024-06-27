@@ -114,7 +114,6 @@ public class Server {
         try {
             System.setProperty("java.rmi.server.hostname", Configuration.getInstance().getServerIp());
             Registry registry = LocateRegistry.createRegistry(Configuration.getInstance().getRmiPort());
-            //FIXME problema se registro esiste gia
             RMIClientAcceptor rmiClientAcceptor = new RMIClientAcceptor();
             registry.bind("Server-CodexNaturalis", rmiClientAcceptor);
             logger.debug("RMI Client Acceptor created");
