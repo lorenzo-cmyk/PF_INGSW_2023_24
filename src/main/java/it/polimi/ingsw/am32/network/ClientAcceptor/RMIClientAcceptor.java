@@ -41,6 +41,7 @@ public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientA
 
     /**
      * Standard constructor of the class.
+     * @throws RemoteException thrown if the object couldn't be exported
      */
     public RMIClientAcceptor() throws RemoteException {}
 
