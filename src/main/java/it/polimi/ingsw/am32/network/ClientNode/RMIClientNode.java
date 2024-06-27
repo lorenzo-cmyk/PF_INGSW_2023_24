@@ -25,6 +25,14 @@ import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * RMIClientNode is the class that manage the connection with the server. <br>
+ * It implements the {@link ClientNodeInterface} interface and extends {@link UnicastRemoteObject}. <br>
+ * Is necessary and enough to instantiate one instance of this class to connect to the server. <br>
+ * If the connection were to go down, the instance will automatically try to reset and reconnect. <br>
+ *
+ * @author Matteo
+ */
 public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInterface, RMIClientNodeInt {
 
 
@@ -42,7 +50,7 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private final String ip;
     private final int port;
     private int pongCount;
-    private String nickname;
+    private final String nickname;
 
     private Registry registry;
     private RMIClientAcceptorInt rmiClientAcceptor;
@@ -58,7 +66,20 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
     private final Object cToSProcessingLock;
     private final Object sToCProcessingLock;
 
-
+    /**
+     * Standard constructor of the class. <br>
+     * It will try to connect to search for the {@link Registry} and the {@link it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor}
+     * on the server. <br>
+     * If any of the two is not found, it will throw a {@link ConnectionSetupFailedException} implying that the connection
+     * is not possible. <br>
+     * Additionally, it will schedule a {@link ClientPingTask} to periodically check the connection with the server. <br>
+     *
+     * @param view is the instance of {@link View} the {@link RMIClientNode} will use to process the messages received
+     * @param ip is the ip of the server
+     * @param port is the port of the server
+     * @throws RemoteException thrown if, during the instantiation, there were some problems
+     * @throws ConnectionSetupFailedException thrown if the connection is not possible
+     */
     public RMIClientNode(View view, String ip, int port) throws RemoteException, ConnectionSetupFailedException {
         this.view = view;
         this.ip = ip;
@@ -98,6 +119,16 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         timer.scheduleAtFixedRate(prePingTask, PINGINTERVAL, PINGINTERVAL);
     }
 
+    /**
+     * Check if the {@code RMIClientNode} is not alive or if the {@code RMIClientNode} is in pre-game state. <br>
+     * In both cases, the method will throw a {@link UploadFailureException}. <br>
+     * If those conditions are not met, the method will try to send the message to the server. <br>
+     * If the server is not reachable or the respective {@link it.polimi.ingsw.am32.network.ServerNode.RMIServerNode} is
+     * closed, the method will request a reset and reconnection process and throw a {@link UploadFailureException}. <br>
+     *
+     * @param message is the message that the client wants to send
+     * @throws UploadFailureException if the message could not be sent
+     */
     @Override
     public void uploadToServer(CtoSMessage message) throws UploadFailureException {
 
@@ -139,6 +170,17 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
     }
 
+    /**
+     * Check if the {@code RMIClientNode} is not alive or if the {@code RMIClientNode} is not in a pre-game state. <br>
+     * In both cases, the method will throw a {@link UploadFailureException}. <br>
+     * If those conditions are not met, the method will try to send the message to the
+     * {@link it.polimi.ingsw.am32.network.ClientAcceptor.RMIClientAcceptor} to process the {@link CtoSLobbyMessage}. <br>
+     * If the processing is successful, the pre-existing {@link ClientPingTask} will be cancelled and a new one will be
+     * scheduled. At the same time the {@code RMIClientNode} will switch from pre-game state to game state. <br>
+     *
+     * @param message is the message that the client wants to send
+     * @throws UploadFailureException if the message could not be sent
+     */
     @Override
     public void uploadToServer(CtoSLobbyMessage message) throws UploadFailureException {
 
@@ -184,6 +226,15 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
     }
 
+    /**
+     * If the {@code RMIClientNode} is not alive, the method will return immediately. <br>
+     * If the {@code RMIClientNode} is alive, the method will invoke {@link #resetTimeCounter()}
+     * Finally, after checking if the message is valid, the method will process it by calling the
+     * {@link StoCMessage#processMessage(View)} method. <br>
+     *
+     * @param message a {@link StoCMessage} that the client has to process
+     * @throws NodeClosedException if the {@code RMIClientNode} is not alive
+     */
     @Override
     public void uploadStoC(StoCMessage message) throws NodeClosedException {
 
@@ -217,6 +268,14 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
     }
 
+    /**
+     * If the {@code RMIClientNode} is not alive or this method is called for more than one time before the termination
+     * of the reset and reconnection process, the method will return immediately. <br>
+     * If not, all {@link ClientPingTask} will be cancelled, the timer will be purged and the {@code RMIClientNode} will
+     * be set to not alive. <br>
+     * Finally, the thread will inform the {@link View} that the node has been disconnected and will task another thread
+     * to carry out the reset and reconnection process. <br>
+     */
     private void requestReconnection() {
 
         synchronized (aliveLock) {
@@ -240,6 +299,15 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
     }
 
+    /**
+     * tries infinitely to find the {@link Registry} and the {@link RMIClientAcceptorInt} on the server. <br>
+     * If the {@code  Registry} and the {@code  RMIClientAcceptorInt} is not found, the method will wait for a certain
+     * amount of time before trying again. <br>
+     * Once the {@code RMIClientAcceptorInt} is found, the ClientNode will be set to alive and to a pre-game state. <br>
+     * Then a new {@link ClientPingTask} will be scheduled to periodically check the connection with the server and set
+     * the pong count to its maximum. <br>
+     * Finally, the method will inform the {@link View} that the node has been reconnected. <br>
+     */
     private void resetConnection () {
 
         while(true){
@@ -280,11 +348,24 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
     }
 
+    /**
+     * Start the connection with the server. <br>
+     */
     public void startConnection() {
 
         logger.debug("RMIClientNode started");
     }
 
+    /**
+     * If the {@code RMIClientNode} is not alive, the method will return immediately. <br>
+     * If the {@code RMIClientNode} is alive, the method will check whether the ClientNode is in pre-game state or not. <br>
+     * If the ClientNode is in pre-game state, the method will assign to another thread the task of calling the
+     * {@link RMIClientAcceptorInt#extraPing()} method. <br>
+     * IF the ClientNode is not in pre-game state, the method will decrement the pong count. <br>
+     * If the pong count reaches 0, the {@code RMIClientNode} will start the reset and reconnection process. <br>
+     * On the other hand, if the pong count is still more than 0 after decrementing, the client will send a
+     * {@link PingMessage} to the server.
+     */
     @Override
     public void pongTimeOverdue() {
 
@@ -336,6 +417,9 @@ public class RMIClientNode extends UnicastRemoteObject implements ClientNodeInte
         }
     }
 
+    /**
+     * Reset the pong count to the maximum value if the {@code RMIClientNode} is alive.
+     */
     public void resetTimeCounter() {
 
         synchronized (aliveLock) {
