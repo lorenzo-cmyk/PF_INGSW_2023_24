@@ -18,18 +18,49 @@ public class Player {
     //---------------------------------------------------------------------------------------------
     // Variables and Constants
 
+    /**
+     * The nickname of the player
+     */
     private final String nickname;
+    /**
+     * The field of the player
+     */
     private Field gameField;
+    /**
+     * The secret objective of the player
+     */
     private Card secretObjective;
+    /**
+     * The colour assigned of the player
+     */
     private Colour colour;
+    /**
+     * The points owned of the player
+     */
     private int points;
+    /**
+     * The hand of the player
+     */
     private ArrayList<NonObjectiveCard> hand;
+    /**
+     * The two cards that the player can choose as secret objective
+     */
     private final Card[] tmpSecretObj;
+    /**
+     * The points gained from the objectives
+     */
     private int pointsGainedFromObjectives = 0;
+    /**
+     * The state of the points gained from the objectives
+     */
     private final boolean[] objectivePointsState = new boolean[]{false, false};
-
+    /**
+     * The number of cards that the player can choose as secret objective
+     */
     private final static int secObjOptions = 2;
-
+    /**
+     * The old points of the player; used for rollback
+     */
     private int oldPoints;
 
     //---------------------------------------------------------------------------------------------
