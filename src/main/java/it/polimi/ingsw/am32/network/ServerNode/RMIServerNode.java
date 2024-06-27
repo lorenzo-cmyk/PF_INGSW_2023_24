@@ -24,6 +24,9 @@ import java.rmi.server.UnicastRemoteObject;
  */
 public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeInt, ServerNodeInterface {
 
+    //---------------------------------------------------------------------------------------------
+    // Variables and Constants
+
     private final static Logger logger = LogManager.getLogger(RMIServerNode.class);
 
     private final Configuration config;
@@ -37,6 +40,10 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
     private final Object aliveLock;
     private final Object ctoSProcessingLock;
     private final Object stoCProcessingLock;
+
+
+    //---------------------------------------------------------------------------------------------
+    // Constructor
 
     /**
      * Standard constructor of the class
@@ -58,6 +65,10 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         statusIsAlive = true;
         destroyCalled = false;
     }
+
+
+    //---------------------------------------------------------------------------------------------
+    // Methods
 
     /**
      * Send a {@link CtoSMessage} to the {@link RMIServerNode}. The server will process it and send back a

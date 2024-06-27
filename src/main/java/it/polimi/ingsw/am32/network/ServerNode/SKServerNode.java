@@ -33,6 +33,9 @@ import java.util.Arrays;
  */
 public class SKServerNode implements Runnable, ServerNodeInterface {
 
+    //---------------------------------------------------------------------------------------------
+    // Variables and Constants
+
     private final Logger logger;
     private final Configuration config;
     private GameController gameController;
@@ -48,6 +51,10 @@ public class SKServerNode implements Runnable, ServerNodeInterface {
     private final Object aliveLock;
     private final Object ctoSProcessingLock;
     private final Object stoCProcessingLock;
+
+
+    //---------------------------------------------------------------------------------------------
+    // Constructor
 
     /**
      * Standard constructor of the class. <br>
@@ -131,6 +138,10 @@ public class SKServerNode implements Runnable, ServerNodeInterface {
         notLinkedPingTask = new ServerPingTask(this);
         config.addTimerTask(notLinkedPingTask);
     }
+
+
+    //---------------------------------------------------------------------------------------------
+    // Methods
 
     /**
      * Method that starts the reading of the incoming messages from the input stream of the client. <br>
