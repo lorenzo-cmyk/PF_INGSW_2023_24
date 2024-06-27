@@ -17,6 +17,14 @@ import org.apache.logging.log4j.Logger;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+/**
+ * The class {@code RMIClientAcceptor} is the implementation of the RMI methods that the interface
+ * {@link RMIClientAcceptorInt} expose to the clients. <br>
+ * an instance of {@link it.polimi.ingsw.am32.network.ClientNode.RMIClientNode} invoke those methods on the server
+ * when the client hasn't joined yet a game. <br>
+ *
+ * @author Matteo
+ */
 public class RMIClientAcceptor extends UnicastRemoteObject implements RMIClientAcceptorInt {
 
     //---------------------------------------------------------------------------------------------
