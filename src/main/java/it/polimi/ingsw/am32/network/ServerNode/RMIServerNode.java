@@ -17,7 +17,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 /**
- * Each instance of class {@code RMIServerNode} handle une RMI connection with a client.
+ * Each instance of class {@code RMIServerNode} handle une RMI connection with a client.<br>
  * If, at some point, the connection were to go down, this instance while begin automatically a termination process
  *
  * @author Matteo
@@ -59,6 +59,15 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         destroyCalled = false;
     }
 
+    /**
+     * Send a {@link CtoSMessage} to the {@link RMIServerNode}. The server will process it and send back a
+     * {@link StoCMessage} according to the situation.<br>
+     * If the ServerNode is not alive, a {@link NodeClosedException} will be thrown.
+     *
+     * @param message a {@link CtoSMessage} that the server has to process
+     * @throws RemoteException if the method couldn't be invoked on the server
+     * @throws NodeClosedException if the {@code RMIServerNode} is not alive
+     */
     public void uploadCtoS(CtoSMessage message) throws RemoteException, NodeClosedException {
 
         synchronized (ctoSProcessingLock) {
@@ -85,6 +94,15 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         }
     }
 
+    /**
+     * Send a {@link StoCMessage} to the client. <br>
+     * If the client is not alive or the connection had issues and the message couldn't reach the client, a
+     * {@link UploadFailureException} will be thrown. <br>
+     * If any of the two exceptions is thrown, the {@code RMIServerNode} will start the destruction process.
+     *
+     * @param message is the message that the server wants to send
+     * @throws UploadFailureException if the message couldn't be sent to the client
+     */
     public void uploadToClient(StoCMessage message) throws UploadFailureException {
 
         try {
@@ -111,6 +129,13 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         }
     }
 
+    /**
+     * If the {@code RMIServerNode} is not alive, the method will return immediately. <br>
+     * If the {@code RMIServerNode} is alive, the ping count will be decremented. <br>
+     * If the ping count reaches 0, the {@code RMIServerNode} will start the destruction process. <br>
+     * On the other hand, if the ping count is still more than 0 after decrementing, the server will send a
+     * {@link PongMessage} to the client.
+     */
     public void pingTimeOverdue() {
 
         boolean tmpDestroy = false;
@@ -145,6 +170,9 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
 
     }
 
+    /**
+     * Reset the ping count to the maximum value if the server is alive. <br>
+     */
     @Override
     public void resetTimeCounter() {
 
@@ -158,6 +186,12 @@ public class RMIServerNode extends UnicastRemoteObject implements RMIServerNodeI
         }
     }
 
+    /**
+     * Destroy the {@code RMIServerNode}. <br>
+     * The method will stop the {@link ServerPingTask} and will disconnect the {@code RMIServerNode} from the
+     * {@code GameController} if already assigned. <br>
+     * The method will also unexport the {@code RMIServerNode} from the RMI registry.
+     */
     public void destroy() {
 
         synchronized (aliveLock) {
