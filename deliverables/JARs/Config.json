@@ -1,9 +1,0 @@
-{
-  "socketPort": 30000,
-  "rmiPort": 30001,
-  "pingTimePeriod": 5000,
-  "socketReadTimeout": 100,
-  "maxPingCount": 3,
-  "serverIp": "192.168.178.20",
-  "endGameDueToDisconnectionTimeout": 120000
-}
