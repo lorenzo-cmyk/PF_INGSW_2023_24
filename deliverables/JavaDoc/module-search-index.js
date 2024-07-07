@@ -1,1 +1,0 @@
-moduleSearchIndex = [{"l":"it.polimi.ingsw.am32"}];updateSearchResults();
